@@ -1,0 +1,48 @@
+{
+    "private": true,
+    "version": "0.0.1",
+    "packageManager": "pnpm@10.7.0",
+    "scripts": {
+        "build": "tsc -b",
+        "watch": "pnpm run \"/^watch:.*/\"",
+        "watch:base": "tsc -b -w",
+        "lint": "eslint --cache .",
+        "format": "prettier --write --cache .",
+        "format-check": "prettier --check --cache .",
+        "test": "vitest",
+        "preinstall": "npx only-allow pnpm",
+        "postinstall": "simple-git-hooks"
+    },
+    "simple-git-hooks": {
+        "pre-commit": "pnpm lint-staged",
+        "commit-msg": "pnpm commitlint --edit ${1}"
+    },
+    "lint-staged": {
+        "*.{js,json}": [
+            "prettier --write --cache"
+        ],
+        "*.ts": [
+            "eslint --fix --cache",
+            "prettier --parser=typescript --write --cache"
+        ]
+    },
+    "engines": {
+        "node": ">=20.11.0"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^18.4.3",
+        "@commitlint/config-conventional": "^18.4.3",
+        "@types/node": "^22.13.14",
+        "@typescript-eslint/eslint-plugin": "^6.13.2",
+        "@typescript-eslint/parser": "^6.13.2",
+        "eslint": "^8.55.0",
+        "lint-staged": "^15.2.0",
+        "prettier": "^3.5.3",
+        "simple-git-hooks": "^2.9.0",
+        "typescript": "^5.8.2"
+    },
+    "pnpm": {
+        "overrides": {},
+        "onlyBuiltDependencies": []
+    }
+}

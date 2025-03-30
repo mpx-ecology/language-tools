@@ -1,0 +1,16 @@
+out
+dist
+node_modules
+*.tsbuildinfo
+*.vsix
+.vscode-test-web
+extensions/*/meta.json
+extensions/*/stats.html
+extensions/vscode/src/generated-meta.ts
+
+packages/*/*.d.ts
+packages/*/*.js
+packages/*/*.map
+packages/*/lib/**/*.d.ts
+packages/*/lib/**/*.js
+packages/*/lib/**/*.map
