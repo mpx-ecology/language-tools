@@ -1,8 +1,12 @@
 {
-    "extends": "./tsconfig.base.json",
-    "compilerOptions": {
-        "noEmit": true
-    },
-    "include": ["packages/*/__tests__"],
-    "references": [{ "path": "./packages/vscode/tsconfig.json" }]
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["packages/*/__tests__"],
+  "references": [
+    {
+      "path": "./vscode/tsconfig.json"
+    }
+  ]
 }

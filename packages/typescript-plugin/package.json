@@ -1,0 +1,21 @@
+{
+  "name": "@mpxjs/typescript-plugin",
+  "version": "0.0.1",
+  "license": "MIT",
+  "files": [
+    "**/*.js",
+    "**/*.d.ts"
+  ],
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "",
+    "directory": "packages/typescript-plugin"
+  },
+  "dependencies": {
+    "@volar/typescript": "~2.4.11"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.4"
+  }
+}

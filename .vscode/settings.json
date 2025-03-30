@@ -1,0 +1,6 @@
+{
+  "files.exclude": {
+    "**/.eslintcache": true,
+    "**/*.tsbuildinfo": true
+  }
+}

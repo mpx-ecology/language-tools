@@ -2,11 +2,12 @@ out
 dist
 node_modules
 *.tsbuildinfo
+*.eslintcache
 *.vsix
 .vscode-test-web
-extensions/*/meta.json
-extensions/*/stats.html
-extensions/vscode/src/generated-meta.ts
+vscode/meta.json
+vscode/stats.html
+vscode/src/generated-meta.ts
 
 packages/*/*.d.ts
 packages/*/*.js
