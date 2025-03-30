@@ -9,14 +9,11 @@
   "include": ["src"],
   "exclude": ["__tests__"],
   "references": [
-    // {
-    // 	"path": "../language-core/tsconfig.json"
-    // },
     {
-      "path": "../language-service/tsconfig.json"
+      "path": "../language-core/tsconfig.json"
+    },
+    {
+      "path": "../typescript-plugin/tsconfig.json"
     }
-    // {
-    // 	"path": "../component-meta/tsconfig.json"
-    // },
   ]
 }

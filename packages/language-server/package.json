@@ -6,12 +6,22 @@
     "**/*.js",
     "**/*.d.ts"
   ],
-  "sideEffects": false,
+  "sideEffects": true,
+  "bin": {
+    "mpx-language-server": "./bin/mpx-language-server.js"
+  },
+  "types": "./out/index.d.ts",
   "repository": {
     "type": "git",
     "url": "",
     "directory": "packages/language-server"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "@mpxjs/language-service": "workspace:*",
+    "@volar/language-core": "~2.4.12",
+    "@volar/language-server": "~2.4.12"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.4"
+  }
 }
