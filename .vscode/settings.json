@@ -1,7 +1,7 @@
 {
   "files.exclude": {
-    "**/.eslintcache": true,
-    "**/*.tsbuildinfo": true
+    "**/.eslintcache": true
+    // "**/*.tsbuildinfo": true
     // "packages/*/*.d.ts": true,
     // "packages/*/*.js": true,
     // "packages/*/*.map": true,
