@@ -18,10 +18,10 @@
   },
   "dependencies": {
     "@mpxjs/language-service": "workspace:*",
-    "@volar/language-core": "~2.4.12",
-    "@volar/language-server": "~2.4.12"
+    "@volar/language-core": "catalog:",
+    "@volar/language-server": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^22.10.4"
+    "@types/node": "catalog:"
   }
 }

@@ -14,10 +14,10 @@
     "directory": "packages/language-core"
   },
   "dependencies": {
-    "@volar/language-core": "~2.4.12",
-    "@vue/compiler-dom": "^3.5.0",
+    "@volar/language-core": "catalog:",
+    "@vue/compiler-dom": "catalog:",
     "@vue/compiler-vue2": "^2.7.16",
-    "@vue/shared": "^3.5.0",
+    "@vue/shared": "catalog:",
     "alien-signals": "^1.0.3",
     "minimatch": "^9.0.3",
     "muggle-string": "^0.4.1",
@@ -25,9 +25,9 @@
   },
   "devDependencies": {
     "@types/minimatch": "^5.1.2",
-    "@types/node": "^22.10.4",
+    "@types/node": "catalog:",
     "@types/path-browserify": "^1.0.1",
-    "@volar/typescript": "~2.4.11",
+    "@volar/typescript": "catalog:",
     "@vue/compiler-sfc": "^3.5.0"
   },
   "peerDependencies": {

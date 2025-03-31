@@ -15,11 +15,12 @@
   },
   "dependencies": {
     "@mpxjs/language-core": "workspace:*",
-    "@volar/language-core": "~2.4.12",
-    "@volar/language-service": "~2.4.12",
-    "@volar/typescript": "~2.4.12"
+    "@volar/language-core": "catalog:",
+    "@volar/language-service": "catalog:",
+    "@volar/typescript": "catalog:",
+    "@vue/compiler-dom": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^22.10.4"
+    "@types/node": "catalog:"
   }
 }

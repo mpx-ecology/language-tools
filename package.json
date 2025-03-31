@@ -6,8 +6,9 @@
     "build": "tsc -b",
     "watch": "pnpm run \"/^watch:.*/\"",
     "watch:base": "tsc -b -w",
+    "watch:vscode": "pnpm -F mpx-vscode run watch",
     "test": "vitest",
-    "clean": "rimraf --glob temp .eslintcache *.tsbuildinfo",
+    "clean": "rimraf --glob .eslintcache \"**/*.tsbuildinfo\"",
     "lint": "eslint --cache .",
     "format": "prettier --write --cache .",
     "format-check": "prettier --check --cache .",
@@ -32,7 +33,7 @@
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
-    "@types/node": "^22.13.14",
+    "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
     "eslint": "^8.55.0",
@@ -42,7 +43,7 @@
     "rimraf": "^6.0.1",
     "simple-git-hooks": "^2.9.0",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "typescript": "catalog:"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

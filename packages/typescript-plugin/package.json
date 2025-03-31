@@ -13,9 +13,9 @@
     "directory": "packages/typescript-plugin"
   },
   "dependencies": {
-    "@volar/typescript": "~2.4.11"
+    "@volar/typescript": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^22.10.4"
+    "@types/node": "catalog:"
   }
 }
