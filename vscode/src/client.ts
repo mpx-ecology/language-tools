@@ -9,7 +9,7 @@ import {
 import * as lsp from '@volar/vscode/node'
 import { createLabsInfo } from '@volar/vscode'
 import * as protocol from '@mpxjs/language-server/out/protocol'
-import { config } from './config'
+import { config, displayName } from './config'
 import {
   activate as activateLanguageClient,
   deactivate as deactivateLanguageClient,
@@ -35,8 +35,8 @@ export const { activate, deactivate } = defineExtension(async () => {
   } else {
     vscode.window
       .showWarningMessage(
-        '为了 Mpx VSCode 插件能正常运行，请先启用 VSCode 内置插件 "TypeScript and JavaScript Language Features"',
-        '去启用插件',
+        `为了 ${displayName} 插件能正常运行，请先启用 VSCode 内置插件 "TypeScript and JavaScript Language Features"`,
+        '启用',
       )
       .then(selected => {
         if (selected) {
@@ -52,8 +52,8 @@ export const { activate, deactivate } = defineExtension(async () => {
     if (legacyExtension) {
       vscode.window
         .showWarningMessage(
-          `启用 Mpx VSCode 插件后，不再需要历史插件 "${legacyExtension.packageJSON.displayName}"，请卸载`,
-          '去卸载插件',
+          `启用 ${displayName} 插件后，历史插件 "${legacyExtension.packageJSON.displayName}" 不再需要，请前往卸载`,
+          '卸载',
         )
         .then(selected => {
           if (selected) {
@@ -162,6 +162,8 @@ try {
   const extensionJsPath = require.resolve('./dist/extension.js', {
     paths: [tsExtension.extensionPath],
   })
+
+  console.log('---> debug😂 extensionJsPath=', extensionJsPath)
 
   // @ts-expect-error ignore
   fs.readFileSync = (...args) => {

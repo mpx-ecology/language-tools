@@ -27,20 +27,20 @@ export const middleware: lsp.Middleware = {
       if (
         params.items.some(
           item =>
-            item.section === 'vue.complete.casing.props' ||
-            item.section === 'vue.complete.casing.tags',
+            item.section === 'mpx.complete.casing.props' ||
+            item.section === 'mpx.complete.casing.tags',
         )
       ) {
         return params.items.map(item => {
           if (item.scopeUri) {
-            if (item.section === 'vue.complete.casing.tags') {
+            if (item.section === 'mpx.complete.casing.tags') {
               const tagNameCasing = tagNameCasings.get(item.scopeUri)
               if (tagNameCasing === TagNameCasing.Kebab) {
                 return 'kebab'
               } else if (tagNameCasing === TagNameCasing.Pascal) {
                 return 'pascal'
               }
-            } else if (item.section === 'vue.complete.casing.props') {
+            } else if (item.section === 'mpx.complete.casing.props') {
               const attrCase = attrNameCasings.get(item.scopeUri)
               if (attrCase === AttrNameCasing.Kebab) {
                 return 'kebab'

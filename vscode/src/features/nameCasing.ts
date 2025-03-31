@@ -37,7 +37,7 @@ export async function activate(
   )
   statusBar.command = {
     title: 'Open Menu',
-    command: 'vue.action.nameCasing',
+    command: 'mpx.action.nameCasing',
   }
 
   watchEffect(() => {
@@ -95,7 +95,7 @@ export async function activate(
     }),
   )
 
-  useCommand('vue.action.nameCasing', async () => {
+  useCommand('mpx.action.nameCasing', async () => {
     if (!activeTextEditor.value?.document) {
       return
     }

@@ -20,7 +20,7 @@ import * as semver from 'semver'
 import * as vscode from 'vscode'
 import { config } from '../config'
 
-const scheme = 'vue-doctor'
+const scheme = 'mpx-doctor'
 const knownValidSyntaxHighlightExtensions = {
   postcss: [
     'cpylua.language-postcss',
@@ -35,7 +35,7 @@ export async function activate(client: BaseLanguageClient) {
   const item = useStatusBarItem({
     alignment: vscode.StatusBarAlignment.Right,
     backgroundColor: new vscode.ThemeColor('statusBarItem.warningBackground'),
-    command: 'vue.action.doctor',
+    command: 'mpx.action.doctor',
   })
 
   const activeTextEditor = useActiveTextEditor()
@@ -43,11 +43,11 @@ export async function activate(client: BaseLanguageClient) {
 
   watchEffect(updateStatusBar)
 
-  useCommand('vue.action.doctor', () => {
+  useCommand('mpx.action.doctor', () => {
     const doc = activeTextEditor.value?.document
     if (
       doc &&
-      (doc.languageId === 'vue' || doc.uri.toString().endsWith('.vue')) &&
+      (doc.languageId === 'mpx' || doc.uri.toString().endsWith('.mpx')) &&
       doc.uri.scheme === 'file'
     ) {
       executeCommand('markdown.showPreviewToSide', getDoctorUri(doc.uri))
@@ -88,8 +88,8 @@ export async function activate(client: BaseLanguageClient) {
     if (
       config.doctor.status &&
       editor &&
-      (editor.document.languageId === 'vue' ||
-        editor.document.uri.toString().endsWith('.vue')) &&
+      (editor.document.languageId === 'mpx' ||
+        editor.document.uri.toString().endsWith('.mpx')) &&
       editor.document.uri.scheme === 'file'
     ) {
       const problems = await getProblems(editor.document.uri)
@@ -118,7 +118,7 @@ export async function activate(client: BaseLanguageClient) {
           arguments: [vueDoc.getText()],
         } satisfies ExecuteCommandParams)
       : undefined
-    const vueMod = getPackageJsonOfWorkspacePackage(fileUri.fsPath, 'vue')
+    const vueMod = getPackageJsonOfWorkspacePackage(fileUri.fsPath, 'mpx')
     const domMod = getPackageJsonOfWorkspacePackage(
       fileUri.fsPath,
       '@vue/runtime-dom',
@@ -270,11 +270,11 @@ export async function activate(client: BaseLanguageClient) {
     const emmetIncludeLanguages = vscode.workspace
       .getConfiguration('emmet')
       .get<{ [lang: string]: string }>('includeLanguages')
-    if (emmetIncludeLanguages?.['vue']) {
+    if (emmetIncludeLanguages?.['mpx']) {
       problems.push({
-        title: 'Unnecessary `emmet.includeLanguages.vue`',
+        title: 'Unnecessary `emmet.includeLanguages.mpx`',
         message:
-          'Vue language server already supports Emmet. You can remove `emmet.includeLanguages.vue` from `.vscode/settings.json`.',
+          'Vue language server already supports Emmet. You can remove `emmet.includeLanguages.mpx` from `.vscode/settings.json`.',
       })
     }
 
@@ -282,11 +282,11 @@ export async function activate(client: BaseLanguageClient) {
     const filesAssociations = vscode.workspace
       .getConfiguration('files')
       .get<{ [pattern: string]: string }>('associations')
-    if (filesAssociations?.['*.vue'] === 'html') {
+    if (filesAssociations?.['*.mpx'] === 'html') {
       problems.push({
-        title: 'Unnecessary `files.associations["*.vue"]`',
+        title: 'Unnecessary `files.associations["*.mpx"]`',
         message:
-          'With `"files.associations": { "*.vue": html }`, language server cannot to recognize Vue files. You can remove `files.associations["*.vue"]` from `.vscode/settings.json`.',
+          'With `"files.associations": { "*.mpx": html }`, language server cannot to recognize Vue files. You can remove `files.associations["*.mpx"]` from `.vscode/settings.json`.',
       })
     }
 
@@ -304,19 +304,19 @@ export async function activate(client: BaseLanguageClient) {
 
     if (
       vscode.workspace
-        .getConfiguration('vue')
+        .getConfiguration('mpx')
         .has('server.additionalExtensions') ||
       vscode.workspace
-        .getConfiguration('vue')
+        .getConfiguration('mpx')
         .has('server.petiteVue.supportHtmlFile') ||
       vscode.workspace
-        .getConfiguration('vue')
+        .getConfiguration('mpx')
         .has('server.vitePress.supportMdFile')
     ) {
       problems.push({
         title: 'Deprecated configuration',
         message: [
-          '`vue.server.additionalExtensions`, `vue.server.petiteVue.supportHtmlFile`, and `vue.server.vitePress.supportMdFile` are deprecated. Please remove them from your settings.',
+          '`mpx.server.additionalExtensions`, `mpx.server.petiteVue.supportHtmlFile`, and `mpx.server.vitePress.supportMdFile` are deprecated. Please remove them from your settings.',
           '',
           '- PR: https://github.com/vuejs/language-tools/pull/4321',
         ].join('\n'),

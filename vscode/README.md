@@ -1,4 +1,4 @@
-# Mpx VSCode
+# Mpx - VSCode
 
 ## Commands
 

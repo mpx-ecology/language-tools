@@ -66,13 +66,13 @@ async function activateLc(
   context: vscode.ExtensionContext,
   createLc: CreateLanguageClient,
 ) {
-  useVscodeContext('vue.activated', true)
+  useVscodeContext('mpx.activated', true)
   const outputChannel = useOutputChannel('Vue Language Server')
   const selectors = config.server.includeLanguages
 
   client = createLc(
-    'vue',
-    'Vue',
+    'mpx',
+    'Mpx',
     selectors,
     await getInitializationOptions(context),
     6009,
@@ -89,7 +89,7 @@ async function activateLc(
   )
 
   useCommand(
-    'vue.action.restartServer',
+    'mpx.action.restartServer',
     async (restartTsServer: boolean = true) => {
       if (restartTsServer) {
         await executeCommand('typescript.restartTsServer')

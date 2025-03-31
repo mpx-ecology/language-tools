@@ -9,12 +9,12 @@ export enum TagNameCasing {
 }
 
 export const commands = {
-  parseSfc: 'vue.parseSfc',
-  detectNameCasing: 'vue.detectNameCasing',
-  convertTagsToKebabCase: 'vue.convertTagsToKebabCase',
-  convertTagsToPascalCase: 'vue.convertTagsToPascalCase',
-  convertPropsToKebabCase: 'vue.convertPropsToKebabCase',
-  convertPropsToCamelCase: 'vue.convertPropsToCamelCase',
+  parseSfc: 'mpx.parseSfc',
+  detectNameCasing: 'mpx.detectNameCasing',
+  convertTagsToKebabCase: 'mpx.convertTagsToKebabCase',
+  convertTagsToPascalCase: 'mpx.convertTagsToPascalCase',
+  convertPropsToKebabCase: 'mpx.convertPropsToKebabCase',
+  convertPropsToCamelCase: 'mpx.convertPropsToCamelCase',
 }
 
 // only export types of depend packages
