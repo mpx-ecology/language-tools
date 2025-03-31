@@ -1,8 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": ["*", "lib/**/*"],
-  "exclude": ["tests"],
+  "exclude": ["__tests__"],
   "references": [
-    // { "path": "../language-core/tsconfig.json" },
+    {
+      "path": "../language-core/tsconfig.json"
+    }
   ]
 }
