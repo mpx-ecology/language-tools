@@ -4,7 +4,7 @@
   "injectionSelector": "L:text.pug -comment -string.comment, L:text.html.derivative -comment.block, L:text.html.markdown -comment.block",
   "patterns": [
     {
-      "include": "source.mpx#vue-interpolations"
+      "include": "source.mpx#mpx-interpolations"
     }
   ],
   "scopeName": "mpx.interpolations"

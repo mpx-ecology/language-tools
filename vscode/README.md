@@ -14,7 +14,5 @@
 
 ## Credits
 
----
-
 - [vue-language-tools](https://github.com/vuejs/language-tools)
 - [volar](https://github.com/volarjs/volar.js)

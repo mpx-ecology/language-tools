@@ -26,19 +26,11 @@
         "extensions": [
           ".mpx"
         ],
+        "icon": {
+          "light": "./images/icon.png",
+          "dark": "./images/icon.png"
+        },
         "configuration": "./languages/mpx-language-configuration.json"
-      },
-      {
-        "id": "html",
-        "configuration": "./languages/sfc-template-language-configuration.json"
-      },
-      {
-        "id": "jade",
-        "configuration": "./languages/sfc-template-language-configuration.json"
-      },
-      {
-        "id": "plaintext",
-        "configuration": "./languages/sfc-template-language-configuration.json"
       }
     ],
     "typescriptServerPlugins": [
@@ -306,9 +298,9 @@
       },
       {
         "command": "mpx.action.splitEditors",
-        "title": "Split <script>, <template>, <style> Editors",
+        "title": "Split <script>, <template>, <style>, <json> Editors",
         "category": "Mpx",
-        "icon": "images/split-editors.png"
+        "icon": "images/icon-small.png"
       }
     ],
     "menus": {

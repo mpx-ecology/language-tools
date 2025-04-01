@@ -11,7 +11,6 @@
     "clean": "rimraf --glob .eslintcache \"**/*.tsbuildinfo\"",
     "lint": "eslint --cache .",
     "format": "prettier --write --cache .",
-    "format-check": "prettier --check --cache .",
     "postinstall": "simple-git-hooks"
   },
   "simple-git-hooks": {

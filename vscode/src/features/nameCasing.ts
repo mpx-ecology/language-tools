@@ -33,7 +33,7 @@ export async function activate(
   const activeTextEditor = useActiveTextEditor()
 
   const statusBar = useDisposable(
-    vscode.languages.createLanguageStatusItem('vue-name-casing', selector),
+    vscode.languages.createLanguageStatusItem('mpx-name-casing', selector),
   )
   statusBar.command = {
     title: 'Open Menu',

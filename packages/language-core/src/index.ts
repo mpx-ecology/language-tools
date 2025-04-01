@@ -9,6 +9,6 @@ export * from './types'
 // export * from './utils/ts'
 // export * from './virtualFile/vueFile'
 
-// export { tsCodegen } from './lib/plugins/vue-tsx'
+// export { tsCodegen } from './lib/plugins/mpx-tsx'
 
 export * from '@volar/language-core'

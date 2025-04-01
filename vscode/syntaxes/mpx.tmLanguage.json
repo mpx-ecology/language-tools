@@ -4,7 +4,7 @@
   "scopeName": "source.mpx",
   "patterns": [
     {
-      "include": "#vue-comments"
+      "include": "#mpx-comments"
     },
     {
       "include": "text.html.basic#comment"
@@ -1251,7 +1251,7 @@
         }
       ]
     },
-    "vue-interpolations": {
+    "mpx-interpolations": {
       "patterns": [
         {
           "begin": "(\\{\\{)",
@@ -1282,14 +1282,14 @@
         }
       ]
     },
-    "vue-comments": {
+    "mpx-comments": {
       "patterns": [
         {
-          "include": "#vue-comments-key-value"
+          "include": "#mpx-comments-key-value"
         }
       ]
     },
-    "vue-comments-key-value": {
+    "mpx-comments-key-value": {
       "begin": "(<!--)\\s*(@)([\\w$]+)(?=\\s)",
       "beginCaptures": {
         "1": {
