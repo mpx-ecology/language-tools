@@ -1,21 +1,39 @@
 # Mpx Language Tools
 
-> 仓库状态: 早期验证开发
+> Project status: WIP 🎯
 
 ## RoadMap
 
-### 基础
+### Base
 
 - [ ] 架构设计 (WIP)
-- [ ] 抽离 mpx 解析器
+- [ ] mpx parser
 
-### 功能
+### Legacy Feature
 
-- [ ] 语法高亮 (WIP)
+- [ ] syntax highlight (WIP)
+- [ ] semantic highlight
+
+### New Feature
+
+- [ ] script
+  - [ ] ts intellisense, etc `find all references` ..
 - [ ] template
-  - [ ] 智能提示，类型检查
-  - [ ] 变量跳转
+  - [ ] intellisense
+  - [ ] definition
 - [ ] style
-  - [ ] 智能提示
+  - [ ] intellisense
+  - [ ] definition
 - [ ] json
-  - [ ] 路径跳转
+  - [ ] intellisense
+  - [ ] definition
+
+## Credits
+
+The project is heavily inspired by:
+
+- [vue-language-tools](https://github.com/vuejs/language-tools), created and maintained by [Johnson Chu](https://github.com/johnsoncodehk).
+
+And supported by:
+
+- [volar](https://github.com/volarjs/volar.js), created and maintained by [Johnson Chu](https://github.com/johnsoncodehk).
