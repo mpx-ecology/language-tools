@@ -4,11 +4,11 @@
 
 <!-- commands -->
 
-| Command                    | Title                                                              |
-| -------------------------- | ------------------------------------------------------------------ |
-| `mpx.action.restartServer` | Mpx: Restart Mpx and TS servers                                    |
-| `mpx.action.doctor`        | Mpx: Doctor                                                        |
-| `mpx.action.splitEditors`  | Mpx: Split &lt;script&gt;, &lt;template&gt;, &lt;style&gt; Editors |
+| Command                    | Title                                                                            |
+| -------------------------- | -------------------------------------------------------------------------------- |
+| `mpx.action.restartServer` | Mpx: Restart Mpx and TS servers                                                  |
+| `mpx.action.doctor`        | Mpx: Doctor                                                                      |
+| `mpx.action.splitEditors`  | Mpx: Split &lt;script&gt;, &lt;template&gt;, &lt;style&gt;, &lt;json&gt; Editors |
 
 <!-- commands -->
 
