@@ -87,6 +87,12 @@ importers:
         specifier: 'catalog:'
         version: 5.8.2
 
+  inspect-extension-host:
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.2
+
   packages/language-core:
     dependencies:
       '@volar/language-core':

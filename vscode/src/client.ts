@@ -225,6 +225,7 @@ try {
     return readFileSync(...args)
   }
 
+  // Hot Module Replacement
   const loadedModule = require.cache[extensionJsPath]
   if (loadedModule) {
     delete require.cache[extensionJsPath]

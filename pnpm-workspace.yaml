@@ -1,6 +1,7 @@
 packages:
   - 'packages/*'
   - 'vscode'
+  - 'inspect-extension-host'
 
 catalog:
   '@types/node': '^22.13.14'

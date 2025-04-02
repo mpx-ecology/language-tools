@@ -9,8 +9,8 @@
   "publisher": "Mpx",
   "repository": {
     "type": "git",
-    "url": "",
-    "directory": "packages/vscode"
+    "url": "https://github.com/mpx-ecology/language-tools.git",
+    "directory": "vscode"
   },
   "categories": [
     "Programming Languages"

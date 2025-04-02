@@ -10,7 +10,7 @@
   "types": "./out/types.d.ts",
   "repository": {
     "type": "git",
-    "url": "",
+    "url": "https://github.com/mpx-ecology/language-tools.git",
     "directory": "packages/language-service"
   },
   "dependencies": {
