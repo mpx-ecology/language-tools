@@ -1,7 +1,7 @@
 {
   "name": "@mpxjs/language-core",
   "version": "0.0.1",
-  "license": "ISC",
+  "license": "MIT",
   "files": [
     "**/*.js",
     "**/*.d.ts"

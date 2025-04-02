@@ -6,7 +6,7 @@
 
 ### Base
 
-- [ ] 架构设计 (WIP)
+- [ ] arch design (WIP)
 - [ ] mpx parser
 
 ### Legacy Feature
@@ -17,7 +17,7 @@
 ### New Feature
 
 - [ ] script
-  - [ ] ts intellisense, etc `find all references` ..
+  - [ ] ts intellisense
 - [ ] template
   - [ ] intellisense
   - [ ] definition
