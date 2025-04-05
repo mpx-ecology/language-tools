@@ -64,12 +64,12 @@ export const { activate, deactivate } = defineExtension(async () => {
   })
 
   const context = extensionContext.value!
+
   activateLanguageClient(
     context,
     (id, name, documentSelector, initOptions, port, outputChannel) => {
       class _LanguageClient extends lsp.LanguageClient {
         fillInitializeParams(params: lsp.InitializeParams) {
-          // fix https://github.com/vuejs/language-tools/issues/1959
           params.locale = vscode.env.language
         }
       }
@@ -163,6 +163,7 @@ try {
     paths: [tsExtension.extensionPath],
   })
 
+  // 劫持修改 ts 插件内置语言支持 mpx
   // @ts-expect-error ignore
   fs.readFileSync = (...args) => {
     if (args[0] === extensionJsPath) {
@@ -190,22 +191,7 @@ try {
       )
 
       /**
-       * VSCode < 1.87.0
-       */
-
-      // patch jsTsLanguageModes
-      text = text.replace(
-        't.$u=[t.$r,t.$s,t.$p,t.$q]',
-        s => s + '.concat("mpx")',
-      )
-      // patch isSupportedLanguageMode
-      text = text.replace(
-        '.languages.match([t.$p,t.$q,t.$r,t.$s]',
-        s => s + '.concat("mpx")',
-      )
-
-      /**
-       * VSCode >= 1.87.0
+       * only support VSCode >= 1.87.0
        */
 
       // patch jsTsLanguageModes
@@ -225,7 +211,7 @@ try {
     return readFileSync(...args)
   }
 
-  // Hot Module Replacement
+  // 热更重启 ts 插件
   const loadedModule = require.cache[extensionJsPath]
   if (loadedModule) {
     delete require.cache[extensionJsPath]

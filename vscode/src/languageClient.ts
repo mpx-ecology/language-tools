@@ -67,12 +67,12 @@ async function activateLc(
   createLc: CreateLanguageClient,
 ) {
   useVscodeContext('mpx.activated', true)
-  const outputChannel = useOutputChannel('Vue Language Server')
+  const outputChannel = useOutputChannel('Mpx Language Server')
   const selectors = config.server.includeLanguages
 
   client = createLc(
-    'mpx',
-    'Mpx',
+    'mpx-language-server',
+    'Mpx Language Server',
     selectors,
     await getInitializationOptions(context),
     6009,

@@ -72,8 +72,6 @@ export async function activate(client: BaseLanguageClient) {
         }
 
         content += '---\n\n'
-        content += `> Have any questions about the report message? You can see how it is composed by inspecting the [source code](https://github.com/vuejs/language-tools/blob/master/extensions/vscode/src/features/doctor.ts).\n\n`
-
         return content.trim()
       },
     }),
@@ -109,126 +107,21 @@ export async function activate(client: BaseLanguageClient) {
   }
 
   async function getProblems(fileUri: vscode.Uri) {
-    const vueDoc = vscode.workspace.textDocuments.find(
+    const mpxDoc = vscode.workspace.textDocuments.find(
       doc => doc.fileName === fileUri.fsPath,
     )
-    const sfc: SFCParseResult = vueDoc
+
+    const sfc: SFCParseResult = mpxDoc
       ? await client.sendRequest(ExecuteCommandRequest.type, {
           command: commands.parseSfc,
-          arguments: [vueDoc.getText()],
+          arguments: [mpxDoc.getText()],
         } satisfies ExecuteCommandParams)
       : undefined
-    const vueMod = getPackageJsonOfWorkspacePackage(fileUri.fsPath, 'mpx')
-    const domMod = getPackageJsonOfWorkspacePackage(
-      fileUri.fsPath,
-      '@vue/runtime-dom',
-    )
+
     const problems: {
       title: string
       message: string
     }[] = []
-
-    if (vueMod && semver.lt(vueMod.json.version, '2.7.0') && !domMod) {
-      // check vue version < 2.7 but @vue/runtime-dom missing
-      problems.push({
-        title: '`@vue/runtime-dom` missing for Vue 2',
-        message: [
-          "Vue 2 does not have JSX types definitions, so template type checking will not work correctly. You can resolve this problem by installing `@vue/runtime-dom` and adding it to your project's `devDependencies`.",
-          '',
-          '- vue: ' + vueMod.path,
-        ].join('\n'),
-      })
-    } else if (
-      vueMod &&
-      semver.gte(vueMod.json.version, '2.7.0') &&
-      semver.lt(vueMod.json.version, '3.0.0') &&
-      domMod
-    ) {
-      // check vue version >= 2.7 and < 3 but installed @vue/runtime-dom
-      problems.push({
-        title: 'Unnecessary `@vue/runtime-dom`',
-        message: [
-          'Vue 2.7 already includes JSX type definitions. You can remove the `@vue/runtime-dom` dependency from package.json.',
-          '',
-          '- vue: ' + vueMod.path,
-          '- @vue/runtime-dom: ' + domMod.path,
-        ].join('\n'),
-      })
-    }
-
-    // check @types/node > 18.8.0 && < 18.11.1
-    const typesNodeMod = getPackageJsonOfWorkspacePackage(
-      fileUri.fsPath,
-      '@types/node',
-    )
-    if (
-      typesNodeMod &&
-      semver.gte(typesNodeMod.json.version, '18.8.1') &&
-      semver.lte(typesNodeMod.json.version, '18.11.0')
-    ) {
-      problems.push({
-        title: 'Incompatible `@types/node` version',
-        message: [
-          "`@types/node`'s version `" +
-            typesNodeMod.json.version +
-            '` is incompatible with Vue. It will cause broken DOM event types in template.',
-          '',
-          'You can update `@types/node` to `18.11.1` or later to resolve.',
-          '',
-          '- @types/node: ' + typesNodeMod.path,
-          '- Issue: https://github.com/vuejs/language-tools/issues/1985',
-        ].join('\n'),
-      })
-    }
-
-    const pugPluginPkg = await getPackageJsonOfWorkspacePackage(
-      fileUri.fsPath,
-      '@vue/language-plugin-pug',
-    )
-
-    // check using pug but don't install @vue/language-plugin-pug
-    if (sfc?.descriptor.template?.lang === 'pug' && !pugPluginPkg) {
-      problems.push({
-        title: '`@vue/language-plugin-pug` missing',
-        message: [
-          'For `<template lang="pug">`, the `@vue/language-plugin-pug` plugin is required. Install it using `$ npm install -D @vue/language-plugin-pug` and add it to `vueCompilerOptions.plugins` to support TypeScript intellisense in Pug templates.',
-          '',
-          '- package.json',
-          '```json',
-          JSON.stringify(
-            { devDependencies: { '@vue/language-plugin-pug': 'latest' } },
-            undefined,
-            2,
-          ),
-          '```',
-          '',
-          '- tsconfig.json / jsconfig.json',
-          '```jsonc',
-          JSON.stringify(
-            { vueCompilerOptions: { plugins: ['@vue/language-plugin-pug'] } },
-            undefined,
-            2,
-          ),
-          '```',
-        ].join('\n'),
-      })
-    }
-
-    // check using pug but outdated @vue/language-plugin-pug
-    if (
-      sfc?.descriptor.template?.lang === 'pug' &&
-      pugPluginPkg &&
-      !semver.gte(pugPluginPkg.json.version, '2.0.5')
-    ) {
-      problems.push({
-        title: 'Outdated `@vue/language-plugin-pug`',
-        message: [
-          'The version of `@vue/language-plugin-pug` is too low, it is required to upgrade to `2.0.5` or later.',
-          '',
-          '- @vue/language-plugin-pug: ' + pugPluginPkg.path,
-        ].join('\n'),
-      })
-    }
 
     // check syntax highlight extension installed
     if (sfc) {
@@ -266,75 +159,15 @@ export async function activate(client: BaseLanguageClient) {
       }
     }
 
-    // emmet.includeLanguages
-    const emmetIncludeLanguages = vscode.workspace
-      .getConfiguration('emmet')
-      .get<{ [lang: string]: string }>('includeLanguages')
-    if (emmetIncludeLanguages?.['mpx']) {
-      problems.push({
-        title: 'Unnecessary `emmet.includeLanguages.mpx`',
-        message:
-          'Vue language server already supports Emmet. You can remove `emmet.includeLanguages.mpx` from `.vscode/settings.json`.',
-      })
-    }
-
-    // files.associations
-    const filesAssociations = vscode.workspace
-      .getConfiguration('files')
-      .get<{ [pattern: string]: string }>('associations')
-    if (filesAssociations?.['*.mpx'] === 'html') {
-      problems.push({
-        title: 'Unnecessary `files.associations["*.mpx"]`',
-        message:
-          'With `"files.associations": { "*.mpx": html }`, language server cannot to recognize Vue files. You can remove `files.associations["*.mpx"]` from `.vscode/settings.json`.',
-      })
-    }
-
-    // check tsdk version should be higher than 5.0.0
+    // check tsdk > 5.0.0
     const tsdk = (await getTsdk(extensionContext.value!))!
     if (tsdk.version && !semver.gte(tsdk.version, '5.0.0')) {
       problems.push({
         title: 'Requires TSDK 5.0 or higher',
-        message: [
-          `Extension >= 2.0 requires TSDK 5.0+. You are currently using TSDK ${tsdk.version}, please upgrade to TSDK.`,
-          'If you need to use TSDK 4.x, please downgrade the extension to v1.',
-        ].join('\n'),
-      })
-    }
-
-    if (
-      vscode.workspace
-        .getConfiguration('mpx')
-        .has('server.additionalExtensions') ||
-      vscode.workspace
-        .getConfiguration('mpx')
-        .has('server.petiteVue.supportHtmlFile') ||
-      vscode.workspace
-        .getConfiguration('mpx')
-        .has('server.vitePress.supportMdFile')
-    ) {
-      problems.push({
-        title: 'Deprecated configuration',
-        message: [
-          '`mpx.server.additionalExtensions`, `mpx.server.petiteVue.supportHtmlFile`, and `mpx.server.vitePress.supportMdFile` are deprecated. Please remove them from your settings.',
-          '',
-          '- PR: https://github.com/vuejs/language-tools/pull/4321',
-        ].join('\n'),
+        message: `Extension >= 2.0 requires TSDK 5.0+. You are currently using TSDK ${tsdk.version}, please upgrade to TSDK.`,
       })
     }
 
     return problems
-  }
-}
-
-function getPackageJsonOfWorkspacePackage(folder: string, pkg: string) {
-  try {
-    const path = require.resolve(pkg + '/package.json', { paths: [folder] })
-    return {
-      path,
-      json: require(path) as { version: string },
-    }
-  } catch {
-    // noop
   }
 }

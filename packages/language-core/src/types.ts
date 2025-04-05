@@ -168,7 +168,6 @@ export interface Sfc {
     | undefined
   scriptSetup:
     | (SfcBlock & {
-        // https://github.com/vuejs/rfcs/discussions/436
         generic: SfcBlockAttr | undefined
         ast: ts.SourceFile
       })
