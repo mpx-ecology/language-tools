@@ -1,6 +1,10 @@
 # Mpx Language Tools
 
-> Project status: WIP 🎯
+<div align="center">
+<!-- etc. download icon -->
+</div>
+
+> 🚧 **Work in Progress**
 
 ## RoadMap
 
@@ -30,10 +34,5 @@
 
 ## Credits
 
-The project is heavily inspired by:
-
-- [vue-language-tools](https://github.com/vuejs/language-tools), created and maintained by [Johnson Chu](https://github.com/johnsoncodehk).
-
-And supported by:
-
-- [volar](https://github.com/volarjs/volar.js), created and maintained by [Johnson Chu](https://github.com/johnsoncodehk).
+- [vue-language-tools](https://github.com/vuejs/language-tools)
+  & [volar](https://github.com/volarjs/volar.js), created and maintained by [Johnson Chu](https://github.com/johnsoncodehk).
