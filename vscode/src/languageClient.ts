@@ -1,5 +1,5 @@
 import * as lsp from '@volar/vscode'
-import type { VueInitializationOptions } from '@mpxjs/language-server'
+import type { MpxInitializationOptions } from '@mpxjs/language-server'
 import {
   executeCommand,
   nextTick,
@@ -24,7 +24,7 @@ type CreateLanguageClient = (
   id: string,
   name: string,
   langs: lsp.DocumentSelector,
-  initOptions: VueInitializationOptions,
+  initOptions: MpxInitializationOptions,
   port: number,
   outputChannel: vscode.OutputChannel,
 ) => lsp.BaseLanguageClient
@@ -75,7 +75,7 @@ async function activateLc(
     'Mpx Language Server',
     selectors,
     await getInitializationOptions(context),
-    6009,
+    6019,
     outputChannel,
   )
 
@@ -124,7 +124,7 @@ async function activateLc(
 
 async function getInitializationOptions(
   context: vscode.ExtensionContext,
-): Promise<VueInitializationOptions> {
+): Promise<MpxInitializationOptions> {
   return {
     typescript: {
       tsdk: (await lsp.getTsdk(context))!.tsdk,

@@ -19,16 +19,10 @@ import { middleware } from './middleware'
 export const { activate, deactivate } = defineExtension(async () => {
   const volarLabs = createLabsInfo(protocol)
 
-  // 必要依赖的插件
+  // Required plugins
   const tsExtension = vscode.extensions.getExtension(
     'vscode.typescript-language-features',
   )
-
-  // 可废弃卸载的历史插件
-  const legacyExtensions = [
-    vscode.extensions.getExtension('pagnkelly.mpx'),
-    vscode.extensions.getExtension('wangshun.mpx-template-features'),
-  ]
 
   if (tsExtension) {
     await tsExtension.activate()
@@ -47,6 +41,12 @@ export const { activate, deactivate } = defineExtension(async () => {
         }
       })
   }
+
+  // Legacy plugins
+  const legacyExtensions = [
+    vscode.extensions.getExtension('pagnkelly.mpx'),
+    vscode.extensions.getExtension('wangshun.mpx-template-features'),
+  ]
 
   legacyExtensions.forEach(legacyExtension => {
     if (legacyExtension) {
@@ -108,6 +108,10 @@ export const { activate, deactivate } = defineExtension(async () => {
 
       updateProviders(client)
 
+      /**
+       * forward command request from mpx lsp server to tsserver
+       */
+
       client.onRequest('tsserverRequest', async ([command, args]) => {
         const tsserver = (globalThis as any).__TSSERVER__?.semantic
         if (!tsserver) {
@@ -163,26 +167,30 @@ try {
     paths: [tsExtension.extensionPath],
   })
 
-  // 劫持修改 ts 插件内置语言支持 mpx
   // @ts-expect-error ignore
   fs.readFileSync = (...args) => {
     if (args[0] === extensionJsPath) {
       // @ts-expect-error ignore
       let text = readFileSync(...args) as string
 
-      // patch readPlugins
+      /**
+       *  Compatible with or without the installation of `vue-plugin`
+       */
+
       text = text.replace(
-        'languages:Array.isArray(e.languages)',
+        'Array.isArray(e.languages)',
         [
-          'languages:',
           `e.name==='mpx-typescript-plugin-pack'?[${config.server.includeLanguages
-            .map((lang: string) => `'${lang}'`)
+            .map(lang => `'${lang}'`)
             .join(',')}]`,
           ':Array.isArray(e.languages)',
         ].join(''),
       )
 
-      // Expose tsserver process in SingleTsServer constructor
+      /**
+       * Expose tsserver process in SingleTsServer constructor
+       */
+
       text = text.replace(
         ',this._callbacks.destroy("server errored")}))',
         s =>
@@ -211,7 +219,7 @@ try {
     return readFileSync(...args)
   }
 
-  // 热更重启 ts 插件
+  // Hot reload tsserver
   const loadedModule = require.cache[extensionJsPath]
   if (loadedModule) {
     delete require.cache[extensionJsPath]

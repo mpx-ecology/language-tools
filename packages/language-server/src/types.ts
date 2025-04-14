@@ -1,4 +1,4 @@
-export type VueInitializationOptions = {
+export type MpxInitializationOptions = {
   typescript: {
     tsdk: string
     tsserverRequestCommand?: string
