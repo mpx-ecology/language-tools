@@ -13,6 +13,7 @@
     "directory": "packages/typescript-plugin"
   },
   "dependencies": {
+    "@mpxjs/language-core": "workspace:*",
     "@volar/typescript": "catalog:"
   },
   "devDependencies": {

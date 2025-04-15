@@ -1,3 +1,5 @@
+import { VueCompilerOptions } from '@mpxjs/language-core'
+
 export enum AttrNameCasing {
   Kebab,
   Camel,
@@ -8,15 +10,23 @@ export enum TagNameCasing {
   Pascal,
 }
 
-export const commands = {
-  parseSfc: 'mpx.parseSfc',
-  detectNameCasing: 'mpx.detectNameCasing',
-  convertTagsToKebabCase: 'mpx.convertTagsToKebabCase',
-  convertTagsToPascalCase: 'mpx.convertTagsToPascalCase',
-  convertPropsToKebabCase: 'mpx.convertPropsToKebabCase',
-  convertPropsToCamelCase: 'mpx.convertPropsToCamelCase',
+export enum Commands {
+  ParseSfc = 'mpx.parseSfc',
+  DetectNameCasing = 'mpx.detectNameCasing',
+  ConvertTagsToKebabCase = 'mpx.convertTagsToKebabCase',
+  ConvertTagsToPascalCase = 'mpx.convertTagsToPascalCase',
+  ConvertPropsToKebabCase = 'mpx.convertPropsToKebabCase',
+  ConvertPropsToCamelCase = 'mpx.convertPropsToCamelCase',
 }
 
 // only export types of depend packages
 export * from '@volar/language-service/lib/types'
 export * from '@mpxjs/language-core/out/types'
+
+declare module '@volar/language-service' {
+  export interface ProjectContext {
+    mpx?: {
+      compilerOptions: VueCompilerOptions
+    }
+  }
+}

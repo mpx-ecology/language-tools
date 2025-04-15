@@ -1,7 +1,7 @@
 export type MpxInitializationOptions = {
   typescript: {
     tsdk: string
-    tsserverRequestCommand?: string
+    tsserverRequestCommand?: 'tsserverRequest'
   }
 }
 

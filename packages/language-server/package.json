@@ -17,9 +17,11 @@
     "directory": "packages/language-server"
   },
   "dependencies": {
+    "@mpxjs/language-core": "workspace:*",
     "@mpxjs/language-service": "workspace:*",
     "@volar/language-core": "catalog:",
-    "@volar/language-server": "catalog:"
+    "@volar/language-server": "catalog:",
+    "vscode-uri": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:"

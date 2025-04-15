@@ -7,7 +7,7 @@
     "**/*.d.ts"
   ],
   "sideEffects": false,
-  "types": "./out/types.d.ts",
+  "types": "./out/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/mpx-ecology/language-tools.git",
@@ -15,10 +15,14 @@
   },
   "dependencies": {
     "@mpxjs/language-core": "workspace:*",
+    "@mpxjs/typescript-plugin": "workspace:*",
     "@volar/language-core": "catalog:",
     "@volar/language-service": "catalog:",
     "@volar/typescript": "catalog:",
-    "@vue/compiler-dom": "catalog:"
+    "@vue/compiler-dom": "catalog:",
+    "volar-service-emmet": "^0.0.64",
+    "volar-service-typescript": "^0.0.64",
+    "vscode-uri": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:"

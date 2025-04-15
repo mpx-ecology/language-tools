@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "debug for mpx vscode plugin",
   "devDependencies": {
+    "@mpxjs/core": "catalog:",
     "typescript": "catalog:"
   }
 }

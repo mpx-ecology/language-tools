@@ -109,7 +109,7 @@ export const { activate, deactivate } = defineExtension(async () => {
       updateProviders(client)
 
       /**
-       * forward command request from mpx lsp server to tsserver
+       * Proxy command request from mpx-lsp-server to builtin tsserver
        */
 
       client.onRequest('tsserverRequest', async ([command, args]) => {

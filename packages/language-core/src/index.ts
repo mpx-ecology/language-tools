@@ -7,7 +7,7 @@ export * from './types'
 // export * from './utils/parseSfc'
 // export * from './utils/shared'
 // export * from './utils/ts'
-// export * from './virtualFile/vueFile'
+export * from './virtualFile/mpxFile'
 
 // export { tsCodegen } from './lib/plugins/mpx-tsx'
 

@@ -4,8 +4,8 @@ packages:
   - 'inspect-extension-host'
 
 catalog:
-  '@types/node': '^22.13.14'
-  '@types/semver': '^7.7.0'
+  # mpx
+  '@mpxjs/core': 'latest'
   # valor
   '@volar/language-core': '~2.4.12'
   '@volar/language-server': '~2.4.12'
@@ -15,5 +15,8 @@ catalog:
   '@vue/compiler-dom': '^3.5.0'
   '@vue/shared': '^3.5.0'
   # common
+  '@types/node': '^22.13.14'
+  '@types/semver': '^7.7.0'
   'reactive-vscode': '^0.2.14'
   'typescript': 'latest'
+  'vscode-uri': '^3.1.0'
