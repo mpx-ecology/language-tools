@@ -47,7 +47,9 @@ export function getHybridModeLanguageServicePlugins(
 
 function getCommonLanguageServicePlugins(
   _ts: typeof import('typescript'),
-  _getTsPluginClient: (context: LanguageServiceContext) => IRequests | undefined,
+  _getTsPluginClient: (
+    context: LanguageServiceContext,
+  ) => IRequests | undefined,
 ): LanguageServicePlugin[] {
   return [
     // createTypeScriptTwoslashQueriesPlugin(ts),
