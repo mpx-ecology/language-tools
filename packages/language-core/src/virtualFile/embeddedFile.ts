@@ -1,10 +1,10 @@
 import type { Mapping } from '@volar/language-core'
 import type { Code } from '../types'
 
-export class VueEmbeddedCode {
+export class MpxEmbeddedCode {
   public parentCodeId?: string
   public linkedCodeMappings: Mapping[] = []
-  public embeddedCodes: VueEmbeddedCode[] = []
+  public embeddedCodes: MpxEmbeddedCode[] = []
 
   constructor(
     public id: string,

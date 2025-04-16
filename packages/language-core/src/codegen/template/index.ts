@@ -1,0 +1,213 @@
+import type * as ts from 'typescript'
+import type { Code, Sfc, MpxCompilerOptions } from '../../types'
+import * as CompilerDOM from '@vue/compiler-dom'
+
+import { endOfLine, newLine, wrapWith } from '../utils'
+import { getSlotsPropertyName } from '../../utils/shared'
+import { generateObjectProperty } from './objectProperty'
+import { generateTemplateChild, getVForNode } from './templateChild'
+import { generateStyleScopedClassReferences } from './styleScopedClasses'
+import { TemplateCodegenContext, createTemplateCodegenContext } from './context'
+
+export interface TemplateCodegenOptions {
+  ts: typeof ts
+  compilerOptions: ts.CompilerOptions
+  mpxCompilerOptions: MpxCompilerOptions
+  template: NonNullable<Sfc['template']>
+  scriptSetupBindingNames: Set<string>
+  scriptSetupImportComponentNames: Set<string>
+  destructuredPropNames: Set<string>
+  templateRefNames: Set<string>
+  hasDefineSlots?: boolean
+  slotsAssignName?: string
+  propsAssignName?: string
+  inheritAttrs: boolean
+  selfComponentName?: string
+}
+
+export function* generateTemplate(
+  options: TemplateCodegenOptions,
+): Generator<Code, TemplateCodegenContext> {
+  const ctx = createTemplateCodegenContext(options)
+
+  if (options.slotsAssignName) {
+    ctx.addLocalVariable(options.slotsAssignName)
+  }
+  if (options.propsAssignName) {
+    ctx.addLocalVariable(options.propsAssignName)
+  }
+
+  const slotsPropertyName = getSlotsPropertyName(
+    options.mpxCompilerOptions.target,
+  )
+  if (options.mpxCompilerOptions.inferTemplateDollarSlots) {
+    ctx.dollarVars.add(slotsPropertyName)
+  }
+  if (options.mpxCompilerOptions.inferTemplateDollarAttrs) {
+    ctx.dollarVars.add('$attrs')
+  }
+  if (options.mpxCompilerOptions.inferTemplateDollarRefs) {
+    ctx.dollarVars.add('$refs')
+  }
+  if (options.mpxCompilerOptions.inferTemplateDollarEl) {
+    ctx.dollarVars.add('$el')
+  }
+
+  if (options.template.ast) {
+    yield* generateTemplateChild(options, ctx, options.template.ast)
+  }
+
+  yield* generateStyleScopedClassReferences(ctx)
+  yield* ctx.generateHoistVariables()
+
+  const speicalTypes = [
+    [slotsPropertyName, yield* generateSlots(options, ctx)],
+    ['$attrs', yield* generateInheritedAttrs(options, ctx)],
+    ['$refs', yield* generateTemplateRefs(options, ctx)],
+    ['$el', yield* generateRootEl(ctx)],
+  ]
+
+  yield `var __VLS_dollars!: {${newLine}`
+  for (const [name, type] of speicalTypes) {
+    yield `${name}: ${type}${endOfLine}`
+  }
+  yield `} & { [K in keyof import('${options.mpxCompilerOptions.lib}').ComponentPublicInstance]: unknown }${endOfLine}`
+
+  return ctx
+}
+
+function* generateSlots(
+  options: TemplateCodegenOptions,
+  ctx: TemplateCodegenContext,
+): Generator<Code> {
+  if (!options.hasDefineSlots) {
+    yield `type __VLS_Slots = {}`
+    for (const { expVar, propsVar } of ctx.dynamicSlots) {
+      yield `${newLine}& { [K in NonNullable<typeof ${expVar}>]?: (props: typeof ${propsVar}) => any }`
+    }
+    for (const slot of ctx.slots) {
+      yield `${newLine}& { `
+      if (slot.name && slot.offset !== undefined) {
+        yield* generateObjectProperty(
+          options,
+          ctx,
+          slot.name,
+          slot.offset,
+          ctx.codeFeatures.withoutHighlightAndCompletion,
+          slot.nodeLoc,
+        )
+      } else {
+        yield* wrapWith(
+          slot.tagRange[0],
+          slot.tagRange[1],
+          ctx.codeFeatures.withoutHighlightAndCompletion,
+          `default`,
+        )
+      }
+      yield `?: (props: typeof ${slot.propsVar}) => any }`
+    }
+    yield `${endOfLine}`
+  }
+  return `__VLS_Slots`
+}
+
+function* generateInheritedAttrs(
+  options: TemplateCodegenOptions,
+  ctx: TemplateCodegenContext,
+): Generator<Code> {
+  yield `type __VLS_InheritedAttrs = {}`
+  for (const varName of ctx.inheritedAttrVars) {
+    yield ` & typeof ${varName}`
+  }
+  yield endOfLine
+
+  if (ctx.bindingAttrLocs.length) {
+    yield `[`
+    for (const loc of ctx.bindingAttrLocs) {
+      yield `__VLS_dollars.`
+      yield [loc.source, 'template', loc.start.offset, ctx.codeFeatures.all]
+      yield `,`
+    }
+    yield `]${endOfLine}`
+  }
+  return `import('${options.mpxCompilerOptions.lib}').ComponentPublicInstance['$attrs'] & Partial<__VLS_InheritedAttrs>`
+}
+
+function* generateTemplateRefs(
+  options: TemplateCodegenOptions,
+  ctx: TemplateCodegenContext,
+): Generator<Code> {
+  yield `type __VLS_TemplateRefs = {}`
+  for (const [name, refs] of ctx.templateRefs) {
+    yield `${newLine}& `
+    if (refs.length >= 2) {
+      yield `(`
+    }
+    for (let i = 0; i < refs.length; i++) {
+      const { typeExp, offset } = refs[i]
+      if (i) {
+        yield ` | `
+      }
+      yield `{ `
+      yield* generateObjectProperty(
+        options,
+        ctx,
+        name,
+        offset,
+        ctx.codeFeatures.navigation,
+      )
+      yield `: ${typeExp} }`
+    }
+    if (refs.length >= 2) {
+      yield `)`
+    }
+  }
+  yield endOfLine
+  return `__VLS_TemplateRefs`
+}
+
+function* generateRootEl(ctx: TemplateCodegenContext): Generator<Code> {
+  yield `type __VLS_RootEl = `
+  if (ctx.singleRootElTypes.length && !ctx.singleRootNodes.has(null)) {
+    for (const type of ctx.singleRootElTypes) {
+      yield `${newLine}| ${type}`
+    }
+  } else {
+    yield `any`
+  }
+  yield endOfLine
+  return `__VLS_RootEl`
+}
+
+export function* forEachElementNode(
+  node: CompilerDOM.RootNode | CompilerDOM.TemplateChildNode,
+): Generator<CompilerDOM.ElementNode> {
+  if (node.type === CompilerDOM.NodeTypes.ROOT) {
+    for (const child of node.children) {
+      yield* forEachElementNode(child)
+    }
+  } else if (node.type === CompilerDOM.NodeTypes.ELEMENT) {
+    const patchForNode = getVForNode(node)
+    if (patchForNode) {
+      yield* forEachElementNode(patchForNode)
+    } else {
+      yield node
+      for (const child of node.children) {
+        yield* forEachElementNode(child)
+      }
+    }
+  } else if (node.type === CompilerDOM.NodeTypes.IF) {
+    // v-if / v-else-if / v-else
+    for (let i = 0; i < node.branches.length; i++) {
+      const branch = node.branches[i]
+      for (const childNode of branch.children) {
+        yield* forEachElementNode(childNode)
+      }
+    }
+  } else if (node.type === CompilerDOM.NodeTypes.FOR) {
+    // v-for
+    for (const child of node.children) {
+      yield* forEachElementNode(child)
+    }
+  }
+}

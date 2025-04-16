@@ -1,18 +1,19 @@
-import { URI } from 'vscode-uri'
 import type * as ts from 'typescript'
+import type { LanguageServer } from '@volar/language-server'
+import type { MpxInitializationOptions } from './types'
 
+import { URI } from 'vscode-uri'
 import {
   createConnection,
   createServer,
   loadTsdkByPath,
 } from '@volar/language-server/node'
-import type { LanguageServer } from '@volar/language-server'
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject'
 import {
   createLanguage,
-  // createParsedCommandLine,
-  // createVueLanguagePlugin,
-  // getDefaultCompilerOptions,
+  createParsedCommandLine,
+  createMpxLanguagePlugin,
+  getDefaultCompilerOptions,
 } from '@mpxjs/language-core'
 import {
   createLanguageService,
@@ -20,8 +21,6 @@ import {
   getHybridModeLanguageServicePlugins,
   LanguageService,
 } from '@mpxjs/language-service'
-
-import type { MpxInitializationOptions } from './types'
 
 const connection = createConnection()
 const server = createServer(connection)
@@ -185,21 +184,23 @@ connection.onInitialize(params => {
   }
 
   function createLs(server: LanguageServer, tsconfig: string | undefined) {
-    const commonLine = {
-      options: ts.getDefaultCompilerOptions(),
-      // mpxOptions: getDefaultCompilerOptions(),
-    }
+    const commonLine = tsconfig
+      ? createParsedCommandLine(ts, ts.sys, tsconfig)
+      : {
+          options: ts.getDefaultCompilerOptions(),
+          mpxOptions: getDefaultCompilerOptions(),
+        }
     const language = createLanguage<URI>(
       [
         {
           getLanguageId: uri => server.documents.get(uri)?.languageId,
         },
-        // createVueLanguagePlugin(
-        //   ts,
-        //   commonLine.options,
-        //   commonLine.vueOptions,
-        //   (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
-        // ),
+        createMpxLanguagePlugin(
+          ts,
+          commonLine.options,
+          commonLine.mpxOptions,
+          (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
+        ),
       ],
       createUriMap(),
       uri => {

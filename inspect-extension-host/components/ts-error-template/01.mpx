@@ -1,0 +1,20 @@
+<template>
+    {{ knownProp1 }}
+    <!-- ERROR: Property 'error_unknownProp' does not exist on type [...] -->
+    {{ error_unknownProp }}
+    {{ knownProp2 }}
+    <!-- @vue-expect-error This suppresses an Unknown Property Error -->
+    {{ suppressed_error_unknownProp }}
+    {{ knownProp3 }}
+    <!-- @vue-expect-error This will trigger Unused '@ts-expect-error' directive.ts(2578) -->
+    {{ knownProp4_will_trigger_unused_expect_error }}
+</template>
+
+<script setup lang="ts">
+    defineProps<{
+        knownProp1: string
+        knownProp2: string
+        knownProp3: string
+        knownProp4_will_trigger_unused_expect_error: string
+    }>()
+</script>

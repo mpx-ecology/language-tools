@@ -8,7 +8,7 @@ import { quickPick } from '@volar/vscode/lib/common'
 import {
   AttrNameCasing,
   TagNameCasing,
-  commands,
+  Commands,
 } from '@mpxjs/language-server/out/types'
 import {
   reactive,
@@ -217,8 +217,8 @@ export async function activate(
       {
         command:
           casing === TagNameCasing.Kebab
-            ? commands.convertTagsToKebabCase
-            : commands.convertTagsToPascalCase,
+            ? Commands.ConvertTagsToKebabCase
+            : Commands.ConvertTagsToPascalCase,
         arguments: [client.code2ProtocolConverter.asUri(editor.document.uri)],
       } satisfies ExecuteCommandParams,
     )
@@ -245,8 +245,8 @@ export async function activate(
       {
         command:
           casing === AttrNameCasing.Kebab
-            ? commands.convertPropsToKebabCase
-            : commands.convertPropsToCamelCase,
+            ? Commands.ConvertPropsToKebabCase
+            : Commands.ConvertPropsToCamelCase,
         arguments: [client.code2ProtocolConverter.asUri(editor.document.uri)],
       } satisfies ExecuteCommandParams,
     )
@@ -269,7 +269,7 @@ export async function activate(
     attr: AttrNameCasing[]
   }> {
     return client.sendRequest(ExecuteCommandRequest.type, {
-      command: commands.detectNameCasing,
+      command: Commands.DetectNameCasing,
       arguments: [client.code2ProtocolConverter.asUri(document.uri)],
     } satisfies ExecuteCommandParams)
   }

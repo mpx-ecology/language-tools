@@ -1,16 +1,16 @@
-import {
-  ExecuteCommandParams,
-  ExecuteCommandRequest,
-  type BaseLanguageClient,
-} from '@volar/vscode'
 import type { SFCParseResult } from '@mpxjs/language-server'
-import { commands } from '@mpxjs/language-server/out/types'
+import * as vscode from 'vscode'
 import {
   executeCommand,
   useActiveTextEditor,
   useCommand,
 } from 'reactive-vscode'
-import * as vscode from 'vscode'
+import {
+  ExecuteCommandParams,
+  ExecuteCommandRequest,
+  type BaseLanguageClient,
+} from '@volar/vscode'
+import { Commands } from '@mpxjs/language-server/out/types'
 import { config } from '../config'
 
 type SFCBlock = SFCParseResult['descriptor']['customBlocks'][number]
@@ -134,7 +134,7 @@ export function useDocDescriptor(client: BaseLanguageClient) {
       splitDocDescriptor = await client.sendRequest(
         ExecuteCommandRequest.type,
         {
-          command: commands.parseSfc,
+          command: Commands.ParseSfc,
           arguments: [text],
         } satisfies ExecuteCommandParams,
       )

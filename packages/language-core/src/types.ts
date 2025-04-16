@@ -3,33 +3,33 @@ import type * as CompilerDOM from '@vue/compiler-dom'
 import type { SFCParseResult } from '@vue/compiler-sfc'
 import type { Segment } from 'muggle-string'
 import type * as ts from 'typescript'
-import type { VueEmbeddedCode } from './virtualFile/embeddedFile'
+import type { MpxEmbeddedCode } from './virtualFile/embeddedFile'
 
 export type { SFCParseResult } from '@vue/compiler-sfc'
 
-export { VueEmbeddedCode }
+export { MpxEmbeddedCode }
 
-export type RawVueCompilerOptions = Partial<
-  Omit<VueCompilerOptions, 'target' | 'plugins'>
+export type RawMpxCompilerOptions = Partial<
+  Omit<MpxCompilerOptions, 'target' | 'plugins'>
 > & {
   strictTemplates?: boolean
   target?: 'auto' | 2 | 2.7 | 3 | 3.3 | 3.5 | 3.6 | 99 | number
   plugins?: string[]
 }
 
-export interface VueCodeInformation extends CodeInformation {
+export interface MpxCodeInformation extends CodeInformation {
   __combineOffset?: number
   __linkedToken?: symbol
 }
 
-export type Code = Segment<VueCodeInformation>
+export type Code = Segment<MpxCodeInformation>
 
-export interface VueCompilerOptions {
+export interface MpxCompilerOptions {
   target: number
   lib: string
   extensions: string[]
   vitePressExtensions: string[]
-  petiteVueExtensions: string[]
+  petiteMpxExtensions: string[]
   jsxSlots: boolean
   strictSlotChildren: boolean
   strictVModel: boolean
@@ -64,10 +64,10 @@ export interface VueCompilerOptions {
     useSlots: string[]
     useTemplateRef: string[]
   }
-  plugins: VueLanguagePlugin[]
+  plugins: MpxLanguagePlugin[]
 
   // experimental
-  experimentalDefinePropProposal: 'kevinEdition' | 'johnsonEdition' | false
+  experimentalDefinePropProposal: false
   experimentalResolveStyleCssClasses: 'scoped' | 'always' | 'never'
   experimentalModelPropName: Record<
     string,
@@ -84,7 +84,7 @@ export interface VueCompilerOptions {
 
 export const validVersions = [2, 2.1] as const
 
-export type VueLanguagePluginReturn = {
+export type MpxLanguagePluginReturn = {
   version: (typeof validVersions)[number]
   name?: string
   order?: number
@@ -118,18 +118,18 @@ export type VueLanguagePluginReturn = {
   resolveEmbeddedCode?(
     fileName: string,
     sfc: Sfc,
-    embeddedFile: VueEmbeddedCode,
+    embeddedFile: MpxEmbeddedCode,
   ): void
 }
 
-export type VueLanguagePlugin = (ctx: {
+export type MpxLanguagePlugin = (ctx: {
   modules: {
     typescript: typeof ts
     '@vue/compiler-dom': typeof CompilerDOM
   }
   compilerOptions: ts.CompilerOptions
-  vueCompilerOptions: VueCompilerOptions
-}) => VueLanguagePluginReturn | VueLanguagePluginReturn[]
+  mpxCompilerOptions: MpxCompilerOptions
+}) => MpxLanguagePluginReturn | MpxLanguagePluginReturn[]
 
 export interface SfcBlock {
   name: string

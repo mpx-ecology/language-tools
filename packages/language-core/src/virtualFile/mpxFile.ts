@@ -1,22 +1,26 @@
-import type { VirtualCode } from '@volar/language-core'
-import { computed, signal } from 'alien-signals'
 import type * as ts from 'typescript'
-import { allCodeFeatures } from '../plugins'
-import type { VueCompilerOptions, VueLanguagePluginReturn } from '../types'
-import { computedEmbeddedCodes } from './computedEmbeddedCodes'
-import { computedSfc } from './computedSfc'
-import { computedVueSfc } from './computedVueSfc'
+import type { VirtualCode } from '@volar/language-core'
+import type { MpxCompilerOptions, MpxLanguagePluginReturn } from '../types'
 
+import { computed, signal } from 'alien-signals'
+import { allCodeFeatures } from '../plugins'
+import { computedSfc } from './computedSfc'
+import { computedMpxSfc } from './computedMpxSfc'
+import { computedEmbeddedCodes } from './computedEmbeddedCodes'
 export class MpxVirtualCode implements VirtualCode {
-  // sources
+  /**
+   * sources
+   */
 
   id = 'main'
 
   private _snapshot = signal<ts.IScriptSnapshot>(undefined!)
 
-  // computeds
+  /**
+   * computeds
+   */
 
-  private _vueSfc = computedVueSfc(
+  private _mpxSfc = computedMpxSfc(
     this.plugins,
     this.fileName,
     this.languageId,
@@ -27,7 +31,7 @@ export class MpxVirtualCode implements VirtualCode {
     this.plugins,
     this.fileName,
     this._snapshot,
-    this._vueSfc,
+    this._mpxSfc,
   )
   private _embeddedCodes = computedEmbeddedCodes(
     this.plugins,
@@ -46,13 +50,15 @@ export class MpxVirtualCode implements VirtualCode {
     ]
   })
 
-  // others
+  /**
+   * others
+   */
 
   get snapshot() {
     return this._snapshot()
   }
-  get vueSfc() {
-    return this._vueSfc()
+  get mpxSfc() {
+    return this._mpxSfc()
   }
   get sfc() {
     return this._sfc
@@ -68,8 +74,8 @@ export class MpxVirtualCode implements VirtualCode {
     public fileName: string,
     public languageId: string,
     public initSnapshot: ts.IScriptSnapshot,
-    public vueCompilerOptions: VueCompilerOptions,
-    public plugins: VueLanguagePluginReturn[],
+    public mpxCompilerOptions: MpxCompilerOptions,
+    public plugins: MpxLanguagePluginReturn[],
     public ts: typeof import('typescript'),
   ) {
     this._snapshot(initSnapshot)

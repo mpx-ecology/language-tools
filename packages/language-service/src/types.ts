@@ -1,4 +1,4 @@
-import { VueCompilerOptions } from '@mpxjs/language-core'
+import { MpxCompilerOptions } from '@mpxjs/language-core'
 
 export enum AttrNameCasing {
   Kebab,
@@ -26,7 +26,7 @@ export * from '@mpxjs/language-core/out/types'
 declare module '@volar/language-service' {
   export interface ProjectContext {
     mpx?: {
-      compilerOptions: VueCompilerOptions
+      compilerOptions: MpxCompilerOptions
     }
   }
 }

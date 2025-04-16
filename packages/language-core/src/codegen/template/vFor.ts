@@ -1,0 +1,127 @@
+/**
+ * TODO -
+ * - [ ] wx:for
+ */
+
+import type { Code } from '../../types'
+import type { TemplateCodegenContext } from './context'
+import type { TemplateCodegenOptions } from './index'
+
+import * as CompilerDOM from '@vue/compiler-dom'
+import { generateInterpolation } from './interpolation'
+import { generateElementChildren } from './elementChildren'
+import { collectVars, createTsAst, endOfLine, newLine } from '../utils'
+
+export function* generateVFor(
+  options: TemplateCodegenOptions,
+  ctx: TemplateCodegenContext,
+  node: CompilerDOM.ForNode,
+): Generator<Code> {
+  const { source } = node.parseResult
+  const { leftExpressionRange, leftExpressionText } = parseVForNode(node)
+  const forBlockVars: string[] = []
+
+  yield `for (const [`
+  if (leftExpressionRange && leftExpressionText) {
+    const collectAst = createTsAst(
+      options.ts,
+      node.parseResult,
+      `const [${leftExpressionText}]`,
+    )
+    collectVars(options.ts, collectAst, collectAst, forBlockVars)
+    yield [
+      leftExpressionText,
+      'template',
+      leftExpressionRange.start,
+      ctx.codeFeatures.all,
+    ]
+  }
+  yield `] of `
+  if (source.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
+    yield `__VLS_getVForSourceType(`
+    yield* generateInterpolation(
+      options,
+      ctx,
+      'template',
+      ctx.codeFeatures.all,
+      source.content,
+      source.loc.start.offset,
+      source.loc,
+      `(`,
+      `)`,
+    )
+    yield `!)` // #3102
+  } else {
+    yield `{} as any`
+  }
+  yield `) {${newLine}`
+
+  for (const varName of forBlockVars) {
+    ctx.addLocalVariable(varName)
+  }
+
+  let isFragment = true
+  for (const argument of node.codegenNode?.children.arguments ?? []) {
+    if (
+      argument.type === CompilerDOM.NodeTypes.JS_FUNCTION_EXPRESSION &&
+      argument.returns?.type === CompilerDOM.NodeTypes.VNODE_CALL &&
+      argument.returns?.props?.type ===
+        CompilerDOM.NodeTypes.JS_OBJECT_EXPRESSION
+    ) {
+      if (argument.returns.tag !== CompilerDOM.FRAGMENT) {
+        isFragment = false
+        continue
+      }
+      for (const prop of argument.returns.props.properties) {
+        if (
+          prop.value.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION &&
+          !prop.value.isStatic
+        ) {
+          yield* generateInterpolation(
+            options,
+            ctx,
+            'template',
+            ctx.codeFeatures.all,
+            prop.value.content,
+            prop.value.loc.start.offset,
+            prop.value.loc,
+            `(`,
+            `)`,
+          )
+          yield endOfLine
+        }
+      }
+    }
+  }
+
+  const { inVFor } = ctx
+  ctx.inVFor = true
+  yield* generateElementChildren(options, ctx, node.children, isFragment)
+  ctx.inVFor = inVFor
+
+  for (const varName of forBlockVars) {
+    ctx.removeLocalVariable(varName)
+  }
+  yield `}${newLine}`
+}
+
+export function parseVForNode(node: CompilerDOM.ForNode) {
+  const { value, key, index } = node.parseResult
+  const leftExpressionRange =
+    value || key || index
+      ? {
+          start: (value ?? key ?? index)!.loc.start.offset,
+          end: (index ?? key ?? value)!.loc.end.offset,
+        }
+      : undefined
+  const leftExpressionText = leftExpressionRange
+    ? node.loc.source.slice(
+        leftExpressionRange.start - node.loc.start.offset,
+        leftExpressionRange.end - node.loc.start.offset,
+      )
+    : undefined
+  return {
+    leftExpressionRange,
+    leftExpressionText,
+  }
+}

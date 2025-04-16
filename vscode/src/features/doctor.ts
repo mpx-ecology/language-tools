@@ -5,7 +5,7 @@ import {
   getTsdk,
 } from '@volar/vscode'
 import type { SFCParseResult } from '@mpxjs/language-server'
-import { commands } from '@mpxjs/language-server/out/types'
+import { Commands } from '@mpxjs/language-server/out/types'
 import {
   executeCommand,
   extensionContext,
@@ -113,7 +113,7 @@ export async function activate(client: BaseLanguageClient) {
 
     const sfc: SFCParseResult = mpxDoc
       ? await client.sendRequest(ExecuteCommandRequest.type, {
-          command: commands.parseSfc,
+          command: Commands.ParseSfc,
           arguments: [mpxDoc.getText()],
         } satisfies ExecuteCommandParams)
       : undefined

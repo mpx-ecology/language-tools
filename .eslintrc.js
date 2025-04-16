@@ -13,5 +13,7 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 0,
     'no-undef': 0,
     'no-extra-semi': 0,
+    'no-inner-declarations': 0,
+    'no-useless-escape': 0,
   },
 }
