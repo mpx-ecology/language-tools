@@ -16,10 +16,10 @@
     "@mpxjs/language-core": "workspace:*",
     "@mpxjs/language-shared": "workspace:*",
     "@volar/typescript": "catalog:",
-    "path-browserify": "^1.0.1"
+    "path-browserify": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@types/path-browserify": "^1.0.1"
+    "@types/path-browserify": "catalog:"
   }
 }

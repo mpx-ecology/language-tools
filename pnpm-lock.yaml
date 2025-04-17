@@ -12,6 +12,9 @@ catalogs:
     '@types/node':
       specifier: ^22.13.14
       version: 22.14.1
+    '@types/path-browserify':
+      specifier: ^1.0.1
+      version: 1.0.3
     '@types/semver':
       specifier: ^7.7.0
       version: 7.7.0
@@ -36,6 +39,9 @@ catalogs:
     '@vue/shared':
       specifier: ^3.5.0
       version: 3.5.13
+    path-browserify:
+      specifier: ^1.0.1
+      version: 1.0.1
     reactive-vscode:
       specifier: ^0.2.14
       version: 0.2.14
@@ -126,7 +132,7 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1
       path-browserify:
-        specifier: ^1.0.1
+        specifier: 'catalog:'
         version: 1.0.1
       typescript:
         specifier: '*'
@@ -139,7 +145,7 @@ importers:
         specifier: 'catalog:'
         version: 22.14.1
       '@types/path-browserify':
-        specifier: ^1.0.1
+        specifier: 'catalog:'
         version: 1.0.3
       '@volar/typescript':
         specifier: 'catalog:'
@@ -218,14 +224,14 @@ importers:
         specifier: 'catalog:'
         version: 2.4.12
       path-browserify:
-        specifier: ^1.0.1
+        specifier: 'catalog:'
         version: 1.0.1
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
         version: 22.14.1
       '@types/path-browserify':
-        specifier: ^1.0.1
+        specifier: 'catalog:'
         version: 1.0.3
 
   vscode:
