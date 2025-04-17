@@ -1,0 +1,17 @@
+{
+  "name": "@mpxjs/language-shared",
+  "version": "0.0.1",
+  "license": "MIT",
+  "files": [
+    "**/*.js",
+    "**/*.d.ts"
+  ],
+  "sideEffects": false,
+  "main": "out/index.js",
+  "types": "out/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mpx-ecology/language-tools.git",
+    "directory": "packages/language-shared"
+  }
+}
