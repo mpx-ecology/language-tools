@@ -35,7 +35,7 @@ connection.onInitialize(params => {
   }
   if (!options.typescript?.tsserverRequestCommand) {
     connection.console.warn(
-      'typescript.tsserverRequestCommand is required since >= 3.0 for complete TS features',
+      'typescript.tsserverRequestCommand is required for complete TS features',
     )
   }
 
@@ -84,6 +84,7 @@ connection.onInitialize(params => {
             file2ProjectInfo.set(fileName, projectInfoPromise)
           }
           const projectInfo = await projectInfoPromise
+          // console.log('---> debug-projectInfo', projectInfo)
           if (projectInfo) {
             const { configFileName } = projectInfo
             let ls = tsconfigProjects.get(URI.file(configFileName))
@@ -116,30 +117,30 @@ connection.onInitialize(params => {
             collectExtractProps(...args: any[]) {
               return sendTsRequest('mpx:collectExtractProps', args)
             },
-            // getComponentDirectives(...args: any[]) {
-            //   return sendTsRequest('mpx:getComponentDirectives', args)
-            // },
-            // getComponentEvents(...args: any[]) {
-            //   return sendTsRequest('mpx:getComponentEvents', args)
-            // },
-            // getComponentNames(...args: any[]) {
-            //   return sendTsRequest('mpx:getComponentNames', args)
-            // },
-            // getComponentProps(...args: any[]) {
-            //   return sendTsRequest('mpx:getComponentProps', args)
-            // },
-            // getElementAttrs(...args: any[]) {
-            //   return sendTsRequest('mpx:getElementAttrs', args)
-            // },
-            // getElementNames(...args: any[]) {
-            //   return sendTsRequest('mpx:getElementNames', args)
-            // },
-            // getImportPathForFile(...args: any[]) {
-            //   return sendTsRequest('mpx:getImportPathForFile', args)
-            // },
-            // getPropertiesAtLocation(...args: any[]) {
-            //   return sendTsRequest('mpx:getPropertiesAtLocation', args)
-            // },
+            getComponentDirectives(...args: any[]) {
+              return sendTsRequest('mpx:getComponentDirectives', args)
+            },
+            getComponentEvents(...args: any[]) {
+              return sendTsRequest('mpx:getComponentEvents', args)
+            },
+            getComponentNames(...args: any[]) {
+              return sendTsRequest('mpx:getComponentNames', args)
+            },
+            getComponentProps(...args: any[]) {
+              return sendTsRequest('mpx:getComponentProps', args)
+            },
+            getElementAttrs(...args: any[]) {
+              return sendTsRequest('mpx:getElementAttrs', args)
+            },
+            getElementNames(...args: any[]) {
+              return sendTsRequest('mpx:getElementNames', args)
+            },
+            getImportPathForFile(...args: any[]) {
+              return sendTsRequest('mpx:getImportPathForFile', args)
+            },
+            getPropertiesAtLocation(...args: any[]) {
+              return sendTsRequest('mpx:getPropertiesAtLocation', args)
+            },
             getDocumentHighlights(fileName: string, position: any) {
               return sendTsRequest(
                 'documentHighlights-full', // internal command

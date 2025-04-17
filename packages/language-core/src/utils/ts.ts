@@ -1,12 +1,14 @@
 import type * as ts from 'typescript'
 import { posix as path } from 'path-browserify'
-import {
+import type {
   MpxCompilerOptions,
   MpxLanguagePlugin,
   RawMpxCompilerOptions,
 } from '../types'
+
+import { camelize } from '@mpxjs/language-shared'
 import { getAllExtensions } from '../languagePlugin'
-import { camelize, hyphenateTag } from './shared'
+import { hyphenateTag } from './shared'
 import {
   generateGlobalTypes,
   getGlobalTypesFileName,
@@ -242,7 +244,7 @@ export function setupGlobalTypes(
     const globalTypesPath = path.join(
       dir,
       'node_modules',
-      '.vue-global-types',
+      '.mpx-global-types',
       getGlobalTypesFileName(mpxOptions),
     )
     const globalTypesContents =

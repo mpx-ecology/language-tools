@@ -1,4 +1,12 @@
-import { collectExtractProps } from './collectExtractProps.js'
+import { collectExtractProps } from './collectExtractProps'
+import { getComponentNames } from './getComponentNames'
+import { getImportPathForFile } from './getImportPathForFile'
+import { getPropertiesAtLocation } from './getPropertiesAtLocation'
+import { getComponentProps } from './getComponentProps'
+import { getComponentEvents } from './getComponentEvents'
+import { getComponentDirectives } from './getComponentDirectives'
+import { getElementAttrs } from './getElementAttrs'
+import { getElementNames } from './getElementNames'
 
 type ToRequest<T extends (...args: any) => any> = (
   ...args: Parameters<T>
@@ -6,33 +14,27 @@ type ToRequest<T extends (...args: any) => any> = (
 
 export interface IRequests {
   collectExtractProps: ToRequest<typeof collectExtractProps>
-  // getImportPathForFile: ToRequest<
-  //   (typeof import('./getImportPathForFile.js'))['getImportPathForFile']
-  // >
-  // getPropertiesAtLocation: ToRequest<
-  //   (typeof import('./getPropertiesAtLocation.js'))['getPropertiesAtLocation']
-  // >
-  // getComponentNames: ToRequest<
-  //   (typeof import('./getComponentNames.js'))['getComponentNames']
-  // >
-  // getComponentProps: ToRequest<
-  //   (typeof import('./getComponentProps.js'))['getComponentProps']
-  // >
-  // getComponentEvents: ToRequest<
-  //   (typeof import('./getComponentEvents.js'))['getComponentEvents']
-  // >
-  // getComponentDirectives: ToRequest<
-  //   (typeof import('./getComponentDirectives.js'))['getComponentDirectives']
-  // >
-  // getElementAttrs: ToRequest<
-  //   (typeof import('./getElementAttrs.js'))['getElementAttrs']
-  // >
-  // getElementNames: ToRequest<
-  //   (typeof import('./getElementNames.js'))['getElementNames']
-  // >
+  getImportPathForFile: ToRequest<typeof getImportPathForFile>
+  getPropertiesAtLocation: ToRequest<typeof getPropertiesAtLocation>
+  getComponentNames: ToRequest<typeof getComponentNames>
+  getComponentProps: ToRequest<typeof getComponentProps>
+  getComponentEvents: ToRequest<typeof getComponentEvents>
+  getComponentDirectives: ToRequest<typeof getComponentDirectives>
+  getElementAttrs: ToRequest<typeof getElementAttrs>
+  getElementNames: ToRequest<typeof getElementNames>
   getQuickInfoAtPosition: ToRequest<
     (fileName: string, position: { line: number; character: number }) => string
   >
 }
 
-export { collectExtractProps }
+export {
+  collectExtractProps,
+  getComponentNames,
+  getImportPathForFile,
+  getPropertiesAtLocation,
+  getComponentProps,
+  getComponentEvents,
+  getComponentDirectives,
+  getElementAttrs,
+  getElementNames,
+}

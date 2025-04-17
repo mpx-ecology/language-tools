@@ -3,13 +3,13 @@ import type { TemplateCodegenOptions } from './index'
 import type { TemplateCodegenContext } from './context'
 
 import * as CompilerDOM from '@vue/compiler-dom'
+import { camelize } from '@mpxjs/language-shared'
 import {
   endOfLine,
   generateCamelized,
   generateStringLiteralKey,
   wrapWith,
 } from '../utils'
-import { camelize } from '../../utils/shared'
 import { codeFeatures } from '../codeFeatures'
 import { generatePropExp } from './elementProps'
 import { generateInterpolation } from './interpolation'

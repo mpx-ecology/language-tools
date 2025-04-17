@@ -10,6 +10,7 @@
   "bin": {
     "mpx-language-server": "./bin/mpx-language-server.js"
   },
+  "main": "./out/index.js",
   "types": "./out/index.d.ts",
   "repository": {
     "type": "git",

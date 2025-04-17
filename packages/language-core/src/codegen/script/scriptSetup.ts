@@ -1,4 +1,4 @@
-import { camelize } from '@vue/shared'
+import { camelize } from '@mpxjs/language-shared'
 import type { ScriptSetupRanges } from '../../parsers/scriptSetupRanges'
 import type { Code, Sfc, TextRange } from '../../types'
 import { codeFeatures } from '../codeFeatures'

@@ -1,5 +1,5 @@
 import type { Code, MpxCodeInformation } from '../../types'
-import { capitalize } from '../../utils/shared'
+import { capitalize } from '@mpxjs/language-shared'
 
 export function* generateCamelized(
   code: string,

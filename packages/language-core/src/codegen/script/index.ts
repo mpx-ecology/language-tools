@@ -50,7 +50,7 @@ export function* generateScript(
       }
       yield `/// <reference types="${relativePath}" />${newLine}`
     } else {
-      yield `/// <reference types=".vue-global-types/${getGlobalTypesFileName(options.mpxCompilerOptions)}" />${newLine}`
+      yield `/// <reference types=".mpx-global-types/${getGlobalTypesFileName(options.mpxCompilerOptions)}" />${newLine}`
     }
   } else {
     yield `/// <reference path="./__VLS_fake.d.ts" />`

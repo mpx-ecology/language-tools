@@ -2,6 +2,7 @@ import type { TemplateCodegenOptions } from './index'
 import type { TemplateCodegenContext } from './context'
 import type { Code, MpxCodeInformation } from '../../types'
 
+import { camelize } from '@mpxjs/language-shared'
 import {
   combineLastMapping,
   generateCamelized,
@@ -9,7 +10,6 @@ import {
   identifierRegex,
   wrapWith,
 } from '../utils'
-import { camelize } from '../../utils/shared'
 import { generateInterpolation } from './interpolation'
 
 export function* generateObjectProperty(

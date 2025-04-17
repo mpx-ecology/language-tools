@@ -1,7 +1,7 @@
 {
   "private": true,
   "version": "0.0.1",
-  "description": "debug for mpx vscode plugin",
+  "description": "debug for mpx vscode extension",
   "devDependencies": {
     "@mpxjs/core": "catalog:",
     "typescript": "catalog:"

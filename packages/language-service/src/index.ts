@@ -1,21 +1,19 @@
-// /// <reference types="@volar/typescript" />
-
-export * from '@volar/language-service'
-export * from '@mpxjs/language-core'
-export * from './types'
+/// <reference types="@volar/typescript" />
 
 import type * as ts from 'typescript'
-// import { URI } from 'vscode-uri'
-import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic'
-import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-service-typescript/lib/plugins/docCommentTemplate'
-
 import type { IRequests } from '@mpxjs/typescript-plugin/src/requests'
 import type {
   LanguageServiceContext,
   LanguageServicePlugin,
 } from '@volar/language-service'
-
+// import { URI } from 'vscode-uri'
+import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic'
+import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-service-typescript/lib/plugins/docCommentTemplate'
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
+
+export * from '@volar/language-service'
+export * from '@mpxjs/language-core'
+export * from './types'
 
 export function getHybridModeLanguageServicePlugins(
   ts: typeof import('typescript'),

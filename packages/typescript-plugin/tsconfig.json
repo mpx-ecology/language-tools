@@ -11,6 +11,9 @@
   "references": [
     {
       "path": "../language-core/tsconfig.json"
+    },
+    {
+      "path": "../language-shared/tsconfig.json"
     }
   ]
 }

@@ -1,6 +1,7 @@
 import type { Code, Sfc, MpxLanguagePlugin } from '../types'
 import * as path from 'path-browserify'
 import { computed } from 'alien-signals'
+import { camelize, capitalize } from '@mpxjs/language-shared'
 
 import { generateScript } from '../codegen/script'
 import { generateTemplate } from '../codegen/template'
@@ -9,7 +10,6 @@ import { parseScriptSetupRanges } from '../parsers/scriptSetupRanges'
 import { parseMpxCompilerOptions } from '../parsers/mpxCompilerOptions'
 import { computedSet } from '../utils/signals'
 import { CompilerOptionsResolver } from '../utils/ts'
-import { camelize, capitalize } from '../utils/shared'
 
 export const tsCodegen = new WeakMap<Sfc, ReturnType<typeof createTsx>>()
 

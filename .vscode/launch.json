@@ -10,7 +10,7 @@
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceRoot}/vscode",
-        "--folder-uri=${workspaceRoot}/inspect-extension-host"
+        "--folder-uri=${workspaceRoot}/inspect-extension"
       ],
       "outFiles": ["${workspaceRoot}/**/*.js"],
       "preLaunchTask": {

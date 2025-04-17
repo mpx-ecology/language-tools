@@ -6,6 +6,7 @@ export function collectExtractProps(
   fileName: string,
   templateCodeRange: [number, number],
 ) {
+  console.log('---> debug-collectExtractProps', fileName, templateCodeRange)
   const {
     typescript: ts,
     languageService,

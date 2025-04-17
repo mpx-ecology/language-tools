@@ -1,7 +1,7 @@
-import * as CompilerDOM from '@vue/compiler-dom'
-import { camelize, capitalize } from '@vue/shared'
 import type * as ts from 'typescript'
 import type { Code } from '../../types'
+import * as CompilerDOM from '@vue/compiler-dom'
+import { camelize, capitalize } from '@mpxjs/language-shared'
 import {
   combineLastMapping,
   createTsAst,

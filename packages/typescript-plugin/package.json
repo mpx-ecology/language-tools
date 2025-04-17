@@ -14,9 +14,12 @@
   },
   "dependencies": {
     "@mpxjs/language-core": "workspace:*",
-    "@volar/typescript": "catalog:"
+    "@mpxjs/language-shared": "workspace:*",
+    "@volar/typescript": "catalog:",
+    "path-browserify": "^1.0.1"
   },
   "devDependencies": {
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "@types/path-browserify": "^1.0.1"
   }
 }

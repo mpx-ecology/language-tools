@@ -90,7 +90,7 @@ importers:
         specifier: 'catalog:'
         version: 5.8.3
 
-  inspect-extension-host:
+  inspect-extension:
     devDependencies:
       '@mpxjs/core':
         specifier: 'catalog:'
@@ -101,6 +101,9 @@ importers:
 
   packages/language-core:
     dependencies:
+      '@mpxjs/language-shared':
+        specifier: workspace:*
+        version: link:../language-shared
       '@volar/language-core':
         specifier: 'catalog:'
         version: 2.4.12
@@ -201,18 +204,29 @@ importers:
         specifier: 'catalog:'
         version: 22.14.1
 
+  packages/language-shared: {}
+
   packages/typescript-plugin:
     dependencies:
       '@mpxjs/language-core':
         specifier: workspace:*
         version: link:../language-core
+      '@mpxjs/language-shared':
+        specifier: workspace:*
+        version: link:../language-shared
       '@volar/typescript':
         specifier: 'catalog:'
         version: 2.4.12
+      path-browserify:
+        specifier: ^1.0.1
+        version: 1.0.1
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
         version: 22.14.1
+      '@types/path-browserify':
+        specifier: ^1.0.1
+        version: 1.0.3
 
   vscode:
     devDependencies:

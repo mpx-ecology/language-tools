@@ -1,5 +1,5 @@
 import * as CompilerDOM from '@vue/compiler-dom'
-import { camelize } from '@vue/shared'
+import { camelize } from '@mpxjs/language-shared'
 import { minimatch } from 'minimatch'
 import { toString } from 'muggle-string'
 import type { Code, MpxCodeInformation, MpxCompilerOptions } from '../../types'

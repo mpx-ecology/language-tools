@@ -7,5 +7,10 @@
     "moduleResolution": "Node"
   },
   "include": ["src"],
-  "exclude": ["__tests__"]
+  "exclude": ["__tests__"],
+  "references": [
+    {
+      "path": "../language-shared/tsconfig.json"
+    }
+  ]
 }

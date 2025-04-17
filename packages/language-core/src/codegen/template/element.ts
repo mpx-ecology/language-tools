@@ -2,7 +2,8 @@ import type { TemplateCodegenOptions } from './index'
 import type { Code, MpxCodeInformation } from '../../types'
 
 import * as CompilerDOM from '@vue/compiler-dom'
-import { camelize, capitalize } from '../../utils/shared'
+import { camelize, capitalize } from '@mpxjs/language-shared'
+
 import { getSlotsPropertyName, hyphenateTag } from '../../utils/shared'
 import { codeFeatures } from '../codeFeatures'
 import {
