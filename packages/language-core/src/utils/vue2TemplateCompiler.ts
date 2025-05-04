@@ -4,9 +4,7 @@ const Vue2TemplateCompiler: typeof import('@vue/compiler-vue2') = require('@vue/
 
 export const compile: typeof CompilerDOM.compile = (template, options = {}) => {
   if (typeof template !== 'string') {
-    throw new Error(
-      `[@vue/language-core] compile() first argument must be string.`,
-    )
+    throw new Error(`compile() first argument must be string.`)
   }
 
   const onError = options.onError
@@ -15,8 +13,8 @@ export const compile: typeof CompilerDOM.compile = (template, options = {}) => {
   options.onError = error => {
     if (
       error.code ===
-        (33 satisfies CompilerDOM.ErrorCodes.X_V_FOR_TEMPLATE_KEY_PLACEMENT) || // :key binding allowed in v-for template child in vue 2
-      error.code === (29 satisfies CompilerDOM.ErrorCodes.X_V_IF_SAME_KEY) // fix https://github.com/vuejs/language-tools/issues/1638
+        (33 satisfies CompilerDOM.ErrorCodes.X_V_FOR_TEMPLATE_KEY_PLACEMENT) ||
+      error.code === (29 satisfies CompilerDOM.ErrorCodes.X_V_IF_SAME_KEY)
     ) {
       return
     }

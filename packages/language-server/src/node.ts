@@ -84,7 +84,6 @@ connection.onInitialize(params => {
             file2ProjectInfo.set(fileName, projectInfoPromise)
           }
           const projectInfo = await projectInfoPromise
-          // console.log('---> debug-projectInfo', projectInfo)
           if (projectInfo) {
             const { configFileName } = projectInfo
             let ls = tsconfigProjects.get(URI.file(configFileName))

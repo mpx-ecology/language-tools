@@ -6,7 +6,7 @@ import { camelize, capitalize } from '@mpxjs/language-shared'
 export function getComponentType(
   ts: typeof import('typescript'),
   languageService: ts.LanguageService,
-  vueCode: MpxVirtualCode,
+  mpxCode: MpxVirtualCode,
   components: NonNullable<ReturnType<typeof getVariableType>>,
   fileName: string,
   tag: string,
@@ -27,7 +27,7 @@ export function getComponentType(
       componentType = getVariableType(
         ts,
         languageService,
-        vueCode,
+        mpxCode,
         '__VLS_self',
       )?.type
     }
@@ -58,12 +58,12 @@ export function getSelfComponentName(fileName: string) {
 export function getVariableType(
   ts: typeof import('typescript'),
   languageService: ts.LanguageService,
-  vueCode: MpxVirtualCode,
+  mpxCode: MpxVirtualCode,
   name: string,
 ) {
   const program = languageService.getProgram()!
 
-  const tsSourceFile = program.getSourceFile(vueCode.fileName)
+  const tsSourceFile = program.getSourceFile(mpxCode.fileName)
   if (tsSourceFile) {
     const checker = program.getTypeChecker()
     const node = searchVariableDeclarationNode(ts, tsSourceFile, name)

@@ -1,4 +1,4 @@
-import { VueVirtualCode } from '@vue/language-core'
+import { MpxVirtualCode } from '@mpxjs/language-core'
 import type { RequestContext } from './types'
 import { getVariableType } from './utils'
 
@@ -9,17 +9,17 @@ export function getElementAttrs(
 ) {
   const { typescript: ts, language, languageService, getFileId } = this
   const volarFile = language.scripts.get(getFileId(fileName))
-  if (!(volarFile?.generated?.root instanceof VueVirtualCode)) {
+  if (!(volarFile?.generated?.root instanceof MpxVirtualCode)) {
     return
   }
-  const vueCode = volarFile.generated.root
+  const mpxCode = volarFile.generated.root
 
   const program = languageService.getProgram()!
   const checker = program.getTypeChecker()
   const elements = getVariableType(
     ts,
     languageService,
-    vueCode,
+    mpxCode,
     '__VLS_elements',
   )
   if (!elements) {

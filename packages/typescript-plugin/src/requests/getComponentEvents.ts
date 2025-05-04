@@ -39,13 +39,6 @@ export function getComponentEvents(
 
   const result = new Set<string>()
 
-  // for (const sig of componentType.getCallSignatures()) {
-  // 	const emitParam = sig.parameters[1];
-  // 	if (emitParam) {
-  // 		// TODO
-  // 	}
-  // }
-
   for (const sig of componentType.getConstructSignatures()) {
     const instanceType = sig.getReturnType()
     const emitSymbol = instanceType.getProperty('$emit')

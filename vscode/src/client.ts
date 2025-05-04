@@ -125,7 +125,7 @@ export const { activate, deactivate } = defineExtension(async () => {
             lowPriority: true,
             requireSemantic: true,
           })[0]
-          console.log('---> debug-client-onRequest-res', res)
+          console.log('---> debug-client-onRequest-response', res)
           return res.body
         } catch {
           // noop
