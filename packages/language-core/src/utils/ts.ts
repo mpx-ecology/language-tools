@@ -14,6 +14,77 @@ import {
   getGlobalTypesFileName,
 } from '../codegen/globalTypes'
 
+export function createParsedCommandLineByJson(
+  ts: typeof import('typescript'),
+  parseConfigHost: ts.ParseConfigHost & {
+    writeFile?(path: string, data: string): void
+  },
+  rootDir: string,
+  json: any,
+  configFileName = rootDir + '/jsconfig.json',
+  skipGlobalTypesSetup = false,
+): ParsedCommandLine {
+  const proxyHost = proxyParseConfigHostForExtendConfigPaths(parseConfigHost)
+  ts.parseJsonConfigFileContent(
+    json,
+    proxyHost.host,
+    rootDir,
+    {},
+    configFileName,
+  )
+
+  const resolver = new CompilerOptionsResolver()
+
+  for (const extendPath of proxyHost.extendConfigPaths.reverse()) {
+    try {
+      const configFile = ts.readJsonConfigFile(
+        extendPath,
+        proxyHost.host.readFile,
+      )
+      const obj = ts.convertToObject(configFile, [])
+      const rawOptions: RawMpxCompilerOptions = obj?.mpxCompilerOptions ?? {}
+      resolver.addConfig(rawOptions, path.dirname(configFile.fileName))
+    } catch (err) {
+      // noop
+    }
+  }
+
+  const resolvedMpxOptions = resolver.build()
+
+  if (skipGlobalTypesSetup) {
+    resolvedMpxOptions.__setupedGlobalTypes = true
+  } else {
+    resolvedMpxOptions.__setupedGlobalTypes = setupGlobalTypes(
+      rootDir,
+      resolvedMpxOptions,
+      parseConfigHost,
+    )
+  }
+  const parsed = ts.parseJsonConfigFileContent(
+    json,
+    proxyHost.host,
+    rootDir,
+    {},
+    configFileName,
+    undefined,
+    getAllExtensions(resolvedMpxOptions).map(extension => ({
+      extension: extension.slice(1),
+      isMixedContent: true,
+      scriptKind: ts.ScriptKind.Deferred,
+    })),
+  )
+
+  // fix https://github.com/vuejs/language-tools/issues/1786
+  // https://github.com/microsoft/TypeScript/issues/30457
+  // patching ts server broke with outDir + rootDir + composite/incremental
+  parsed.options.outDir = undefined
+
+  return {
+    ...parsed,
+    mpxOptions: resolvedMpxOptions,
+  }
+}
+
 export type ParsedCommandLine = ts.ParsedCommandLine & {
   mpxOptions: MpxCompilerOptions
 }
