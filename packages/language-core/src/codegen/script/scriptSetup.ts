@@ -320,11 +320,13 @@ function* generateSetupFunction(
     scriptSetup.content.length,
     '#3632/scriptSetup.vue',
   )
+  yield* generateMacros(options, ctx)
 
   if (
     scriptSetupRanges.defineProps?.typeArg &&
     scriptSetupRanges.withDefaults?.arg
   ) {
+    // fix https://github.com/vuejs/language-tools/issues/1187
     yield `const __VLS_withDefaultsArg = (function <T>(t: T) { return t })(`
     yield generateSfcBlockSection(
       scriptSetup,
@@ -357,6 +359,22 @@ function* generateSetupFunction(
       yield* generateComponent(options, ctx, scriptSetup, scriptSetupRanges)
       yield endOfLine
     }
+  }
+}
+
+function* generateMacros(
+  options: ScriptCodegenOptions,
+  ctx: ScriptCodegenContext,
+): Generator<Code> {
+  if (options.mpxCompilerOptions.target >= 3.3) {
+    yield `// @ts-ignore${newLine}`
+    yield `declare const { `
+    for (const macro of Object.keys(options.mpxCompilerOptions.macros)) {
+      if (!ctx.bindingNames.has(macro)) {
+        yield `${macro}, `
+      }
+    }
+    yield `}: typeof import('${options.mpxCompilerOptions.lib}')${endOfLine}`
   }
 }
 
