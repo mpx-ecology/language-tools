@@ -3,8 +3,8 @@
   "private": true,
   "version": "0.0.1",
   "icon": "images/icon.png",
-  "displayName": "Mpx - VSCode",
-  "description": "VSCode Language Support for Mpx",
+  "displayName": "Mpx",
+  "description": "Mpx language support for Visual Studio Code",
   "author": "wangshunnn",
   "publisher": "Mpx",
   "repository": {
