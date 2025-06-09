@@ -14,23 +14,29 @@ For detailed documentation and guides, see our [official docs](TODO).
 
 For bug reports and feature requests, please [create or view issues](https://github.com/mpx-ecology/language-tools/issues) in our GitHub repository.
 
+## Local Dev
+
+<!-- TODO -->
+
 ## RoadMap
 
 ### Base
 
 - [ ] arch design (WIP)
-- [ ] mpx parser
+  - [ ] docs
+- [ ] mpx parser (WIP)
+  - [ ] replace @vue/compiler
 
 ### Legacy Feature
 
-- [x] syntax highlight (80%)
-- [ ] semantic highlight
+- [ ] syntax highlight (80%)
+- [ ] ..
 
 ### New Feature
 
-- [ ] script
+- [ ] script (WIP)
   - [ ] ts intellisense
-- [ ] template
+- [ ] template (WIP)
   - [ ] intellisense
   - [ ] definition
 - [ ] style
