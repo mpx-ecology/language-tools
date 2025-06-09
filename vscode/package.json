@@ -363,7 +363,9 @@
     "postinstall": "vscode-ext-gen --scope mpx"
   },
   "devDependencies": {
+    "@mpxjs/language-core": "workspace:*",
     "@mpxjs/language-server": "workspace:*",
+    "@mpxjs/typescript-plugin": "workspace:*",
     "@types/semver": "catalog:",
     "@types/vscode": "^1.88.0",
     "@volar/vscode": "catalog:",

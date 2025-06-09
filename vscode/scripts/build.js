@@ -14,10 +14,10 @@ async function main() {
       'dist/client': './out/client.js',
       'dist/server':
         './node_modules/@mpxjs/language-server/bin/mpx-language-server.js',
-      //   'node_modules/mpx-language-core-pack/index':
-      //     './node_modules/@mpxjs/language-core/out/index.js',
-      //   'node_modules/mpx-typescript-plugin-pack/index':
-      //     './node_modules/@mpxjs/typescript-plugin/out/index.js',
+      'node_modules/mpx-language-core-pack/index':
+        './node_modules/@mpxjs/language-core/out/index.js',
+      'node_modules/mpx-typescript-plugin-pack/index':
+        './node_modules/@mpxjs/typescript-plugin/out/index.js',
     },
     outdir: '.',
     bundle: true,
@@ -45,7 +45,7 @@ async function main() {
   console.log('[esbuild] start')
 
   if (watch) {
-    // await ctx.watch()
+    await ctx.watch()
     console.log('[esbuild] watching...')
   } else {
     await ctx.rebuild()
