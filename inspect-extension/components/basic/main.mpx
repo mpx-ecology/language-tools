@@ -1,0 +1,8 @@
+<script setup lang="ts">
+import { ref } from '@mpxjs/core';
+const title = ref('');
+</script>
+
+<template>
+	<view>{{ title }}</view>
+</template>
