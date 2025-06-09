@@ -6,6 +6,14 @@
 
 > 🚧 **Work in Progress**
 
+## Features
+
+For detailed documentation and guides, see our [official docs](TODO).
+
+## Issues & Support
+
+For bug reports and feature requests, please [create or view issues](https://github.com/mpx-ecology/language-tools/issues) in our GitHub repository.
+
 ## RoadMap
 
 ### Base
@@ -15,7 +23,7 @@
 
 ### Legacy Feature
 
-- [ ] syntax highlight (WIP)
+- [x] syntax highlight (80%)
 - [ ] semantic highlight
 
 ### New Feature
