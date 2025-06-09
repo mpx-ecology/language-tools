@@ -27,8 +27,6 @@ const plugin: MpxLanguagePlugin = ctx => {
   const parseds = new WeakMap<Sfc, ReturnType<typeof parse>>()
 
   return {
-    version: 2.1,
-
     getEmbeddedCodes(_fileName, sfc) {
       if (!sfc.template?.ast) {
         return []
@@ -75,17 +73,7 @@ const plugin: MpxLanguagePlugin = ctx => {
       node: CompilerDOM.TemplateChildNode | CompilerDOM.SimpleExpressionNode,
     ) {
       if (node.type === CompilerDOM.NodeTypes.COMMENT) {
-        const match = node.loc.source.match(
-          /^<!--\s*@vue-generic\s*\{(?<content>[\s\S]*)\}\s*-->$/,
-        )
-        if (match) {
-          const { content } = match.groups!
-          addFormatCodes(
-            content,
-            node.loc.start.offset + node.loc.source.indexOf('{') + 1,
-            formatBrackets.generic,
-          )
-        }
+        // TODO Mpx comment
       } else if (node.type === CompilerDOM.NodeTypes.ELEMENT) {
         for (const prop of node.props) {
           if (prop.type !== CompilerDOM.NodeTypes.DIRECTIVE) {

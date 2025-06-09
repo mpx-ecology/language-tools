@@ -1,8 +1,6 @@
 import * as lsp from '@volar/vscode'
-import { AttrNameCasing, TagNameCasing } from '@mpxjs/language-server/out/types'
 import * as vscode from 'vscode'
 import { config } from './config'
-import { attrNameCasings, tagNameCasings } from './features/nameCasing'
 
 export const middleware: lsp.Middleware = {
   ...lsp.middleware,
@@ -32,24 +30,6 @@ export const middleware: lsp.Middleware = {
         )
       ) {
         return params.items.map(item => {
-          if (item.scopeUri) {
-            if (item.section === 'mpx.complete.casing.tags') {
-              const tagNameCasing = tagNameCasings.get(item.scopeUri)
-              if (tagNameCasing === TagNameCasing.Kebab) {
-                return 'kebab'
-              } else if (tagNameCasing === TagNameCasing.Pascal) {
-                return 'pascal'
-              }
-            } else if (item.section === 'mpx.complete.casing.props') {
-              const attrCase = attrNameCasings.get(item.scopeUri)
-              if (attrCase === AttrNameCasing.Kebab) {
-                return 'kebab'
-              }
-              if (attrCase === AttrNameCasing.Camel) {
-                return 'camel'
-              }
-            }
-          }
           return vscode.workspace.getConfiguration(
             item.section,
             item.scopeUri ? vscode.Uri.parse(item.scopeUri) : undefined,

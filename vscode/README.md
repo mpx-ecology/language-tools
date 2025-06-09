@@ -1,16 +1,14 @@
-# Mpx - VSCode
+# Mpx for VS Code
 
-## Commands
+[The VS Code Mpx extension](TODO) provides rich language support for the [Mpx language](https://mpxjs.cn).
 
-<!-- commands -->
+## Features
 
-| Command                    | Title                                                                            |
-| -------------------------- | -------------------------------------------------------------------------------- |
-| `mpx.action.restartServer` | Mpx: Restart Mpx and TS servers                                                  |
-| `mpx.action.doctor`        | Mpx: Doctor                                                                      |
-| `mpx.action.splitEditors`  | Mpx: Split &lt;script&gt;, &lt;template&gt;, &lt;style&gt;, &lt;json&gt; Editors |
+For detailed features, please refer to the [docs](TODO).
 
-<!-- commands -->
+## Issues & Support
+
+For bug reports and feature requests, please [create or view issues](https://github.com/mpx-ecology/language-tools/issues) in our GitHub repository.
 
 ## Credits
 

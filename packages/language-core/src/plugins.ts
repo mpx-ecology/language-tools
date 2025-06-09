@@ -9,7 +9,7 @@ import mpxTemplateHtmlPlugin from './plugins/mpx-template-html'
 import mpxTemplateInlineCssPlugin from './plugins/mpx-template-inline-css'
 import mpxTemplateInlineTsPlugin from './plugins/mpx-template-inline-ts'
 import mpxTsxPlugin from './plugins/mpx-tsx'
-import { validVersions, type MpxLanguagePlugin } from './types'
+import { type MpxLanguagePlugin } from './types'
 
 export * from './plugins/shared'
 
@@ -29,7 +29,7 @@ export function createPlugins(pluginContext: Parameters<MpxLanguagePlugin>[0]) {
     ...pluginContext.mpxCompilerOptions.plugins,
   ]
 
-  const pluginInstances = plugins
+  return plugins
     .flatMap(plugin => {
       try {
         const instance = plugin(pluginContext)
@@ -52,14 +52,4 @@ export function createPlugins(pluginContext: Parameters<MpxLanguagePlugin>[0]) {
       const bOrder = b.order ?? 0
       return aOrder - bOrder
     })
-
-  return pluginInstances.filter(plugin => {
-    if (!validVersions.includes(plugin.version)) {
-      console.warn(
-        `[Mpx] Plugin ${plugin.name} is not compatible with the current Mpx language tools version. (version: ${plugin.version}, supported versions: ${JSON.stringify(validVersions)})`,
-      )
-      return false
-    }
-    return true
-  })
 }

@@ -3,8 +3,6 @@ import { allCodeFeatures } from './shared'
 
 const plugin: MpxLanguagePlugin = () => {
   return {
-    version: 2.1,
-
     getEmbeddedCodes(_fileName, sfc) {
       if (sfc.template?.lang === 'html') {
         return [

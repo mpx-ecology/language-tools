@@ -12,8 +12,6 @@ const codeFeatures = {
 
 const plugin: MpxLanguagePlugin = () => {
   return {
-    version: 2.1,
-
     getEmbeddedCodes(_fileName, sfc) {
       if (!sfc.template?.ast) {
         return []

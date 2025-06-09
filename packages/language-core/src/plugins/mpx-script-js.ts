@@ -3,8 +3,6 @@ import type { MpxLanguagePlugin } from '../types'
 
 const plugin: MpxLanguagePlugin = ({ modules }) => {
   return {
-    version: 2.1,
-
     compileSFCScript(lang, script) {
       if (lang === 'js' || lang === 'ts' || lang === 'jsx' || lang === 'tsx') {
         const ts = modules.typescript

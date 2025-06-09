@@ -8,17 +8,9 @@ import { computedSfc } from './computedSfc'
 import { computedMpxSfc } from './computedMpxSfc'
 import { computedEmbeddedCodes } from './computedEmbeddedCodes'
 export class MpxVirtualCode implements VirtualCode {
-  /**
-   * sources
-   */
-
   id = 'main'
 
   private _snapshot = signal<ts.IScriptSnapshot>(undefined!)
-
-  /**
-   * computeds
-   */
 
   private _mpxSfc = computedMpxSfc(
     this.plugins,
@@ -49,10 +41,6 @@ export class MpxVirtualCode implements VirtualCode {
       },
     ]
   })
-
-  /**
-   * others
-   */
 
   get snapshot() {
     return this._snapshot()

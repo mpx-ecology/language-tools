@@ -6,10 +6,11 @@ import type {
   LanguageServiceContext,
   LanguageServicePlugin,
 } from '@volar/language-service'
-// import { URI } from 'vscode-uri'
+import { parse } from '@mpxjs/language-core'
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic'
 import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-service-typescript/lib/plugins/docCommentTemplate'
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
+import { Commands } from './types'
 
 export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
@@ -50,36 +51,25 @@ function getCommonLanguageServicePlugins(
   ) => IRequests | undefined,
 ): LanguageServicePlugin[] {
   return [
-    // createTypeScriptTwoslashQueriesPlugin(ts),
+    // createVueSfcPlugin(),
     // createCssPlugin(),
     // createJsonPlugin(),
-    // createMpxTemplatePlugin('html', getTsPluginClient),
-    // createMpxMissingPropsHintsPlugin(getTsPluginClient),
-    // createMpxCompilerDomErrorsPlugin(),
+    // createMpxTemplatePlugin(getTsPluginClient),
     // createMpxSfcPlugin(),
-    // createMpxTwoslashQueriesPlugin(getTsPluginClient),
-    // createMpxDocumentDropPlugin(ts, getTsPluginClient),
-    // createMpxDocumentLinksPlugin(),
-    // createMpxCompleteDefineAssignmentPlugin(),
-    // createMpxAutoDotValuePlugin(ts, getTsPluginClient),
-    // createMpxAutoAddSpacePlugin(),
-    // createMpxInlayHintsPlugin(ts),
-    // createMpxDirectiveCommentsPlugin(),
-    // createMpxExtractFilePlugin(ts, getTsPluginClient),
-    // {
-    //   name: 'mpx-parse-sfc',
-    //   capabilities: {
-    //     executeCommandProvider: {
-    //       commands: [Commands.ParseSfc],
-    //     },
-    //   },
-    //   create() {
-    //     return {
-    //       executeCommand(_command, [source]) {
-    //         return parse(source)
-    //       },
-    //     }
-    //   },
-    // },
+    {
+      name: 'mpx-parse-sfc',
+      capabilities: {
+        executeCommandProvider: {
+          commands: [Commands.ParseSfc],
+        },
+      },
+      create() {
+        return {
+          executeCommand(_command, [source]) {
+            return parse(source)
+          },
+        }
+      },
+    },
   ]
 }

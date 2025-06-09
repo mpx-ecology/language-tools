@@ -82,17 +82,13 @@ export interface MpxCompilerOptions {
       }
 }
 
-export const validVersions = [2, 2.1] as const
-
 export type MpxLanguagePluginReturn = {
-  version: (typeof validVersions)[number]
   name?: string
   order?: number
   requiredCompilerOptions?: string[]
   getLanguageId?(fileName: string): string | undefined
   isValidFile?(fileName: string, languageId: string): boolean
-  parseSFC?(fileName: string, content: string): SFCParseResult | undefined
-  parseSFC2?(
+  parseSFC?(
     fileName: string,
     languageId: string,
     content: string,

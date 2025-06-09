@@ -332,7 +332,7 @@ export function computedSfc(
     getBlock: () => T,
   ) {
     const getLang = computed(() => getBlock().lang ?? defaultLang)
-    const getAttrs = computed(() => getBlock().attrs) // TODO: computed it
+    const getAttrs = computed(() => getBlock().attrs)
     const getContent = computed(() => getBlock().content)
     const getStartTagEnd = computed(() => getBlock().loc.start.offset)
     const getEndTagStart = computed(() => getBlock().loc.end.offset)

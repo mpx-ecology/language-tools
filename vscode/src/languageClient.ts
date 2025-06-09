@@ -14,7 +14,6 @@ import * as vscode from 'vscode'
 import { config } from './config'
 // import { checkCompatible } from './hybridMode'
 // import { activate as activateDoctor } from './features/doctor'
-// import { activate as activateNameCasing } from './features/nameCasing'
 // import { activate as activateSplitEditors } from './features/splitEditors'
 // import { useInsidersStatusItem } from './insiders'
 

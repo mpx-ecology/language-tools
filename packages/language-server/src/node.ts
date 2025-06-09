@@ -142,7 +142,7 @@ connection.onInitialize(params => {
             },
             getDocumentHighlights(fileName: string, position: any) {
               return sendTsRequest(
-                'documentHighlights-full', // internal command
+                'documentHighlights-full', // ts internal command
                 {
                   file: fileName,
                   ...({ position } as unknown as {

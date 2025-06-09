@@ -4,8 +4,6 @@ import { allCodeFeatures } from './shared'
 
 const plugin: MpxLanguagePlugin = () => {
   return {
-    version: 2.1,
-
     getEmbeddedCodes() {
       return [
         {

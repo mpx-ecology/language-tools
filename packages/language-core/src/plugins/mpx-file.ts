@@ -3,8 +3,6 @@ import { parse } from '../utils/parseSfc'
 
 const plugin: MpxLanguagePlugin = ({ mpxCompilerOptions }) => {
   return {
-    version: 2.1,
-
     getLanguageId(fileName) {
       if (mpxCompilerOptions.extensions.some(ext => fileName.endsWith(ext))) {
         return 'mpx'
@@ -15,7 +13,7 @@ const plugin: MpxLanguagePlugin = ({ mpxCompilerOptions }) => {
       return languageId === 'mpx'
     },
 
-    parseSFC2(_fileName, languageId, content) {
+    parseSFC(_fileName, languageId, content) {
       if (languageId !== 'mpx') {
         return
       }

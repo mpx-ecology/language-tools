@@ -41,16 +41,11 @@ export function computedMpxSfc(
     }
 
     for (const plugin of plugins) {
-      const sfc =
-        plugin.parseSFC?.(
-          fileName,
-          getSnapshot().getText(0, getSnapshot().getLength()),
-        ) ??
-        plugin.parseSFC2?.(
-          fileName,
-          languageId,
-          getSnapshot().getText(0, getSnapshot().getLength()),
-        )
+      const sfc = plugin.parseSFC?.(
+        fileName,
+        languageId,
+        getSnapshot().getText(0, getSnapshot().getLength()),
+      )
       if (sfc) {
         if (!sfc.errors.length) {
           cache = {
