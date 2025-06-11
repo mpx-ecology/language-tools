@@ -3,6 +3,8 @@ import { allCodeFeatures } from './shared'
 
 const plugin: MpxLanguagePlugin = () => {
   return {
+    name: 'mpx-sfc-styles',
+
     getEmbeddedCodes(_fileName, sfc) {
       const result: {
         id: string

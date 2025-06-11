@@ -20,13 +20,14 @@ const formatBrackets = {
   // fix https://github.com/vuejs/language-tools/issues/2305
   curly: ['0 +', '+ 0;'] as [string, string],
   event: ['() => ', ';'] as [string, string],
-  generic: ['<', '>() => {};'] as [string, string],
 }
 
 const plugin: MpxLanguagePlugin = ctx => {
   const parseds = new WeakMap<Sfc, ReturnType<typeof parse>>()
 
   return {
+    name: 'mpx-template-inline-ts',
+
     getEmbeddedCodes(_fileName, sfc) {
       if (!sfc.template?.ast) {
         return []

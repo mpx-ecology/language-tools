@@ -12,6 +12,8 @@ const codeFeatures = {
 
 const plugin: MpxLanguagePlugin = () => {
   return {
+    name: 'mpx-template-inline-css',
+
     getEmbeddedCodes(_fileName, sfc) {
       if (!sfc.template?.ast) {
         return []

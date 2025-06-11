@@ -125,10 +125,8 @@ function createBlock(node: ElementNode, source: string) {
       } else if (p.name === 'src') {
         block.__src = parseAttr(p, node)
       } else if (isScriptBlock(block)) {
-        if (p.name === 'setup' || p.name === 'vapor') {
+        if (p.name === 'setup') {
           block.setup = attrs[p.name]
-        } else if (p.name === 'generic') {
-          block.__generic = parseAttr(p, node)
         }
       } else if (isStyleBlock(block)) {
         if (p.name === 'scoped') {

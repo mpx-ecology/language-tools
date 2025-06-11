@@ -2,6 +2,8 @@ import type { MpxLanguagePlugin } from '../types'
 
 const plugin: MpxLanguagePlugin = () => {
   return {
+    name: 'mpx-sfc-scripts',
+
     getEmbeddedCodes(_fileName, sfc) {
       const names: {
         id: string

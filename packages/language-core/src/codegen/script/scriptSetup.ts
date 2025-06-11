@@ -38,60 +38,7 @@ export function* generateScriptSetup(
   scriptSetup: NonNullable<Sfc['scriptSetup']>,
   scriptSetupRanges: ScriptSetupRanges,
 ): Generator<Code> {
-  if (scriptSetup.generic) {
-    if (!options.scriptRanges?.exportDefault) {
-      // #4569
-      yield ['', 'scriptSetup', 0, codeFeatures.verification]
-      yield `export default `
-    }
-    yield `(`
-    if (typeof scriptSetup.generic === 'object') {
-      yield `<`
-      yield [
-        scriptSetup.generic.text,
-        'main',
-        scriptSetup.generic.offset,
-        codeFeatures.all,
-      ]
-      if (!scriptSetup.generic.text.endsWith(`,`)) {
-        yield `,`
-      }
-      yield `>`
-    }
-    yield `(${newLine}` +
-      `	__VLS_props: NonNullable<Awaited<typeof __VLS_setup>>['props'],${newLine}` +
-      `	__VLS_ctx?: ${ctx.localTypes.PrettifyLocal}<Pick<NonNullable<Awaited<typeof __VLS_setup>>, 'attrs' | 'emit' | 'slots'>>,${newLine}` + // use __VLS_Prettify for less dts code
-      `	__VLS_expose?: NonNullable<Awaited<typeof __VLS_setup>>['expose'],${newLine}` +
-      `	__VLS_setup = (async () => {${newLine}`
-    yield* generateSetupFunction(
-      options,
-      ctx,
-      scriptSetup,
-      scriptSetupRanges,
-      undefined,
-    )
-
-    const emitTypes: string[] = []
-
-    if (scriptSetupRanges.defineEmits) {
-      emitTypes.push(
-        `typeof ${scriptSetupRanges.defineEmits.name ?? '__VLS_emit'}`,
-      )
-    }
-    if (scriptSetupRanges.defineProp.some(p => p.isModel)) {
-      emitTypes.push(`typeof __VLS_modelEmit`)
-    }
-
-    yield `return {} as {${newLine}` +
-      `	props: ${ctx.localTypes.PrettifyLocal}<__VLS_OwnProps & __VLS_PublicProps & Partial<__VLS_InheritedAttrs>> & __VLS_BuiltInPublicProps,${newLine}` +
-      `	expose(exposed: import('${options.mpxCompilerOptions.lib}').ShallowUnwrapRef<${scriptSetupRanges.defineExpose ? 'typeof __VLS_exposed' : '{}'}>): void,${newLine}` +
-      `	attrs: any,${newLine}` +
-      `	slots: __VLS_Slots,${newLine}` +
-      `	emit: ${emitTypes.length ? emitTypes.join(' & ') : `{}`},${newLine}` +
-      `}${endOfLine}`
-    yield `})(),${newLine}` // __VLS_setup = (async () => {
-    yield `) => ({} as import('${options.mpxCompilerOptions.lib}').VNode & { __ctx?: Awaited<typeof __VLS_setup> }))`
-  } else if (!options.sfc.script) {
+  if (!options.sfc.script) {
     // no script block, generate script setup code at root
     yield* generateSetupFunction(
       options,
@@ -473,40 +420,6 @@ function* generateComponentProps(
   scriptSetup: NonNullable<Sfc['scriptSetup']>,
   scriptSetupRanges: ScriptSetupRanges,
 ): Generator<Code> {
-  if (scriptSetup.generic) {
-    yield `const __VLS_fnComponent = (await import('${options.mpxCompilerOptions.lib}')).defineComponent({${newLine}`
-
-    if (scriptSetupRanges.defineProps?.arg) {
-      yield `props: `
-      yield generateSfcBlockSection(
-        scriptSetup,
-        scriptSetupRanges.defineProps.arg.start,
-        scriptSetupRanges.defineProps.arg.end,
-        codeFeatures.navigation,
-      )
-      yield `,${newLine}`
-    }
-
-    yield* generateEmitsOption(options, scriptSetupRanges)
-
-    yield `})${endOfLine}`
-
-    yield `type __VLS_BuiltInPublicProps = ${
-      options.mpxCompilerOptions.target >= 3.4
-        ? `import('${options.mpxCompilerOptions.lib}').PublicProps`
-        : options.mpxCompilerOptions.target >= 3.0
-          ? `import('${options.mpxCompilerOptions.lib}').VNodeProps` +
-            ` & import('${options.mpxCompilerOptions.lib}').AllowedComponentProps` +
-            ` & import('${options.mpxCompilerOptions.lib}').ComponentCustomProps`
-          : `globalThis.JSX.IntrinsicAttributes`
-    }`
-    yield endOfLine
-
-    yield `type __VLS_OwnProps = `
-    yield `${ctx.localTypes.OmitKeepDiscriminatedUnion}<InstanceType<typeof __VLS_fnComponent>['$props'], keyof __VLS_BuiltInPublicProps>`
-    yield endOfLine
-  }
-
   if (scriptSetupRanges.defineProp.length) {
     yield `const __VLS_defaults = {${newLine}`
     for (const defineProp of scriptSetupRanges.defineProp) {

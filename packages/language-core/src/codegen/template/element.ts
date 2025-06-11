@@ -240,7 +240,6 @@ export function* generateComponent(
     componentVNodeVar,
   )
   yield ` = ${componentFunctionalVar}`
-  yield* generateComponentGeneric(ctx)
   yield `(`
   yield* wrapWith(
     tagOffsets[0],
@@ -457,22 +456,6 @@ function* generateCanonicalComponentName(
       'template',
       offset,
       features,
-    )
-  }
-}
-
-function* generateComponentGeneric(
-  ctx: TemplateCodegenContext,
-): Generator<Code> {
-  if (ctx.currentInfo.generic) {
-    const { content, offset } = ctx.currentInfo.generic
-    yield* wrapWith(
-      offset,
-      offset + content.length,
-      ctx.codeFeatures.verification,
-      `<`,
-      [content, 'template', offset, ctx.codeFeatures.all],
-      `>`,
     )
   }
 }

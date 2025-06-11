@@ -91,8 +91,7 @@ export function computedSfc(
     'scriptSetup',
     'js',
     computed(() => getParseResult()?.descriptor.scriptSetup ?? undefined),
-    (block, base): NonNullable<Sfc['scriptSetup']> => {
-      const getGeneric = computedAttrValue('__generic', base, block)
+    (_, base): NonNullable<Sfc['scriptSetup']> => {
       const getAst = computed(() => {
         for (const plugin of plugins) {
           const ast = plugin.compileSFCScript?.(base.lang, base.content)
@@ -107,9 +106,6 @@ export function computedSfc(
         )
       })
       return mergeObject(base, {
-        get generic() {
-          return getGeneric()
-        },
         get ast() {
           return getAst()
         },
@@ -130,7 +126,6 @@ export function computedSfc(
         end: 0,
         startTagEnd: 0,
         endTagStart: 0,
-        generic: undefined,
         genericOffset: 0,
         attrs: {},
         ast: ts.createSourceFile(

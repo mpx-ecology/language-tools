@@ -19,6 +19,8 @@ const plugin: MpxLanguagePlugin = ctx => {
   let appendedGlobalTypes = false
 
   return {
+    name: 'mpx-tsx',
+
     requiredCompilerOptions: [
       'noPropertyAccessFromIndexSignature',
       'exactOptionalPropertyTypes',

@@ -3,6 +3,8 @@ import { allCodeFeatures } from './shared'
 
 const plugin: MpxLanguagePlugin = () => {
   return {
+    name: 'mpx-sfc-customblocks',
+
     getEmbeddedCodes(_fileName, sfc) {
       return sfc.customBlocks.map((customBlock, i) => ({
         id: 'custom_block_' + i,

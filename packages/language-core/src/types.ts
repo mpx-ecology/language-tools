@@ -164,7 +164,6 @@ export interface Sfc {
     | undefined
   scriptSetup:
     | (SfcBlock & {
-        generic: SfcBlockAttr | undefined
         ast: ts.SourceFile
       })
     | undefined
@@ -190,9 +189,7 @@ declare module '@vue/compiler-sfc' {
     __src?: SfcBlockAttr
   }
 
-  interface SFCScriptBlock {
-    __generic?: SfcBlockAttr
-  }
+  interface SFCScriptBlock {}
 
   interface SFCStyleBlock {
     __module?: SfcBlockAttr

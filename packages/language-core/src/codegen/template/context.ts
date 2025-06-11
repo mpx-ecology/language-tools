@@ -10,7 +10,7 @@ export type TemplateCodegenContext = ReturnType<
 >
 
 const commentDirectiveRegex =
-  /^<!--\s*@vue-(?<name>[-\w]+)\b(?<content>[\s\S]*)-->$/
+  /^<!--\s*@mpx-(?<name>[-\w]+)\b(?<content>[\s\S]*)-->$/
 
 export function createTemplateCodegenContext(
   options: Pick<TemplateCodegenOptions, 'scriptSetupBindingNames'>,
@@ -84,10 +84,6 @@ export function createTemplateCodegenContext(
     expectError?: {
       token: number
       node: CompilerDOM.CommentNode
-    }
-    generic?: {
-      content: string
-      offset: number
     }
   }[] = []
   const commentBuffer: CompilerDOM.CommentNode[] = []
@@ -226,7 +222,7 @@ export function createTemplateCodegenContext(
       for (const comment of comments) {
         const match = comment.loc.source.match(commentDirectiveRegex)
         if (match) {
-          const { name, content } = match.groups!
+          const { name } = match.groups!
           switch (name) {
             case 'skip': {
               return false
@@ -239,19 +235,6 @@ export function createTemplateCodegenContext(
               data.expectError = {
                 token: 0,
                 node: comment,
-              }
-              break
-            }
-            case 'generic': {
-              const text = content.trim()
-              if (text.startsWith('{') && text.endsWith('}')) {
-                data.generic = {
-                  content: text.slice(1, -1),
-                  offset:
-                    comment.loc.start.offset +
-                    comment.loc.source.indexOf('{') +
-                    1,
-                }
               }
               break
             }
