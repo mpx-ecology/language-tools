@@ -156,7 +156,6 @@ function* collectSingleRootNodes(
   }
 }
 
-// TODO: track https://github.com/vuejs/vue-next/issues/3498
 export function getVForNode(node: CompilerDOM.ElementNode) {
   const forDirective = node.props.find(
     (prop): prop is CompilerDOM.DirectiveNode =>

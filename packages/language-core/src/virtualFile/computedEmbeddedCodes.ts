@@ -325,10 +325,6 @@ export function resolveCommonLanguageId(lang: string) {
       return 'javascriptreact'
     case 'tsx':
       return 'typescriptreact'
-    case 'pug':
-      return 'jade'
-    case 'md':
-      return 'markdown'
   }
   return lang
 }

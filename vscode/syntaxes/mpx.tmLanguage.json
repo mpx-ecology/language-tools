@@ -851,7 +851,7 @@
       ]
     },
     "mpx-directives-control": {
-      "begin": "(v-for)|(v-if|v-else-if|v-else)",
+      "begin": "(wx:for)|(wx:if|wx:elif|wx:else)",
       "captures": {
         "1": {
           "name": "keyword.control.loop.mpx"

@@ -31,7 +31,7 @@ export function parse(source: string): SFCParseResult {
     comments: true,
   })
   const descriptor: SFCDescriptor = {
-    filename: 'anonymous.vue',
+    filename: 'anonymous.mpx',
     source,
     comments: [],
     template: null,
