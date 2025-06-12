@@ -14,10 +14,7 @@ const formatBrackets = {
   normal: ['`${', '}`;'] as [string, string],
   if: ['if (', ') { }'] as [string, string],
   for: ['for (', ') { }'] as [string, string],
-  // fix https://github.com/vuejs/language-tools/issues/3572
   params: ['(', ') => {};'] as [string, string],
-  // fix https://github.com/vuejs/language-tools/issues/1210
-  // fix https://github.com/vuejs/language-tools/issues/2305
   curly: ['0 +', '+ 0;'] as [string, string],
   event: ['() => ', ';'] as [string, string],
 }

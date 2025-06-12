@@ -5,7 +5,7 @@ import { codeFeatures } from '../codeFeatures'
 import { endOfLine, generateSfcBlockSection, newLine } from '../utils'
 import { generateCamelized } from '../utils/camelized'
 import { wrapWith } from '../utils/wrapWith'
-import { generateComponent, generateEmitsOption } from './component'
+import { generateComponent } from './component'
 import { generateComponentSelf } from './componentSelf'
 import type { ScriptCodegenContext } from './context'
 import {
