@@ -182,13 +182,6 @@ function createTsx(
     () => getScriptSetupRanges()?.defineProps?.name,
   )
 
-  const getSetupInheritAttrs = computed(() => {
-    const value =
-      getScriptSetupRanges()?.defineOptions?.inheritAttrs ??
-      getScriptRanges()?.exportDefault?.inheritAttrsOption
-    return value !== 'false'
-  })
-
   const getComponentSelfName = computed(() => {
     const { exportDefault } = getScriptRanges() ?? {}
     if (sfc.script && exportDefault?.nameOption) {
@@ -221,7 +214,6 @@ function createTsx(
       hasDefineSlots: setupHasDefineSlots(),
       slotsAssignName: getSetupSlotsAssignName(),
       propsAssignName: getSetupPropsAssignName(),
-      inheritAttrs: getSetupInheritAttrs(),
       selfComponentName: getComponentSelfName(),
     })
 

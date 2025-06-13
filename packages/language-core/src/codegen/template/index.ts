@@ -21,7 +21,6 @@ export interface TemplateCodegenOptions {
   hasDefineSlots?: boolean
   slotsAssignName?: string
   propsAssignName?: string
-  inheritAttrs: boolean
   selfComponentName?: string
 }
 

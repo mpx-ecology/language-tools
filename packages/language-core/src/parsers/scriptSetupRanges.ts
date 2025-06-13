@@ -55,7 +55,6 @@ type DefineExpose = CallExpressionRange
 
 type DefineOptions = {
   name?: string
-  inheritAttrs?: string
 }
 
 type UseAttrs = CallExpressionRange
@@ -303,12 +302,7 @@ export function parseScriptSetupRanges(
         for (const prop of obj.properties) {
           if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
             const name = _getNodeText(prop.name)
-            if (name === 'inheritAttrs') {
-              defineOptions.inheritAttrs = _getNodeText(prop.initializer)
-            } else if (
-              name === 'name' &&
-              ts.isStringLiteral(prop.initializer)
-            ) {
+            if (name === 'name' && ts.isStringLiteral(prop.initializer)) {
               defineOptions.name = prop.initializer.text
             }
           }

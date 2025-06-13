@@ -3,7 +3,6 @@ import type { ScriptCodegenOptions } from './index'
 import type { ScriptCodegenContext } from './context'
 import type { TemplateCodegenContext } from '../template/context'
 
-import * as path from 'path-browserify'
 import { codeFeatures } from '../codeFeatures'
 import { getTemplateUsageVars } from './template'
 import { endOfLine, generateSfcBlockSection, newLine } from '../utils'
@@ -64,12 +63,9 @@ export function* generateComponentSelf(
       ]
       yield* emitOptionCodes
       yield* generatePropsOption(
-        options,
         ctx,
         options.sfc.scriptSetup,
         options.scriptSetupRanges,
-        !!emitOptionCodes.length,
-        false,
       )
     }
     if (options.sfc.script && options.scriptRanges?.exportDefault?.args) {
@@ -83,7 +79,8 @@ export function* generateComponentSelf(
     }
     yield `})${endOfLine}` // defineComponent {
   } else if (options.sfc.script) {
-    yield `let __VLS_self!: typeof import('./${path.basename(options.fileName)}').default${endOfLine}`
+    // yield `let __VLS_self!: typeof import('./${path.basename(options.fileName)}').default${endOfLine}`
+    yield `let __VLS_self!: typeof __VLS_CreateComponent${endOfLine}`
   } else {
     yield `const __VLS_self = (await import('${options.mpxCompilerOptions.lib}')).defineComponent({})${endOfLine}`
   }

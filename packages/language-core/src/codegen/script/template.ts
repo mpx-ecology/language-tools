@@ -103,28 +103,9 @@ function* generateTemplateComponents(
 }
 
 export function* generateTemplateDirectives(
-  options: ScriptCodegenOptions,
+  _options: ScriptCodegenOptions,
 ): Generator<Code> {
   const types: Code[] = [`typeof __VLS_ctx`]
-
-  if (
-    options.sfc.script &&
-    options.scriptRanges?.exportDefault?.directivesOption
-  ) {
-    const { directivesOption } = options.scriptRanges.exportDefault
-    yield `const __VLS_directivesOption = `
-    yield [
-      options.sfc.script.content.slice(
-        directivesOption.start,
-        directivesOption.end,
-      ),
-      'script',
-      directivesOption.start,
-      codeFeatures.navigation,
-    ]
-    yield endOfLine
-    types.push(`__VLS_ResolveDirectives<typeof __VLS_directivesOption>`)
-  }
 
   yield `type __VLS_LocalDirectives =`
   for (const type of types) {

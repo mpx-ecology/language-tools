@@ -505,7 +505,7 @@ function hasVBindAttrs(
 ) {
   return (
     options.mpxCompilerOptions.fallthroughAttributes &&
-    ((options.inheritAttrs && ctx.singleRootNodes.has(node)) ||
+    (ctx.singleRootNodes.has(node) ||
       node.props.some(
         prop =>
           prop.type === CompilerDOM.NodeTypes.DIRECTIVE &&

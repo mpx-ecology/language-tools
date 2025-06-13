@@ -43,14 +43,7 @@ export function* generateComponent(
   if (!ctx.bypassDefineComponent) {
     const emitOptionCodes = [...generateEmitsOption(scriptSetupRanges)]
     yield* emitOptionCodes
-    yield* generatePropsOption(
-      options,
-      ctx,
-      scriptSetup,
-      scriptSetupRanges,
-      !!emitOptionCodes.length,
-      true,
-    )
+    yield* generatePropsOption(ctx, scriptSetup, scriptSetupRanges)
   }
   if (
     options.mpxCompilerOptions.inferComponentDollarRefs &&
@@ -145,12 +138,9 @@ export function* generateEmitsOption(
 }
 
 export function* generatePropsOption(
-  options: ScriptCodegenOptions,
   ctx: ScriptCodegenContext,
   scriptSetup: NonNullable<Sfc['scriptSetup']>,
   scriptSetupRanges: ScriptSetupRanges,
-  hasEmitsOption: boolean,
-  inheritAttrs: boolean,
 ): Generator<Code> {
   const codes: {
     optionExp: Code
@@ -174,20 +164,6 @@ export function* generatePropsOption(
         codeFeatures.navigation,
       ),
       typeOptionExp: undefined,
-    })
-  }
-  if (inheritAttrs && options.templateCodegen?.inheritedAttrVars.size) {
-    let attrsType = `Partial<__VLS_InheritedAttrs>`
-    if (hasEmitsOption) {
-      attrsType = `Omit<${attrsType}, \`on\${string}\`>`
-    }
-    const propsType = `__VLS_PickNotAny<${ctx.localTypes.OmitIndexSignature}<${attrsType}>, {}>`
-    const optionType = `${ctx.localTypes.TypePropsToOption}<${propsType}>`
-    codes.unshift({
-      optionExp: codes.length
-        ? `{} as ${optionType}`
-        : `{} as keyof ${propsType} extends never ? never: ${optionType}`,
-      typeOptionExp: `{} as ${attrsType}`,
     })
   }
 
