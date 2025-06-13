@@ -195,22 +195,12 @@ function proxyParseConfigHostForExtendConfigPaths(
 
 export class CompilerOptionsResolver {
   options: Omit<RawMpxCompilerOptions, 'target' | 'plugin'> = {}
-  fallbackTarget: number | undefined = 2.7
-  target: number | undefined
+  target = 99
   plugins: MpxLanguagePlugin[] = []
 
   addConfig(options: RawMpxCompilerOptions, rootDir: string) {
     for (const key in options) {
       switch (key) {
-        case 'target': {
-          const target = options.target!
-          if (typeof target === 'string') {
-            this.target = 2.7
-          } else {
-            this.target = target
-          }
-          break
-        }
         case 'plugins': {
           this.plugins = (options.plugins ?? []).map<MpxLanguagePlugin>(
             (pluginPath: string) => {
@@ -244,9 +234,7 @@ export class CompilerOptionsResolver {
   }
 
   build(defaults?: MpxCompilerOptions): MpxCompilerOptions {
-    const target = this.target ?? this.fallbackTarget
     defaults ??= getDefaultCompilerOptions(
-      target,
       this.options.lib,
       this.options.strictTemplates,
     )
@@ -328,12 +316,10 @@ export function setupGlobalTypes(
 }
 
 export function getDefaultCompilerOptions(
-  target = 99,
   lib = 'vue',
   strictTemplates = false,
 ): MpxCompilerOptions {
   return {
-    target,
     lib,
     extensions: ['.mpx'],
     vitePressExtensions: [],
@@ -361,10 +347,7 @@ export function getDefaultCompilerOptions(
     ],
     dataAttributes: [],
     htmlAttributes: ['aria-*'],
-    optionsWrapper:
-      target >= 2.7
-        ? [`(await import('${lib}')).defineComponent(`, `)`]
-        : [`(await import('${lib}')).default.extend(`, `)`],
+    optionsWrapper: [`(await import('${lib}')).defineComponent(`, `)`],
     macros: {
       defineProps: ['defineProps'],
       defineSlots: ['defineSlots'],

@@ -158,7 +158,7 @@ export function* generateComponent(
       possibleOriginalNames.includes(options.selfComponentName)
     ) {
       yield `typeof __VLS_self & (new () => { ` +
-        getSlotsPropertyName(options.mpxCompilerOptions.target) +
+        getSlotsPropertyName() +
         `: __VLS_Slots }), `
     } else {
       yield `void, `

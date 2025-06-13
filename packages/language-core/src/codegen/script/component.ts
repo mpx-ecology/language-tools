@@ -41,7 +41,7 @@ export function* generateComponent(
   yield `}${endOfLine}`
   yield `},${newLine}`
   if (!ctx.bypassDefineComponent) {
-    const emitOptionCodes = [...generateEmitsOption(options, scriptSetupRanges)]
+    const emitOptionCodes = [...generateEmitsOption(scriptSetupRanges)]
     yield* emitOptionCodes
     yield* generatePropsOption(
       options,
@@ -53,14 +53,12 @@ export function* generateComponent(
     )
   }
   if (
-    options.mpxCompilerOptions.target >= 3.5 &&
     options.mpxCompilerOptions.inferComponentDollarRefs &&
     options.templateCodegen?.templateRefs.size
   ) {
     yield `__typeRefs: {} as __VLS_TemplateRefs,${newLine}`
   }
   if (
-    options.mpxCompilerOptions.target >= 3.5 &&
     options.mpxCompilerOptions.inferComponentDollarEl &&
     options.templateCodegen?.singleRootElTypes.length
   ) {
@@ -94,7 +92,6 @@ export function* generateComponentSetupReturns(
 }
 
 export function* generateEmitsOption(
-  options: ScriptCodegenOptions,
   scriptSetupRanges: ScriptSetupRanges,
 ): Generator<Code> {
   const codes: {
@@ -116,10 +113,7 @@ export function* generateEmitsOption(
       typeOptionType: typeArg && !hasUnionTypeArg ? `__VLS_Emit` : undefined,
     })
   }
-  if (
-    options.mpxCompilerOptions.target >= 3.5 &&
-    codes.every(code => code.typeOptionType)
-  ) {
+  if (codes.every(code => code.typeOptionType)) {
     if (codes.length === 1) {
       yield `__typeEmits: {} as `
       yield codes[0].typeOptionType!
@@ -165,26 +159,10 @@ export function* generatePropsOption(
   }[] = []
 
   if (ctx.generatedPropsType) {
-    if (options.mpxCompilerOptions.target >= 3.6) {
-      codes.push({
-        optionExp: '{}',
-        typeOptionExp: `{} as __VLS_PublicProps`,
-      })
-    } else {
-      codes.push({
-        optionExp: [
-          `{} as `,
-          scriptSetupRanges.withDefaults?.arg
-            ? `${ctx.localTypes.WithDefaults}<`
-            : '',
-          `${ctx.localTypes.TypePropsToOption}<__VLS_PublicProps>`,
-          scriptSetupRanges.withDefaults?.arg
-            ? `, typeof __VLS_withDefaultsArg>`
-            : '',
-        ].join(''),
-        typeOptionExp: `{} as __VLS_PublicProps`,
-      })
-    }
+    codes.push({
+      optionExp: '{}',
+      typeOptionExp: `{} as __VLS_PublicProps`,
+    })
   }
   if (scriptSetupRanges.defineProps?.arg) {
     const { arg } = scriptSetupRanges.defineProps
@@ -208,22 +186,16 @@ export function* generatePropsOption(
     codes.unshift({
       optionExp: codes.length
         ? `{} as ${optionType}`
-        : // workaround for https://github.com/vuejs/core/pull/7419
-          `{} as keyof ${propsType} extends never ? never: ${optionType}`,
+        : `{} as keyof ${propsType} extends never ? never: ${optionType}`,
       typeOptionExp: `{} as ${attrsType}`,
     })
   }
 
-  const useTypeOption =
-    options.mpxCompilerOptions.target >= 3.5 &&
-    codes.every(code => code.typeOptionExp)
+  const useTypeOption = codes.every(code => code.typeOptionExp)
   const useOption = !useTypeOption || scriptSetupRanges.withDefaults
 
   if (useTypeOption) {
-    if (
-      options.mpxCompilerOptions.target >= 3.6 &&
-      scriptSetupRanges.withDefaults?.arg
-    ) {
+    if (scriptSetupRanges.withDefaults?.arg) {
       yield `__defaults: __VLS_withDefaultsArg,${newLine}`
     }
     if (codes.length === 1) {

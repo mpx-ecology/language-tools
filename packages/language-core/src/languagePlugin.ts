@@ -9,7 +9,6 @@ import type {
   MpxLanguagePlugin,
   MpxLanguagePluginReturn,
 } from './types'
-import * as CompilerVue2 from './utils/vue2TemplateCompiler'
 import { MpxVirtualCode } from './virtualFile/mpxFile'
 
 const fileRegistries: {
@@ -65,13 +64,7 @@ export function createMpxLanguagePlugin<T>(
 ): LanguagePlugin<T, MpxVirtualCode> {
   const pluginContext: Parameters<MpxLanguagePlugin>[0] = {
     modules: {
-      '@vue/compiler-dom':
-        mpxCompilerOptions.target < 3
-          ? {
-              ...CompilerDOM,
-              compile: CompilerVue2.compile,
-            }
-          : CompilerDOM,
+      '@vue/compiler-dom': CompilerDOM,
       typescript: ts,
     },
     compilerOptions,

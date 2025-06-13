@@ -25,8 +25,8 @@ export function hyphenateAttr(str: string) {
   return hyphencase
 }
 
-export function getSlotsPropertyName(vueVersion: number) {
-  return vueVersion < 3 ? '$scopedSlots' : '$slots'
+export function getSlotsPropertyName() {
+  return '$slots'
 }
 
 export function getStartEnd(

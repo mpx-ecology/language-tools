@@ -186,11 +186,7 @@ export function* generateElementProps(
       if (
         options.mpxCompilerOptions.dataAttributes.some(pattern =>
           minimatch(prop.name, pattern),
-        ) ||
-        // Vue 2 Transition doesn't support "persisted" property but `@vue/compiler-dom` always adds it (#3881)
-        (options.mpxCompilerOptions.target < 3 &&
-          prop.name === 'persisted' &&
-          node.tag.toLowerCase() === 'transition')
+        )
       ) {
         continue
       }
@@ -439,5 +435,5 @@ function getModelPropName(
     }
   }
 
-  return mpxCompilerOptions.target < 3 ? 'value' : 'modelValue'
+  return 'modelValue'
 }

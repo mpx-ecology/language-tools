@@ -37,9 +37,7 @@ export function* generateTemplate(
     ctx.addLocalVariable(options.propsAssignName)
   }
 
-  const slotsPropertyName = getSlotsPropertyName(
-    options.mpxCompilerOptions.target,
-  )
+  const slotsPropertyName = getSlotsPropertyName()
   if (options.mpxCompilerOptions.inferTemplateDollarSlots) {
     ctx.dollarVars.add(slotsPropertyName)
   }

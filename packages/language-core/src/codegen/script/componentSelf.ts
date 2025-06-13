@@ -60,7 +60,7 @@ export function* generateComponentSelf(
       !ctx.bypassDefineComponent
     ) {
       const emitOptionCodes = [
-        ...generateEmitsOption(options, options.scriptSetupRanges),
+        ...generateEmitsOption(options.scriptSetupRanges),
       ]
       yield* emitOptionCodes
       yield* generatePropsOption(

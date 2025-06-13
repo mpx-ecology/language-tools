@@ -2,14 +2,12 @@ import type { MpxCompilerOptions } from '../types'
 import { getSlotsPropertyName } from '../utils/shared'
 
 export function getGlobalTypesFileName({
-  lib,
-  target,
   checkUnknownProps,
   checkUnknownEvents,
   checkUnknownComponents,
 }: MpxCompilerOptions) {
   return (
-    [lib, target, checkUnknownProps, checkUnknownEvents, checkUnknownComponents]
+    ['mpx', checkUnknownProps, checkUnknownEvents, checkUnknownComponents]
       .map(v => (typeof v === 'boolean' ? Number(v) : v))
       .join('_') + '.d.ts'
   )
@@ -17,42 +15,21 @@ export function getGlobalTypesFileName({
 
 export function generateGlobalTypes({
   lib,
-  target,
   checkUnknownProps,
   checkUnknownEvents,
   checkUnknownComponents,
 }: MpxCompilerOptions) {
   const fnPropsType = `(T extends { $props: infer Props } ? Props : {})${checkUnknownProps ? '' : ' & Record<string, unknown>'}`
-  let text = ``
-  if (target < 3.5) {
-    text += `
-; declare module '${lib}' {
-	export interface GlobalComponents { }
-	export interface GlobalDirectives { }
-}`
-  }
-  text += `
+  const text = `
 ; declare global {
 	const __VLS_directiveBindingRestFields: { instance: null, oldValue: null, modifiers: any, dir: any };
 	const __VLS_unref: typeof import('${lib}').unref;
 	const __VLS_placeholder: any;
 
 	type __VLS_NativeElements = __VLS_SpreadMerge<SVGElementTagNameMap, HTMLElementTagNameMap>;
-	type __VLS_IntrinsicElements = ${
-    target >= 3.3
-      ? `import('${lib}/jsx-runtime').JSX.IntrinsicElements;`
-      : `globalThis.JSX.IntrinsicElements;`
-  }
-	type __VLS_Element = ${
-    target >= 3.3
-      ? `import('${lib}/jsx-runtime').JSX.Element;`
-      : `globalThis.JSX.Element;`
-  }
-	type __VLS_GlobalComponents = ${
-    target >= 3.5
-      ? `import('${lib}').GlobalComponents;`
-      : `import('${lib}').GlobalComponents & Pick<typeof import('${lib}'), 'Transition' | 'TransitionGroup' | 'KeepAlive' | 'Suspense' | 'Teleport'>;`
-  }
+	type __VLS_IntrinsicElements = ${`import('${lib}/jsx-runtime').JSX.IntrinsicElements;`}
+	type __VLS_Element = ${`import('${lib}/jsx-runtime').JSX.Element;`}
+	type __VLS_GlobalComponents = ${`import('${lib}').GlobalComponents;`}
 	type __VLS_GlobalDirectives = import('${lib}').GlobalDirectives;
 	type __VLS_IsAny<T> = 0 extends 1 & T ? true : false;
 	type __VLS_PickNotAny<A, B> = __VLS_IsAny<A> extends true ? B : A;
@@ -77,7 +54,7 @@ export function generateGlobalTypes({
 	type __VLS_FunctionalComponent<T> = (props: ${fnPropsType}, ctx?: any) => __VLS_Element & {
 		__ctx?: {
 			attrs?: any,
-			slots?: T extends { ${getSlotsPropertyName(target)}: infer Slots } ? Slots : Record<string, any>,
+			slots?: T extends { ${getSlotsPropertyName()}: infer Slots } ? Slots : Record<string, any>,
 			emit?: T extends { $emit: infer Emit } ? Emit : {},
 			props?: ${fnPropsType},
 			expose?: (exposed: T) => void,
@@ -133,7 +110,7 @@ export function generateGlobalTypes({
 	type __VLS_ResolveEmits<
 		Comp,
 		Emits,
-		TypeEmits = ${target >= 3.6 ? `Comp extends { __typeEmits?: infer T } ? unknown extends T ? {} : import('${lib}').ShortEmitsToObject<T> : {}` : `{}`},
+		TypeEmits = ${`Comp extends { __typeEmits?: infer T } ? unknown extends T ? {} : import('${lib}').ShortEmitsToObject<T> : {}`},
 		NormalizedEmits = __VLS_NormalizeEmits<Emits> extends infer E ? string extends keyof E ? {} : E : never,
 	> = __VLS_SpreadMerge<NormalizedEmits, TypeEmits>;
 	type __VLS_ResolveDirectives<T> = {
@@ -166,11 +143,7 @@ export function generateGlobalTypes({
 	function __VLS_asFunctionalComponent<T, K = T extends new (...args: any) => any ? InstanceType<T> : unknown>(t: T, instance?: K):
 		T extends new (...args: any) => any ? __VLS_FunctionalComponent<K>
 		: T extends () => any ? (props: {}, ctx?: any) => ReturnType<T>
-		${
-      target === 2.7
-        ? `: T extends import('vue').AsyncComponent ? (props: {}, ctx?: any) => any`
-        : ``
-    }
+		${``}
 		: T extends (...args: any) => any ? T
 		: __VLS_FunctionalComponent<{}>;
 	function __VLS_functionalComponentArgsRest<T extends (...args: any) => any>(t: T): 2 extends Parameters<T>['length'] ? [any] : [];

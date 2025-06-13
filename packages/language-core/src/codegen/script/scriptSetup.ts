@@ -313,16 +313,14 @@ function* generateMacros(
   options: ScriptCodegenOptions,
   ctx: ScriptCodegenContext,
 ): Generator<Code> {
-  if (options.mpxCompilerOptions.target >= 3.3) {
-    yield `// @ts-ignore${newLine}`
-    yield `declare const { `
-    for (const macro of Object.keys(options.mpxCompilerOptions.macros)) {
-      if (!ctx.bindingNames.has(macro)) {
-        yield `${macro}, `
-      }
+  yield `// @ts-ignore${newLine}`
+  yield `declare const { `
+  for (const macro of Object.keys(options.mpxCompilerOptions.macros)) {
+    if (!ctx.bindingNames.has(macro)) {
+      yield `${macro}, `
     }
-    yield `}: typeof import('${options.mpxCompilerOptions.lib}')${endOfLine}`
   }
+  yield `}: typeof import('${options.mpxCompilerOptions.lib}')${endOfLine}`
 }
 
 function* generateDefineWithType(

@@ -10,10 +10,9 @@ export type { SFCParseResult } from '@vue/compiler-sfc'
 export { MpxEmbeddedCode }
 
 export type RawMpxCompilerOptions = Partial<
-  Omit<MpxCompilerOptions, 'target' | 'plugins'>
+  Omit<MpxCompilerOptions, 'plugins'>
 > & {
   strictTemplates?: boolean
-  target?: 'auto' | 2 | 2.7 | 3 | 3.3 | 3.5 | 3.6 | 99 | number
   plugins?: string[]
 }
 
@@ -25,7 +24,6 @@ export interface MpxCodeInformation extends CodeInformation {
 export type Code = Segment<MpxCodeInformation>
 
 export interface MpxCompilerOptions {
-  target: number
   lib: string
   extensions: string[]
   vitePressExtensions: string[]

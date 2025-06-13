@@ -12,8 +12,5 @@
     "jsx": "preserve",
     "baseUrl": "."
   },
-  "mpxCompilerOptions": {
-    "target": 99
-  },
   "include": ["**/*"]
 }
