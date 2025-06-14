@@ -13,6 +13,7 @@ import {
   generateGlobalTypes,
   getGlobalTypesFileName,
 } from '../codegen/globalTypes'
+import { defineComponentTypesContents } from '../codegen/defineComponentTypes'
 
 export function createParsedCommandLineByJson(
   ts: typeof import('typescript'),
@@ -300,6 +301,13 @@ export function setupGlobalTypes(
       }
       dir = parentDir
     }
+    const defineComponentTypesPath = path.join(
+      dir,
+      'node_modules',
+      '.mpx-global-types',
+      'mpx_defineComponent.d.ts',
+    )
+    host.writeFile(defineComponentTypesPath, defineComponentTypesContents)
     const globalTypesPath = path.join(
       dir,
       'node_modules',

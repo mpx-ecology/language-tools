@@ -1,4 +1,4 @@
-// @ts-nocheck
+export const defineComponentTypesContents = `// @ts-nocheck
 /// <reference types="miniprogram-api-typings" />
 export {}
 declare global {
@@ -199,4 +199,4 @@ type WxComponentIns<
 interface ReplaceWxComponentIns {
   selectComponent(selector: string): ComponentIns<{}, {}, {}, {}, []>
   selectAllComponents(selector: string): Array<ComponentIns<{}, {}, {}, {}, []>>
-}
+}`
