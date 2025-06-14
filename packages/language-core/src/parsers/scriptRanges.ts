@@ -1,7 +1,7 @@
 import type * as ts from 'typescript'
 import type { TextRange } from '../types'
 import { parseBindingRanges } from './scriptSetupRanges'
-import { getNodeText, getStartEnd } from '../utils/shared'
+import { getStartEnd } from '../utils/shared'
 
 export interface ScriptRanges extends ReturnType<typeof parseScriptRanges> {}
 
@@ -47,15 +47,14 @@ export function parseScriptRanges(
       }
       if (obj) {
         let componentsOptionNode: ts.ObjectLiteralExpression | undefined
-        ts.forEachChild(obj, node => {
-          if (ts.isPropertyAssignment(node) && ts.isIdentifier(node.name)) {
-            const name = _getNodeText(node.name)
-            console.log('---> debug name', name)
-          }
-        })
+        // ts.forEachChild(obj, node => {
+        //   if (ts.isPropertyAssignment(node) && ts.isIdentifier(node.name)) {
+        //     const name = _getNodeText(node.name)
+        //   }
+        // })
         createComponentObj = {
           ..._getStartEnd(raw),
-          expression: _getStartEnd(node.expression),
+          expression: _getStartEnd(obj),
           args: _getStartEnd(obj),
           argsNode: withNode ? obj : undefined,
           componentsOption: undefined,
@@ -85,9 +84,9 @@ export function parseScriptRanges(
     return getStartEnd(ts, node, ast)
   }
 
-  function _getNodeText(node: ts.Node) {
-    return getNodeText(ts, node, ast)
-  }
+  // function _getNodeText(node: ts.Node) {
+  //   return getNodeText(ts, node, ast)
+  // }
 
   function getCreateComponentExpression(node: ts.Node) {
     if (ts.isExpressionStatement(node)) {

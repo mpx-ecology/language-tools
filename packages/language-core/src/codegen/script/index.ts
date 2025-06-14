@@ -66,16 +66,16 @@ export function* generateScript(
     )
   }
   if (options.sfc.script && options.scriptRanges) {
-    const { exportDefault, classBlockEnd } = options.scriptRanges
-    const isExportRawObject =
-      exportDefault &&
-      options.sfc.script.content[exportDefault.expression.start] === '{'
+    const { createComponentObj, classBlockEnd } = options.scriptRanges
+    const isCreateComponentRawObject =
+      createComponentObj &&
+      options.sfc.script.content[createComponentObj.expression.start] === '{'
     if (options.sfc.scriptSetup && options.scriptSetupRanges) {
-      if (exportDefault) {
+      if (createComponentObj) {
         yield generateSfcBlockSection(
           options.sfc.script,
           0,
-          exportDefault.expression.start,
+          createComponentObj.expression.start,
           codeFeatures.all,
         )
         yield* generateScriptSetup(
@@ -86,7 +86,7 @@ export function* generateScript(
         )
         yield generateSfcBlockSection(
           options.sfc.script,
-          exportDefault.expression.end,
+          createComponentObj.expression.end,
           options.sfc.script.content.length,
           codeFeatures.all,
         )
@@ -110,30 +110,28 @@ export function* generateScript(
         )
       }
     } else if (
-      exportDefault &&
-      isExportRawObject &&
+      createComponentObj &&
+      isCreateComponentRawObject &&
       options.mpxCompilerOptions.optionsWrapper.length
     ) {
+      // raw script
       yield generateSfcBlockSection(
         options.sfc.script,
         0,
-        exportDefault.expression.start,
-        codeFeatures.all,
-      )
-      yield options.mpxCompilerOptions.optionsWrapper[0]
-      yield generateSfcBlockSection(
-        options.sfc.script,
-        exportDefault.expression.start,
-        exportDefault.expression.end,
-        codeFeatures.all,
-      )
-      yield options.mpxCompilerOptions.optionsWrapper[1]
-      yield generateSfcBlockSection(
-        options.sfc.script,
-        exportDefault.expression.end,
         options.sfc.script.content.length,
         codeFeatures.all,
       )
+      // __VLS_createComponent
+      yield `const __VLS_createComponent = DefineComponent(`
+      // yield options.mpxCompilerOptions.optionsWrapper[0]
+      yield generateSfcBlockSection(
+        options.sfc.script,
+        createComponentObj.expression.start,
+        createComponentObj.expression.end,
+        codeFeatures.all,
+      )
+      yield options.mpxCompilerOptions.optionsWrapper[1]
+      yield endOfLine
     } else if (classBlockEnd !== undefined) {
       if (options.mpxCompilerOptions.skipTemplateCodegen) {
         yield generateSfcBlockSection(

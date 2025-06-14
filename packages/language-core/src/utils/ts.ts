@@ -307,7 +307,10 @@ export function setupGlobalTypes(
       getGlobalTypesFileName(mpxOptions),
     )
     const globalTypesContents =
-      `// @ts-nocheck\nexport {};\n` + generateGlobalTypes(mpxOptions)
+      `// @ts-nocheck\n` +
+      `/// <reference types="./mpx_defineComponent.d.ts" />\n` +
+      `export {};\n` +
+      generateGlobalTypes(mpxOptions)
     host.writeFile(globalTypesPath, globalTypesContents)
     return { absolutePath: globalTypesPath }
   } catch {

@@ -23,7 +23,7 @@ export function* generateTemplate(
   const templateCodegenCtx = createTemplateCodegenContext({
     scriptSetupBindingNames: new Set(),
   })
-  yield* generateTemplateCtx(options)
+  yield* generateTemplateCtx()
   yield* generateTemplateElements()
   yield* generateTemplateComponents(options)
   yield* generateTemplateDirectives(options)
@@ -31,37 +31,8 @@ export function* generateTemplate(
   return templateCodegenCtx
 }
 
-function* generateTemplateCtx(options: ScriptCodegenOptions): Generator<Code> {
-  const exps = []
-
-  exps.push(
-    `{} as InstanceType<__VLS_PickNotAny<typeof __VLS_self, new () => {}>>`,
-  )
-
-  if (
-    options.mpxCompilerOptions.petiteMpxExtensions.some(ext =>
-      options.fileName.endsWith(ext),
-    )
-  ) {
-    exps.push(`globalThis`)
-  }
-  if (options.sfc.styles.some(style => style.module)) {
-    exps.push(`{} as __VLS_StyleModules`)
-  }
-
-  yield `const __VLS_ctx = `
-  if (exps.length === 1) {
-    yield exps[0]
-    yield `${endOfLine}`
-  } else {
-    yield `{${newLine}`
-    for (const exp of exps) {
-      yield `...`
-      yield exp
-      yield `,${newLine}`
-    }
-    yield `}${endOfLine}`
-  }
+function* generateTemplateCtx(): Generator<Code> {
+  yield `const __VLS_ctx = __VLS_createComponent${endOfLine}`
 }
 
 function* generateTemplateElements(): Generator<Code> {
