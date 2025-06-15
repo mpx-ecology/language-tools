@@ -66,7 +66,7 @@ export function* generateScript(
     )
   }
   if (options.sfc.script && options.scriptRanges) {
-    const { createComponentObj, classBlockEnd } = options.scriptRanges
+    const { createComponentObj } = options.scriptRanges
     const isCreateComponentRawObject =
       createComponentObj &&
       options.sfc.script.content[createComponentObj.expression.start] === '{'
@@ -132,32 +132,6 @@ export function* generateScript(
       )
       yield options.mpxCompilerOptions.optionsWrapper[1]
       yield endOfLine
-    } else if (classBlockEnd !== undefined) {
-      if (options.mpxCompilerOptions.skipTemplateCodegen) {
-        yield generateSfcBlockSection(
-          options.sfc.script,
-          0,
-          options.sfc.script.content.length,
-          codeFeatures.all,
-        )
-      } else {
-        yield generateSfcBlockSection(
-          options.sfc.script,
-          0,
-          classBlockEnd,
-          codeFeatures.all,
-        )
-        yield `__VLS_template = () => {${newLine}`
-        const templateCodegenCtx = yield* generateTemplate(options, ctx)
-        yield* generateComponentSelf(options, ctx, templateCodegenCtx)
-        yield `}${endOfLine}`
-        yield generateSfcBlockSection(
-          options.sfc.script,
-          classBlockEnd,
-          options.sfc.script.content.length,
-          codeFeatures.all,
-        )
-      }
     } else {
       yield generateSfcBlockSection(
         options.sfc.script,

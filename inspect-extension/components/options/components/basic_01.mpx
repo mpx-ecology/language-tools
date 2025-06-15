@@ -1,4 +1,5 @@
 <template>
+  <view> title: {{ title }} </view>
   <view class="list" @click="onClick">
     <view> msg: {{ msg }} </view>
     <view> count: {{ count }} </view>
@@ -9,6 +10,12 @@
 import { createComponent } from '@mpxjs/core'
 
 createComponent({
+  setup() {
+    console.log('setup')
+    return {
+      title: 'Mpx component'
+    }
+  },
   data: {
     msg: 'Hello Mpx',
     count: 0

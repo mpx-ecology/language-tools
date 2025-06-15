@@ -25,7 +25,7 @@ export function* generateTemplate(
   })
   yield* generateTemplateCtx()
   yield* generateTemplateElements()
-  yield* generateTemplateComponents(options)
+  yield* generateTemplateComponents()
   yield* generateTemplateDirectives(options)
   yield* generateTemplateBody(options, templateCodegenCtx)
   return templateCodegenCtx
@@ -39,29 +39,8 @@ function* generateTemplateElements(): Generator<Code> {
   yield `let __VLS_elements!: __VLS_IntrinsicElements${endOfLine}`
 }
 
-function* generateTemplateComponents(
-  options: ScriptCodegenOptions,
-): Generator<Code> {
+function* generateTemplateComponents(): Generator<Code> {
   const types: Code[] = [`typeof __VLS_ctx`]
-
-  if (
-    options.sfc.script &&
-    options.scriptRanges?.exportDefault?.componentsOption
-  ) {
-    const { componentsOption } = options.scriptRanges.exportDefault
-    yield `const __VLS_componentsOption = `
-    yield [
-      options.sfc.script.content.slice(
-        componentsOption.start,
-        componentsOption.end,
-      ),
-      'script',
-      componentsOption.start,
-      codeFeatures.navigation,
-    ]
-    yield endOfLine
-    types.push(`typeof __VLS_componentsOption`)
-  }
 
   yield `type __VLS_LocalComponents =`
   for (const type of types) {

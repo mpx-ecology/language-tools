@@ -183,11 +183,6 @@ function createTsx(
   )
 
   const getComponentSelfName = computed(() => {
-    const { exportDefault } = getScriptRanges() ?? {}
-    if (sfc.script && exportDefault?.nameOption) {
-      const { nameOption } = exportDefault
-      return sfc.script.content.slice(nameOption.start + 1, nameOption.end - 1)
-    }
     const { defineOptions } = getScriptSetupRanges() ?? {}
     if (sfc.scriptSetup && defineOptions?.name) {
       return defineOptions.name

@@ -16,9 +16,6 @@ export function parseScriptRanges(
         expression: TextRange
         args: TextRange
         argsNode: ts.ObjectLiteralExpression | undefined
-        componentsOption: TextRange | undefined
-        componentsOptionNode: ts.ObjectLiteralExpression | undefined
-        nameOption: TextRange | undefined
       })
     | undefined
   let createComponentObj:
@@ -26,12 +23,8 @@ export function parseScriptRanges(
         expression: TextRange
         args: TextRange
         argsNode: ts.ObjectLiteralExpression | undefined
-        componentsOption: TextRange | undefined
-        componentsOptionNode: ts.ObjectLiteralExpression | undefined
-        nameOption: TextRange | undefined
       })
     | undefined
-  let classBlockEnd: number | undefined
 
   const bindings = hasScriptSetup ? parseBindingRanges(ts, ast) : []
 
@@ -46,37 +39,19 @@ export function parseScriptRanges(
         }
       }
       if (obj) {
-        let componentsOptionNode: ts.ObjectLiteralExpression | undefined
-        // ts.forEachChild(obj, node => {
-        //   if (ts.isPropertyAssignment(node) && ts.isIdentifier(node.name)) {
-        //     const name = _getNodeText(node.name)
-        //   }
-        // })
         createComponentObj = {
           ..._getStartEnd(raw),
           expression: _getStartEnd(obj),
           args: _getStartEnd(obj),
           argsNode: withNode ? obj : undefined,
-          componentsOption: undefined,
-          componentsOptionNode: withNode ? componentsOptionNode : undefined,
-          nameOption: undefined,
         }
       }
-    }
-
-    if (
-      ts.isClassDeclaration(raw) &&
-      raw.modifiers?.some(mod => mod.kind === ts.SyntaxKind.ExportKeyword) &&
-      raw.modifiers?.some(mod => mod.kind === ts.SyntaxKind.DefaultKeyword)
-    ) {
-      classBlockEnd = raw.end - 1
     }
   })
 
   return {
     exportDefault,
     createComponentObj,
-    classBlockEnd,
     bindings,
   }
 
