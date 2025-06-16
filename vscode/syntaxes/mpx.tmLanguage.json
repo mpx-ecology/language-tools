@@ -793,38 +793,36 @@
       ]
     },
     "mpx-directives-original": {
-      "begin": "(?:(?:(v-[\\w-]+)(:)?)|([:\\.])|(@)|(#))(?:(?:(\\[)([^\\]]*)(\\]))|([\\w-]+))?",
+      "begin": "(?:(wx:(?!(?:for|if|elif|else)(?=\\s|=|$))[\\w-]+)|((bind|catch|capture-bind|capture-catch)(:)([\\w-]+))|((bind|catch)([\\w-]+))|(#))([\\w-]+)?",
       "beginCaptures": {
         "1": {
           "name": "entity.other.attribute-name.html.mpx"
         },
         "2": {
-          "name": "punctuation.separator.key-value.html.mpx"
+          "name": "entity.other.attribute-name.html.mpx"
         },
         "3": {
-          "name": "punctuation.attribute-shorthand.bind.html.mpx"
+          "name": "entity.other.attribute-name.html.mpx"
         },
         "4": {
-          "name": "punctuation.attribute-shorthand.event.html.mpx"
+          "name": "entity.other.attribute-name.html.mpx"
         },
         "5": {
-          "name": "punctuation.attribute-shorthand.slot.html.mpx"
-        },
-        "6": {
           "name": "punctuation.separator.key-value.html.mpx"
         },
+        "6": {
+          "name": "entity.other.attribute-name.html.mpx"
+        },
         "7": {
-          "name": "source.ts.embedded.html.mpx",
-          "patterns": [
-            {
-              "include": "source.ts#expression"
-            }
-          ]
+          "name": "entity.other.attribute-name.html.mpx"
         },
         "8": {
           "name": "punctuation.separator.key-value.html.mpx"
         },
         "9": {
+          "name": "punctuation.attribute-shorthand.slot.html.mpx"
+        },
+        "10": {
           "name": "entity.other.attribute-name.html.mpx"
         }
       },
@@ -851,7 +849,7 @@
       ]
     },
     "mpx-directives-control": {
-      "begin": "(wx:for)|(wx:if|wx:elif|wx:else)",
+      "begin": "(wx:for)(?![a-zA-Z0-9:-])|(wx:if|wx:elif|wx:else)(?![a-zA-Z0-9:-])",
       "captures": {
         "1": {
           "name": "keyword.control.loop.mpx"
