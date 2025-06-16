@@ -6,7 +6,6 @@ import { isGloballyAllowed, makeMap } from '@vue/shared'
 import { collectVars, createTsAst, identifierRegex } from '../utils'
 import { getNodeText, getStartEnd } from '../../utils/shared'
 
-// https://github.com/vuejs/core/blob/fb0c3ca519f1fccf52049cd6b8db3a67a669afe9/packages/compiler-core/src/transforms/transformExpression.ts#L47
 const isLiteralWhitelisted = /*@__PURE__*/ makeMap('true,false,null,this')
 
 export function* generateInterpolation(

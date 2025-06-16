@@ -32,7 +32,7 @@ export function* generateTemplate(
 }
 
 function* generateTemplateCtx(): Generator<Code> {
-  yield `const __VLS_ctx = __VLS_createComponent${endOfLine}`
+  yield `const __VLS_ctx = __VLS_defineComponent${endOfLine}`
 }
 
 function* generateTemplateElements(): Generator<Code> {

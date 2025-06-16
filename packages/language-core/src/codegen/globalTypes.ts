@@ -1,5 +1,6 @@
 import type { MpxCompilerOptions } from '../types'
 import { getSlotsPropertyName } from '../utils/shared'
+import { defineComponentTypesContents } from './defineComponentTypes'
 
 export function getGlobalTypesFileName({
   checkUnknownProps,
@@ -20,7 +21,8 @@ export function generateGlobalTypes({
   checkUnknownComponents,
 }: MpxCompilerOptions) {
   const fnPropsType = `(T extends { $props: infer Props } ? Props : {})${checkUnknownProps ? '' : ' & Record<string, unknown>'}`
-  const text = `
+  const text =
+    `
 ; declare global {
 	const __VLS_directiveBindingRestFields: { instance: null, oldValue: null, modifiers: any, dir: any };
 	const __VLS_unref: typeof import('${lib}').unref;
@@ -150,7 +152,8 @@ export function generateGlobalTypes({
 	function __VLS_asFunctionalElement<T>(tag: T, endTag?: T): (attrs: T${checkUnknownComponents ? '' : ' & Record<string, unknown>'}) => void;
 	function __VLS_asFunctionalSlot<S>(slot: S): S extends () => infer R ? (props: {}) => R : NonNullable<S>;
 	function __VLS_tryAsConstant<const T>(t: T): T;
+	${defineComponentTypesContents.globalTypes}
 }
-`
+` + defineComponentTypesContents.localTypes
   return text
 }

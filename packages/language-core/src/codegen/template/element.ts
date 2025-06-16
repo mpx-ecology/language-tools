@@ -301,12 +301,6 @@ export function* generateComponent(
     }
   }
 
-  if (hasVBindAttrs(options, ctx, node)) {
-    const attrsVar = ctx.getInternalVariable()
-    yield `let ${attrsVar}!: Parameters<typeof ${componentFunctionalVar}>[0]${endOfLine}`
-    ctx.inheritedAttrVars.add(attrsVar)
-  }
-
   collectStyleScopedClassReferences(options, ctx, node)
 
   const slotDir = node.props.find(
@@ -385,10 +379,6 @@ export function* generateElement(
   }
   if (ctx.singleRootNodes.has(node)) {
     ctx.singleRootElTypes.push(`__VLS_NativeElements['${node.tag}']`)
-  }
-
-  if (hasVBindAttrs(options, ctx, node)) {
-    ctx.inheritedAttrVars.add(`__VLS_elements.${node.tag}`)
   }
 
   collectStyleScopedClassReferences(options, ctx, node)
@@ -496,21 +486,4 @@ function* generateElementReference(
     }
   }
   return []
-}
-
-function hasVBindAttrs(
-  options: TemplateCodegenOptions,
-  ctx: TemplateCodegenContext,
-  node: CompilerDOM.ElementNode,
-) {
-  return (
-    options.mpxCompilerOptions.fallthroughAttributes &&
-    (ctx.singleRootNodes.has(node) ||
-      node.props.some(
-        prop =>
-          prop.type === CompilerDOM.NodeTypes.DIRECTIVE &&
-          prop.name === 'bind' &&
-          prop.exp?.loc.source === '$attrs',
-      ))
-  )
 }

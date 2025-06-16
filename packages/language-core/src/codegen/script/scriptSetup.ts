@@ -159,14 +159,6 @@ function* generateSetupFunction(
       ])
     }
   }
-  if (options.mpxCompilerOptions.inferTemplateDollarAttrs) {
-    for (const { callExp } of scriptSetupRanges.useAttrs) {
-      setupCodeModifies.push(
-        [[`(`], callExp.start, callExp.start],
-        [[` as typeof __VLS_dollars.$attrs)`], callExp.end, callExp.end],
-      )
-    }
-  }
   for (const { callExp, exp, arg } of scriptSetupRanges.useCssModule) {
     setupCodeModifies.push(
       [[`(`], callExp.start, callExp.start],
@@ -265,7 +257,7 @@ function* generateSetupFunction(
   yield* generateScriptSectionPartiallyEnding(
     scriptSetup.name,
     scriptSetup.content.length,
-    '#3632/scriptSetup.vue',
+    '#3632/scriptSetup',
   )
   yield* generateMacros(options, ctx)
 

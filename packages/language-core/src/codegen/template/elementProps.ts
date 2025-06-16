@@ -234,11 +234,7 @@ export function* generateElementProps(
       !prop.arg &&
       prop.exp?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION
     ) {
-      if (prop.exp.loc.source === '$attrs') {
-        if (enableCodeFeatures) {
-          ctx.bindingAttrLocs.push(prop.exp.loc)
-        }
-      } else {
+      if (prop.exp.loc.source !== '$attrs') {
         const codes = [
           ...wrapWith(
             prop.exp.loc.start.offset,

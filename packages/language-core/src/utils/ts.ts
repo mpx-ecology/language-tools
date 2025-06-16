@@ -13,7 +13,6 @@ import {
   generateGlobalTypes,
   getGlobalTypesFileName,
 } from '../codegen/globalTypes'
-import { defineComponentTypesContents } from '../codegen/defineComponentTypes'
 
 export function createParsedCommandLineByJson(
   ts: typeof import('typescript'),
@@ -301,13 +300,6 @@ export function setupGlobalTypes(
       }
       dir = parentDir
     }
-    const defineComponentTypesPath = path.join(
-      dir,
-      'node_modules',
-      '.mpx-global-types',
-      'mpx_defineComponent.d.ts',
-    )
-    host.writeFile(defineComponentTypesPath, defineComponentTypesContents)
     const globalTypesPath = path.join(
       dir,
       'node_modules',
@@ -315,19 +307,19 @@ export function setupGlobalTypes(
       getGlobalTypesFileName(mpxOptions),
     )
     const globalTypesContents =
-      `// @ts-nocheck\n` +
-      `/// <reference types="./mpx_defineComponent.d.ts" />\n` +
-      `export {};\n` +
-      generateGlobalTypes(mpxOptions)
+      `// @ts-nocheck\n` + `export {};\n` + generateGlobalTypes(mpxOptions)
     host.writeFile(globalTypesPath, globalTypesContents)
     return { absolutePath: globalTypesPath }
   } catch {
     // noop
+    console.warn(
+      '[Mpx] Failed to setup global types, please check if the mpx package is installed.',
+    )
   }
 }
 
 export function getDefaultCompilerOptions(
-  lib = 'vue',
+  lib = '@mpxjs/core',
   strictTemplates = false,
 ): MpxCompilerOptions {
   return {
@@ -344,8 +336,6 @@ export function getDefaultCompilerOptions(
     checkUnknownComponents: strictTemplates,
     inferComponentDollarEl: false,
     inferComponentDollarRefs: false,
-    inferTemplateDollarAttrs: false,
-    inferTemplateDollarEl: false,
     inferTemplateDollarRefs: false,
     inferTemplateDollarSlots: false,
     skipTemplateCodegen: false,
@@ -359,6 +349,7 @@ export function getDefaultCompilerOptions(
     dataAttributes: [],
     htmlAttributes: ['aria-*'],
     optionsWrapper: [`(await import('${lib}')).defineComponent(`, `)`],
+    optionsComponentCtor: ['createComponent'],
     macros: {
       defineProps: ['defineProps'],
       defineSlots: ['defineSlots'],

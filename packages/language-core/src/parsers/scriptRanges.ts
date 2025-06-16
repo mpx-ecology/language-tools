@@ -1,5 +1,5 @@
 import type * as ts from 'typescript'
-import type { TextRange } from '../types'
+import type { MpxCompilerOptions, TextRange } from '../types'
 import { parseBindingRanges } from './scriptSetupRanges'
 import { getStartEnd } from '../utils/shared'
 
@@ -10,6 +10,7 @@ export function parseScriptRanges(
   ast: ts.SourceFile,
   hasScriptSetup: boolean,
   withNode: boolean,
+  mpxCompilerOptions: MpxCompilerOptions,
 ) {
   let exportDefault:
     | (TextRange & {
@@ -59,18 +60,15 @@ export function parseScriptRanges(
     return getStartEnd(ts, node, ast)
   }
 
-  // function _getNodeText(node: ts.Node) {
-  //   return getNodeText(ts, node, ast)
-  // }
-
   function getCreateComponentExpression(node: ts.Node) {
+    const { optionsComponentCtor } = mpxCompilerOptions
     if (ts.isExpressionStatement(node)) {
       const res = node.expression
       if (ts.isCallExpression(res)) {
         const expression = res.expression
         if (
           ts.isIdentifier(expression) &&
-          expression.escapedText === 'createComponent'
+          optionsComponentCtor.includes(expression.escapedText as string)
         ) {
           return res
         }

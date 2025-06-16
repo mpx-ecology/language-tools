@@ -40,14 +40,8 @@ export function* generateTemplate(
   if (options.mpxCompilerOptions.inferTemplateDollarSlots) {
     ctx.dollarVars.add(slotsPropertyName)
   }
-  if (options.mpxCompilerOptions.inferTemplateDollarAttrs) {
-    ctx.dollarVars.add('$attrs')
-  }
   if (options.mpxCompilerOptions.inferTemplateDollarRefs) {
     ctx.dollarVars.add('$refs')
-  }
-  if (options.mpxCompilerOptions.inferTemplateDollarEl) {
-    ctx.dollarVars.add('$el')
   }
 
   if (options.template.ast) {
@@ -59,16 +53,14 @@ export function* generateTemplate(
 
   const speicalTypes = [
     [slotsPropertyName, yield* generateSlots(options, ctx)],
-    ['$attrs', yield* generateInheritedAttrs(options, ctx)],
     ['$refs', yield* generateTemplateRefs(options, ctx)],
-    ['$el', yield* generateRootEl(ctx)],
   ]
 
   yield `var __VLS_dollars!: {${newLine}`
   for (const [name, type] of speicalTypes) {
     yield `${name}: ${type}${endOfLine}`
   }
-  yield `} & { [K in keyof import('${options.mpxCompilerOptions.lib}').ComponentPublicInstance]: unknown }${endOfLine}`
+  yield `}${endOfLine}`
 
   return ctx
 }
@@ -108,28 +100,6 @@ function* generateSlots(
   return `__VLS_Slots`
 }
 
-function* generateInheritedAttrs(
-  options: TemplateCodegenOptions,
-  ctx: TemplateCodegenContext,
-): Generator<Code> {
-  yield `type __VLS_InheritedAttrs = {}`
-  for (const varName of ctx.inheritedAttrVars) {
-    yield ` & typeof ${varName}`
-  }
-  yield endOfLine
-
-  if (ctx.bindingAttrLocs.length) {
-    yield `[`
-    for (const loc of ctx.bindingAttrLocs) {
-      yield `__VLS_dollars.`
-      yield [loc.source, 'template', loc.start.offset, ctx.codeFeatures.all]
-      yield `,`
-    }
-    yield `]${endOfLine}`
-  }
-  return `import('${options.mpxCompilerOptions.lib}').ComponentPublicInstance['$attrs'] & Partial<__VLS_InheritedAttrs>`
-}
-
 function* generateTemplateRefs(
   options: TemplateCodegenOptions,
   ctx: TemplateCodegenContext,
@@ -161,19 +131,6 @@ function* generateTemplateRefs(
   }
   yield endOfLine
   return `__VLS_TemplateRefs`
-}
-
-function* generateRootEl(ctx: TemplateCodegenContext): Generator<Code> {
-  yield `type __VLS_RootEl = `
-  if (ctx.singleRootElTypes.length && !ctx.singleRootNodes.has(null)) {
-    for (const type of ctx.singleRootElTypes) {
-      yield `${newLine}| ${type}`
-    }
-  } else {
-    yield `any`
-  }
-  yield endOfLine
-  return `__VLS_RootEl`
 }
 
 export function* forEachElementNode(

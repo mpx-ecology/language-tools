@@ -80,7 +80,7 @@ export function* generateComponentSelf(
     yield `})${endOfLine}` // defineComponent {
   } else if (options.sfc.script) {
     // yield `let __VLS_self!: typeof import('./${path.basename(options.fileName)}').default${endOfLine}`
-    yield `let __VLS_self!: typeof __VLS_createComponent${endOfLine}`
+    yield `let __VLS_self!: typeof __VLS_defineComponent${endOfLine}`
   } else {
     yield `const __VLS_self = (await import('${options.mpxCompilerOptions.lib}')).defineComponent({})${endOfLine}`
   }

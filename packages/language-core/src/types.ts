@@ -37,8 +37,6 @@ export interface MpxCompilerOptions {
   checkUnknownComponents: boolean
   inferComponentDollarEl: boolean
   inferComponentDollarRefs: boolean
-  inferTemplateDollarAttrs: boolean
-  inferTemplateDollarEl: boolean
   inferTemplateDollarRefs: boolean
   inferTemplateDollarSlots: boolean
   skipTemplateCodegen: boolean
@@ -47,6 +45,7 @@ export interface MpxCompilerOptions {
   dataAttributes: string[]
   htmlAttributes: string[]
   optionsWrapper: [string, string] | []
+  optionsComponentCtor: string[]
   macros: {
     defineProps: string[]
     defineSlots: string[]

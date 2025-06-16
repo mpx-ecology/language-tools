@@ -1,8 +1,4 @@
-export const defineComponentTypesContents = `// @ts-nocheck
-/// <reference types="miniprogram-api-typings" />
-export {}
-declare global {
-  // The returned value has artificial types for IDE support.
+const globalTypes = `	// #region DefineComponent - global types
   export function DefineComponent<
     D extends Data = {},
     P extends Properties = {},
@@ -14,7 +10,9 @@ declare global {
   >(
     opt: ThisTypedComponentOpt<D, P, C, M, Mi, S, O>,
   ): ComponentIns<D, P, C, M, Mi, S, O>
-}
+  // #endregion`
+
+const localTypes = `// #region DefineComponent - local types
 type Data = object | (() => object)
 interface Properties {
   [key: string]: WechatMiniprogram.Component.AllProperty
@@ -199,4 +197,10 @@ type WxComponentIns<
 interface ReplaceWxComponentIns {
   selectComponent(selector: string): ComponentIns<{}, {}, {}, {}, []>
   selectAllComponents(selector: string): Array<ComponentIns<{}, {}, {}, {}, []>>
-}`
+}
+// #endregion`
+
+export const defineComponentTypesContents = {
+  globalTypes,
+  localTypes,
+}

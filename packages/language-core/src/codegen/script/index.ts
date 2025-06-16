@@ -53,8 +53,10 @@ export function* generateScript(
       yield `/// <reference types=".mpx-global-types/${getGlobalTypesFileName(options.mpxCompilerOptions)}" />${newLine}`
     }
   } else {
-    yield `/// <reference path="./__VLS_fake.d.ts" />`
+    yield `/// <reference path="./__VLS_fake.d.ts" />${newLine}`
   }
+
+  yield `/// <reference types="miniprogram-api-typings" />${newLine}`
 
   if (options.sfc.script?.src) {
     yield* generateSrc(options.sfc.script.src)
@@ -100,7 +102,7 @@ export function* generateScript(
         yield* generateScriptSectionPartiallyEnding(
           options.sfc.script.name,
           options.sfc.script.content.length,
-          '#3632/both.vue',
+          '#3632/both',
         )
         yield* generateScriptSetup(
           options,
@@ -121,8 +123,8 @@ export function* generateScript(
         options.sfc.script.content.length,
         codeFeatures.all,
       )
-      // __VLS_createComponent
-      yield `const __VLS_createComponent = DefineComponent(`
+      // defineComponent
+      yield `const __VLS_defineComponent = DefineComponent(`
       // yield options.mpxCompilerOptions.optionsWrapper[0]
       yield generateSfcBlockSection(
         options.sfc.script,
@@ -142,7 +144,7 @@ export function* generateScript(
       yield* generateScriptSectionPartiallyEnding(
         options.sfc.script.name,
         options.sfc.script.content.length,
-        '#3632/script.vue',
+        '#3632/script',
       )
     }
   } else if (options.sfc.scriptSetup && options.scriptSetupRanges) {
@@ -158,7 +160,7 @@ export function* generateScript(
     yield* generateScriptSectionPartiallyEnding(
       options.sfc.scriptSetup.name,
       options.sfc.scriptSetup.content.length,
-      '#4569/main.vue',
+      '#4569/main',
       ';',
     )
   }
