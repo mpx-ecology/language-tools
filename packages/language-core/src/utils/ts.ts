@@ -376,7 +376,7 @@ export function getDefaultCompilerOptions(
     },
     plugins: [],
     experimentalDefinePropProposal: false,
-    experimentalResolveStyleCssClasses: 'scoped',
+    experimentalResolveStyleCssClasses: 'always',
     experimentalModelPropName: {
       '': {
         input: true,

@@ -52,7 +52,7 @@ export function collectStyleScopedClassReferences(
   for (const prop of node.props) {
     if (
       prop.type === CompilerDOM.NodeTypes.ATTRIBUTE &&
-      prop.name === 'class' &&
+      (prop.name === 'class' || prop.name === 'wx:class') &&
       prop.value
     ) {
       if (options.template.lang === 'pug') {
