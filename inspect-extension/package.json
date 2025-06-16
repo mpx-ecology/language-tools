@@ -4,7 +4,6 @@
   "description": "debug for mpx vscode extension",
   "devDependencies": {
     "@mpxjs/core": "catalog:",
-    "typescript": "catalog:",
-    "vue": "^3.5.16"
+    "typescript": "catalog:"
   }
 }
