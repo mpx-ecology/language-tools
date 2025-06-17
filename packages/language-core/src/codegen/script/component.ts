@@ -1,73 +1,9 @@
 import type { Code, Sfc } from '../../types'
-import type { ScriptCodegenOptions } from './index'
 import type { ScriptCodegenContext } from './context'
 import type { ScriptSetupRanges } from '../../parsers/scriptSetupRanges'
 
 import { codeFeatures } from '../codeFeatures'
-import { endOfLine, generateSfcBlockSection, newLine } from '../utils'
-
-export function* generateComponent(
-  options: ScriptCodegenOptions,
-  ctx: ScriptCodegenContext,
-  scriptSetup: NonNullable<Sfc['scriptSetup']>,
-  scriptSetupRanges: ScriptSetupRanges,
-): Generator<Code> {
-  if (
-    options.sfc.script &&
-    options.scriptRanges?.exportDefault &&
-    options.scriptRanges.exportDefault.expression.start !==
-      options.scriptRanges.exportDefault.args.start
-  ) {
-    // use defineComponent() from user space code if it exist
-    yield generateSfcBlockSection(
-      options.sfc.script,
-      options.scriptRanges.exportDefault.expression.start,
-      options.scriptRanges.exportDefault.args.start,
-      codeFeatures.all,
-    )
-    yield `{${newLine}`
-  } else {
-    yield `(await import('${options.mpxCompilerOptions.lib}')).defineComponent({${newLine}`
-  }
-
-  yield `setup() {${newLine}`
-  yield `return {${newLine}`
-  if (ctx.bypassDefineComponent) {
-    yield* generateComponentSetupReturns(scriptSetupRanges)
-  }
-  if (scriptSetupRanges.defineExpose) {
-    yield `...__VLS_exposed,${newLine}`
-  }
-  yield `}${endOfLine}`
-  yield `},${newLine}`
-  if (!ctx.bypassDefineComponent) {
-    const emitOptionCodes = [...generateEmitsOption(scriptSetupRanges)]
-    yield* emitOptionCodes
-    yield* generatePropsOption(ctx, scriptSetup, scriptSetupRanges)
-  }
-  if (
-    options.mpxCompilerOptions.inferComponentDollarRefs &&
-    options.templateCodegen?.templateRefs.size
-  ) {
-    yield `__typeRefs: {} as __VLS_TemplateRefs,${newLine}`
-  }
-  if (
-    options.mpxCompilerOptions.inferComponentDollarEl &&
-    options.templateCodegen?.singleRootElTypes.length
-  ) {
-    yield `__typeEl: {} as __VLS_RootEl,${newLine}`
-  }
-  if (options.sfc.script && options.scriptRanges?.exportDefault?.args) {
-    const { args } = options.scriptRanges.exportDefault
-    yield generateSfcBlockSection(
-      options.sfc.script,
-      args.start + 1,
-      args.end - 1,
-      codeFeatures.all,
-    )
-  }
-  yield `})`
-}
+import { generateSfcBlockSection, newLine } from '../utils'
 
 export function* generateComponentSetupReturns(
   scriptSetupRanges: ScriptSetupRanges,

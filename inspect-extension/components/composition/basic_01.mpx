@@ -1,8 +1,48 @@
+<template>
+  <view class="title"> title: {{ title }} </view>
+  <view wx:class="list" @click="onClick" :bindtap="onClick">
+    <view> msg: {{ msg }} </view>
+    <view> obj: {{ obj.a + obj.b }} </view>
+    <view> content: {{ content }} </view>
+  </view>
+</template>
+  
 <script setup lang="ts">
-import { ref } from '@mpxjs/core';
-const title = ref('');
+import { toRefs, computed } from '@mpxjs/core'
+
+const props = defineProps<{
+  msg: string
+}>()
+
+const { msg } = toRefs(props)
+
+const content = computed(() => {
+  return msg.value
+})
+
+const obj = {
+	a: 1,
+	b: 2
+}
+
+const onClick = (a?: number) => {
+	console.log('click', a)
+}
+
+defineExpose({
+  title: '',
+  msg,
+  content,
+  obj,
+  onClick
+})
+
 </script>
 
-<template>
-	<view>{{ title }}</view>
-</template>
+<style lang="stylus">
+  .title
+    color green
+  .list
+    background-color red
+</style>
+  

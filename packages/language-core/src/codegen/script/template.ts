@@ -23,7 +23,7 @@ export function* generateTemplate(
   const templateCodegenCtx = createTemplateCodegenContext({
     scriptSetupBindingNames: new Set(),
   })
-  yield* generateTemplateCtx()
+  yield* generateTemplateCtx(options)
   yield* generateTemplateElements()
   yield* generateTemplateComponents()
   yield* generateTemplateDirectives(options)
@@ -31,8 +31,16 @@ export function* generateTemplate(
   return templateCodegenCtx
 }
 
-function* generateTemplateCtx(): Generator<Code> {
-  yield `const __VLS_ctx = __VLS_defineComponent${endOfLine}`
+function* generateTemplateCtx(options: ScriptCodegenOptions): Generator<Code> {
+  if (options.sfc.scriptSetup) {
+    if (options.scriptSetupRanges?.defineExpose) {
+      yield `const __VLS_ctx = __VLS_defineExpose${endOfLine}`
+    } else {
+      yield `const __VLS_ctx = {}${endOfLine}`
+    }
+  } else {
+    yield `const __VLS_ctx = __VLS_defineComponent${endOfLine}`
+  }
 }
 
 function* generateTemplateElements(): Generator<Code> {
