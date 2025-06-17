@@ -1,7 +1,6 @@
 import type { Code, MpxLanguagePlugin } from '../types'
 import * as CompilerDOM from '@vue/compiler-dom'
 import { forEachElementNode } from '../codegen/template'
-
 import { allCodeFeatures } from './shared'
 
 const codeFeatures = {

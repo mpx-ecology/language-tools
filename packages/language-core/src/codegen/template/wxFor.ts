@@ -1,8 +1,3 @@
-/**
- * TODO -
- * - [ ] wx:for
- */
-
 import type { Code } from '../../types'
 import type { TemplateCodegenContext } from './context'
 import type { TemplateCodegenOptions } from './index'
@@ -12,13 +7,13 @@ import { generateInterpolation } from './interpolation'
 import { generateElementChildren } from './elementChildren'
 import { collectVars, createTsAst, endOfLine, newLine } from '../utils'
 
-export function* generateVFor(
+export function* generateWxFor(
   options: TemplateCodegenOptions,
   ctx: TemplateCodegenContext,
   node: CompilerDOM.ForNode,
 ): Generator<Code> {
   const { source } = node.parseResult
-  const { leftExpressionRange, leftExpressionText } = parseVForNode(node)
+  const { leftExpressionRange, leftExpressionText } = parseWxForNode(node)
   const forBlockVars: string[] = []
 
   yield `for (const [`
@@ -105,7 +100,7 @@ export function* generateVFor(
   yield `}${newLine}`
 }
 
-export function parseVForNode(node: CompilerDOM.ForNode) {
+export function parseWxForNode(node: CompilerDOM.ForNode) {
   const { value, key, index } = node.parseResult
   const leftExpressionRange =
     value || key || index

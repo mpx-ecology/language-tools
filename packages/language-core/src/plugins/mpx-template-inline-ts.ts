@@ -4,7 +4,7 @@ import * as CompilerDOM from '@vue/compiler-dom'
 
 import { isCompoundExpression } from '../codegen/template/elementEvents'
 import { parseInterpolationNode } from '../codegen/template/templateChild'
-import { parseVForNode } from '../codegen/template/vFor'
+import { parseWxForNode } from '../codegen/template/wxFor'
 import { createTsAst } from '../codegen/utils'
 
 const codeFeatures: CodeInformation = {
@@ -172,7 +172,7 @@ const plugin: MpxLanguagePlugin = ctx => {
         }
       } else if (node.type === CompilerDOM.NodeTypes.FOR) {
         const { leftExpressionRange, leftExpressionText, mpx } =
-          parseVForNode(node)
+          parseWxForNode(node)
         const { source } = node.parseResult
         if (
           leftExpressionRange &&
