@@ -166,8 +166,8 @@ export function* generateScript(
   }
 
   if (!ctx.generatedTemplate) {
-    const templateCodegenCtx = yield* generateTemplate(options, ctx)
-    yield* generateComponentSelf(options, ctx, templateCodegenCtx)
+    yield* generateTemplate(options, ctx)
+    yield* generateComponentSelf(options)
   }
 
   yield* ctx.localTypes.generate([...ctx.localTypes.getUsedNames()])

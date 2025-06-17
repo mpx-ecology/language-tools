@@ -5,7 +5,6 @@ import { codeFeatures } from '../codeFeatures'
 import { endOfLine, generateSfcBlockSection, newLine } from '../utils'
 import { generateCamelized } from '../utils/camelized'
 import { wrapWith } from '../utils/wrapWith'
-import { generateComponent } from './component'
 import { generateComponentSelf } from './componentSelf'
 import type { ScriptCodegenContext } from './context'
 import {
@@ -40,25 +39,13 @@ export function* generateScriptSetup(
 ): Generator<Code> {
   if (!options.sfc.script) {
     // no script block, generate script setup code at root
-    yield* generateSetupFunction(
-      options,
-      ctx,
-      scriptSetup,
-      scriptSetupRanges,
-      'export default',
-    )
+    yield* generateSetupFunction(options, ctx, scriptSetup, scriptSetupRanges)
   } else {
     if (!options.scriptRanges?.exportDefault) {
       yield `export default `
     }
     yield `await (async () => {${newLine}`
-    yield* generateSetupFunction(
-      options,
-      ctx,
-      scriptSetup,
-      scriptSetupRanges,
-      'return',
-    )
+    yield* generateSetupFunction(options, ctx, scriptSetup, scriptSetupRanges)
     yield `})()`
   }
 }
@@ -68,7 +55,6 @@ function* generateSetupFunction(
   ctx: ScriptCodegenContext,
   scriptSetup: NonNullable<Sfc['scriptSetup']>,
   scriptSetupRanges: ScriptSetupRanges,
-  syntax: 'return' | 'export default' | undefined,
 ): Generator<Code> {
   let setupCodeModifies: [Code[], number, number][] = []
   if (scriptSetupRanges.defineProps) {
@@ -119,7 +105,7 @@ function* generateSetupFunction(
       setupCodeModifies.push(
         [
           [
-            `let __VLS_exposed!: `,
+            `let __VLS_defineExpose!: `,
             generateSfcBlockSection(
               scriptSetup,
               typeArg.start,
@@ -131,13 +117,13 @@ function* generateSetupFunction(
           callExp.start,
           callExp.start,
         ],
-        [[`typeof __VLS_exposed`], typeArg.start, typeArg.end],
+        [[`typeof __VLS_defineExpose`], typeArg.start, typeArg.end],
       )
     } else if (arg) {
       setupCodeModifies.push(
         [
           [
-            `const __VLS_exposed = `,
+            `const __VLS_defineExpose = `,
             generateSfcBlockSection(
               scriptSetup,
               arg.start,
@@ -149,11 +135,11 @@ function* generateSetupFunction(
           callExp.start,
           callExp.start,
         ],
-        [[`__VLS_exposed`], arg.start, arg.end],
+        [[`__VLS_defineExpose`], arg.start, arg.end],
       )
     } else {
       setupCodeModifies.push([
-        [`const __VLS_exposed = {}${endOfLine}`],
+        [`const __VLS_defineExpose = {}${endOfLine}`],
         callExp.start,
         callExp.start,
       ])
@@ -259,7 +245,6 @@ function* generateSetupFunction(
     scriptSetup.content.length,
     '#3632/scriptSetup',
   )
-  yield* generateMacros(options, ctx)
 
   if (
     scriptSetupRanges.defineProps?.typeArg &&
@@ -278,41 +263,8 @@ function* generateSetupFunction(
 
   yield* generateComponentProps(options, ctx, scriptSetup, scriptSetupRanges)
   yield* generateModelEmit(scriptSetup, scriptSetupRanges)
-  const templateCodegenCtx = yield* generateTemplate(options, ctx)
-  yield* generateComponentSelf(options, ctx, templateCodegenCtx)
-
-  if (syntax) {
-    if (
-      !options.mpxCompilerOptions.skipTemplateCodegen &&
-      (scriptSetupRanges.defineSlots ||
-        options.templateCodegen?.slots.length ||
-        options.templateCodegen?.dynamicSlots.length)
-    ) {
-      yield `const __VLS_component = `
-      yield* generateComponent(options, ctx, scriptSetup, scriptSetupRanges)
-      yield endOfLine
-      yield `${syntax} `
-      yield `{} as ${ctx.localTypes.WithSlots}<typeof __VLS_component, __VLS_Slots>${endOfLine}`
-    } else {
-      yield `${syntax} `
-      yield* generateComponent(options, ctx, scriptSetup, scriptSetupRanges)
-      yield endOfLine
-    }
-  }
-}
-
-function* generateMacros(
-  options: ScriptCodegenOptions,
-  ctx: ScriptCodegenContext,
-): Generator<Code> {
-  yield `// @ts-ignore${newLine}`
-  yield `declare const { `
-  for (const macro of Object.keys(options.mpxCompilerOptions.macros)) {
-    if (!ctx.bindingNames.has(macro)) {
-      yield `${macro}, `
-    }
-  }
-  yield `}: typeof import('${options.mpxCompilerOptions.lib}')${endOfLine}`
+  yield* generateTemplate(options, ctx)
+  yield* generateComponentSelf(options)
 }
 
 function* generateDefineWithType(

@@ -1,5 +1,6 @@
-const globalTypes = `	// #region DefineComponent - global types
-  export function DefineComponent<
+const globalTypes = `
+  // #region DefineComponent - global types
+  function DefineComponent<
     D extends Data = {},
     P extends Properties = {},
     C = {},
@@ -10,9 +11,11 @@ const globalTypes = `	// #region DefineComponent - global types
   >(
     opt: ThisTypedComponentOpt<D, P, C, M, Mi, S, O>,
   ): ComponentIns<D, P, C, M, Mi, S, O>
-  // #endregion`
+  // #endregion
+`
 
-const localTypes = `// #region DefineComponent - local types
+const localTypes = `
+// #region DefineComponent - local types
 type Data = object | (() => object)
 interface Properties {
   [key: string]: WechatMiniprogram.Component.AllProperty
@@ -32,9 +35,7 @@ type ThisTypedComponentOpt<
   Mi extends Array<any>,
   S extends Record<any, any>,
   O = {},
-> = ComponentOpt<D, P, C, M, Mi, S> &
-  ThisType<ComponentIns<D, P, C, M, Mi, S, O>> &
-  O
+> = ComponentOpt<D, P, C, M, Mi, S> & ThisType<ComponentIns<D, P, C, M, Mi, S, O>> & O
 interface ComponentOpt<
   D extends Data,
   P extends Properties,
@@ -42,30 +43,21 @@ interface ComponentOpt<
   M extends Methods,
   Mi extends Array<any>,
   S extends Record<any, any>,
-> extends Partial<
-    WechatMiniprogram.Component.Lifetimes &
-      WechatMiniprogram.Component.OtherOption
-  > {
+> extends Partial<WechatMiniprogram.Component.Lifetimes & WechatMiniprogram.Component.OtherOption> {
   data?: D
   properties?: P
   computed?: C
   methods?: M
   mixins?: Mi
   watch?: WatchField
-  setup?: (
-    props: GetPropsType<P & UnboxMixinsField<Mi, 'properties'>>,
-    context: any,
-  ) => S
+  setup?: (props: GetPropsType<P & UnboxMixinsField<Mi, 'properties'>>, context: any) => S
   pageShow?: () => void
   pageHide?: () => void
   initData?: Record<string, any>
   provide?: Record<string, any> | (() => Record<string, any>)
   inject?:
     | {
-        [key: string]:
-          | string
-          | Symbol
-          | { from?: string | Symbol; default?: any }
+        [key: string]: string | Symbol | { from?: string | Symbol; default?: any }
       }
     | Array<string>
   [index: string]: any
@@ -111,20 +103,12 @@ export type PropType<T> = {
         : T extends object
           ? ObjectConstructor
           : never)
-type UnboxMixinField<T extends Mixin<{}, {}, {}, {}>, F> = F extends keyof T
-  ? T[F]
-  : {}
+type UnboxMixinField<T extends Mixin<{}, {}, {}, {}>, F> = F extends keyof T ? T[F] : {}
 type UnboxMixinsField<Mi extends Array<any>, F> = UnionToIntersection<
   RequiredPropertiesForUnion<UnboxMixinField<ArrayType<Mi>, F>>
 >
-type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I,
-) => void
-  ? I
-  : never
-type RequiredPropertiesForUnion<T> = T extends object
-  ? Pick<T, RequiredPropertyNames<T>>
-  : never
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
+type RequiredPropertiesForUnion<T> = T extends object ? Pick<T, RequiredPropertyNames<T>> : never
 type RequiredPropertyNames<T> = {
   [K in keyof T]-?: T[K] extends undefined ? never : K
 }[keyof T]
@@ -173,10 +157,7 @@ type GetComputedSetKeys<T> = {
     : never
 }[keyof T]
 export type GetComputedType<T> = {
-  readonly [K in Exclude<
-    keyof T,
-    GetComputedSetKeys<T>
-  >]: T[K] extends () => infer R ? R : T[K]
+  readonly [K in Exclude<keyof T, GetComputedSetKeys<T>>]: T[K] extends () => infer R ? R : T[K]
 } & {
   [K in GetComputedSetKeys<T>]: T[K] extends {
     get(): infer R
@@ -185,11 +166,7 @@ export type GetComputedType<T> = {
     ? R
     : T[K]
 }
-type WxComponentIns<
-  D extends Data = {},
-  P extends Properties = {},
-  M extends Methods = {},
-> = Omit<
+type WxComponentIns<D extends Data = {}, P extends Properties = {}, M extends Methods = {}> = Omit<
   WechatMiniprogram.Component.Instance<D, P, M, any>,
   'selectComponent' | 'selectAllComponents'
 > &
@@ -198,7 +175,8 @@ interface ReplaceWxComponentIns {
   selectComponent(selector: string): ComponentIns<{}, {}, {}, {}, []>
   selectAllComponents(selector: string): Array<ComponentIns<{}, {}, {}, {}, []>>
 }
-// #endregion`
+// #endregion
+`
 
 export const defineComponentTypesContents = {
   globalTypes,

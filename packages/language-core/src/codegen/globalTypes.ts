@@ -86,7 +86,6 @@ export function generateGlobalTypes({
 					? { [K in onEvent]?: Emits[CamelizedEvent] }
 					: Props
 	)${checkUnknownEvents ? '' : ' & Record<string, unknown>'};
-	// fix https://github.com/vuejs/language-tools/issues/926
 	type __VLS_UnionToIntersection<U> = (U extends unknown ? (arg: U) => unknown : never) extends ((arg: infer P) => unknown) ? P : never;
 	type __VLS_OverloadUnionInner<T, U = unknown> = U & T extends (...args: infer A) => infer R
 		? U extends T
