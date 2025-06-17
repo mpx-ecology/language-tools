@@ -26,10 +26,11 @@ function visitNode<T extends Node>(node: T): T | undefined {
                 : content || ''
 
             contentLoc.source = forSource
-            contentLoc.start.offset += 2
-            contentLoc.end.offset -= 2
-            contentLoc.start.column += 2
-            contentLoc.end.column -= 2
+            // eg: '"{{ listData }}"' -> ' listData ' -> offset += 3
+            contentLoc.start.offset += 3
+            contentLoc.end.offset -= 3
+            contentLoc.start.column += 3
+            contentLoc.end.column -= 3
             const valueNode = {
               type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
               content: 'item',
