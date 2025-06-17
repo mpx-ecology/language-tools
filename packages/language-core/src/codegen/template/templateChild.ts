@@ -9,7 +9,7 @@ import { generateElementChildren } from './elementChildren'
 import { generateComponent, generateElement } from './element'
 import { generateInterpolation } from './interpolation'
 import { generateSlotOutlet } from './slotOutlet'
-import { generateVFor } from './vFor'
+import { generateWxFor } from './wxFor'
 import { generateVIf } from './vIf'
 import { generateVSlot } from './vSlot'
 
@@ -58,7 +58,7 @@ export function* generateTemplateChild(
     const vForNode = getVForNode(node)
     const vIfNode = getVIfNode(node)
     if (vForNode) {
-      yield* generateVFor(options, ctx, vForNode)
+      yield* generateWxFor(options, ctx, vForNode)
     } else if (vIfNode) {
       yield* generateVIf(options, ctx, vIfNode)
     } else if (node.tagType === CompilerDOM.ElementTypes.SLOT) {
@@ -117,7 +117,7 @@ export function* generateTemplateChild(
     yield* generateVIf(options, ctx, node)
   } else if (node.type === CompilerDOM.NodeTypes.FOR) {
     // v-for
-    yield* generateVFor(options, ctx, node)
+    yield* generateWxFor(options, ctx, node)
   } else if (node.type === CompilerDOM.NodeTypes.TEXT) {
     // not needed progress
   }

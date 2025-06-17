@@ -4,6 +4,7 @@ import mpxScriptJsPlugin from './plugins/mpx-script-js'
 import mpxSfcCustomBlocksPlugin from './plugins/mpx-sfc-customblocks'
 import mpxSfcScriptsFormatPlugin from './plugins/mpx-sfc-scripts'
 import mpxSfcStylesPlugin from './plugins/mpx-sfc-styles'
+import mpxSfcJsonPlugin from './plugins/mpx-sfc-json'
 import mpxSfcTemplatePlugin from './plugins/mpx-sfc-template'
 import mpxTemplateHtmlPlugin from './plugins/mpx-template-html'
 import mpxTemplateInlineCssPlugin from './plugins/mpx-template-inline-css'
@@ -18,6 +19,7 @@ export function createPlugins(pluginContext: Parameters<MpxLanguagePlugin>[0]) {
     mpxFilePlugin,
     mpxRootTagsPlugin,
     mpxScriptJsPlugin,
+    mpxSfcJsonPlugin,
     mpxTemplateHtmlPlugin,
     mpxTemplateInlineCssPlugin,
     mpxTemplateInlineTsPlugin,

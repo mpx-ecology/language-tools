@@ -1,10 +1,9 @@
 import type { MpxLanguagePlugin } from '../types'
 import { parse } from '../utils/parseSfc'
 
-const plugin: MpxLanguagePlugin = ({ mpxCompilerOptions }) => {
+const plugin: MpxLanguagePlugin = ({ mpxCompilerOptions, compilerOptions }) => {
   return {
     name: 'mpx-file',
-
     getLanguageId(fileName) {
       if (mpxCompilerOptions.extensions.some(ext => fileName.endsWith(ext))) {
         return 'mpx'
@@ -15,11 +14,12 @@ const plugin: MpxLanguagePlugin = ({ mpxCompilerOptions }) => {
       return languageId === 'mpx'
     },
 
-    parseSFC(_fileName, languageId, content) {
+    parseSFC(fileName, languageId, content) {
       if (languageId !== 'mpx') {
         return
       }
-      return parse(content)
+
+      return parse(content, { uri: fileName, compilerConfig: compilerOptions })
     },
 
     updateSFC(sfc, change) {
@@ -27,6 +27,7 @@ const plugin: MpxLanguagePlugin = ({ mpxCompilerOptions }) => {
         sfc.descriptor.template,
         sfc.descriptor.script,
         sfc.descriptor.scriptSetup,
+        sfc.descriptor.json,
         ...sfc.descriptor.styles,
         ...sfc.descriptor.customBlocks,
       ].filter(block => !!block)

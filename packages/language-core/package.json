@@ -15,17 +15,24 @@
     "directory": "packages/language-core"
   },
   "dependencies": {
+    "@babel/parser": "^7.27.5",
+    "@babel/traverse": "^7.27.4",
+    "@babel/types": "^7.27.6",
     "@mpxjs/language-shared": "workspace:*",
     "@volar/language-core": "catalog:",
     "@vue/compiler-dom": "catalog:",
     "@vue/compiler-vue2": "^2.7.16",
     "@vue/shared": "catalog:",
     "alien-signals": "^1.0.3",
+    "enhanced-resolve": "^5.18.1",
     "minimatch": "^9.0.3",
     "muggle-string": "^0.4.1",
-    "path-browserify": "catalog:"
+    "path-browserify": "catalog:",
+    "tsconfig-paths": "^4.2.0",
+    "vscode-uri": "catalog:"
   },
   "devDependencies": {
+    "@types/babel__traverse": "^7.20.7",
     "@types/minimatch": "^5.1.2",
     "@types/node": "catalog:",
     "@types/path-browserify": "catalog:",

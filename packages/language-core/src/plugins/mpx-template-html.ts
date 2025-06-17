@@ -1,24 +1,19 @@
-import type * as CompilerDOM from '@vue/compiler-dom'
 import type { MpxLanguagePlugin } from '../types'
+import * as CompilerDOM from '@vue/compiler-dom'
+import { transformMpxTemplateNodes } from '../utils/transformMpxTemplate'
+import { Node } from '../types/compiler'
 
 interface Loc {
   start: { offset: number }
   end: { offset: number }
   source: string
 }
-type Node =
-  | CompilerDOM.RootNode
-  | CompilerDOM.TemplateChildNode
-  | CompilerDOM.ExpressionNode
-  | CompilerDOM.AttributeNode
-  | CompilerDOM.DirectiveNode
 
 const shouldAddSuffix = /(?<=<[^>/]+)$/
 
 const plugin: MpxLanguagePlugin = ({ modules }) => {
   return {
     name: 'mpx-template-html',
-
     compileSFCTemplate(lang, template, options) {
       if (lang === 'html' || lang === 'md') {
         const compiler = modules['@vue/compiler-dom']
@@ -38,6 +33,7 @@ const plugin: MpxLanguagePlugin = ({ modules }) => {
 
         // @ts-expect-error ignore
         result.__addedSuffix = addedSuffix
+        result.ast.children = transformMpxTemplateNodes(result.ast.children)
         return result
       }
     },
