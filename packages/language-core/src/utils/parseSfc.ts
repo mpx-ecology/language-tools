@@ -10,6 +10,10 @@ import type {
 } from '@vue/compiler-sfc'
 
 import * as CompilerDOM from '@vue/compiler-dom'
+import {
+  processJsonBlock,
+  type ProcessJsonBlockOptions,
+} from './processJsonBlock'
 
 declare module '@vue/compiler-sfc' {
   interface SFCDescriptor {
@@ -17,7 +21,12 @@ declare module '@vue/compiler-sfc' {
   }
 }
 
-export function parse(source: string): SFCParseResult {
+interface ParseOptions extends ProcessJsonBlockOptions {}
+
+export function parse(
+  source: string,
+  options: ParseOptions = {},
+): SFCParseResult {
   const errors: CompilerError[] = []
   const ast = CompilerDOM.parse(source, {
     // there are no components at SFC parsing level
@@ -62,10 +71,16 @@ export function parse(source: string): SFCParseResult {
           descriptor.scriptSetup = scriptBlock
           break
         }
+
+        if (processJsonBlock(scriptBlock, descriptor, options)) {
+          break
+        }
+
         if (!isSetup && !descriptor.script) {
           descriptor.script = scriptBlock
           break
         }
+
         break
       }
       case 'style': {

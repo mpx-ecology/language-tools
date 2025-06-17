@@ -180,6 +180,46 @@ export function computedSfc(
     },
   )
 
+  const json = computedNullableSfcBlock(
+    'json',
+    'json',
+    computed(() => getParseResult()?.descriptor.json ?? undefined),
+    (block, base): NonNullable<Sfc['json']> => {
+      const getLang = computed(() => {
+        const type = block().jsonType
+        return type === 'application/json' ? 'json' : 'ts'
+      })
+
+      const getAst = computed(() => {
+        for (const plugin of plugins) {
+          const ast = plugin.compileSFCScript?.(getLang(), base.content)
+          if (ast) {
+            return ast
+          }
+        }
+
+        return ts.createSourceFile(
+          fileName + '.' + getLang(),
+          '',
+          99 satisfies ts.ScriptTarget.Latest,
+        )
+      })
+
+      return mergeObject(base, {
+        jsonType: block().jsonType,
+
+        get lang() {
+          return getLang()
+        },
+
+        ast: (() => {
+          if (!['ts', 'js'].includes(getLang())) return
+          return getAst()
+        })(),
+      })
+    },
+  )
+
   return {
     get content() {
       return getContent()
@@ -201,6 +241,9 @@ export function computedSfc(
     },
     get customBlocks() {
       return customBlocks
+    },
+    get json() {
+      return json()
     },
   }
 

@@ -7,7 +7,7 @@
     <view> content: {{ content }} </view>
   </view>
 </template>
-  
+
 <script lang="ts">
 import { createComponent } from '@mpxjs/core'
 
@@ -60,7 +60,9 @@ createComponent({
 
 <script type="application/json">
   {
-    "component": true
+    "component": true,
+    "usingComponents": {
+      "wx_for": "@/options/components/wx_for.mpx"
+    }
   }
 </script>
-  

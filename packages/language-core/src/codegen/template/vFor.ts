@@ -119,9 +119,12 @@ export function parseVForNode(node: CompilerDOM.ForNode) {
         leftExpressionRange.start - node.loc.start.offset,
         leftExpressionRange.end - node.loc.start.offset,
       )
-    : undefined
+    : node.parseResult.mpx
+      ? 'item'
+      : undefined
   return {
-    leftExpressionRange,
+    leftExpressionRange: leftExpressionRange ?? { start: -1, end: -1 },
     leftExpressionText,
+    mpx: node.parseResult.mpx,
   }
 }

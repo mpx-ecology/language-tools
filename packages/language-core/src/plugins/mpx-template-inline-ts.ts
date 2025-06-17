@@ -24,7 +24,6 @@ const plugin: MpxLanguagePlugin = ctx => {
 
   return {
     name: 'mpx-template-inline-ts',
-
     getEmbeddedCodes(_fileName, sfc) {
       if (!sfc.template?.ast) {
         return []
@@ -172,29 +171,41 @@ const plugin: MpxLanguagePlugin = ctx => {
           }
         }
       } else if (node.type === CompilerDOM.NodeTypes.FOR) {
-        const { leftExpressionRange, leftExpressionText } = parseVForNode(node)
+        const { leftExpressionRange, leftExpressionText, mpx } =
+          parseVForNode(node)
         const { source } = node.parseResult
         if (
           leftExpressionRange &&
           leftExpressionText &&
           source.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION
         ) {
-          let start = leftExpressionRange.start
-          let end = source.loc.start.offset + source.content.length
-          while (
-            templateContent[start - 1] === ' ' ||
-            templateContent[start - 1] === '('
-          ) {
-            start--
+          if (!mpx) {
+            let start = leftExpressionRange.start
+            let end = source.loc.start.offset + source.content.length
+            while (
+              templateContent[start - 1] === ' ' ||
+              templateContent[start - 1] === '('
+            ) {
+              start--
+            }
+            while (
+              templateContent[end] === ' ' ||
+              templateContent[end] === ')'
+            ) {
+              end++
+            }
+            addFormatCodes(
+              templateContent.slice(start, end),
+              start,
+              formatBrackets.for,
+            )
+          } else {
+            addFormatCodes(
+              `item in ${leftExpressionText}`,
+              leftExpressionRange.start,
+              formatBrackets.for,
+            )
           }
-          while (templateContent[end] === ' ' || templateContent[end] === ')') {
-            end++
-          }
-          addFormatCodes(
-            templateContent.slice(start, end),
-            start,
-            formatBrackets.for,
-          )
         }
         for (const child of node.children) {
           visit(child)

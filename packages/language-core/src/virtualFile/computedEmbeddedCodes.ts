@@ -23,6 +23,9 @@ export function computedEmbeddedCodes(
     if (sfc.scriptSetup) {
       blocks[sfc.scriptSetup.name] = sfc.scriptSetup
     }
+    if (sfc.json) {
+      blocks[sfc.json.name] = sfc.json
+    }
     for (const block of sfc.styles) {
       blocks[block.name] = block
     }

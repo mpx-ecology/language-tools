@@ -11,6 +11,8 @@ import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescr
 import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-service-typescript/lib/plugins/docCommentTemplate'
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
 import { Commands } from './types'
+// import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
+import { create as createJsonPlugin } from 'volar-service-json'
 
 export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
@@ -53,7 +55,7 @@ function getCommonLanguageServicePlugins(
   return [
     // createVueSfcPlugin(),
     // createCssPlugin(),
-    // createJsonPlugin(),
+    createJsonPlugin(),
     // createMpxTemplatePlugin(getTsPluginClient),
     // createMpxSfcPlugin(),
     {
