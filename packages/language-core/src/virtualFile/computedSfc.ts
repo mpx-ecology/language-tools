@@ -2,10 +2,10 @@ import type * as CompilerDOM from '@vue/compiler-dom'
 import type { SFCBlock, SFCParseResult } from '@vue/compiler-sfc'
 import type * as ts from 'typescript'
 import type {
+  MpxLanguagePluginReturn,
   Sfc,
   SfcBlock,
   SfcBlockAttr,
-  MpxLanguagePluginReturn,
 } from '../types'
 
 import { computed, pauseTracking, resumeTracking } from 'alien-signals'

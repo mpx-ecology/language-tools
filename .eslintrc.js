@@ -17,5 +17,14 @@ module.exports = {
     'no-extra-semi': 0,
     'no-inner-declarations': 0,
     'no-useless-escape': 0,
+    'sort-imports': [
+      'error',
+      {
+        ignoreCase: false,
+        ignoreDeclarationSort: true,
+        ignoreMemberSort: false,
+        memberSyntaxSortOrder: ['none', 'all', 'single', 'multiple'],
+      },
+    ],
   },
 }

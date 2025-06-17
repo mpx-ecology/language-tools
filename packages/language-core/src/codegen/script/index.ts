@@ -1,7 +1,7 @@
 import type * as ts from 'typescript'
 import type { ScriptRanges } from '../../parsers/scriptRanges'
 import type { ScriptSetupRanges } from '../../parsers/scriptSetupRanges'
-import type { Code, Sfc, MpxCompilerOptions } from '../../types'
+import type { Code, MpxCompilerOptions, Sfc } from '../../types'
 import type { TemplateCodegenContext } from '../template/context'
 
 import * as path from 'path-browserify'
@@ -11,7 +11,7 @@ import { codeFeatures } from '../codeFeatures'
 import { generateComponentSelf } from './componentSelf'
 import { endOfLine, generateSfcBlockSection, newLine } from '../utils'
 import { generateGlobalTypes, getGlobalTypesFileName } from '../globalTypes'
-import { createScriptCodegenContext, ScriptCodegenContext } from './context'
+import { ScriptCodegenContext, createScriptCodegenContext } from './context'
 import { generateScriptSetup, generateScriptSetupImports } from './scriptSetup'
 
 export interface ScriptCodegenOptions {

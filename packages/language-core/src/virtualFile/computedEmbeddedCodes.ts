@@ -1,6 +1,6 @@
 import type * as ts from 'typescript'
 import type { Mapping, VirtualCode } from '@volar/language-core'
-import type { Code, Sfc, SfcBlock, MpxLanguagePluginReturn } from '../types'
+import type { Code, MpxLanguagePluginReturn, Sfc, SfcBlock } from '../types'
 
 import { computed } from 'alien-signals'
 import { toString } from 'muggle-string'

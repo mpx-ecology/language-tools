@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
 import path = require('path')
 
-import { createMatchPathAsync, MatchPathAsync } from 'tsconfig-paths'
+import { MatchPathAsync, createMatchPathAsync } from 'tsconfig-paths'
 import { withResolvers } from './utils'
 import { stat } from 'fs/promises'
 import * as fs from 'node:fs'

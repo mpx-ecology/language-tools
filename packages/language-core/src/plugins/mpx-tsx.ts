@@ -1,4 +1,4 @@
-import type { Code, Sfc, MpxLanguagePlugin } from '../types'
+import type { Code, MpxLanguagePlugin, Sfc } from '../types'
 import * as path from 'path-browserify'
 import { computed } from 'alien-signals'
 import { camelize, capitalize } from '@mpxjs/language-shared'

@@ -1,4 +1,4 @@
-import type { Code, Sfc, MpxLanguagePlugin } from '../types'
+import type { Code, MpxLanguagePlugin, Sfc } from '../types'
 import type { CodeInformation } from '@volar/language-core'
 import * as CompilerDOM from '@vue/compiler-dom'
 

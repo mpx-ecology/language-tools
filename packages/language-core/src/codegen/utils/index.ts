@@ -1,5 +1,5 @@
 import type * as ts from 'typescript'
-import type { Code, SfcBlock, MpxCodeInformation } from '../../types'
+import type { Code, MpxCodeInformation, SfcBlock } from '../../types'
 
 import * as CompilerDOM from '@vue/compiler-dom'
 import { getNodeText } from '../../utils/shared'

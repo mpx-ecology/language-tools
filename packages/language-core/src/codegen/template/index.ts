@@ -1,5 +1,5 @@
 import type * as ts from 'typescript'
-import type { Code, Sfc, MpxCompilerOptions } from '../../types'
+import type { Code, MpxCompilerOptions, Sfc } from '../../types'
 import * as CompilerDOM from '@vue/compiler-dom'
 
 import { endOfLine, newLine, wrapWith } from '../utils'

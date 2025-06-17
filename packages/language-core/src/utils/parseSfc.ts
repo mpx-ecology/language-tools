@@ -11,8 +11,8 @@ import type {
 
 import * as CompilerDOM from '@vue/compiler-dom'
 import {
-  processJsonBlock,
   type ProcessJsonBlockOptions,
+  processJsonBlock,
 } from './processJsonBlock'
 
 declare module '@vue/compiler-sfc' {

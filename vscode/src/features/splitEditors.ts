@@ -6,9 +6,9 @@ import {
   useCommand,
 } from 'reactive-vscode'
 import {
+  type BaseLanguageClient,
   ExecuteCommandParams,
   ExecuteCommandRequest,
-  type BaseLanguageClient,
 } from '@volar/vscode'
 import { Commands } from '@mpxjs/language-server/out/types'
 import { config } from '../config'

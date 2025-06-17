@@ -1,6 +1,6 @@
 import type * as ts from 'typescript'
 import { collectIdentifiers } from '../codegen/utils'
-import type { TextRange, MpxCompilerOptions } from '../types'
+import type { MpxCompilerOptions, TextRange } from '../types'
 import { getNodeText, getStartEnd } from '../utils/shared'
 
 const tsCheckReg = /^\/\/\s*@ts-(?:no)?check($|\s)/

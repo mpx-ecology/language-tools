@@ -2,11 +2,11 @@ import type * as ts from 'typescript'
 import type { RequestContext } from './requests/types'
 
 import {
-  forEachElementNode,
-  hyphenateTag,
   Language,
   MpxCompilerOptions,
   MpxVirtualCode,
+  forEachElementNode,
+  hyphenateTag,
 } from '@mpxjs/language-core'
 import { capitalize } from '@mpxjs/language-shared'
 import { _getComponentNames } from './requests/getComponentNames'

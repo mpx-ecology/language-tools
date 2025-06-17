@@ -11,15 +11,15 @@ import {
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject'
 import {
   createLanguage,
-  createParsedCommandLine,
   createMpxLanguagePlugin,
+  createParsedCommandLine,
   getDefaultCompilerOptions,
 } from '@mpxjs/language-core'
 import {
+  LanguageService,
   createLanguageService,
   createUriMap,
   getHybridModeLanguageServicePlugins,
-  LanguageService,
 } from '@mpxjs/language-service'
 
 const connection = createConnection()
