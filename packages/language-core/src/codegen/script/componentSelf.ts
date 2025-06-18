@@ -6,8 +6,13 @@ export function* generateComponentSelf(
   options: ScriptCodegenOptions,
 ): Generator<Code> {
   if (options.sfc.scriptSetup) {
-    yield `const __VLS_self = typeof __VLS_defineExpose${endOfLine}`
+    if (options.scriptSetupRanges?.defineExpose) {
+      yield `const __VLS_self = typeof __VLS_defineExpose${endOfLine}`
+    } else {
+      yield `const __VLS_self = {}${endOfLine}`
+    }
   } else {
     yield `const __VLS_self = typeof __VLS_defineComponent${endOfLine}`
   }
+  yield `export default __VLS_self${endOfLine}`
 }

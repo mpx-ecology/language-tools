@@ -184,40 +184,6 @@
           "default": true,
           "description": "Enabled code lens."
         },
-        "mpx.complete.casing.tags": {
-          "type": "string",
-          "enum": [
-            "autoKebab",
-            "autoPascal",
-            "kebab",
-            "pascal"
-          ],
-          "enumDescriptions": [
-            "Auto Detect from Content (Fallback to <kebab-case> if detect failed)",
-            "Auto Detect from Content  (Fallback to <PascalCase> if detect failed)",
-            "<kebab-case>",
-            "<PascalCase>"
-          ],
-          "default": "autoPascal",
-          "description": "Preferred tag name case."
-        },
-        "mpx.complete.casing.props": {
-          "type": "string",
-          "enum": [
-            "autoKebab",
-            "autoCamel",
-            "kebab",
-            "camel"
-          ],
-          "enumDescriptions": [
-            "Auto Detect from Content (Fallback to :kebab-case=\"...\" if detect failed)",
-            "Auto Detect from Content (Fallback to :camelCase=\"...\" if detect failed)",
-            ":kebab-case=\"...\"",
-            ":camelCase=\"...\""
-          ],
-          "default": "autoKebab",
-          "description": "Preferred attr name case."
-        },
         "mpx.complete.defineAssignment": {
           "type": "boolean",
           "default": true,
@@ -232,31 +198,6 @@
           "type": "boolean",
           "default": true,
           "description": "Auto add space between double curly brackets: {{|}} -> {{ | }}"
-        },
-        "mpx.inlayHints.destructuredProps": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Show inlay hints for destructured props:\n\n```ts\nwatch(() => /* props. */foo, () => { ... });\n```"
-        },
-        "mpx.inlayHints.missingProps": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Show inlay hints for missing required props:\n\n```html\n<Comp />\n<!-- ^ foo! -->\n```"
-        },
-        "mpx.inlayHints.inlineHandlerLeading": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Show inlay hints for event argument in inline handlers:\n\n```html\n<Comp @foo=\"/* $event => */console.log($event)\" />\n```"
-        },
-        "mpx.inlayHints.optionsWrapper": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Show inlay hints for component options wrapper for type support:\n\n```mpx\n<script lang=\"ts\">\nexport default /* (await import('@mpxjs/core')).defineComponent( */{}/* ) */;\n</script>\n```"
-        },
-        "mpx.inlayHints.vBindShorthand": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Show inlay hints for v-bind shorthand:\n\n```html\n<Comp :foo />\n     <!-- ^ =\"foo\" -->\n```"
         },
         "mpx.format.template.initialIndent": {
           "type": "boolean",
@@ -298,7 +239,7 @@
       },
       {
         "command": "mpx.action.splitEditors",
-        "title": "Split <script>, <template>, <style>, <json> Editors",
+        "title": "Split <script>, <template>, <style> Editors",
         "category": "Mpx",
         "icon": "images/icon-small.png"
       }

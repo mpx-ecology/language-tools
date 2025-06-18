@@ -1,0 +1,11 @@
+<template>
+  <view class="title list flex w-2xl color-red bg-blue text-amber"></view> 
+</template>
+   
+<style lang="stylus">
+  .title
+    color green
+  .list
+    background-color red
+</style>
+  
