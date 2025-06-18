@@ -11,15 +11,16 @@
 import { toRefs, computed } from '@mpxjs/core'
 
 const props = defineProps<{
-  msg: string
+  msg: string,
+  abcdeee: number
 }>()
 
 const { msg } = toRefs(props)
 
+const title = 'Hello Mpx Composition API'
 const content = computed(() => {
   return msg.value
 })
-
 const obj = {
 	a: 1,
 	b: 2
@@ -30,8 +31,7 @@ const onClick = (a?: number) => {
 }
 
 defineExpose({
-  title: '',
-  msg,
+  title,
   content,
   obj,
   onClick

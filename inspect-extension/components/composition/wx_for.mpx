@@ -12,14 +12,12 @@
   </view>
 </template>
 
-<script lang="ts">
-import { createComponent } from '@mpxjs/core'
+<script setup lang="ts">
+const listData = ['手机', '电视', '电脑']
 
-createComponent({
-  data: {
-    listData: ['手机', '电视', '电脑']
-  }
-})
+defineExpose({
+  listData,
+ })
 </script>
 
 <style lang="stylus">

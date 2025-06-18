@@ -15,5 +15,5 @@
       "@/*": ["components/*"]
     }
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*"]
 }

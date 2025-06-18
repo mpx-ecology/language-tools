@@ -4,7 +4,6 @@
   "description": "debug for mpx vscode extension",
   "devDependencies": {
     "@mpxjs/core": "2.10.6",
-    "@mpxjs/unocss-base": "2.9.48",
     "typescript": "^5.8.3",
     "unocss": "0.52.7"
   }

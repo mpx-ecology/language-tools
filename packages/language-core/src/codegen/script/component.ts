@@ -5,21 +5,6 @@ import type { ScriptSetupRanges } from '../../parsers/scriptSetupRanges'
 import { codeFeatures } from '../codeFeatures'
 import { generateSfcBlockSection, newLine } from '../utils'
 
-export function* generateComponentSetupReturns(
-  scriptSetupRanges: ScriptSetupRanges,
-): Generator<Code> {
-  // fill $props
-  if (scriptSetupRanges.defineProps) {
-    // NOTE: defineProps is inaccurate for $props
-    yield `$props: __VLS_makeOptional(${scriptSetupRanges.defineProps.name ?? `__VLS_props`}),${newLine}`
-    yield `...${scriptSetupRanges.defineProps.name ?? `__VLS_props`},${newLine}`
-  }
-  // fill $emit
-  if (scriptSetupRanges.defineEmits) {
-    yield `$emit: ${scriptSetupRanges.defineEmits.name ?? '__VLS_emit'},${newLine}`
-  }
-}
-
 export function* generateEmitsOption(
   scriptSetupRanges: ScriptSetupRanges,
 ): Generator<Code> {

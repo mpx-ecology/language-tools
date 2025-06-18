@@ -98,15 +98,12 @@ importers:
       '@mpxjs/core':
         specifier: 2.10.6
         version: 2.10.6(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)
-      '@mpxjs/unocss-base':
-        specifier: 2.9.48
-        version: 2.9.48
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
       unocss:
         specifier: 0.52.7
-        version: 0.52.7(postcss@8.5.3)(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1))
+        version: 0.52.7(postcss@8.5.3)(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1)(terser@5.43.0))
 
   packages/language-compiler: {}
 
@@ -817,6 +814,9 @@ packages:
     resolution: {integrity: sha512-R8gLRTZeyp03ymzP/6Lil/28tGeGEzhx1q2k703KGWRAI1VdvPIXdG70VJc2pAMw3NA6JKL5hhFu1sJX0Mnn/A==}
     engines: {node: '>=6.0.0'}
 
+  '@jridgewell/source-map@0.3.6':
+    resolution: {integrity: sha512-1ZJTZebgqllO79ue2bm3rIGud/bOe0pP5BjSRCRxxYkEZS8STV7zN84UBbiYu7jy+eCKSnVIUgoWWE/tt+shMQ==}
+
   '@jridgewell/sourcemap-codec@1.5.0':
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
 
@@ -905,9 +905,6 @@ packages:
     resolution: {integrity: sha512-45fesfCUxVoPQ7zLIWv5VHFA4PI7YzXKBhVKS5jbfOjMZ7NfP6HMEc6W0zgK43BpOnABLULf/irPU7oYYTrlKw==}
     peerDependencies:
       '@mpxjs/core': ^2.9.0
-
-  '@mpxjs/unocss-base@2.9.48':
-    resolution: {integrity: sha512-Mp7acQacMqUdQzW2YdAiKaCo4tBlOfEDMJH96Q8v4q4AGhPhga6SgfRg8Rtz8sVdiDlo5hiT/257FwPxLZTSsQ==}
 
   '@mpxjs/utils@2.10.6':
     resolution: {integrity: sha512-OmHbzUbWjXzo7FJF15+EXRXJdD3ssvEEa7DVo2qaRXeGveju2TTbv5JOXENh7GApcSUptwyAFnnCdQ1SNu+Ohw==}
@@ -1320,6 +1317,9 @@ packages:
   buffer-equal-constant-time@1.0.1:
     resolution: {integrity: sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA==}
 
+  buffer-from@1.1.2:
+    resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
+
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
 
@@ -1420,6 +1420,9 @@ packages:
   commander@13.1.0:
     resolution: {integrity: sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw==}
     engines: {node: '>=18'}
+
+  commander@2.20.3:
+    resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
   compare-func@2.0.0:
     resolution: {integrity: sha512-zHig5N+tPWARooBnb0Zx1MFcdfpyJrfTJ3Y5L+IFvUm8rM74hHz66z0gw0x4tijh5CorKkKUCnW82R2vmpeCRA==}
@@ -2772,6 +2775,13 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
+  source-map-support@0.5.21:
+    resolution: {integrity: sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==}
+
+  source-map@0.6.1:
+    resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
+    engines: {node: '>=0.10.0'}
+
   spdx-correct@3.2.0:
     resolution: {integrity: sha512-kN9dJbvnySHULIluDHy32WHRUu3Og7B9sbY7tsFLctQkIqnMh3hErYgdMjTYuqmcXX+lK5T1lnUt3G7zNswmZA==}
 
@@ -2868,6 +2878,11 @@ packages:
   tar-stream@2.2.0:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
     engines: {node: '>=6'}
+
+  terser@5.43.0:
+    resolution: {integrity: sha512-CqNNxKSGKSZCunSvwKLTs8u8sGGlp27sxNZ4quGh0QeNuyHM0JSEM/clM9Mf4zUp6J+tO2gUXhgXT2YMMkwfKQ==}
+    engines: {node: '>=10'}
+    hasBin: true
 
   text-extensions@2.4.0:
     resolution: {integrity: sha512-te/NtwBwfiNRLf9Ijqx3T0nlqZiQ2XrrtBvu+cLL8ZRrGkO0NHTug8MYFKyoSrv/sHTaSKfilUkizV6XhxMJ3g==}
@@ -3642,6 +3657,12 @@ snapshots:
 
   '@jridgewell/set-array@1.2.1': {}
 
+  '@jridgewell/source-map@0.3.6':
+    dependencies:
+      '@jridgewell/gen-mapping': 0.3.8
+      '@jridgewell/trace-mapping': 0.3.25
+    optional: true
+
   '@jridgewell/sourcemap-codec@1.5.0': {}
 
   '@jridgewell/trace-mapping@0.3.25':
@@ -3669,10 +3690,6 @@ snapshots:
     dependencies:
       '@mpxjs/core': 2.10.6(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)
       '@mpxjs/utils': 2.10.6(@mpxjs/core@2.10.6)
-
-  '@mpxjs/unocss-base@2.9.48':
-    dependencies:
-      '@unocss/preset-uno': 0.52.7
 
   '@mpxjs/utils@2.10.6(@mpxjs/core@2.10.6)':
     dependencies:
@@ -3814,11 +3831,11 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@unocss/astro@0.52.7(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1))':
+  '@unocss/astro@0.52.7(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1)(terser@5.43.0))':
     dependencies:
       '@unocss/core': 0.52.7
       '@unocss/reset': 0.52.7
-      '@unocss/vite': 0.52.7(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1))
+      '@unocss/vite': 0.52.7(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1)(terser@5.43.0))
     transitivePeerDependencies:
       - rollup
       - vite
@@ -3933,7 +3950,7 @@ snapshots:
     dependencies:
       '@unocss/core': 0.52.7
 
-  '@unocss/vite@0.52.7(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1))':
+  '@unocss/vite@0.52.7(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1)(terser@5.43.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@rollup/pluginutils': 5.2.0(rollup@3.29.5)
@@ -3945,7 +3962,7 @@ snapshots:
       chokidar: 3.6.0
       fast-glob: 3.3.3
       magic-string: 0.30.17
-      vite: 4.5.14(@types/node@22.14.1)
+      vite: 4.5.14(@types/node@22.14.1)(terser@5.43.0)
     transitivePeerDependencies:
       - rollup
 
@@ -4219,6 +4236,9 @@ snapshots:
 
   buffer-equal-constant-time@1.0.1: {}
 
+  buffer-from@1.1.2:
+    optional: true
+
   buffer@5.7.1:
     dependencies:
       base64-js: 1.5.1
@@ -4340,6 +4360,9 @@ snapshots:
   commander@12.1.0: {}
 
   commander@13.1.0: {}
+
+  commander@2.20.3:
+    optional: true
 
   compare-func@2.0.0:
     dependencies:
@@ -5725,6 +5748,15 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
+  source-map-support@0.5.21:
+    dependencies:
+      buffer-from: 1.1.2
+      source-map: 0.6.1
+    optional: true
+
+  source-map@0.6.1:
+    optional: true
+
   spdx-correct@3.2.0:
     dependencies:
       spdx-expression-parse: 3.0.1
@@ -5823,6 +5855,14 @@ snapshots:
       readable-stream: 3.6.2
     optional: true
 
+  terser@5.43.0:
+    dependencies:
+      '@jridgewell/source-map': 0.3.6
+      acorn: 8.14.1
+      commander: 2.20.3
+      source-map-support: 0.5.21
+    optional: true
+
   text-extensions@2.4.0: {}
 
   text-table@0.2.0: {}
@@ -5911,9 +5951,9 @@ snapshots:
 
   undici@6.21.2: {}
 
-  unocss@0.52.7(postcss@8.5.3)(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1)):
+  unocss@0.52.7(postcss@8.5.3)(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1)(terser@5.43.0)):
     dependencies:
-      '@unocss/astro': 0.52.7(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1))
+      '@unocss/astro': 0.52.7(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1)(terser@5.43.0))
       '@unocss/cli': 0.52.7(rollup@3.29.5)
       '@unocss/core': 0.52.7
       '@unocss/extractor-arbitrary-variants': 0.52.7
@@ -5932,7 +5972,7 @@ snapshots:
       '@unocss/transformer-compile-class': 0.52.7
       '@unocss/transformer-directives': 0.52.7
       '@unocss/transformer-variant-group': 0.52.7
-      '@unocss/vite': 0.52.7(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1))
+      '@unocss/vite': 0.52.7(rollup@3.29.5)(vite@4.5.14(@types/node@22.14.1)(terser@5.43.0))
     transitivePeerDependencies:
       - postcss
       - rollup
@@ -5954,7 +5994,7 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
-  vite@4.5.14(@types/node@22.14.1):
+  vite@4.5.14(@types/node@22.14.1)(terser@5.43.0):
     dependencies:
       esbuild: 0.18.20
       postcss: 8.5.3
@@ -5962,6 +6002,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.14.1
       fsevents: 2.3.3
+      terser: 5.43.0
 
   volar-service-html@0.0.64(@volar/language-service@2.4.12):
     dependencies:

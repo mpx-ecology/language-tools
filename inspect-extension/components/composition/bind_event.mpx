@@ -1,0 +1,41 @@
+<template>
+  <view class="list">
+    <view
+      bindclick="hello"
+      bindtap="hello"
+      bind:tap="hello1"
+      catchtap="hello1"
+      catch:tap="hello1"
+      capture-bind:tap="hello1"
+      capture-catch:tap="hello1"
+      wx:key="*this"
+    >
+    </view>
+  </view>
+</template>
+
+<script setup lang="ts">
+const hello = (e?: {detail: {value: string}}) => {
+  console.log('hello', e?.detail.value  )
+}
+
+const hello1 = (e?: {detail: {value: string}}) => {
+  console.log('hello1', e?.detail.value  )
+}
+
+defineExpose({
+  hello,
+  hello1
+})
+</script>
+
+<style lang="stylus">
+  .list
+    background-color red
+</style>
+
+<script type="application/json">
+  {
+    "component": true
+  }
+</script>

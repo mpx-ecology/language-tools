@@ -66,7 +66,7 @@ function* generateSetupFunction(
         scriptSetupRanges.withDefaults?.callExp ?? callExp,
         typeArg,
         name,
-        `__VLS_props`,
+        `__VLS_defineProps`,
         `__VLS_Props`,
       ),
     )
