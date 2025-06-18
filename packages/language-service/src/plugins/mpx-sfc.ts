@@ -284,6 +284,16 @@ export function create(): LanguageServicePlugin {
             }
           }
 
+          result.items.forEach(item => {
+            if (item.label === 'script name="json"') {
+              item.kind = 17 satisfies typeof vscode.CompletionItemKind.File
+              item.detail = '.js'
+            } else if (item.label === 'script type="application/json"') {
+              item.kind = 17 satisfies typeof vscode.CompletionItemKind.File
+              item.detail = '.json'
+            }
+          })
+
           const styleLangs = getLangs('style')
           const styleItem = result.items.find(item => item.label === 'style')
           if (styleItem) {

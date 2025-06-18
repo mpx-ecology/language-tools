@@ -54,7 +54,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '如果你更喜欢将 `*.vue` 组件分散到多个文件中，可以为一个语块使用 `src` 这个 attribute 来导入一个外部文件：\n\n```html\n<script src="./script.js"></script>\n```\n\n',
+              '如果你更喜欢将 `*.mpx` 的 js 逻辑代码分散到其他文件中，可以为一个语块使用 `src` 这个 attribute 来导入一个外部文件，比如：\n\n```html\n<script src="./script.js"></script>\n```\n\n',
           },
           references: [
             {
@@ -65,11 +65,7 @@ const data: html.HTMLDataV1 = {
         },
         {
           name: 'lang',
-          description: {
-            kind: 'markdown',
-            value:
-              '代码块 script 可以使用 `lang` 来声明预处理器语言，比如：\n\n```html\n<script lang="ts">\n  // use TypeScript\n</script>\n```\n\n',
-          },
+          valueSet: 't',
           values: [
             {
               name: 'ts',
@@ -78,6 +74,11 @@ const data: html.HTMLDataV1 = {
               name: 'js',
             },
           ],
+          description: {
+            kind: 'markdown',
+            value:
+              '代码块 script 可以使用 `lang` 来声明预处理器语言，比如：\n\n```html\n<script lang="ts">\n  // use TypeScript\n</script>\n```\n\n',
+          },
           references: [
             {
               name: mpxDocs,
@@ -100,12 +101,58 @@ const data: html.HTMLDataV1 = {
             },
           ],
         },
+        {
+          name: 'name',
+          valueSet: 't',
+          values: [
+            {
+              name: 'json',
+            },
+          ],
+          description: {
+            kind: 'markdown',
+            value:
+              '\n`<script type="application/json">` 区块对应小程序的 json 配置（使用 **json** 语法）。\n\n- json 区块完全支持小程序原生的 [app.json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html)，还额外支持了 packages 多人合作等增强特性。\n  - [使用分包](https://mpxjs.cn/guide/advance/subpackage.html)\n  - [分包异步化](https://mpxjs.cn/guide/advance/async-subpackage.html)\n- 同样支持原生的 [页面 json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html)，此外，我们能够直接在 `usingComponents` 中填写 npm 地址引用 npm 包中的组件，mpx 组件和原生小程序组件均可引用，无需调用开发者工具 npm 编译，且能够通过依赖收集按需进行打包。\n\n',
+          },
+          references: [
+            {
+              name: mpxDocs,
+              url: 'https://mpxjs.cn/guide/basic/start.html#%E5%BC%80%E5%A7%8Bcode',
+            },
+          ],
+        },
+        {
+          name: 'type',
+          description: {
+            kind: 'markdown',
+            value:
+              '\n`<script type="application/json">` 区块对应小程序的 json 配置（使用 **json** 语法）。\n\n- json 区块完全支持小程序原生的 [app.json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html)，还额外支持了 packages 多人合作等增强特性。\n  - [使用分包](https://mpxjs.cn/guide/advance/subpackage.html)\n  - [分包异步化](https://mpxjs.cn/guide/advance/async-subpackage.html)\n- 同样支持原生的 [页面 json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html)，此外，我们能够直接在 `usingComponents` 中填写 npm 地址引用 npm 包中的组件，mpx 组件和原生小程序组件均可引用，无需调用开发者工具 npm 编译，且能够通过依赖收集按需进行打包。\n\n',
+          },
+          valueSet: 't',
+          values: [
+            {
+              name: 'application/json',
+            },
+          ],
+          references: [
+            {
+              name: mpxDocs,
+              url: 'https://mpxjs.cn/guide/basic/start.html#%E5%BC%80%E5%A7%8Bcode',
+            },
+          ],
+        },
       ],
       description: {
         kind: 'markdown',
-        value: '\n`<script>` 逻辑模块\n',
+        value:
+          '\n`<script>` 逻辑模块\n\n- `<script>/<script setup>` 模块对应 app.js 定义了全局逻辑，可以自由使用 `ts/js` 等 js 预编译语言。\n- `<script name="json">` 区块对应小程序的 json 配置（使用 js 语法）。\n- `<script type="application/json">` 区块对应小程序的 json 配置（使用 json 语法）。',
       },
-      references: [],
+      references: [
+        {
+          name: mpxDocs,
+          url: 'https://mpxjs.cn/guide/basic/start.html#%E5%BC%80%E5%A7%8Bcode',
+        },
+      ],
     },
     {
       name: 'script setup',
@@ -113,7 +160,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '\n`<script setup>` 是在 Mpx 单文件组件中使用组合式 API 时的编译时语法糖，和 Vue 类似。\n',
+          '\n`<script setup>` 111是在 Mpx 单文件组件中使用组合式 API 时的编译时语法糖，和 Vue 类似。\n',
       },
       references: [
         {
@@ -146,24 +193,25 @@ const data: html.HTMLDataV1 = {
             value:
               '`<style>` 模块可以使用 `lang` 这个 attribute 来声明 style 预处理器语言。',
           },
+          valueSet: 't',
           values: [
             {
-              name: 'css',
+              name: 'stylus',
             },
             {
-              name: 'scss',
+              name: 'css',
             },
             {
               name: 'less',
             },
             {
-              name: 'stylus',
+              name: 'sass',
+            },
+            {
+              name: 'scss',
             },
             {
               name: 'postcss',
-            },
-            {
-              name: 'sass',
             },
           ],
           references: [
@@ -204,12 +252,43 @@ const data: html.HTMLDataV1 = {
       ],
       description: {
         kind: 'markdown',
-        value: '\n`<style>` 样式模块\n',
+        value:
+          '\n`<style>` 样式模块\n\n- style 区块对应 app.wxss 定义了全局样式。\n- 可以自由使用 `sass/less/stylus` 等 css 预编译语言。',
       },
       references: [
         {
           name: mpxDocs,
           url: 'https://mpxjs.cn/guide/basic/css.html',
+        },
+      ],
+    },
+    {
+      name: 'script name="json"',
+      attributes: [],
+      description: {
+        kind: 'markdown',
+        value:
+          '\n`<script name="json">` 区块对应小程序的 json 配置（使用 **js** 语法）。\n\n- json 区块完全支持小程序原生的 [app.json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html)，还额外支持了 packages 多人合作等增强特性。\n  - [使用分包](https://mpxjs.cn/guide/advance/subpackage.html)\n  - [分包异步化](https://mpxjs.cn/guide/advance/async-subpackage.html)\n- 同样支持原生的 [页面 json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html)，此外，我们能够直接在 `usingComponents` 中填写 npm 地址引用 npm 包中的组件，mpx 组件和原生小程序组件均可引用，无需调用开发者工具 npm 编译，且能够通过依赖收集按需进行打包。\n\n',
+      },
+      references: [
+        {
+          name: mpxDocs,
+          url: 'https://mpxjs.cn/guide/basic/start.html#%E5%BC%80%E5%A7%8Bcode',
+        },
+      ],
+    },
+    {
+      name: 'script type="application/json"',
+      attributes: [],
+      description: {
+        kind: 'markdown',
+        value:
+          '\n`<script type="application/json">` 区块对应小程序的 json 配置（使用 **json** 语法）。\n\n- json 区块完全支持小程序原生的 [app.json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html)，还额外支持了 packages 多人合作等增强特性。\n  - [使用分包](https://mpxjs.cn/guide/advance/subpackage.html)\n  - [分包异步化](https://mpxjs.cn/guide/advance/async-subpackage.html)\n- 同样支持原生的 [页面 json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html)，此外，我们能够直接在 `usingComponents` 中填写 npm 地址引用 npm 包中的组件，mpx 组件和原生小程序组件均可引用，无需调用开发者工具 npm 编译，且能够通过依赖收集按需进行打包。\n\n',
+      },
+      references: [
+        {
+          name: mpxDocs,
+          url: 'https://mpxjs.cn/guide/basic/start.html#%E5%BC%80%E5%A7%8Bcode',
         },
       ],
     },
