@@ -59,8 +59,8 @@ const stripSourceLocationQuotes = stripListSourceLocationText(
 )
 
 const eventPrefixList = [
-  'bind:',
   'bind',
+  'bind:',
   'catch',
   'catch:',
   'capture-bind:',

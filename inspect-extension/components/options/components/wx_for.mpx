@@ -1,8 +1,14 @@
 <template>
   <view class="list">
-    <view wx:for="{{listData}}"  wx:key="*this">{{item}} {{index}}</view>
-    <view wx:for="{{listData}}" wx:for-item="item1"  wx:key="*this">{{item1}} {{index}}</view>
-    <view wx:for="{{listData}}" wx:for-item="item1" wx:for-index="index"  wx:key="*this">{{item1}} {{index}} {{item1}}</view>
+    <view wx:for="{{listData}}" wx:key="*this">
+      {{item}} {{index}}
+    </view>
+    <view wx:for="{{listData}}" wx:for-item="item1" wx:key="*this">
+      {{item1}} {{index}}
+    </view>
+    <view wx:for="{{listData}}" wx:for-item="item1" wx:for-index="index" wx:key="*this">
+      {{item1}} {{index}} {{item1}}
+    </view>
   </view>
 </template>
 
@@ -27,8 +33,6 @@ createComponent({
 <style lang="stylus">
   .list
     background-color red
-  .list
-    background-color green
 </style>
 
 <script type="application/json">
