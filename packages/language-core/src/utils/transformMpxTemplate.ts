@@ -58,7 +58,15 @@ const stripSourceLocationQuotes = stripListSourceLocationText(
   ['"', "'"],
 )
 
-const stripBindPrefix = stripListSourceLocationText(['bind:', 'bind'])
+const eventPrefixList = [
+  'bind:',
+  'bind',
+  'catch',
+  'catch:',
+  'capture-bind:',
+  'capture-catch:',
+]
+const stripBindPrefix = stripListSourceLocationText(eventPrefixList)
 
 function tryProcessWxFor(
   node:
@@ -97,7 +105,7 @@ function tryProcessWxFor(
       }
 
       if (count >= captureAttr.length) {
-        continue
+        break
       }
     }
 
@@ -114,7 +122,6 @@ function tryProcessWxFor(
       defailtText: string,
     ): CompilerDOM.ExpressionNode {
       if (node && node.value) {
-        // stripWxPrefix(value.nameLoc)
         stripSourceLocationQuotes(node.value.loc)
 
         return {
@@ -142,25 +149,14 @@ function tryProcessWxFor(
     node.props.splice(_forIndex, 1)
 
     const contentLoc = prop.value!.loc
-    const content = prop.value?.content.trim()
-    const isExpression = content?.startsWith('{{') && content.endsWith('}}')
-    const forSource = isExpression ? content!.slice(2, -2) : content || ''
-
-    if (isExpression) {
-      // `"` | `'`
-      contentLoc.start.offset += 2
-      contentLoc.end.offset -= 2
-    }
-
     stripSourceLocationQuotes(contentLoc)
-
-    contentLoc.source = forSource
+    stripListSourceLocationText(['{{'], ['}}'])(contentLoc)
 
     const valueNode = createVarNode(value, 'item')
     const indexNode = createVarNode(index, 'index')
     const source = {
       constType: 0,
-      content: forSource,
+      content: contentLoc.source,
       isStatic: false,
       loc: contentLoc,
       type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
@@ -175,6 +171,8 @@ function tryProcessWxFor(
       children: children as CompilerDOM.TemplateChildNode[],
       parseResult: {
         mpx: true,
+        defaultIndex: !index,
+        defaultValue: !value,
         source,
         key: undefined,
         value: valueNode,
@@ -226,7 +224,7 @@ function tryProcessBindEvent(
 }
 
 function isEventBind(name: string) {
-  return name.startsWith('bind') || name.startsWith('bind:')
+  return eventPrefixList.some(item => name.startsWith(item))
 }
 
 function emptySourceLocation(): CompilerDOM.SourceLocation {

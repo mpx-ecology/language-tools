@@ -13,7 +13,8 @@ export function* generateWxFor(
   node: CompilerDOM.ForNode,
 ): Generator<Code> {
   const { leftExpressionRange, leftExpressionText } = parseWxForNode(node)
-  const { index, value, source, mpx } = node.parseResult
+  const { index, value, source, mpx, defaultIndex, defaultValue } =
+    node.parseResult
   const forBlockVars: string[] = []
 
   const collectVar = () => {
@@ -40,14 +41,14 @@ export function* generateWxFor(
       value!.loc.source,
       'template',
       value!.loc.start.offset,
-      ctx.codeFeatures.all,
+      defaultValue ? ctx.codeFeatures.withoutHighlight : ctx.codeFeatures.all,
     ]
     yield ','
     yield [
       index!.loc.source,
       'template',
       index!.loc.start.offset,
-      ctx.codeFeatures.all,
+      defaultIndex ? ctx.codeFeatures.withoutHighlight : ctx.codeFeatures.all,
     ]
   }
   yield `] of `
