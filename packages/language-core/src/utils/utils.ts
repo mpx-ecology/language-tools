@@ -28,3 +28,13 @@ export async function findResult<T, R>(
     if (result) return result
   }
 }
+
+export function findResultSync<T, R>(
+  arr: T[],
+  callback: (item: T) => R | undefined,
+): R | undefined {
+  for (const item of arr) {
+    const result = callback(item)
+    if (result) return result
+  }
+}

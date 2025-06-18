@@ -200,8 +200,17 @@ const plugin: MpxLanguagePlugin = ctx => {
               formatBrackets.for,
             )
           } else {
+            // addFormatCodes(
+            //   value!.loc.source,
+            //   value!.loc.start.offset,
+            // )
+            // addFormatCodes(
+            //   index!.loc.source,
+            //   index!.loc.start.offset,
+            //   [',', ')' + formatBrackets.for[1]],
+            // )
             addFormatCodes(
-              `item in ${leftExpressionText}`,
+              `(${leftExpressionText}) in ${node.parseResult.source.loc.source}`,
               leftExpressionRange.start,
               formatBrackets.for,
             )
