@@ -12,6 +12,8 @@ declare module '@vue/compiler-dom' {
 
   export interface ForParseResult {
     mpx?: boolean
+    defaultValue?: boolean
+    defaultIndex?: boolean
   }
 }
 

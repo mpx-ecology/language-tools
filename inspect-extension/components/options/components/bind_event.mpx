@@ -1,13 +1,15 @@
 <template>
   <view class="list">
-    <view wx:for="{{listData}}" wx:key="*this">
-      {{item}} {{index}}
-    </view>
-    <view wx:for="{{listData}}" wx:for-item="item1" wx:key="*this">
-      {{item1}} {{index}}
-    </view>
-    <view wx:for="{{listData}}" wx:for-item="item1" wx:for-index="index" wx:key="*this">
-      {{item1}} {{index}} {{item1}}
+    <view
+      bindclick="hello"
+      bindtap="hello"
+      bind:tap="hello1"
+      catchtap="hello1"
+      catch:tap="hello1"
+      capture-bind:tap="hello1"
+      capture-catch:tap="hello1"
+      wx:key="*this"
+    >
     </view>
   </view>
 </template>
@@ -16,9 +18,6 @@
 import { createComponent } from '@mpxjs/core'
 
 createComponent({
-  data: {
-    listData: ['手机', '电视', '电脑']
-  },
   methods: {
     hello() {
       console.log('hello')

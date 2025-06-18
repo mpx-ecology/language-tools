@@ -12,23 +12,43 @@ export function* generateWxFor(
   ctx: TemplateCodegenContext,
   node: CompilerDOM.ForNode,
 ): Generator<Code> {
-  const { source } = node.parseResult
   const { leftExpressionRange, leftExpressionText } = parseWxForNode(node)
+  const { index, value, source, mpx, defaultIndex, defaultValue } =
+    node.parseResult
   const forBlockVars: string[] = []
 
-  yield `for (const [`
-  if (leftExpressionRange && leftExpressionText) {
+  const collectVar = () => {
     const collectAst = createTsAst(
       options.ts,
       node.parseResult,
       `const [${leftExpressionText}]`,
     )
     collectVars(options.ts, collectAst, collectAst, forBlockVars)
+  }
+
+  yield `for (const [`
+  if (leftExpressionRange && leftExpressionText && !mpx) {
+    collectVar()
     yield [
       leftExpressionText,
       'template',
       leftExpressionRange.start,
       ctx.codeFeatures.all,
+    ]
+  } else {
+    collectVar()
+    yield [
+      value!.loc.source,
+      'template',
+      value!.loc.start.offset,
+      defaultValue ? ctx.codeFeatures.withoutHighlight : ctx.codeFeatures.all,
+    ]
+    yield ','
+    yield [
+      index!.loc.source,
+      'template',
+      index!.loc.start.offset,
+      defaultIndex ? ctx.codeFeatures.withoutHighlight : ctx.codeFeatures.all,
     ]
   }
   yield `] of `
@@ -101,7 +121,8 @@ export function* generateWxFor(
 }
 
 export function parseWxForNode(node: CompilerDOM.ForNode) {
-  const { value, key, index } = node.parseResult
+  const { value, key, index, mpx, source } = node.parseResult
+
   const leftExpressionRange =
     value || key || index
       ? {
@@ -109,16 +130,30 @@ export function parseWxForNode(node: CompilerDOM.ForNode) {
           end: (index ?? key ?? value)!.loc.end.offset,
         }
       : undefined
+
+  if (mpx) {
+    return {
+      leftExpressionRange: {
+        start: source.loc.start.offset,
+        end: source.loc.end.offset,
+      },
+      leftExpressionText: `${value?.loc.source ?? 'item'}, ${index?.loc.source ?? 'index'}`,
+      mpx: node.parseResult.mpx,
+    }
+  }
+
   const leftExpressionText = leftExpressionRange
-    ? node.loc.source.slice(
-        leftExpressionRange.start - node.loc.start.offset,
-        leftExpressionRange.end - node.loc.start.offset,
-      )
+    ? mpx
+      ? value?.loc.source || 'item'
+      : node.loc.source.slice(
+          leftExpressionRange.start - node.loc.start.offset,
+          leftExpressionRange.end - node.loc.start.offset,
+        )
     : node.parseResult.mpx
       ? 'item'
       : undefined
   return {
-    leftExpressionRange: leftExpressionRange ?? { start: -1, end: -1 },
+    leftExpressionRange: leftExpressionRange ?? { start: 0, end: 0 },
     leftExpressionText,
     mpx: node.parseResult.mpx,
   }
