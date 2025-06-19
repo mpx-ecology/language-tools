@@ -1,0 +1,5 @@
+<script lang="ts">
+import { fn1 } from "../common"
+
+fn1()
+</script>

@@ -12,7 +12,7 @@ import { toRefs, computed } from '@mpxjs/core'
 
 const props = defineProps<{
   msg: string,
-  abcdeee: number
+  propA: number
 }>()
 
 const { msg } = toRefs(props)
