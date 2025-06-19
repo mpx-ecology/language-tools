@@ -1,0 +1,52 @@
+<template>
+  <view class="{{className}}"> title: {{ title }} </view>
+  <view data-test="{{ title }}"></view> 
+  <view wx:class="list" bindtap="onClick">
+    <view> msg: {{ msg }} </view>
+    <view> obj: {{ obj.a + obj.b }} </view>
+    <view> content: {{ content }} </view>
+  </view>
+</template>
+
+<script setup lang="ts">
+import { toRefs, computed } from '@mpxjs/core'
+
+const props = defineProps<{
+  msg: string,
+  abcdeee: number
+}>()
+
+const { msg } = toRefs(props)
+
+const title = 'Hello Mpx Composition API'
+const content = computed(() => {
+  return msg.value
+})
+const obj = {
+	a: 1,
+	b: 2
+}
+
+const onClick = (a?: number) => {
+	console.log('click', a)
+}
+
+const className = 'list'
+
+defineExpose({
+  className,
+  title,
+  content,
+  obj,
+  onClick
+})
+
+</script>
+
+<style lang="stylus">
+  .title
+    color green
+  .list
+    background-color red
+</style>
+  

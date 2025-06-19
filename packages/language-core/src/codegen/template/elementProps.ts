@@ -215,7 +215,11 @@ export function* generateElementProps(
           ),
           `: `,
           ...(prop.value
-            ? generateAttrValue(prop.value, ctx.codeFeatures.withoutNavigation)
+            ? generateAttrValue(
+                prop.value,
+                ctx.codeFeatures.withoutNavigation,
+                ctx.codeFeatures.all,
+              )
             : [`true`]),
         ),
       ]
@@ -333,9 +337,9 @@ export function* generatePropExp(
 function* generateAttrValue(
   attrNode: CompilerDOM.TextNode,
   features: MpxCodeInformation,
+  featuresForDoubleCurly: MpxCodeInformation,
 ): Generator<Code> {
   const quote = attrNode.loc.source.startsWith("'") ? "'" : '"'
-  yield quote
   let start = attrNode.loc.start.offset
   let content = attrNode.loc.source
   if (
@@ -345,8 +349,33 @@ function* generateAttrValue(
     start++
     content = content.slice(1, -1)
   }
-  yield* generateUnicode(content, start, features)
-  yield quote
+  if (isWithDoubleCurly(content)) {
+    yield* generateAttrValueWithDoubleCurly(
+      content,
+      start,
+      featuresForDoubleCurly,
+    )
+  } else {
+    yield quote
+    yield* generateUnicode(content, start, features)
+    yield quote
+  }
+}
+
+function isWithDoubleCurly(content: string): boolean {
+  return content.startsWith('{{') && content.endsWith('}}')
+}
+
+function* generateAttrValueWithDoubleCurly(
+  content: string,
+  offset: number,
+  features: MpxCodeInformation,
+): Generator<Code> {
+  content = content.slice(2, -2)
+  offset += 2
+  yield '(__VLS_ctx.'
+  yield [content, 'template', offset, features]
+  yield ')'
 }
 
 function getShouldCamelize(

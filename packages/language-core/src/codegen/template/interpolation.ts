@@ -172,8 +172,6 @@ function* generateVar(
   offset: number | undefined,
   curVar: CtxVar,
 ): Generator<Segment> {
-  // fix https://github.com/vuejs/language-tools/issues/1205
-  // fix https://github.com/vuejs/language-tools/issues/1264
   yield ['', curVar.offset, 'errorMappingOnly']
 
   const isTemplateRef = templateRefNames?.has(curVar.text) ?? false
