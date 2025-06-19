@@ -130,7 +130,7 @@ function* generateSetupFunction(
               arg.end,
               codeFeatures.all,
             ),
-            `${endOfLine}`,
+            ` as const${endOfLine}`,
           ],
           callExp.start,
           callExp.start,

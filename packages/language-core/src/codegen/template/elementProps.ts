@@ -304,8 +304,15 @@ function* generateAttrValueWithDoubleCurly(
 ): Generator<Code> {
   content = content.slice(2, -2)
   offset += 2
-  attrNode.loc.source = content
-  attrNode.loc.start.offset = offset
+
+  const attrNodeAst: CompilerDOM.SourceLocation = {
+    start: {
+      ...attrNode.loc.start,
+      offset,
+    },
+    end: attrNode.loc.end,
+    source: content,
+  }
 
   yield* generateInterpolation(
     options,
@@ -314,7 +321,7 @@ function* generateAttrValueWithDoubleCurly(
     ctx.codeFeatures.all,
     content,
     offset,
-    attrNode.loc,
+    attrNodeAst,
     `(`,
     `)`,
   )

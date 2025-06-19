@@ -6,13 +6,23 @@
     <view wx:if="{{msg === 'hello'}}">
       {{ '1' + msg[0] + 2 }}
     </view>
+    <!-- @mpx-expect-error 这里预期报错：
+      This comparison appears to be unintentional because the types'"Hello Mpx"' and '"hello"' have no overlap.
+      ts-plugin(2367) 
+    -->
+    <view wx:show="{{msgConst === 'hello'}}">
+      {{ '1' + msg[0] + 2 }}
+    </view>
   </view> 
 </template>
 
 <script setup lang="ts">
-const msg = 'Hello Mpx'
+let msg = 'Hello Mpx'
+msg = 'Hello Mpx'
+const msgConst = 'Hello Mpx'
 defineExpose({
-  msg
+  msg,
+  msgConst
 })
 </script>
 
@@ -22,4 +32,3 @@ defineExpose({
   .short
     color green
 </style>
-  
