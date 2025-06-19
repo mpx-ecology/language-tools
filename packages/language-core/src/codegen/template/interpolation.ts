@@ -115,13 +115,12 @@ function* forEachInterpolationSegment(
     })
   } else {
     const ast = createTsAst(ts, astHolder, code)
-    const varCb = (id: ts.Identifier, isShorthand: boolean) => {
+    const varCb = (id: ts.Identifier) => {
       const text = getNodeText(ts, id, ast)
       if (!shouldIdentifierSkipped(ctx, text, destructuredPropNames)) {
         ctxVars.push({
           text,
           offset: getStartEnd(ts, id, ast).start,
-          isShorthand,
         })
       }
     }
@@ -136,19 +135,12 @@ function* forEachInterpolationSegment(
       const curVar = ctxVars[i]
       const lastVarEnd = lastVar ? lastVar.offset + lastVar.text.length : 0
 
-      if (curVar.isShorthand) {
-        yield [
-          code.slice(lastVarEnd, curVar.offset + curVar.text.length),
-          lastVarEnd,
-        ]
-        yield [': ', undefined]
-      } else {
-        yield [
-          code.slice(lastVarEnd, curVar.offset),
-          lastVarEnd,
-          i ? undefined : 'startText',
-        ]
-      }
+      yield [
+        code.slice(lastVarEnd, curVar.offset),
+        lastVarEnd,
+        i ? undefined : 'startText',
+      ]
+
       yield* generateVar(templateRefNames, ctx, code, offset, curVar)
     }
 
@@ -230,7 +222,6 @@ function walkIdentifiers(
   } else if (ts.isObjectLiteralExpression(node)) {
     for (const prop of node.properties) {
       if (ts.isPropertyAssignment(prop)) {
-        // fix https://github.com/vuejs/language-tools/issues/1176
         if (ts.isComputedPropertyName(prop.name)) {
           walkIdentifiers(
             ts,
@@ -243,23 +234,16 @@ function walkIdentifiers(
           )
         }
         walkIdentifiers(ts, prop.initializer, ast, cb, ctx, blockVars, false)
-      }
-      // fix https://github.com/vuejs/language-tools/issues/1156
-      else if (ts.isShorthandPropertyAssignment(prop)) {
+      } else if (ts.isShorthandPropertyAssignment(prop)) {
         walkIdentifiers(ts, prop, ast, cb, ctx, blockVars, false)
-      }
-      // fix https://github.com/vuejs/language-tools/issues/1148#issuecomment-1094378126
-      else if (ts.isSpreadAssignment(prop)) {
+      } else if (ts.isSpreadAssignment(prop)) {
         // TODO: cannot report "Spread types may only be created from object types.ts(2698)"
         walkIdentifiers(ts, prop.expression, ast, cb, ctx, blockVars, false)
-      }
-      // fix https://github.com/vuejs/language-tools/issues/4604
-      else if (ts.isFunctionLike(prop) && prop.body) {
+      } else if (ts.isFunctionLike(prop) && prop.body) {
         processFunction(ts, prop, ast, cb, ctx)
       }
     }
   } else if (ts.isTypeReferenceNode(node)) {
-    // fix https://github.com/vuejs/language-tools/issues/1422
     ts.forEachChild(node, node => walkIdentifiersInTypeReference(ts, node, cb))
   } else {
     const _blockVars = blockVars
@@ -332,7 +316,6 @@ function shouldIdentifierSkipped(
 ) {
   return (
     ctx.hasLocalVariable(text) ||
-    // https://github.com/vuejs/core/blob/245230e135152900189f13a4281302de45fdcfaa/packages/compiler-core/src/transforms/transformExpression.ts#L342-L352
     isGloballyAllowed(text) ||
     isLiteralWhitelisted(text) ||
     text === 'require' ||

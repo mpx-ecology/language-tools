@@ -74,8 +74,6 @@ export function createParsedCommandLineByJson(
     })),
   )
 
-  // fix https://github.com/vuejs/language-tools/issues/1786
-  // https://github.com/microsoft/TypeScript/issues/30457
   // patching ts server broke with outDir + rootDir + composite/incremental
   parsed.options.outDir = undefined
 
@@ -147,8 +145,6 @@ export function createParsedCommandLine(
       })),
     )
 
-    // fix https://github.com/vuejs/language-tools/issues/1786
-    // https://github.com/microsoft/TypeScript/issues/30457
     // patching ts server broke with outDir + rootDir + composite/incremental
     parsed.options.outDir = undefined
 

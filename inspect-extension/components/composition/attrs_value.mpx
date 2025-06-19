@@ -1,0 +1,25 @@
+<template>
+  <view class="{{msg.length > 5 ? 'long' : 'short'}}">
+     <view wx:if="{{msg.length > 3 ? true : false}}">
+      {{ msg ? 'yes' : 'no'}}
+    </view>
+    <view wx:if="{{msg === 'hello'}}">
+      {{ '1' + msg[0] + 2 }}
+    </view>
+  </view> 
+</template>
+
+<script setup lang="ts">
+const msg = 'Hello Mpx'
+defineExpose({
+  msg
+})
+</script>
+
+<style lang="stylus">
+  .long
+    color red
+  .short
+    color green
+</style>
+  

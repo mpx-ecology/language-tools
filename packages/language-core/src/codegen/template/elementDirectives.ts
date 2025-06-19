@@ -54,7 +54,7 @@ export function* generateElementDirectives(
       ...generateIdentifier(options, ctx, prop),
       `)(null!, { ...__VLS_directiveBindingRestFields, `,
       ...generateArg(options, ctx, prop),
-      ...generateModifiers(options, ctx, prop),
+      ...generateModifiers(ctx, prop),
       ...generateValue(options, ctx, prop),
       ` }, null!, null!)`,
     )
@@ -129,7 +129,6 @@ function* generateArg(
 }
 
 export function* generateModifiers(
-  options: TemplateCodegenOptions,
   ctx: TemplateCodegenContext,
   prop: CompilerDOM.DirectiveNode,
   propertyName: string = 'modifiers',
@@ -151,8 +150,6 @@ export function* generateModifiers(
   yield `: { `
   for (const mod of modifiers) {
     yield* generateObjectProperty(
-      options,
-      ctx,
       mod.content,
       mod.loc.start.offset,
       ctx.codeFeatures.withoutHighlightAndNavigation,
@@ -179,5 +176,5 @@ function* generateValue(
     `value`,
   )
   yield `: `
-  yield* generatePropExp(options, ctx, prop, exp, ctx.codeFeatures.all)
+  yield* generatePropExp(options, ctx, exp, ctx.codeFeatures.all)
 }

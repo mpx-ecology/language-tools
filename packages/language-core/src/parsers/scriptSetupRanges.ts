@@ -108,7 +108,6 @@ export function parseScriptSetupRanges(
       !ts.isImportDeclaration(node) &&
       !isTypeExport &&
       !ts.isEmptyStatement(node) &&
-      // fix https://github.com/vuejs/language-tools/issues/1223
       !ts.isImportEqualsDeclaration(node)
     ) {
       const commentRanges = ts.getLeadingCommentRanges(text, node.pos)

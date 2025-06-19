@@ -250,7 +250,6 @@ function* generateSetupFunction(
     scriptSetupRanges.defineProps?.typeArg &&
     scriptSetupRanges.withDefaults?.arg
   ) {
-    // fix https://github.com/vuejs/language-tools/issues/1187
     yield `const __VLS_withDefaultsArg = (function <T>(t: T) { return t })(`
     yield generateSfcBlockSection(
       scriptSetup,

@@ -5,7 +5,7 @@ import * as CompilerDOM from '@vue/compiler-dom'
 import { endOfLine, newLine, wrapWith } from '../utils'
 import { getSlotsPropertyName } from '../../utils/shared'
 import { generateObjectProperty } from './objectProperty'
-import { generateTemplateChild, getVForNode } from './templateChild'
+import { generateTemplateChild, getWxForNode } from './templateChild'
 import { generateStyleScopedClassReferences } from './styleScopedClasses'
 import { TemplateCodegenContext, createTemplateCodegenContext } from './context'
 
@@ -53,7 +53,7 @@ export function* generateTemplate(
 
   const speicalTypes = [
     [slotsPropertyName, yield* generateSlots(options, ctx)],
-    ['$refs', yield* generateTemplateRefs(options, ctx)],
+    ['$refs', yield* generateTemplateRefs(ctx)],
   ]
 
   yield `var __VLS_dollars!: {${newLine}`
@@ -78,8 +78,6 @@ function* generateSlots(
       yield `${newLine}& { `
       if (slot.name && slot.offset !== undefined) {
         yield* generateObjectProperty(
-          options,
-          ctx,
           slot.name,
           slot.offset,
           ctx.codeFeatures.withoutHighlightAndCompletion,
@@ -100,10 +98,7 @@ function* generateSlots(
   return `__VLS_Slots`
 }
 
-function* generateTemplateRefs(
-  options: TemplateCodegenOptions,
-  ctx: TemplateCodegenContext,
-): Generator<Code> {
+function* generateTemplateRefs(ctx: TemplateCodegenContext): Generator<Code> {
   yield `type __VLS_TemplateRefs = {}`
   for (const [name, refs] of ctx.templateRefs) {
     yield `${newLine}& `
@@ -116,13 +111,7 @@ function* generateTemplateRefs(
         yield ` | `
       }
       yield `{ `
-      yield* generateObjectProperty(
-        options,
-        ctx,
-        name,
-        offset,
-        ctx.codeFeatures.navigation,
-      )
+      yield* generateObjectProperty(name, offset, ctx.codeFeatures.navigation)
       yield `: ${typeExp} }`
     }
     if (refs.length >= 2) {
@@ -141,7 +130,7 @@ export function* forEachElementNode(
       yield* forEachElementNode(child)
     }
   } else if (node.type === CompilerDOM.NodeTypes.ELEMENT) {
-    const patchForNode = getVForNode(node)
+    const patchForNode = getWxForNode(node)
     if (patchForNode) {
       yield* forEachElementNode(patchForNode)
     } else {

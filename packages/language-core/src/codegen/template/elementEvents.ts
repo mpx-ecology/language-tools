@@ -52,12 +52,9 @@ export function* generateElementEvents(
       if (prop.name === 'on') {
         yield `{ `
         yield* generateObjectProperty(
-          options,
-          ctx,
           emitPrefix + source,
           start!,
           ctx.codeFeatures.navigation,
-          undefined,
           true,
         )
         yield `: {} as any } as typeof ${emitsVar},${newLine}`

@@ -282,7 +282,7 @@ export function* generateComponent(
     ctx.currentComponent.used = true
 
     yield `var ${componentInstanceVar} = {} as (Parameters<NonNullable<typeof ${componentCtxVar}['expose']>>[0] | null)`
-    if (ctx.inVFor) {
+    if (ctx.inWxFor) {
       yield `[]`
     }
     yield `${endOfLine}`
@@ -372,7 +372,7 @@ export function* generateElement(
   const [refName, offset] = yield* generateElementReference(options, ctx, node)
   if (refName && offset) {
     let typeExp = `__VLS_NativeElements['${node.tag}']`
-    if (ctx.inVFor) {
+    if (ctx.inWxFor) {
       typeExp += `[]`
     }
     ctx.addTemplateRef(refName, typeExp, offset)

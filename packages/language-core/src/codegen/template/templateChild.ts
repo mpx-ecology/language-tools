@@ -10,7 +10,7 @@ import { generateComponent, generateElement } from './element'
 import { generateInterpolation } from './interpolation'
 import { generateSlotOutlet } from './slotOutlet'
 import { generateWxFor } from './wxFor'
-import { generateVIf } from './vIf'
+import { generateWxIf } from './wxIf'
 import { generateVSlot } from './vSlot'
 
 const transformContext = {
@@ -55,12 +55,12 @@ export function* generateTemplateChild(
     }
     yield* generateElementChildren(options, ctx, node.children)
   } else if (node.type === CompilerDOM.NodeTypes.ELEMENT) {
-    const vForNode = getVForNode(node)
-    const vIfNode = getVIfNode(node)
-    if (vForNode) {
-      yield* generateWxFor(options, ctx, vForNode)
-    } else if (vIfNode) {
-      yield* generateVIf(options, ctx, vIfNode)
+    const wxForNode = getWxForNode(node)
+    const wxIfNode = getWxIfNode(node)
+    if (wxForNode) {
+      yield* generateWxFor(options, ctx, wxForNode)
+    } else if (wxIfNode) {
+      yield* generateWxIf(options, ctx, wxIfNode)
     } else if (node.tagType === CompilerDOM.ElementTypes.SLOT) {
       yield* generateSlotOutlet(options, ctx, node)
     } else {
@@ -114,7 +114,7 @@ export function* generateTemplateChild(
     )
   } else if (node.type === CompilerDOM.NodeTypes.IF) {
     // v-if / v-else-if / v-else
-    yield* generateVIf(options, ctx, node)
+    yield* generateWxIf(options, ctx, node)
   } else if (node.type === CompilerDOM.NodeTypes.FOR) {
     // v-for
     yield* generateWxFor(options, ctx, node)
@@ -156,7 +156,7 @@ function* collectSingleRootNodes(
   }
 }
 
-export function getVForNode(node: CompilerDOM.ElementNode) {
+export function getWxForNode(node: CompilerDOM.ElementNode) {
   const forDirective = node.props.find(
     (prop): prop is CompilerDOM.DirectiveNode =>
       prop.type === CompilerDOM.NodeTypes.DIRECTIVE && prop.name === 'for',
@@ -179,7 +179,7 @@ export function getVForNode(node: CompilerDOM.ElementNode) {
   }
 }
 
-function getVIfNode(node: CompilerDOM.ElementNode) {
+function getWxIfNode(node: CompilerDOM.ElementNode) {
   const ifDirective = node.props.find(
     (prop): prop is CompilerDOM.DirectiveNode =>
       prop.type === CompilerDOM.NodeTypes.DIRECTIVE && prop.name === 'if',
@@ -213,7 +213,6 @@ export function parseInterpolationNode(
   let leftCharacter: string
   let rightCharacter: string
 
-  // fix https://github.com/vuejs/language-tools/issues/1787
   while (
     (leftCharacter = template.slice(start - 1, start)).trim() === '' &&
     leftCharacter.length

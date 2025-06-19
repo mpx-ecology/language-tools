@@ -57,7 +57,7 @@ export function* generateWxFor(
   }
   yield `] of `
   if (source.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
-    yield `__VLS_getVForSourceType(`
+    yield `__VLS_getWxForSourceType(`
     yield* generateInterpolation(
       options,
       ctx,
@@ -113,10 +113,10 @@ export function* generateWxFor(
     }
   }
 
-  const { inVFor } = ctx
-  ctx.inVFor = true
+  const { inWxFor } = ctx
+  ctx.inWxFor = true
   yield* generateElementChildren(options, ctx, node.children, isFragment)
-  ctx.inVFor = inVFor
+  ctx.inWxFor = inWxFor
 
   for (const varName of forBlockVars) {
     ctx.removeLocalVariable(varName)

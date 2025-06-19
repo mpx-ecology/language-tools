@@ -120,7 +120,7 @@ export function generateGlobalTypes({
 	type __VLS_PrettifyGlobal<T> = { [K in keyof T]: T[K]; } & {};
 	type __VLS_UseTemplateRef<T> = Readonly<import('${lib}').ShallowRef<T | null>>;
 
-	function __VLS_getVForSourceType<T extends number | string | any[] | Iterable<any>>(source: T): [
+	function __VLS_getWxForSourceType<T extends number | string | any[] | Iterable<any>>(source: T): [
 		item: T extends number ? number
 			: T extends string ? string
 			: T extends any[] ? T[number]
@@ -128,7 +128,7 @@ export function generateGlobalTypes({
 			: any,
 		index: number,
 	][];
-	function __VLS_getVForSourceType<T>(source: T): [
+	function __VLS_getWxForSourceType<T>(source: T): [
 		item: T[keyof T],
 		key: keyof T,
 		index: number,

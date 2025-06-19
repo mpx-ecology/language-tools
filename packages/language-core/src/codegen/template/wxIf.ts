@@ -1,8 +1,3 @@
-/**
- * TODO -
- * - [ ] wx:if
- */
-
 import type { Code } from '../../types'
 import type { TemplateCodegenContext } from './context'
 import type { TemplateCodegenOptions } from './index'
@@ -13,7 +8,7 @@ import { newLine } from '../utils'
 import { generateElementChildren } from './elementChildren'
 import { generateInterpolation } from './interpolation'
 
-export function* generateVIf(
+export function* generateWxIf(
   options: TemplateCodegenOptions,
   ctx: TemplateCodegenContext,
   node: CompilerDOM.IfNode,

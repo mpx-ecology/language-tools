@@ -59,13 +59,7 @@ export function* generateSlotOutlet(
       ) {
         codes = [
           `[`,
-          ...generatePropExp(
-            options,
-            ctx,
-            nameProp,
-            nameProp.exp,
-            ctx.codeFeatures.all,
-          ),
+          ...generatePropExp(options, ctx, nameProp.exp, ctx.codeFeatures.all),
           `]`,
         ]
       } else {

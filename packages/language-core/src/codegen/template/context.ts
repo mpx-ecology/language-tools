@@ -99,7 +99,7 @@ export function createTemplateCodegenContext(
       },
     }),
     resolveCodeFeatures,
-    inVFor: false,
+    inWxFor: false,
     slots,
     dynamicSlots,
     dollarVars,
