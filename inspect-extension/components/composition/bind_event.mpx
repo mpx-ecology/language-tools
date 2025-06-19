@@ -1,8 +1,9 @@
 <template>
+  <Comp bindclick="hello" />
   <view class="list">
     <view
-      bindclick="hello"
-      bindtap="hello"
+      bindclick='hello'
+      bindtap="hello(1)"
       bind:tap="hello1"
       catchtap="hello1"
       catch:tap="hello1"
@@ -15,8 +16,8 @@
 </template>
 
 <script setup lang="ts">
-const hello = (e?: {detail: {value: string}}) => {
-  console.log('hello', e?.detail.value  )
+const hello = (a?: number) => {
+  console.log('hello', a)
 }
 
 const hello1 = (e?: {detail: {value: string}}) => {

@@ -1,7 +1,7 @@
 import type * as html from 'vscode-html-languageservice'
 
-const mpxDocs = 'Mpx 官方文档'
-const wxDocs = '微信小程序官方文档'
+const mpxDocs = 'Mpx 文档'
+const wxDocs = '微信小程序文档'
 
 const data: html.HTMLDataV1 = {
   version: 1.0,
@@ -54,7 +54,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '如果你更喜欢将 `*.mpx` 的 js 逻辑代码分散到其他文件中，可以为一个语块使用 `src` 这个 attribute 来导入一个外部文件，比如：\n\n```html\n<script src="./script.js"></script>\n```\n\n',
+              '如果你更喜欢将 `*.mpx` 的 js 逻辑代码分散到其他文件中，可以为一个语块使用 src 属性来导入一个外部文件，比如：\n\n```html\n<script src="./script.js"></script>\n```\n\n',
           },
           references: [
             {
@@ -77,7 +77,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '代码块 script 可以使用 `lang` 来声明预处理器语言，比如：\n\n```html\n<script lang="ts">\n  // use TypeScript\n</script>\n```\n\n',
+              '代码块 script 可以使用 lang 属性来声明预处理器语言，比如：\n\n```html\n<script lang="ts">\n  // use TypeScript\n</script>\n```\n\n',
           },
           references: [
             {
@@ -145,7 +145,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '\n`<script>` 逻辑模块\n\n- `<script>/<script setup>` 模块对应 app.js 定义了全局逻辑，可以自由使用 `ts/js` 等 js 预编译语言。\n- `<script name="json">` 区块对应小程序的 json 配置（使用 js 语法）。\n- `<script type="application/json">` 区块对应小程序的 json 配置（使用 json 语法）。',
+          '\n`<script>` 模块\n\n- `<script>/<script setup>` 模块对应 app.js 定义了全局逻辑，可以自由使用 ts/js 等 js 预编译语言。\n- `<script name="json">` 区块对应小程序的 json 配置（使用 js 语法）。\n- `<script type="application/json">` 区块对应小程序的 json 配置（使用 json 语法）。',
       },
       references: [
         {
@@ -160,7 +160,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '\n`<script setup>` 111是在 Mpx 单文件组件中使用组合式 API 时的编译时语法糖，和 Vue 类似。\n',
+          '\n`<script setup>` 是在 Mpx 单文件组件中使用组合式 API 时的编译时语法糖，和 Vue 类似。\n',
       },
       references: [
         {
@@ -191,7 +191,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '`<style>` 模块可以使用 `lang` 这个 attribute 来声明 style 预处理器语言。',
+              '`<style>` 模块可以使用 lang 属性来声明 style 预处理器语言。',
           },
           valueSet: 't',
           values: [
@@ -227,7 +227,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '当 `<style>` 标签带有 `scoped` attribute 的时候，它的 CSS 只会影响当前组件的元素。',
+              '当 `<style>` 标签带有 scoped 属性的时候，它的 CSS 只会影响当前组件的元素。',
           },
           references: [
             {

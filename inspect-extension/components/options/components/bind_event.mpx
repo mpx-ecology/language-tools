@@ -2,7 +2,7 @@
   <view class="list">
     <view
       bindclick="hello"
-      bindtap="hello"
+      bindtap="hello()"
       bind:tap="hello1"
       catchtap="hello1"
       catch:tap="hello1"
@@ -19,11 +19,11 @@ import { createComponent } from '@mpxjs/core'
 
 createComponent({
   methods: {
-    hello() {
-      console.log('hello')
+    hello(a?: number) {
+      console.log('hello', a)
     },
-    hello1() {
-      console.log('hello1')
+    hello1(e?: {detail: {value: string}}) {
+      console.log('hello1', e?.detail.value)
     }
   }
 })

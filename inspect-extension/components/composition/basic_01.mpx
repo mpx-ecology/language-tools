@@ -1,12 +1,12 @@
 <template>
   <view class="title"> title: {{ title }} </view>
-  <view wx:class="list" @click="onClick" :bindtap="onClick">
+  <view wx:class="list" bindtap="onClick">
     <view> msg: {{ msg }} </view>
     <view> obj: {{ obj.a + obj.b }} </view>
     <view> content: {{ content }} </view>
   </view>
 </template>
-  
+
 <script setup lang="ts">
 import { toRefs, computed } from '@mpxjs/core'
 

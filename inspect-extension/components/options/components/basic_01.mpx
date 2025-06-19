@@ -1,6 +1,6 @@
 <template>
   <view class="title"> title: {{ title }} </view>
-  <view wx:class="list" @click="onClick" bindtap="onClick">
+  <view wx:class="list" bindtap="onClick">
     <view> parentText: {{ parentText }} </view>
     <view> msg: {{ msg }} </view>
     <view> obj: {{ obj.a + obj.b }} </view>

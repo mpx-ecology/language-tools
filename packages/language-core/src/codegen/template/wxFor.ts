@@ -41,14 +41,18 @@ export function* generateWxFor(
       value!.loc.source,
       'template',
       value!.loc.start.offset,
-      defaultValue ? ctx.codeFeatures.withoutHighlight : ctx.codeFeatures.all,
+      defaultValue
+        ? ctx.codeFeatures.withoutHighlightAndNavigation
+        : ctx.codeFeatures.all,
     ]
     yield ','
     yield [
       index!.loc.source,
       'template',
       index!.loc.start.offset,
-      defaultIndex ? ctx.codeFeatures.withoutHighlight : ctx.codeFeatures.all,
+      defaultIndex
+        ? ctx.codeFeatures.withoutHighlightAndNavigation
+        : ctx.codeFeatures.all,
     ]
   }
   yield `] of `
