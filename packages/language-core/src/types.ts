@@ -6,15 +6,13 @@ import type * as ts from 'typescript'
 import type { MpxEmbeddedCode } from './virtualFile/embeddedFile'
 
 export type { SFCParseResult } from '@vue/compiler-sfc'
-
-export { MpxEmbeddedCode }
-
 export type RawMpxCompilerOptions = Partial<
   Omit<MpxCompilerOptions, 'plugins'>
 > & {
   strictTemplates?: boolean
   plugins?: string[]
 }
+export { MpxEmbeddedCode }
 
 export interface MpxCodeInformation extends CodeInformation {
   __combineOffset?: number
@@ -26,11 +24,10 @@ export type Code = Segment<MpxCodeInformation>
 export interface MpxCompilerOptions {
   lib: string
   extensions: string[]
-  vitePressExtensions: string[]
   petiteMpxExtensions: string[]
   jsxSlots: boolean
   strictSlotChildren: boolean
-  strictVModel: boolean
+  strictWxModel: boolean
   checkUnknownProps: boolean
   checkUnknownEvents: boolean
   checkUnknownDirectives: boolean
@@ -49,16 +46,12 @@ export interface MpxCompilerOptions {
   macros: {
     defineProps: string[]
     defineSlots: string[]
-    defineEmits: string[]
     defineExpose: string[]
     defineModel: string[]
     defineOptions: string[]
     withDefaults: string[]
   }
   composables: {
-    useAttrs: string[]
-    useCssModule: string[]
-    useSlots: string[]
     useTemplateRef: string[]
   }
   plugins: MpxLanguagePlugin[]

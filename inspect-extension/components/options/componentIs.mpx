@@ -1,0 +1,28 @@
+<template>
+  <!-- current为组件名称字符串，可选范围为局部注册的自定义组件和全局注册的自定义组件 -->
+  <!-- 当 `current`改变时，组件也会跟着切换  -->
+  <component is="{{current}}"></component>
+</template>
+
+<script>
+  import {createComponent} from '@mpxjs/core'
+  createComponent({
+    data: {
+      current: 'test'
+    },
+    ready () {
+      setTimeout(() => {
+        this.current = 'list'
+      }, 3000)
+    }
+  })
+</script>
+
+<script type="application/json">
+  {
+    "usingComponents": {
+      "list": "../components/list",
+      "test": "../components/test"
+    }
+  }
+</script>

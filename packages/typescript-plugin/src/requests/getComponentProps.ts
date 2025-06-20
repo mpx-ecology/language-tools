@@ -82,7 +82,6 @@ export function getComponentProps(
 
   function handlePropSymbol(prop: ts.Symbol) {
     if (prop.flags & ts.SymbolFlags.Method) {
-      // #2443
       return
     }
     const name = prop.name

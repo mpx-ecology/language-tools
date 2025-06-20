@@ -11,7 +11,7 @@ export function* generateStyleModules(
   const styles = options.sfc.styles
     .map((style, i) => [style, i] as const)
     .filter(([style]) => style.module)
-  if (!styles.length && !options.scriptSetupRanges?.useCssModule.length) {
+  if (!styles.length) {
     return
   }
   yield `type __VLS_StyleModules = {${newLine}`

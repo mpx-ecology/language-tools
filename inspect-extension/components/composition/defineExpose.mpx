@@ -1,0 +1,36 @@
+<template>
+  <view> title: {{ title }} </view>
+  <view bindtap="onClick">
+    <view> count: {{ count }} </view>
+    <view> double: {{ double }} </view>
+    <view> obj: {{ obj.a + obj.b }} </view>
+  </view>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from '@mpxjs/core'
+
+const count = ref(1)
+const title = 'Hello Mpx Composition API'
+const double = computed(() => {
+  return count.value * 2
+})
+const obj = {
+	a: 1,
+	b: 2
+}
+
+const onClick = (a?: number) => {
+	console.log('click', a)
+}
+
+defineExpose({
+  title,
+  count,
+  double,
+  obj,
+  onClick
+})
+
+</script>
+  

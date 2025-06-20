@@ -27,7 +27,7 @@ export function* generateElementEvents(
       ((prop.name === 'on' &&
         prop.arg?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION &&
         prop.arg.isStatic) ||
-        (options.mpxCompilerOptions.strictVModel &&
+        (options.mpxCompilerOptions.strictWxModel &&
           prop.name === 'model' &&
           (!prop.arg ||
             (prop.arg.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION &&

@@ -1,0 +1,13 @@
+<template>
+  <view>
+    {{ msg }} - {{ count }}
+  </view>
+</template>
+
+<script setup lang="ts">
+defineProps<{
+  msg: string
+  count?: number
+}>()
+</script>
+  

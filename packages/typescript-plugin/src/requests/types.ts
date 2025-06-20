@@ -1,7 +1,7 @@
 /// <reference types="@volar/typescript" />
 
-import type { Language } from '@mpxjs/language-core'
 import type * as ts from 'typescript'
+import type { Language } from '@mpxjs/language-core'
 
 export interface RequestContext<T = any> {
   typescript: typeof ts

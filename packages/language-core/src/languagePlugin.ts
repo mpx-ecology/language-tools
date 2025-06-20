@@ -1,15 +1,15 @@
 /// <reference types="@volar/typescript" />
 
-import { LanguagePlugin, forEachEmbeddedCode } from '@volar/language-core'
-import * as CompilerDOM from '@vue/compiler-dom'
 import type * as ts from 'typescript'
-import { createPlugins } from './plugins'
 import type {
   MpxCompilerOptions,
   MpxLanguagePlugin,
   MpxLanguagePluginReturn,
 } from './types'
+import * as CompilerDOM from '@vue/compiler-dom'
+import { LanguagePlugin, forEachEmbeddedCode } from '@volar/language-core'
 import { MpxVirtualCode } from './virtualFile/mpxFile'
+import { createPlugins } from './plugins'
 
 const fileRegistries: {
   key: string

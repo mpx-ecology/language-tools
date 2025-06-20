@@ -40,12 +40,6 @@ type WithDefaults = Omit<CallExpressionRange, 'typeArg'> & {
   argNode?: ts.Expression
 }
 
-type DefineEmits = CallExpressionRange & {
-  name?: string
-  hasUnionTypeArg?: boolean
-  statement: TextRange
-}
-
 type DefineSlots = CallExpressionRange & {
   name?: string
   statement: TextRange
@@ -56,12 +50,6 @@ type DefineExpose = CallExpressionRange
 type DefineOptions = {
   name?: string
 }
-
-type UseAttrs = CallExpressionRange
-
-type UseCssModule = CallExpressionRange
-
-type UseSlots = CallExpressionRange
 
 type UseTemplateRef = CallExpressionRange & {
   name?: string
@@ -78,13 +66,9 @@ export function parseScriptSetupRanges(
   const defineProp: DefineProp[] = []
   let defineProps: DefineProps | undefined
   let withDefaults: WithDefaults | undefined
-  let defineEmits: DefineEmits | undefined
   let defineSlots: DefineSlots | undefined
   let defineExpose: DefineExpose | undefined
   let defineOptions: DefineOptions | undefined
-  const useAttrs: UseAttrs[] = []
-  const useCssModule: UseCssModule[] = []
-  const useSlots: UseSlots[] = []
   const useTemplateRef: UseTemplateRef[] = []
   const text = ast.text
 
@@ -135,13 +119,9 @@ export function parseScriptSetupRanges(
     defineProp,
     defineProps,
     withDefaults,
-    defineEmits,
     defineSlots,
     defineExpose,
     defineOptions,
-    useAttrs,
-    useCssModule,
-    useSlots,
     useTemplateRef,
   }
 
@@ -265,25 +245,6 @@ export function parseScriptSetupRanges(
           arg: arg ? _getStartEnd(arg) : undefined,
           argNode: arg,
         }
-      } else if (mpxCompilerOptions.macros.defineEmits.includes(callText)) {
-        defineEmits = {
-          ...parseCallExpressionAssignment(node, parent),
-          statement: getStatementRange(ts, parents, node, ast),
-        }
-        if (
-          node.typeArguments?.length &&
-          ts.isTypeLiteralNode(node.typeArguments[0])
-        ) {
-          for (const member of node.typeArguments[0].members) {
-            if (ts.isCallSignatureDeclaration(member)) {
-              const type = member.parameters[0]?.type
-              if (type && ts.isUnionTypeNode(type)) {
-                defineEmits.hasUnionTypeArg = true
-                break
-              }
-            }
-          }
-        }
       } else if (mpxCompilerOptions.macros.defineSlots.includes(callText)) {
         defineSlots = {
           ...parseCallExpressionAssignment(node, parent),
@@ -306,14 +267,6 @@ export function parseScriptSetupRanges(
             }
           }
         }
-      } else if (mpxCompilerOptions.composables.useAttrs.includes(callText)) {
-        useAttrs.push(parseCallExpression(node))
-      } else if (
-        mpxCompilerOptions.composables.useCssModule.includes(callText)
-      ) {
-        useCssModule.push(parseCallExpression(node))
-      } else if (mpxCompilerOptions.composables.useSlots.includes(callText)) {
-        useSlots.push(parseCallExpression(node))
       } else if (
         mpxCompilerOptions.composables.useTemplateRef.includes(callText) &&
         !node.typeArguments?.length

@@ -1,8 +1,8 @@
 /// <reference types="@volar/typescript" />
 
-import { isCompletionEnabled } from '@mpxjs/language-core'
 import type * as ts from 'typescript'
 import type { RequestContext } from './types'
+import { isCompletionEnabled } from '@mpxjs/language-core'
 
 export function getPropertiesAtLocation(
   this: RequestContext,

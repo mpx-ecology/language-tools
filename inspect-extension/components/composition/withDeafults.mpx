@@ -1,0 +1,18 @@
+<template>
+  <view>
+    {{ msg }} - {{ count }}
+  </view>
+</template>
+
+<script setup lang="ts">
+type Props = {
+  msg?: string
+  count?: number
+}
+withDefaults(defineProps<Props>(), {
+  msg: 'default message',
+  count: 123
+})
+
+</script>
+  

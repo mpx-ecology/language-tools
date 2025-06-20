@@ -20,13 +20,6 @@ export function* generateEmitsOption(
       typeOptionType: `__VLS_ModelEmit`,
     })
   }
-  if (scriptSetupRanges.defineEmits) {
-    const { name, typeArg, hasUnionTypeArg } = scriptSetupRanges.defineEmits
-    codes.push({
-      optionExp: `{} as __VLS_NormalizeEmits<typeof ${name ?? '__VLS_emit'}>`,
-      typeOptionType: typeArg && !hasUnionTypeArg ? `__VLS_Emit` : undefined,
-    })
-  }
   if (codes.every(code => code.typeOptionType)) {
     if (codes.length === 1) {
       yield `__typeEmits: {} as `

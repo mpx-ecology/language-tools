@@ -4,7 +4,6 @@ import type { Code, Sfc, TextRange } from '../../types'
 import { codeFeatures } from '../codeFeatures'
 import { endOfLine, generateSfcBlockSection, newLine } from '../utils'
 import { generateCamelized } from '../utils/camelized'
-import { wrapWith } from '../utils/wrapWith'
 import { generateComponentSelf } from './componentSelf'
 import type { ScriptCodegenContext } from './context'
 import {
@@ -71,20 +70,6 @@ function* generateSetupFunction(
       ),
     )
   }
-  if (scriptSetupRanges.defineEmits) {
-    const { name, statement, callExp, typeArg } = scriptSetupRanges.defineEmits
-    setupCodeModifies.push(
-      ...generateDefineWithType(
-        scriptSetup,
-        statement,
-        callExp,
-        typeArg,
-        name,
-        `__VLS_emit`,
-        `__VLS_Emit`,
-      ),
-    )
-  }
   if (scriptSetupRanges.defineSlots) {
     const { name, statement, callExp, typeArg } = scriptSetupRanges.defineSlots
     setupCodeModifies.push(
@@ -143,48 +128,6 @@ function* generateSetupFunction(
         callExp.start,
         callExp.start,
       ])
-    }
-  }
-  for (const { callExp, exp, arg } of scriptSetupRanges.useCssModule) {
-    setupCodeModifies.push(
-      [[`(`], callExp.start, callExp.start],
-      [
-        arg
-          ? [
-              ` as Omit<__VLS_StyleModules, '$style'>[`,
-              generateSfcBlockSection(
-                scriptSetup,
-                arg.start,
-                arg.end,
-                codeFeatures.all,
-              ),
-              `])`,
-            ]
-          : [
-              ` as __VLS_StyleModules[`,
-              ...wrapWith(
-                exp.start,
-                exp.end,
-                scriptSetup.name,
-                codeFeatures.verification,
-                `'$style'`,
-              ),
-              `])`,
-            ],
-        callExp.end,
-        callExp.end,
-      ],
-    )
-    if (arg) {
-      setupCodeModifies.push([[`__VLS_placeholder`], arg.start, arg.end])
-    }
-  }
-  if (options.mpxCompilerOptions.inferTemplateDollarSlots) {
-    for (const { callExp } of scriptSetupRanges.useSlots) {
-      setupCodeModifies.push(
-        [[`(`], callExp.start, callExp.start],
-        [[` as typeof __VLS_dollars.$slots)`], callExp.end, callExp.end],
-      )
     }
   }
   const isTs = options.lang !== 'js' && options.lang !== 'jsx'
@@ -261,7 +204,6 @@ function* generateSetupFunction(
   }
 
   yield* generateComponentProps(options, ctx, scriptSetup, scriptSetupRanges)
-  yield* generateModelEmit(scriptSetup, scriptSetupRanges)
   yield* generateTemplate(options, ctx)
   yield* generateComponentSelf(options)
 }
@@ -458,35 +400,6 @@ function* generateComponentProps(
     yield `{}`
   }
   yield endOfLine
-}
-
-function* generateModelEmit(
-  scriptSetup: NonNullable<Sfc['scriptSetup']>,
-  scriptSetupRanges: ScriptSetupRanges,
-): Generator<Code> {
-  const defineModels = scriptSetupRanges.defineProp.filter(p => p.isModel)
-  if (defineModels.length) {
-    yield `type __VLS_ModelEmit = {${newLine}`
-    for (const defineModel of defineModels) {
-      const [propName, localName] = getPropAndLocalName(
-        scriptSetup,
-        defineModel,
-      )
-      yield `'update:${propName}': [value: `
-      yield* generateDefinePropType(
-        scriptSetup,
-        propName,
-        localName,
-        defineModel,
-      )
-      if (!defineModel.required && !defineModel.defaultValue) {
-        yield ` | undefined`
-      }
-      yield `]${endOfLine}`
-    }
-    yield `}${endOfLine}`
-    yield `const __VLS_modelEmit = defineEmits<__VLS_ModelEmit>()${endOfLine}`
-  }
 }
 
 function* generateDefinePropType(

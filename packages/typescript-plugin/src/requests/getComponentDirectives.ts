@@ -24,12 +24,9 @@ export function getComponentDirectives(this: RequestContext, fileName: string) {
     .map(({ name }) => name)
     .filter(
       name =>
-        name.startsWith('v') &&
+        (name.startsWith('bind') || name.startsWith('catch')) &&
         name.length >= 2 &&
         name[1] === name[1].toUpperCase(),
     )
-    .filter(
-      name =>
-        !['vBind', 'vIf', 'vOn', 'VOnce', 'vShow', 'VSlot'].includes(name),
-    )
+    .filter(name => !['wx:if', 'wx:show', 'slot'].includes(name))
 }
