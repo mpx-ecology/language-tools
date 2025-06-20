@@ -28,10 +28,7 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      - name: Install dependencies
-        env:
-          GIT_PROTOCOL: https
-        run: pnpm install
+      - run: pnpm install
 
       - name: Run eslint
         run: pnpm run lint --fix

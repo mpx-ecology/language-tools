@@ -22,7 +22,7 @@
     "@volar/language-service": "catalog:",
     "@volar/typescript": "catalog:",
     "@vue/compiler-dom": "catalog:",
-    "volar-service-emmet": "^0.0.64",
+    "volar-service-emmet": "0.0.63",
     "volar-service-html": "0.0.64",
     "volar-service-json": "0.0.64",
     "volar-service-typescript": "0.0.64",

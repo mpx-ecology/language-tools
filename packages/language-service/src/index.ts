@@ -60,7 +60,6 @@ function getCommonLanguageServicePlugins(
     createEmmetPlugin({
       mappedLanguages: {
         'mpx-root-tags': 'html',
-        postcss: 'scss',
       },
     }),
     {
