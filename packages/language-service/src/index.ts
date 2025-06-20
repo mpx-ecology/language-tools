@@ -7,6 +7,7 @@ import type {
   LanguageServicePlugin,
 } from '@volar/language-service'
 import { parse } from '@mpxjs/language-core'
+import { create as createEmmetPlugin } from 'volar-service-emmet'
 import { create as createJsonPlugin } from 'volar-service-json'
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic'
 import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-service-typescript/lib/plugins/docCommentTemplate'
@@ -54,9 +55,14 @@ function getCommonLanguageServicePlugins(
 ): LanguageServicePlugin[] {
   return [
     createMpxSfcPlugin(),
-    // createCssPlugin(),
-    createJsonPlugin(),
     // createMpxTemplatePlugin(getTsPluginClient),
+    createJsonPlugin(),
+    createEmmetPlugin({
+      mappedLanguages: {
+        'mpx-root-tags': 'html',
+        postcss: 'scss',
+      },
+    }),
     {
       name: 'mpx-parse-sfc',
       capabilities: {
