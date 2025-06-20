@@ -9,7 +9,7 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   autofix:
@@ -28,7 +28,10 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      - run: pnpm install
+      - name: Install dependencies
+        env:
+          GIT_PROTOCOL: https
+        run: pnpm install
 
       - name: Run eslint
         run: pnpm run lint --fix
