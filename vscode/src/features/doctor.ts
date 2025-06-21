@@ -84,6 +84,7 @@ export async function activate(client: BaseLanguageClient) {
   async function updateStatusBar() {
     const editor = activeTextEditor.value
     if (
+      // @ts-ignore
       config.doctor.status &&
       editor &&
       (editor.document.languageId === 'mpx' ||

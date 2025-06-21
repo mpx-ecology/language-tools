@@ -59,17 +59,29 @@ export function activate(client: BaseLanguageClient) {
         rightBlocks.push(descriptor.template)
       }
     }
-    if (layout.left.includes('styles')) {
-      leftBlocks = leftBlocks.concat(descriptor.styles)
+    if (descriptor.styles.length) {
+      if (layout.left.includes('styles')) {
+        leftBlocks = leftBlocks.concat(descriptor.styles)
+      }
+      if (layout.right.includes('styles')) {
+        rightBlocks = rightBlocks.concat(descriptor.styles)
+      }
     }
-    if (layout.right.includes('styles')) {
-      rightBlocks = rightBlocks.concat(descriptor.styles)
+    if (descriptor.json) {
+      if (layout.left.includes('json')) {
+        leftBlocks.push(descriptor.json)
+      }
+      if (layout.right.includes('json')) {
+        rightBlocks.push(descriptor.json)
+      }
     }
-    if (layout.left.includes('customBlocks')) {
-      leftBlocks = leftBlocks.concat(descriptor.customBlocks)
-    }
-    if (layout.right.includes('customBlocks')) {
-      rightBlocks = rightBlocks.concat(descriptor.customBlocks)
+    if (descriptor.customBlocks.length) {
+      if (layout.left.includes('customBlocks')) {
+        leftBlocks = leftBlocks.concat(descriptor.customBlocks)
+      }
+      if (layout.right.includes('customBlocks')) {
+        rightBlocks = rightBlocks.concat(descriptor.customBlocks)
+      }
     }
 
     await executeCommand('workbench.action.joinEditorInGroup')

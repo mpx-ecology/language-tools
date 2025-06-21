@@ -12,10 +12,7 @@ import {
 } from 'reactive-vscode'
 import * as vscode from 'vscode'
 import { config } from './config'
-// import { checkCompatible } from './hybridMode'
-// import { activate as activateDoctor } from './features/doctor'
-// import { activate as activateSplitEditors } from './features/splitEditors'
-// import { useInsidersStatusItem } from './insiders'
+import { activate as activateSplitEditors } from './features/splitEditors'
 
 let client: lsp.BaseLanguageClient
 
@@ -34,8 +31,6 @@ export function activate(
 ) {
   const activeTextEditor = useActiveTextEditor()
   const visibleTextEditors = useVisibleTextEditors()
-
-  // checkCompatible()
 
   const { stop } = watch(
     activeTextEditor,
@@ -101,14 +96,10 @@ async function activateLc(
     },
   )
 
-  // activateDoctor(client)
-  // activateNameCasing(client, selectors)
-  // activateSplitEditors(client)
+  activateSplitEditors(client)
 
   lsp.activateAutoInsertion(selectors, client)
   lsp.activateDocumentDropEdit(selectors, client)
-
-  // useInsidersStatusItem(context)
 
   async function requestRestartExtensionHost(msg: string) {
     const reload = await vscode.window.showInformationMessage(

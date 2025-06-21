@@ -1,7 +1,7 @@
 import type { MpxLanguagePlugin } from '../types'
+import type { Node } from '../internalTypes'
 import * as CompilerDOM from '@vue/compiler-dom'
 import { transformMpxTemplateNodes } from '../utils/transformMpxTemplate'
-import { Node } from '../types/compiler'
 
 interface Loc {
   start: { offset: number }

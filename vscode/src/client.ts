@@ -14,7 +14,6 @@ import {
   activate as activateLanguageClient,
   deactivate as deactivateLanguageClient,
 } from './languageClient'
-import { middleware } from './middleware'
 
 export const { activate, deactivate } = defineExtension(async () => {
   const volarLabs = createLabsInfo(protocol)
@@ -92,7 +91,6 @@ export const { activate, deactivate } = defineExtension(async () => {
         },
       }
       const clientOptions: lsp.LanguageClientOptions = {
-        middleware,
         documentSelector: documentSelector,
         initializationOptions: initOptions,
         markdown: {

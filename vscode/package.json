@@ -138,14 +138,9 @@
             "mpx"
           ]
         },
-        "mpx.doctor.status": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show known problems in status bar."
-        },
         "mpx.splitEditors.icon": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Show split editor icon in title area of editor."
         },
         "mpx.splitEditors.layout.left": {
@@ -166,6 +161,7 @@
           },
           "default": [
             "template",
+            "json",
             "customBlocks"
           ]
         },
@@ -193,11 +189,6 @@
           "type": "boolean",
           "default": false,
           "description": "Auto-complete Ref value with `.value`."
-        },
-        "mpx.autoInsert.bracketSpacing": {
-          "type": "boolean",
-          "default": true,
-          "description": "Auto add space between double curly brackets: {{|}} -> {{ | }}"
         },
         "mpx.format.template.initialIndent": {
           "type": "boolean",
@@ -233,13 +224,8 @@
         "category": "Mpx"
       },
       {
-        "command": "mpx.action.doctor",
-        "title": "Doctor",
-        "category": "Mpx"
-      },
-      {
         "command": "mpx.action.splitEditors",
-        "title": "Split <script>, <template>, <style> Editors",
+        "title": "Split <script>, <template>, <style>, <json> Editors",
         "category": "Mpx",
         "icon": "images/icon-small.png"
       }
@@ -273,10 +259,6 @@
         {
           "command": "typescript.goToProjectConfig",
           "when": "editorLangId == mpx"
-        },
-        {
-          "command": "mpx.action.doctor",
-          "when": "mpx.activated"
         },
         {
           "command": "mpx.action.splitEditors",

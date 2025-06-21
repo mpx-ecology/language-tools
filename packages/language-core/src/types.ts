@@ -187,9 +187,32 @@ declare module '@vue/compiler-sfc' {
   interface SFCStyleBlock {
     __module?: SfcBlockAttr
   }
+
+  interface SFCJsonBlock extends SFCBlock {
+    type: 'json'
+    jsonType: 'application/json' | 'application/script'
+    usingComponents?: Promise<
+      Map<
+        string,
+        { configPath: string; absolutePath: string; relativePath: string }[]
+      >
+    >
+  }
+
+  interface SFCDescriptor {
+    json?: SFCJsonBlock
+  }
 }
 
 export interface TextRange {
   start: number
   end: number
+}
+
+declare module '@vue/compiler-dom' {
+  export interface ForParseResult {
+    mpx?: boolean
+    defaultValue?: boolean
+    defaultIndex?: boolean
+  }
 }

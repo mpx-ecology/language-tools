@@ -1,5 +1,5 @@
 import * as CompilerDOM from '@vue/compiler-dom'
-import type { Node } from '../types/compiler'
+import type { Node } from '../internalTypes'
 
 export function transformMpxTemplateNodes<T extends Node>(children: T[]): T[] {
   return children.map(child => visitNode(child) ?? child)
