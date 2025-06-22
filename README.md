@@ -14,20 +14,19 @@
 
 ### Feature Comparison
 
-| Feature                                 | Legacy | New         |
-| --------------------------------------- | ------ | ----------- |
-| 语法高亮                                | ✅     | ✅          |
-| Emmet 支持                              | ✅     | ✅          |
-| \<template\> 支持 TS 类型检查、补全提示 | ❌     | ✅          |
-| \<template\> 支持定义跳转、查找参考引用 | ❌     | ✅          |
-| \<template\> 样式类名跳转 \<style\>     | ❌     | ✅          |
-| \<template\> 自定义组件跳转             | ❌     | in Progress |
-| \<script ts\> 支持关联 tsconfig 配置    | ❌     | ✅          |
-| 拆分 SFC 编辑器视图                     | ❌     | ✅          |
-| SFC block 标签属性补全、hover 提示      | ❌     | ✅          |
-| 标签属性补全提示 (wx:xxx)               | ✅     | in Progress |
-| 格式化 formatter                        | ✅     | in Progress |
-| 代码片段 snippets                       | ✅     | in Progress |
+| Feature                                    | Legacy | New                    |
+| ------------------------------------------ | ------ | ---------------------- |
+| 语法高亮                                   | ✅     | ✅                     |
+| SFC blocks 语言支持                        | ✅     | ✅                     |
+| Emmet 支持                                 | ✅     | ✅                     |
+| \<template\> 支持 TS 类型检查、补全提示... | ❌     | ✅                     |
+| \<template\> 支持定义跳转、查找参考引用    | ❌     | ✅                     |
+| \<template\> 样式类名跳转 \<style\>        | ❌     | ✅                     |
+| \<template\> 自定义组件跳转                | ❌     | in Progress            |
+| \<script ts\> 支持关联 tsconfig 配置       | ❌     | ✅                     |
+| SFC blocks 编辑器视图拆分                  | ❌     | ✅                     |
+| 标签属性补全提示 (wx:xxx)                  | ✅     | in Progress (enhanced) |
+| 格式化 formatter                           | ✅     | in Progress            |
 
 ### Performance
 
@@ -47,32 +46,37 @@
 ## Dependency Flow
 
 ```mermaid
+---
+config:
+  theme: neutral
+---
 flowchart TD
   %% Define all packages
-  shared[language-shared]
-  core[language-core]
-  typescript[typescript-plugin]
-  service[language-service]
-  server[language-server]
-  vscode[vscode extension]
+  shared[ @mpxjs/language-shared ]
+  core[ @mpxjs/language-core ]
+  typescript[ @mpxjs/typescript-plugin ]
+  service[ @mpxjs/language-service ]
+  server[ @mpxjs/language-server ]
+  vscode[ Mpx VSCode extension ]
 
   %% Define dependencies
+  typescript -.-> service
+  typescript -.-> vscode
   shared --> core
-  core --> typescript
-  shared --> typescript
-  core --> service
   shared --> service
-  typescript --> service
+  core --> typescript
+  core --> service
   service --> server
   core --> server
-  server --> vscode
-  typescript -.-> vscode
+  server --> |LSP| vscode
 
   %% Styling
   classDef core fill:#d4f1f9
+  classDef typescript fill:#ececff
   classDef extension fill:#d5e8d4
 
   class shared,core,service,server core
+  class typescript typescript
   class vscode,inspect extension
 ```
 

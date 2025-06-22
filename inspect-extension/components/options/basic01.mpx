@@ -62,7 +62,7 @@ createComponent({
   {
     "component": true,
     "usingComponents": {
-      "wx_for": "@/options/components/wx_for.mpx"
+      "wxFor": "@/options/components/wxFor.mpx"
     }
   }
 </script>
