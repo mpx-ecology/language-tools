@@ -10,7 +10,7 @@
 
 ### Background
 
-旧版插件 [vscode-mpx] 基于 Vue 2 的 [Vetur] 实现，目前维护不活跃，且存在功能局限性。随着 Vue 3 转向基于 [Volar] 的新插件 [Vue - Official][vue-official]，我们决定全新打造基于 [Volar] 的 Mpx 新版插件，提供更丰富的语言特性和更流畅的开发体验，以满足现代 Mpx 项目需求。
+旧版插件 [vscode-mpx] 基于 Vue 2 的 [Vetur] 实现，目前维护不活跃，且存在功能局限性。另一款旧插件 [mpx-template-features] 针对 Mpx 模板补强了定义跳转等功能，但仍存在不足。随着 Vue 3 转向基于 [Volar] 的新插件 [Vue - Official][vue-official]，我们决定全新打造基于 [Volar] 的 Mpx 新版插件，提供更丰富的语言特性和更流畅的开发体验，以满足现代 Mpx 项目需求。
 
 ### Feature Comparison
 
@@ -90,18 +90,23 @@ For details on our planned features and future direction, please refer to our [r
 
 ## Credits
 
-- [vue-language-tools] & [volar], created and maintained by [Johnson Chu][johnsonchu].
+- [vue-language-tools] & [Volar], created by [Johnson Chu].
+- [vscode-mpx], a legacy VS Code extension for Mpx, created by [pagnkelly].
+- [mpx-template-features], a legacy VS Code extension for Mpx template, created by [Soon Wang].
 
 <!-- Reference Links -->
 
 [vscode-mpx]: https://marketplace.visualstudio.com/items?itemName=pagnkelly.mpx
+[mpx-template-features]: https://marketplace.visualstudio.com/items?itemName=wangshun.mpx-template-features
 [vetur]: https://github.com/vuejs/vetur
-[volar]: https://github.com/volarjs/volar.js
+[Volar]: https://github.com/volarjs/volar.js
 [vue-official]: https://marketplace.visualstudio.com/items?itemName=Vue.volar
 [vue-language-tools]: https://github.com/vuejs/language-tools
 [mpx-deep-wiki]: https://deepwiki.com/mpx-ecology/language-tools
 [roadmap]: TODO
-[johnsonchu]: https://github.com/johnsoncodehk
+[Johnson Chu]: https://github.com/johnsoncodehk
+[pagnkelly]: https://github.com/pagnkelly
+[Soon Wang]: https://github.com/wangshunnn
 
 <!-- Package Links -->
 
