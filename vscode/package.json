@@ -6,7 +6,7 @@
   "displayName": "Mpx",
   "description": "Mpx language support for Visual Studio Code",
   "author": "wangshunnn",
-  "publisher": "Mpx",
+  "publisher": "wangshunnn",
   "repository": {
     "type": "git",
     "url": "https://github.com/mpx-ecology/language-tools.git",
@@ -280,8 +280,8 @@
     "build:minify": "pnpm run build --minify",
     "watch": "pnpm run build --watch",
     "bundle": "pnpm run build:minify",
-    "pack": "pnpm run bundle && vsce package",
-    "publish": "pnpm run bundle && vsce publish",
+    "pack:vsce": "pnpm run bundle && vsce package",
+    "publish:vsce": "pnpm run bundle && vsce publish",
     "size": "pnpm run build:minify -- --metafile && esbuild-visualizer --metadata ./meta.json && open ./stats.html",
     "postinstall": "vscode-ext-gen --scope mpx"
   },
