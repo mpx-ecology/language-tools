@@ -26,6 +26,7 @@ export function* generateWxFor(
     collectVars(options.ts, collectAst, collectAst, forBlockVars)
   }
 
+  yield `// @ts-ignore${newLine}`
   yield `for (const [`
   if (leftExpressionRange && leftExpressionText && !mpx) {
     collectVar()

@@ -1,13 +1,27 @@
 <template>
   <view class="list">
     <view wx:for="{{listData}}" wx:key="*this">
-      {{item}} {{index}}
+      Case1: No item or index.
+    </view>
+    <view wx:for="{{listData}}" wx:key="*this">
+      Case2: No index.
+      {{item}}
+    </view>
+    <view wx:for="{{listData}}" wx:key="*this">
+      Case3: No item.
+      {{index}}
     </view>
     <view wx:for="{{listData}}" wx:for-item="item1" wx:key="*this">
+      Case4: use wx:for-item.
       {{item1}} {{index}}
     </view>
-    <view wx:for="{{listData}}" wx:for-item="item1" wx:for-index="index" wx:key="*this">
-      {{item1}} {{index}} {{item1}}
+    <view wx:for="{{listData}}" wx:for-index="index1" wx:key="*this">
+      Case5: use wx:for-index.
+      {{item}} {{index1}}
+    </view>
+    <view wx:for="{{listData}}" wx:for-item="item1" wx:for-index="index1" wx:key="*this">
+      Case6: use wx:for-item and wx:for-index.
+      {{item1}} {{index1}}
     </view>
   </view>
 </template>
