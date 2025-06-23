@@ -23,6 +23,14 @@
       Case6: use wx:for-item and wx:for-index.
       {{item1}} {{index1}}
     </view>
+    <view wx:for="{{[11, 12, 13]}}" wx:for-item="item1" wx:for-index="index1" wx:key="*this">
+      Case7: use directed array value. 'item1' should be number.
+      {{item1}} {{index1}}
+    </view>
+    <view wx:for="{{['a', 'b', 3]}}" wx:for-item="item1" wx:for-index="index1" wx:key="*this">
+      Case8: use directed array value. 'item1' should be string | number.
+      {{item1}} {{index1}}
+    </view>
   </view>
 </template>
 

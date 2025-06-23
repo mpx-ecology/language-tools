@@ -6,7 +6,7 @@
     "build": "tsc -b",
     "watch": "pnpm run \"/^watch:.*/\"",
     "watch:base": "tsc -b -w",
-    "watch:vscode": "pnpm -F mpx-vscode run watch",
+    "watch:vscode": "pnpm -F mpx run watch",
     "test": "vitest",
     "clean": "rimraf --glob .eslintcache \"**/*.tsbuildinfo\"",
     "lint": "eslint --cache .",

@@ -15,7 +15,7 @@ const plugin: MpxLanguagePlugin = ({ modules }) => {
   return {
     name: 'mpx-template-html',
     compileSFCTemplate(lang, template, options) {
-      if (lang === 'html' || lang === 'md') {
+      if (lang === 'html') {
         const compiler = modules['@vue/compiler-dom']
 
         let addedSuffix = false
@@ -157,21 +157,16 @@ const plugin: MpxLanguagePlugin = ({ modules }) => {
               }
             }
           } else if (node.type === CompilerDOM.NodeTypes.FOR) {
-            for (const child of [
-              node.parseResult.source,
-              node.parseResult.value,
-              node.parseResult.key,
-              node.parseResult.index,
-            ]) {
-              if (child) {
-                if (!tryUpdateNode(child)) {
+            // fix the duplicate update error for 'wx:for-item' and 'wx:for-index'
+            if (node.parseResult.source) {
+              const child = node.parseResult.source
+              if (!tryUpdateNode(child)) {
+                return false
+              }
+              if (child.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
+                const content = child.content.trim()
+                if (content.startsWith('(') || content.endsWith(')')) {
                   return false
-                }
-                if (child.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
-                  const content = child.content.trim()
-                  if (content.startsWith('(') || content.endsWith(')')) {
-                    return false
-                  }
                 }
               }
             }
