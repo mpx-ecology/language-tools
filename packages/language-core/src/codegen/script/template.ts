@@ -43,9 +43,11 @@ function* generateTemplateCtx(options: ScriptCodegenOptions): Generator<Code> {
       }
     }
     if (!defineExpose) {
-      yield `const __VLS_defineExpose = {}${endOfLine}`
+      yield `const __VLS_defineExposeUnrefs = {}${endOfLine}`
+    } else {
+      yield `const __VLS_defineExposeUnrefs = __VLS_defineExpose as any as UnwrapRefs<typeof __VLS_defineExpose>${newLine}`
     }
-    yield `const __VLS_ctx = { ...__VLS_defineProps, ...__VLS_defineExpose}${endOfLine}`
+    yield `const __VLS_ctx = { ...__VLS_defineProps, ...__VLS_defineExposeUnrefs }${endOfLine}`
   } else {
     yield `const __VLS_ctx = __VLS_defineComponent${endOfLine}`
   }

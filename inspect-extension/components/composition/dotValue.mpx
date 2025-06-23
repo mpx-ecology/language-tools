@@ -1,0 +1,17 @@
+<template>
+  <view>
+    {{ msg.a }} - {{ count.b.value.a }}
+  </view>
+</template>
+
+<script setup lang="ts">
+import { ref } from '@mpxjs/core'
+
+const msg = ref({ a: 'default message' })
+const count = { b: ref({ a: 123 }) }
+
+defineExpose({
+  msg,
+  count
+})
+</script>

@@ -151,6 +151,12 @@ export function generateGlobalTypes({
 	function __VLS_asFunctionalElement<T>(tag: T, endTag?: T): (attrs: T${checkUnknownComponents ? '' : ' & Record<string, unknown>'}) => void;
 	function __VLS_asFunctionalSlot<S>(slot: S): S extends () => infer R ? (props: {}) => R : NonNullable<S>;
 	function __VLS_tryAsConstant<const T>(t: T): T;
+
+	type UnwrapRefs<T> = {
+		[K in keyof T]: T[K] extends { value: any }
+			? import('${lib}').UnwrapRef<T[K]>
+			: T[K]
+	}
 	${defineComponentTypesContents.globalTypes}
 }
 ` + defineComponentTypesContents.localTypes

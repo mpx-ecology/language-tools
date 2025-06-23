@@ -111,11 +111,7 @@ export function* generateScript(
           options.scriptSetupRanges,
         )
       }
-    } else if (
-      createComponentObj &&
-      isCreateComponentRawObject &&
-      options.mpxCompilerOptions.optionsWrapper.length
-    ) {
+    } else if (createComponentObj && isCreateComponentRawObject) {
       // raw script
       yield generateSfcBlockSection(
         options.sfc.script,
@@ -125,14 +121,13 @@ export function* generateScript(
       )
       // defineComponent
       yield `const __VLS_defineComponent = DefineComponent(`
-      // yield options.mpxCompilerOptions.optionsWrapper[0]
       yield generateSfcBlockSection(
         options.sfc.script,
         createComponentObj.expression.start,
         createComponentObj.expression.end,
         codeFeatures.all,
       )
-      yield options.mpxCompilerOptions.optionsWrapper[1]
+      yield ')'
       yield endOfLine
     } else {
       yield generateSfcBlockSection(
