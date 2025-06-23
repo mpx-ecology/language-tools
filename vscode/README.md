@@ -2,7 +2,6 @@
 
 [VS Code Mpx 扩展][mpx-extension] 为 [Mpx 语言](https://mpxjs.cn) 提供丰富的语言支持。
 
-
 ## Features
 
 有关插件详细功能介绍和使用说明，请参阅 [Wiki 文档][mpx-vscode-wiki]。
