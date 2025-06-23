@@ -113,10 +113,10 @@ export function* generateTemplateChild(
       `)${endOfLine}`,
     )
   } else if (node.type === CompilerDOM.NodeTypes.IF) {
-    // v-if / v-else-if / v-else
+    // wx:if / wx:elif / wx:else
     yield* generateWxIf(options, ctx, node)
   } else if (node.type === CompilerDOM.NodeTypes.FOR) {
-    // v-for
+    // wx:for
     yield* generateWxFor(options, ctx, node)
   } else if (node.type === CompilerDOM.NodeTypes.TEXT) {
     // not needed progress

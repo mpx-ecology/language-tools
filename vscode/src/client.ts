@@ -111,7 +111,6 @@ export const { activate, deactivate } = defineExtension(async () => {
        */
 
       client.onRequest('tsserverRequest', async ([command, args]) => {
-        console.log('---> debug-client-onRequest', command, args)
         const tsserver = (globalThis as any).__TSSERVER__?.semantic
         if (!tsserver) {
           return
@@ -123,7 +122,6 @@ export const { activate, deactivate } = defineExtension(async () => {
             lowPriority: true,
             requireSemantic: true,
           })[0]
-          console.log('---> debug-client-onRequest-response', res.body)
           return res.body
         } catch {
           // noop

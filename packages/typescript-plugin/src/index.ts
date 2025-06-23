@@ -48,7 +48,6 @@ export = createLanguageServicePlugin((ts, info) => {
         fileName => fileName,
       )
 
-      // #3963
       const timer = setInterval(() => {
         if (info.project['program']) {
           clearInterval(timer)
@@ -101,7 +100,6 @@ export = createLanguageServicePlugin((ts, info) => {
     session.addProtocolHandler(
       'mpx:collectExtractProps',
       ({ arguments: args }) => {
-        console.log('---> debug-collectExtractProps', args)
         return {
           response: collectExtractProps.apply(getRequestContext(args[0]), args),
         }

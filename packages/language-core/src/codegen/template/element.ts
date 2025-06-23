@@ -195,7 +195,7 @@ export function* generateComponent(
       yield `]} */${endOfLine}`
 
       // auto import support
-      yield `// @ts-ignore${newLine}` // #2304
+      yield `// @ts-ignore${newLine}`
       yield* generateCamelized(
         capitalize(node.tag),
         'template',

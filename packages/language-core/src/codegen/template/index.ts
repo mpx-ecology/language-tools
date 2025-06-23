@@ -140,7 +140,7 @@ export function* forEachElementNode(
       }
     }
   } else if (node.type === CompilerDOM.NodeTypes.IF) {
-    // v-if / v-else-if / v-else
+    // wx:if / wx:elif / wx:else
     for (let i = 0; i < node.branches.length; i++) {
       const branch = node.branches[i]
       for (const childNode of branch.children) {
@@ -148,7 +148,7 @@ export function* forEachElementNode(
       }
     }
   } else if (node.type === CompilerDOM.NodeTypes.FOR) {
-    // v-for
+    // wx:for
     for (const child of node.children) {
       yield* forEachElementNode(child)
     }

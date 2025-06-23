@@ -77,7 +77,7 @@ const plugin: MpxLanguagePlugin = ctx => {
             continue
           }
           const isShorthand =
-            prop.arg?.loc.start.offset === prop.exp?.loc.start.offset // vue 3.4+
+            prop.arg?.loc.start.offset === prop.exp?.loc.start.offset
           if (isShorthand) {
             continue
           }
@@ -133,13 +133,6 @@ const plugin: MpxLanguagePlugin = ctx => {
                 prop.exp.loc.source,
                 prop.exp.loc.start.offset,
                 formatBrackets.params,
-              )
-            } else if (prop.rawName === 'v-for') {
-              // #2586
-              addFormatCodes(
-                prop.exp.loc.source,
-                prop.exp.loc.start.offset,
-                formatBrackets.for,
               )
             } else {
               addFormatCodes(

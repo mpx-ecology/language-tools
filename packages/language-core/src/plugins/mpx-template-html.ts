@@ -20,7 +20,6 @@ const plugin: MpxLanguagePlugin = ({ modules }) => {
 
         let addedSuffix = false
 
-        // #4583
         if (shouldAddSuffix.test(template)) {
           template += '>'
           addedSuffix = true
@@ -122,7 +121,6 @@ const plugin: MpxLanguagePlugin = ({ modules }) => {
               withinChangeRange(node.exp.loc) &&
               node.name === 'for'
             ) {
-              // #2266
               return false
             }
             if (node.arg && !tryUpdateNode(node.arg)) {

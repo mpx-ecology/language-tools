@@ -175,12 +175,11 @@ export function createTemplateCodegenContext(
       if (!all.some(([_, offsets]) => offsets.size)) {
         return
       }
-      yield `// @ts-ignore${newLine}` // #2304
+      yield `// @ts-ignore${newLine}`
       yield `[`
       for (const [varName, offsets] of all) {
         for (const offset of offsets) {
           if (options.scriptSetupBindingNames.has(varName)) {
-            // #3409
             yield [
               varName,
               'template',

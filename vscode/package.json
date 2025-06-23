@@ -99,13 +99,6 @@
           "text.html.derivative",
           "text.pug"
         ]
-      },
-      {
-        "scopeName": "mpx.sfc.style.variable.injection",
-        "path": "./syntaxes/mpx-sfc-style-variable-injection.json",
-        "injectTo": [
-          "source.mpx"
-        ]
       }
     ],
     "breakpoints": [

@@ -70,7 +70,7 @@ export function* generateWxFor(
       `(`,
       `)`,
     )
-    yield `!)` // #3102
+    yield `!)`
   } else {
     yield `{} as any`
   }

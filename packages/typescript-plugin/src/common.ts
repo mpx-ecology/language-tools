@@ -106,7 +106,6 @@ function getCompletionsAtPosition(
             if (item.source.endsWith(mpxExt) && item.name.endsWith(suffix)) {
               item.name = capitalize(item.name.slice(0, -suffix.length))
               if (item.insertText) {
-                // #2286
                 item.insertText = item.insertText.replace(`${suffix}$1`, '$1')
               }
               if (item.data) {
@@ -230,7 +229,6 @@ function getDefinitionAndBoundSpan<T>(
     const definitions = new Set<ts.DefinitionInfo>(result.definitions)
     const skippedDefinitions: ts.DefinitionInfo[] = []
 
-    // #5275
     if (result.definitions.length >= 2) {
       for (const definition of result.definitions) {
         if (
