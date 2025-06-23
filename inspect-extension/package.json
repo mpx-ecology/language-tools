@@ -1,10 +1,12 @@
 {
+  "name": "inspect",
   "private": true,
   "version": "0.0.1",
   "description": "debug for mpx vscode extension",
   "devDependencies": {
     "@mpxjs/core": "2.10.6",
     "typescript": "^5.8.3",
-    "unocss": "0.52.7"
+    "unocss": "^66.2.3",
+    "vue": "^2.7.0"
   }
 }
