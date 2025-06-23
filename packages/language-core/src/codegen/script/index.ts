@@ -48,9 +48,9 @@ export function* generateScript(
       ) {
         relativePath = './' + relativePath
       }
-      yield `/// <reference types="${relativePath}" />${newLine}`
+      yield `/// <reference path="${relativePath}" />${newLine}`
     } else {
-      yield `/// <reference types=".mpx-global-types/${getGlobalTypesFileName(options.mpxCompilerOptions)}" />${newLine}`
+      yield `/// <reference path=".mpx-global-types/${getGlobalTypesFileName(options.mpxCompilerOptions)}" />${newLine}`
     }
   } else {
     yield `/// <reference path="./__VLS_fake.d.ts" />${newLine}`

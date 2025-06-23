@@ -1,5 +1,6 @@
 {
   "rules": {
+    "@typescript-eslint/triple-slash-reference": 0,
     "no-var": 0
   }
 }
