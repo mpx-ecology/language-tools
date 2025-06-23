@@ -15,5 +15,8 @@
       "@/*": ["components/*"]
     }
   },
+  "mpxCompilerOptions": {
+    "optionsComponentCtor": ["createComponent", "createComponent1"]
+  },
   "include": ["**/*"]
 }

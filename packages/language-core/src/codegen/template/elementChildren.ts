@@ -16,7 +16,25 @@ export function* generateElementChildren(
 ): Generator<Code> {
   yield* ctx.generateAutoImportCompletion()
   for (const childNode of children) {
+    if (isTemplateImport(childNode)) {
+      continue
+    }
     yield* generateTemplateChild(options, ctx, childNode, enterNode)
   }
   yield* ctx.generateAutoImportCompletion()
+}
+
+function isTemplateImport(
+  node: CompilerDOM.TemplateChildNode | CompilerDOM.SimpleExpressionNode,
+) {
+  if (node.type === CompilerDOM.NodeTypes.ELEMENT) {
+    const { tag, props } = node
+    if (
+      tag === 'template' &&
+      props.some(prop => ['name', 'is'].includes(prop.name))
+    ) {
+      return true
+    }
+  }
+  return false
 }

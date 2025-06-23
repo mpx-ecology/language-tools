@@ -6,7 +6,7 @@ import { camelize } from '@mpxjs/language-shared'
 import { minimatch } from 'minimatch'
 import { toString } from 'muggle-string'
 import { codeFeatures } from '../codeFeatures'
-import { newLine } from '../utils'
+import { createTsAst, newLine } from '../utils'
 import { wrapWith } from '../utils/wrapWith'
 import { generateUnicode } from '../utils/unicode'
 import { hyphenateAttr, hyphenateTag } from '../../utils/shared'
@@ -302,6 +302,8 @@ function* generateAttrValueWithDoubleCurly(
   offset: number,
   attrNode: CompilerDOM.TextNode,
 ): Generator<Code> {
+  let prefix = '('
+  let suffix = ')'
   content = content.slice(2, -2)
   offset += 2
 
@@ -314,6 +316,16 @@ function* generateAttrValueWithDoubleCurly(
     source: content,
   }
 
+  const _ast = createTsAst(options.ts, attrNodeAst, content)
+  if (
+    _ast?.statements?.[0] &&
+    options.ts.isLabeledStatement(_ast.statements[0])
+  ) {
+    // attrNodeAst.source = content = `{${content}}`
+    prefix = `({`
+    suffix = `})`
+  }
+
   yield* generateInterpolation(
     options,
     ctx,
@@ -322,8 +334,8 @@ function* generateAttrValueWithDoubleCurly(
     content,
     offset,
     attrNodeAst,
-    `(`,
-    `)`,
+    prefix,
+    suffix,
   )
 }
 
