@@ -1,12 +1,12 @@
 # Mpx for VS Code
 
-[The VS Code Mpx extension](TODO) provides rich language support for the [Mpx language](https://mpxjs.cn).
+[The VS Code Mpx extension][mpx-extension] provides rich language support for the [Mpx language](https://mpxjs.cn).
 
 ## Features
 
-For detailed features, please refer to the [docs](TODO).
+For detailed features, please refer to the [docs][mpx-extension-docs].
 
-## Issues & Support
+## Feedback
 
 For bug reports and feature requests, please [create or view issues](https://github.com/mpx-ecology/language-tools/issues) in our GitHub repository.
 
@@ -18,6 +18,8 @@ For bug reports and feature requests, please [create or view issues](https://git
 
 <!-- Reference Links -->
 
+[mpx-extension]: https://github.com/mpx-ecology/language-tools
+[mpx-extension-docs]: https://github.com/mpx-ecology/language-tools/blob/main/README.md
 [vue-language-tools]: https://github.com/vuejs/language-tools
 [Volar]: https://github.com/volarjs/volar.js
 [Johnson Chu]: https://github.com/johnsoncodehk
