@@ -28,9 +28,9 @@
 | 标签属性补全提示 (wx:xxx)                  | ✅     | in Progress (enhanced) |
 | 格式化 formatter                           | ✅     | in Progress            |
 
-### Performance
+### More
 
-除了功能增强之外，新版本插件针对包体积和性能都进行了全面优化。
+更多关于新版本插件的详细功能介绍和使用说明，请参阅 [Wiki 文档][mpx-vscode-wiki]。
 
 ## Core Packages
 
@@ -103,7 +103,8 @@ For details on our planned features and future direction, please refer to our [r
 [vue-official]: https://marketplace.visualstudio.com/items?itemName=Vue.volar
 [vue-language-tools]: https://github.com/vuejs/language-tools
 [mpx-deep-wiki]: https://deepwiki.com/mpx-ecology/language-tools
-[roadmap]: TODO
+[mpx-vscode-wiki]: https://github.com/mpx-ecology/language-tools/wiki
+[roadmap]: https://github.com/mpx-ecology/language-tools/wiki/Roadmap
 [Johnson Chu]: https://github.com/johnsoncodehk
 [pagnkelly]: https://github.com/pagnkelly
 [Soon Wang]: https://github.com/wangshunnn

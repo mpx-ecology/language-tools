@@ -1,14 +1,15 @@
 # Mpx for VS Code
 
-[The VS Code Mpx extension][mpx-extension] provides rich language support for the [Mpx language](https://mpxjs.cn).
+[VS Code Mpx 扩展][mpx-extension] 为 [Mpx 语言](https://mpxjs.cn) 提供丰富的语言支持。
+
 
 ## Features
 
-For detailed features, please refer to the [docs][mpx-extension-docs].
+有关插件详细功能介绍和使用说明，请参阅 [Wiki 文档][mpx-vscode-wiki]。
 
 ## Feedback
 
-For bug reports and feature requests, please [create or view issues](https://github.com/mpx-ecology/language-tools/issues) in our GitHub repository.
+对于问题反馈和功能请求，请在我们的 GitHub 仓库中 [创建或查看 Issues](https://github.com/mpx-ecology/language-tools/issues)。
 
 ## Credits
 
@@ -19,7 +20,7 @@ For bug reports and feature requests, please [create or view issues](https://git
 <!-- Reference Links -->
 
 [mpx-extension]: https://github.com/mpx-ecology/language-tools
-[mpx-extension-docs]: https://github.com/mpx-ecology/language-tools/blob/main/README.md
+[mpx-vscode-wiki]: https://github.com/mpx-ecology/language-tools/wiki
 [vue-language-tools]: https://github.com/vuejs/language-tools
 [Volar]: https://github.com/volarjs/volar.js
 [Johnson Chu]: https://github.com/johnsoncodehk
