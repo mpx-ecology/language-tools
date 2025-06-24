@@ -51,8 +51,8 @@ export const { activate, deactivate } = defineExtension(async () => {
     if (legacyExtension) {
       vscode.window
         .showWarningMessage(
-          `启用 ${displayName} 插件后，历史插件 "${legacyExtension.packageJSON.displayName}" 不再需要，请前往卸载`,
-          '卸载',
+          `启用 ${displayName} 新版本插件后，历史插件 "${legacyExtension.packageJSON.displayName}" 不再需要，请前往卸载以避免潜在冲突。`,
+          '前往卸载',
         )
         .then(selected => {
           if (selected) {
