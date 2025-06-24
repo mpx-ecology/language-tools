@@ -1,5 +1,6 @@
 {
   "name": "@mpxjs/language-compiler",
+  "private": true,
   "version": "0.0.1",
   "description": "mpx language compiler",
   "license": "MIT",

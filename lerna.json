@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json",
+  "version": "0.0.1",
+  "npmClient": "pnpm",
+  "packages": ["packages/*", "vscode", "inspect-extension"],
+  "command": {
+    "version": {
+      "allowBranch": ["main", "next"],
+      "conventionalCommits": true,
+      "message": "release: version %s",
+      "push": false
+    },
+    "publish": {
+      "allowBranch": ["main"],
+      "conventionalCommits": true,
+      "message": "release: publish %s"
+    }
+  }
+}

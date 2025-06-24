@@ -1,6 +1,5 @@
 {
   "private": true,
-  "version": "0.0.1",
   "packageManager": "pnpm@10.12.1",
   "scripts": {
     "build": "tsc -b",
@@ -11,6 +10,8 @@
     "clean": "rimraf --glob .eslintcache \"**/*.tsbuildinfo\"",
     "lint": "eslint --cache .",
     "format": "prettier --write --cache .",
+    "version:patch": "pnpm build && lerna version patch --yes --force-publish",
+    "publish:npm": "lerna publish from-package --yes",
     "postinstall": "simple-git-hooks"
   },
   "simple-git-hooks": {
@@ -36,6 +37,7 @@
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
     "eslint": "^8.55.0",
+    "lerna": "^8.2.2",
     "lint-staged": "^15.2.0",
     "picocolors": "^1.1.1",
     "prettier": "^3.5.3",
