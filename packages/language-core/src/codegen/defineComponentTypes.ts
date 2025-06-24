@@ -12,6 +12,19 @@ const globalTypes = `
     opt: ThisTypedComponentOpt<D, P, C, M, Mi, S, O>,
   ): ComponentIns<D, P, C, M, Mi, S, O>
   // #endregion
+
+  // #region DefinePage - global types
+  export function DefinePage<
+    D extends Data = {},
+    P extends Properties = {},
+    C = {},
+    M extends Methods = {},
+    Mi extends Array<any> = [],
+    O extends AnyObject = {},
+  >(
+    opt: ThisTypedPageOpt<D, P, C, M, Mi, O>,
+  ): ComponentIns<D, P, C, M, Mi, O>
+  // #endregion
 `
 
 const localTypes = `
@@ -62,6 +75,23 @@ interface ComponentOpt<
     | Array<string>
   [index: string]: any
 }
+type PageOpt<
+  D extends Data,
+  P extends Properties,
+  C,
+  M extends Methods,
+  Mi extends Array<any>,
+  S extends Record<any, any>,
+> = ComponentOpt<D, P, C, M, Mi, S> & Partial<WechatMiniprogram.Page.ILifetime>
+type ThisTypedPageOpt<
+  D extends Data,
+  P extends Properties,
+  C,
+  M extends Methods,
+  Mi extends Array<any>,
+  S extends Record<any, any>,
+  O = {},
+> = PageOpt<D, P, C, M, Mi, S> & ThisType<ComponentIns<D, P, C, M, Mi, S, O>> & O
 interface WatchOpt {
   immediate?: boolean
   immediateAsync?: boolean

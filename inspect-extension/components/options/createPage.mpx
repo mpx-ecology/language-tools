@@ -1,0 +1,62 @@
+<template>
+  <view> title: {{ title }} </view>
+  <view bindtap="onClick">
+    <view> parentText: {{ parentText }} </view>
+    <view> msg: {{ msg }} </view>
+    <view> obj: {{ obj.a + obj.b }} </view>
+    <view> content: {{ content }} </view>
+  </view>
+  <list></list>
+</template>
+
+<script lang="ts">
+import { createPage } from '@mpxjs/core'
+
+createPage({
+  properties: {
+    parentText: {
+      type: String,
+      value: 'parent text',
+    }
+  },
+  data: {
+    msg: 'Hello Mpx',
+    count: 0,
+    obj: {
+      a: 1,
+      b: 2
+    }
+  },
+  setup() {
+    console.log('setup')
+    return {
+      title: 'Mpx component'
+    }
+  },
+  computed: {
+    content() {
+      return this.msg
+    }
+  },
+  methods: {
+    onClick() {
+      console.log('click', this.count)
+      this.count++
+    }
+  },
+  onLoad() {
+    //
+  },
+  onHide() {
+    //
+  },
+})
+</script>
+
+<script type="application/json">
+  {
+    "usingComponents": {
+      "list": "../components/list"
+    }
+  }
+</script>
