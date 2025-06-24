@@ -24,13 +24,14 @@ export function parseScriptRanges(
         expression: TextRange
         args: TextRange
         argsNode: ts.ObjectLiteralExpression | undefined
+        ctor: 'Component' | 'Page'
       })
     | undefined
 
   const bindings = hasScriptSetup ? parseBindingRanges(ts, ast) : []
 
   ts.forEachChild(ast, raw => {
-    const node = getCreateComponentExpression(raw)
+    const { node, ctor } = getCreateComponentExpression(raw)
     if (node) {
       let obj: ts.ObjectLiteralExpression | undefined
       if (node.arguments.length) {
@@ -45,6 +46,7 @@ export function parseScriptRanges(
           expression: _getStartEnd(obj),
           args: _getStartEnd(obj),
           argsNode: withNode ? obj : undefined,
+          ctor,
         }
       }
     }
@@ -60,20 +62,29 @@ export function parseScriptRanges(
     return getStartEnd(ts, node, ast)
   }
 
-  function getCreateComponentExpression(node: ts.Node) {
-    const { optionsComponentCtor } = mpxCompilerOptions
+  function getCreateComponentExpression(node: ts.Node): {
+    node: ts.CallExpression | null
+    ctor: 'Component' | 'Page'
+  } {
+    const { optionsComponentCtor, optionsPageCtor } = mpxCompilerOptions
     if (ts.isExpressionStatement(node)) {
       const res = node.expression
       if (ts.isCallExpression(res)) {
         const expression = res.expression
-        if (
-          ts.isIdentifier(expression) &&
-          optionsComponentCtor.includes(expression.escapedText as string)
-        ) {
-          return res
+        if (ts.isIdentifier(expression)) {
+          if (optionsComponentCtor.includes(expression.escapedText as string)) {
+            return { node: res, ctor: 'Component' }
+          } else if (
+            optionsPageCtor.includes(expression.escapedText as string)
+          ) {
+            return { node: res, ctor: 'Page' }
+          }
         }
       }
     }
-    return false
+    return {
+      node: null,
+      ctor: 'Component',
+    }
   }
 }

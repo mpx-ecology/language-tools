@@ -344,6 +344,7 @@ export function getDefaultCompilerOptions(
     htmlAttributes: ['aria-*'],
     optionsWrapper: [`(await import('${lib}')).defineComponent(`, `)`],
     optionsComponentCtor: ['createComponent'],
+    optionsPageCtor: ['createPage'],
     macros: {
       defineProps: ['defineProps'],
       defineSlots: ['defineSlots'],

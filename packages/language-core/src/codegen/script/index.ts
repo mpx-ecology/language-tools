@@ -29,6 +29,11 @@ export interface ScriptCodegenOptions {
   appendGlobalTypes: boolean
 }
 
+const OptionsComponentCtor = {
+  Component: 'DefineComponent',
+  Page: 'DefinePage',
+} as const
+
 export function* generateScript(
   options: ScriptCodegenOptions,
 ): Generator<Code, ScriptCodegenContext> {
@@ -120,7 +125,7 @@ export function* generateScript(
         codeFeatures.all,
       )
       // defineComponent
-      yield `const __VLS_defineComponent = DefineComponent(`
+      yield `const __VLS_defineComponent = ${OptionsComponentCtor[createComponentObj.ctor]}(`
       yield generateSfcBlockSection(
         options.sfc.script,
         createComponentObj.expression.start,
