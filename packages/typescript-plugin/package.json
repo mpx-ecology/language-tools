@@ -12,6 +12,9 @@
     "url": "https://github.com/mpx-ecology/language-tools.git",
     "directory": "packages/typescript-plugin"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@mpxjs/language-core": "workspace:*",
     "@mpxjs/language-shared": "workspace:*",

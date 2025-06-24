@@ -14,6 +14,9 @@
     "url": "https://github.com/mpx-ecology/language-tools.git",
     "directory": "packages/language-service"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@mpxjs/language-core": "workspace:*",
     "@mpxjs/language-shared": "workspace:*",
