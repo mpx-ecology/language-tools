@@ -26,7 +26,6 @@ export function* generateWxFor(
     collectVars(options.ts, collectAst, collectAst, forBlockVars)
   }
 
-  yield `// @ts-ignore${newLine}`
   yield `for (const [`
   if (leftExpressionRange && leftExpressionText && !mpx) {
     collectVar()
@@ -42,18 +41,14 @@ export function* generateWxFor(
       value!.loc.source,
       'template',
       value!.loc.start.offset,
-      defaultValue
-        ? ctx.codeFeatures.withoutHighlightAndNavigation
-        : ctx.codeFeatures.all,
+      defaultValue ? ctx.codeFeatures.none : ctx.codeFeatures.all,
     ]
     yield ','
     yield [
       index!.loc.source,
       'template',
       index!.loc.start.offset,
-      defaultIndex
-        ? ctx.codeFeatures.withoutHighlightAndNavigation
-        : ctx.codeFeatures.all,
+      defaultIndex ? ctx.codeFeatures.none : ctx.codeFeatures.all,
     ]
   }
   yield `] of `
