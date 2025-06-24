@@ -37,7 +37,6 @@ type __VLS_WithDefaults<P, D> = {
 type __VLS_WithSlots<T, S> = T & {
 	new(): {
 		${getSlotsPropertyName()}: S;
-		${mpxCompilerOptions.jsxSlots ? `$props: ${PropsChildren.name}<S>;` : ''}
 	}
 };
 `.trimStart(),

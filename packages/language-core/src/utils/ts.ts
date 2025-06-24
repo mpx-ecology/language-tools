@@ -322,7 +322,6 @@ export function getDefaultCompilerOptions(
     lib,
     extensions: ['.mpx'],
     petiteMpxExtensions: [],
-    jsxSlots: false,
     strictSlotChildren: strictTemplates,
     strictWxModel: strictTemplates,
     checkUnknownProps: strictTemplates,

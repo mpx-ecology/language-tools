@@ -203,7 +203,7 @@ function* generateSetupFunction(
     yield `)${endOfLine}`
   }
 
-  yield* generateComponentProps(options, ctx, scriptSetup, scriptSetupRanges)
+  yield* generateComponentProps(ctx, scriptSetup, scriptSetupRanges)
   yield* generateTemplate(options, ctx)
   yield* generateComponentSelf(options)
 }
@@ -298,7 +298,6 @@ function* generateDefineWithType(
 }
 
 function* generateComponentProps(
-  options: ScriptCodegenOptions,
   ctx: ScriptCodegenContext,
   scriptSetup: NonNullable<Sfc['scriptSetup']>,
   scriptSetupRanges: ScriptSetupRanges,
@@ -328,13 +327,7 @@ function* generateComponentProps(
   }
 
   yield `type __VLS_PublicProps = `
-  if (scriptSetupRanges.defineSlots && options.mpxCompilerOptions.jsxSlots) {
-    if (ctx.generatedPropsType) {
-      yield ` & `
-    }
-    ctx.generatedPropsType = true
-    yield `${ctx.localTypes.PropsChildren}<__VLS_Slots>`
-  }
+
   if (scriptSetupRanges.defineProps?.typeArg) {
     if (ctx.generatedPropsType) {
       yield ` & `

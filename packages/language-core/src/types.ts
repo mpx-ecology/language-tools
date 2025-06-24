@@ -25,7 +25,6 @@ export interface MpxCompilerOptions {
   lib: string
   extensions: string[]
   petiteMpxExtensions: string[]
-  jsxSlots: boolean
   strictSlotChildren: boolean
   strictWxModel: boolean
   checkUnknownProps: boolean
