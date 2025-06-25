@@ -40,7 +40,7 @@ createPage({
   },
   methods: {
     onClick() {
-      console.log('click', this.count)
+      console.log('click', this.count, this.content)
       this.count++
     }
   },

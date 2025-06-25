@@ -178,23 +178,12 @@ declare const RefSymbol: unique symbol
 export interface MpxComponentIns {
   [k: string]: any
 }
-type GetComputedSetKeys<T> = {
-  [K in keyof T]: T[K] extends {
-    get(): any
-    set(val: any): void
-  }
-    ? K
-    : never
-}[keyof T]
 export type GetComputedType<T> = {
-  readonly [K in Exclude<keyof T, GetComputedSetKeys<T>>]: T[K] extends () => infer R ? R : T[K]
-} & {
-  [K in GetComputedSetKeys<T>]: T[K] extends {
-    get(): infer R
-    set(val: any): void
-  }
+  [K in keyof T]: T[K] extends { get: (...args: any[]) => infer R }
     ? R
-    : T[K]
+    : T[K] extends (...args: any[]) => infer R
+      ? R
+      : never
 }
 type WxComponentIns<D extends Data = {}, P extends Properties = {}, M extends Methods = {}> = Omit<
   WechatMiniprogram.Component.Instance<D, P, M, any>,

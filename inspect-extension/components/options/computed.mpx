@@ -1,0 +1,44 @@
+<template>
+  <view>
+    <view> fullName: {{ fullName }} </view>
+    <view> fullNameLength: {{ fullNameLength }} </view>
+  </view>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  data: {
+    firstName: 'Soon',
+    lastName: 'Wang'
+  },
+  computed: {
+    fullName() {
+      return `${this.firstName} ${this.lastName}`
+    },
+    fullNameLength() {
+      return this.fullName.length
+    },
+    fullNameWritable: {
+      get() {
+        return `${this.firstName} ${this.lastName}`
+      },
+      set(value: string) {
+        if(!value) {
+          return
+        }
+        const [first = '', last = ''] = value.split(' ')
+        this.firstName = first
+        this.lastName = last
+      }
+    },
+  },
+  methods: {
+    onClick() {
+      console.log(this.firstName, this.fullNameLength, this.fullNameWritable)
+    }
+  },
+})
+</script>
+

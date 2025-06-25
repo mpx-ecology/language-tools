@@ -35,11 +35,14 @@ createComponent({
   computed: {
     content() {
       return this.msg
-    }
+    },
+    countLength() {
+      return this.content.length
+    },
   },
   methods: {
     onClick() {
-      console.log('click', this.count)
+      console.log('click', this.count, this.content)
       this.count++
     }
   },

@@ -31,6 +31,14 @@
       Case8: use directed array value. 'item1' should be string | number.
       {{item1}} {{index1}}
     </view>
+    <view wx:for="{{listData}}" wx:for-item="item1" wx:for-index="index1" wx:key="*this">
+      Case9: nested for-loops
+      {{item1}} {{index1}}
+      <view wx:for="{{[item1, item1]}}" wx:for-item="item11" wx:for-index="index11" wx:key="*this">
+        Case6: use wx:for-item and wx:for-index.
+        {{item11}} {{index11}}
+      </view>
+    </view>
   </view>
 </template>
 
