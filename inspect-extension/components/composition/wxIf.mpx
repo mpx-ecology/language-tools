@@ -1,0 +1,27 @@
+<template>
+  <view class="list">
+    <view wx:if="{{ shouldShow > 100}}">
+      Case1: {{ shouldShow }}
+    </view>
+    <view wx:elif="{{ shouldShow > 10}}">
+      Case2: {{ shouldShow }}
+    </view>
+    <view wx:else>
+      Case3: {{ shouldShow }}
+    </view>
+  </view>
+</template>
+
+<script setup lang="ts">
+import { ref } from "@mpxjs/core"
+const shouldShow = ref(0)
+
+defineExpose({
+  shouldShow,
+ })
+</script>
+
+<style lang="stylus">
+  .list
+    background-color red
+</style>

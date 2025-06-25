@@ -2,10 +2,7 @@
 
 import type * as ts from 'typescript'
 import type { IRequests } from '@mpxjs/typescript-plugin/src/requests'
-import type {
-  LanguageServiceContext,
-  LanguageServicePlugin,
-} from '@volar/language-service'
+import type { LanguageServicePlugin } from '@volar/language-service'
 import { parse } from '@mpxjs/language-core'
 import { create as createEmmetPlugin } from 'volar-service-emmet'
 import { create as createJsonPlugin } from 'volar-service-json'
@@ -13,6 +10,7 @@ import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescr
 import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-service-typescript/lib/plugins/docCommentTemplate'
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
 import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
+import { create as createMpxTemplatePlugin } from './plugins/mpx-template'
 import { Commands } from './types'
 
 export * from '@volar/language-service'
@@ -33,7 +31,7 @@ export function getHybridModeLanguageServicePlugins(
   const plugins = [
     createTypeScriptSyntacticPlugin(ts),
     createTypeScriptDocCommentTemplatePlugin(ts),
-    ...getCommonLanguageServicePlugins(ts, () => tsPluginClient),
+    ...getCommonLanguageServicePlugins(ts),
   ]
   if (tsPluginClient) {
     plugins.push(
@@ -49,13 +47,10 @@ export function getHybridModeLanguageServicePlugins(
 
 function getCommonLanguageServicePlugins(
   _ts: typeof import('typescript'),
-  _getTsPluginClient: (
-    context: LanguageServiceContext,
-  ) => IRequests | undefined,
 ): LanguageServicePlugin[] {
   return [
     createMpxSfcPlugin(),
-    // createMpxTemplatePlugin(getTsPluginClient),
+    createMpxTemplatePlugin(),
     createJsonPlugin(),
     createEmmetPlugin({
       mappedLanguages: {

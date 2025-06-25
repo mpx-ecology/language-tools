@@ -1,7 +1,5 @@
 import type * as html from 'vscode-html-languageservice'
-
-const mpxDocs = 'Mpx 文档'
-const wxDocs = '微信小程序文档'
+import { MpxDocs, WxDocs } from './utils'
 
 const data: html.HTMLDataV1 = {
   version: 1.0,
@@ -18,7 +16,7 @@ const data: html.HTMLDataV1 = {
           },
           references: [
             {
-              name: wxDocs,
+              name: WxDocs,
               url: 'https://developers.weixin.qq.com/miniprogram/dev/reference/wxml/import.html',
             },
           ],
@@ -32,7 +30,7 @@ const data: html.HTMLDataV1 = {
           },
           references: [
             {
-              name: wxDocs,
+              name: WxDocs,
               url: 'https://developers.weixin.qq.com/miniprogram/dev/reference/wxml/import.html',
             },
           ],
@@ -43,7 +41,7 @@ const data: html.HTMLDataV1 = {
         value: '\n`<template>` 模板模块\n',
       },
       references: [
-        { name: mpxDocs, url: 'https://mpxjs.cn/guide/basic/template.html' },
+        { name: MpxDocs, url: 'https://mpxjs.cn/guide/basic/template.html' },
       ],
     },
     {
@@ -58,7 +56,7 @@ const data: html.HTMLDataV1 = {
           },
           references: [
             {
-              name: mpxDocs,
+              name: MpxDocs,
               url: 'https://mpxjs.cn/guide/tool/ts.html#mpx%E4%B8%AD%E7%BC%96%E5%86%99ts-%E6%8E%A8%E8%8D%90',
             },
           ],
@@ -81,7 +79,7 @@ const data: html.HTMLDataV1 = {
           },
           references: [
             {
-              name: mpxDocs,
+              name: MpxDocs,
               url: 'https://mpxjs.cn/guide/tool/ts.html#mpx%E4%B8%AD%E7%BC%96%E5%86%99ts-%E6%8E%A8%E8%8D%90',
             },
           ],
@@ -96,7 +94,7 @@ const data: html.HTMLDataV1 = {
           },
           references: [
             {
-              name: mpxDocs,
+              name: MpxDocs,
               url: 'https://mpxjs.cn/guide/composition-api/composition-api.html#script-setup',
             },
           ],
@@ -116,7 +114,7 @@ const data: html.HTMLDataV1 = {
           },
           references: [
             {
-              name: mpxDocs,
+              name: MpxDocs,
               url: 'https://mpxjs.cn/guide/basic/start.html#%E5%BC%80%E5%A7%8Bcode',
             },
           ],
@@ -136,7 +134,7 @@ const data: html.HTMLDataV1 = {
           ],
           references: [
             {
-              name: mpxDocs,
+              name: MpxDocs,
               url: 'https://mpxjs.cn/guide/basic/start.html#%E5%BC%80%E5%A7%8Bcode',
             },
           ],
@@ -149,7 +147,7 @@ const data: html.HTMLDataV1 = {
       },
       references: [
         {
-          name: mpxDocs,
+          name: MpxDocs,
           url: 'https://mpxjs.cn/guide/basic/start.html#%E5%BC%80%E5%A7%8Bcode',
         },
       ],
@@ -164,7 +162,7 @@ const data: html.HTMLDataV1 = {
       },
       references: [
         {
-          name: mpxDocs,
+          name: MpxDocs,
           url: 'https://mpxjs.cn/guide/composition-api/composition-api.html#script-setup',
         },
       ],
@@ -181,7 +179,7 @@ const data: html.HTMLDataV1 = {
           },
           references: [
             {
-              name: mpxDocs,
+              name: MpxDocs,
               url: 'https://mpxjs.cn/guide/basic/css.html#style-src-%E5%A4%8D%E7%94%A8',
             },
           ],
@@ -216,7 +214,7 @@ const data: html.HTMLDataV1 = {
           ],
           references: [
             {
-              name: mpxDocs,
+              name: MpxDocs,
               url: 'https://mpxjs.cn/guide/basic/css.html#css-%E9%A2%84%E7%BC%96%E8%AF%91',
             },
           ],
@@ -231,7 +229,7 @@ const data: html.HTMLDataV1 = {
           },
           references: [
             {
-              name: mpxDocs,
+              name: MpxDocs,
               url: 'https://mpxjs.cn/guide/basic/css.html',
             },
           ],
@@ -244,7 +242,7 @@ const data: html.HTMLDataV1 = {
           },
           references: [
             {
-              name: mpxDocs,
+              name: MpxDocs,
               url: 'https://mpxjs.cn/guide/basic/css.html',
             },
           ],
@@ -257,7 +255,7 @@ const data: html.HTMLDataV1 = {
       },
       references: [
         {
-          name: mpxDocs,
+          name: MpxDocs,
           url: 'https://mpxjs.cn/guide/basic/css.html',
         },
       ],
@@ -272,7 +270,7 @@ const data: html.HTMLDataV1 = {
       },
       references: [
         {
-          name: mpxDocs,
+          name: MpxDocs,
           url: 'https://mpxjs.cn/guide/basic/start.html#%E5%BC%80%E5%A7%8Bcode',
         },
       ],
@@ -287,7 +285,7 @@ const data: html.HTMLDataV1 = {
       },
       references: [
         {
-          name: mpxDocs,
+          name: MpxDocs,
           url: 'https://mpxjs.cn/guide/basic/start.html#%E5%BC%80%E5%A7%8Bcode',
         },
       ],
