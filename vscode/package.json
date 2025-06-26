@@ -39,6 +39,32 @@
         "configNamespace": "typescript"
       }
     ],
+    "jsonValidation": [
+      {
+        "fileMatch": "tsconfig.json",
+        "url": "./schemas/mpxCompilerOptions.tsconfig.schema.json"
+      },
+      {
+        "fileMatch": "tsconfig-*.json",
+        "url": "./schemas/mpxCompilerOptions.tsconfig.schema.json"
+      },
+      {
+        "fileMatch": "tsconfig.*.json",
+        "url": "./schemas/mpxCompilerOptions.tsconfig.schema.json"
+      },
+      {
+        "fileMatch": "jsconfig.json",
+        "url": "./schemas/mpxCompilerOptions.tsconfig.schema.json"
+      },
+      {
+        "fileMatch": "jsconfig-*.json",
+        "url": "./schemas/mpxCompilerOptions.tsconfig.schema.json"
+      },
+      {
+        "fileMatch": "jsconfig.*.json",
+        "url": "./schemas/mpxCompilerOptions.tsconfig.schema.json"
+      }
+    ],
     "grammars": [
       {
         "language": "mpx",
@@ -284,7 +310,7 @@
     "@types/semver": "catalog:",
     "@types/vscode": "^1.88.0",
     "@volar/vscode": "catalog:",
-    "@vscode/vsce": "^3.5.0",
+    "@vscode/vsce": "^3.6.0",
     "esbuild": "^0.25.1",
     "esbuild-visualizer": "^0.7.0",
     "reactive-vscode": "catalog:",

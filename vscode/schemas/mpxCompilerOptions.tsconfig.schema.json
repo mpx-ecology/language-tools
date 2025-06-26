@@ -1,0 +1,26 @@
+{
+  "properties": {
+    "mpxCompilerOptions": {
+      "type": "object",
+      "markdownDescription": "Mpx 插件编译选项\n\n详见：[文档](https://github.com/mpx-ecology/language-tools/wiki/Mpx-Compiler-Options)",
+      "additionalProperties": false,
+      "properties": {
+        "optionsComponentCtor": {
+          "type": ["array", "null"],
+          "default": ["createComponent"],
+          "markdownDescription": "选项式语法组件中，用于创建组件的方法名，默认 [\"createComponent\"]。\n\n详见：[文档](https://github.com/mpx-ecology/language-tools/wiki/Mpx-Compiler-Options#optionscomponentctor)"
+        },
+        "optionsPageCtor": {
+          "type": ["array", "null"],
+          "default": ["createPage"],
+          "markdownDescription": "选项式语法组件中，用于创建页面的方法名，默认 [\"createPage\"]。\n\n详见：[文档](https://github.com/mpx-ecology/language-tools/wiki/Mpx-Compiler-Options#optionspagector)"
+        },
+        "skipTemplateCheck": {
+          "type": ["boolean", "null"],
+          "default": false,
+          "markdownDescription": "跳过 <template> 模块部分的类型检查、定义跳转等等 TS 功能，默认 false。\n\n详见：[文档](https://github.com/mpx-ecology/language-tools/wiki/Mpx-Compiler-Options#skiptemplatecheck)"
+        }
+      }
+    }
+  }
+}

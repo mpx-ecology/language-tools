@@ -24,4 +24,9 @@ onlyBuiltDependencies:
   - '@vscode/vsce-sign'
   - esbuild
   - keytar
+  - nx
   - simple-git-hooks
+
+peerDependencyRules:
+  allowedVersions:
+    vue-flow-layout>vue: '2'
