@@ -245,7 +245,7 @@
         "command": "mpx.action.splitEditors",
         "title": "Split <script>, <template>, <style>, <json> Editors",
         "category": "Mpx",
-        "icon": "images/icon-small.png"
+        "icon": "images/icon.png"
       }
     ],
     "menus": {
