@@ -22,8 +22,8 @@
 | \<template\> 支持 TS 类型检查、补全提示... | ❌     | ✅                |
 | \<template\> 支持定义跳转、查找参考引用    | ❌     | ✅                |
 | \<template\> 样式类名跳转 \<style\>        | ❌     | ✅                |
-| \<template\> 自定义组件跳转                | ❌     | in Progress       |
 | \<script ts\> 支持关联 tsconfig 配置       | ❌     | ✅                |
+| \<template\> 自定义组件跳转                | ❌     | in Progress       |
 | SFC blocks 编辑器视图拆分                  | ❌     | ✅                |
 | 原生组件标签及属性补全提示 (wx:xxx)        | ✅     | ✅ (enhanced)     |
 | 格式化 formatter                           | ✅     | in Progress (60%) |
@@ -34,14 +34,14 @@
 
 ## Core Packages
 
-| Package                                  | Version                | Description            |
-| ---------------------------------------- | ---------------------- | ---------------------- |
-| [`mpx-vscode`][mpx-vscode-readme]        | ![npm][mpx-vscode-npm] | VS Code extension      |
-| [`@mpxjs/language-server`][server-pkg]   | ![npm][server-npm]     | Language server        |
-| [`@mpxjs/language-service`][service-pkg] | ![npm][service-npm]    | Language service layer |
-| [`@mpxjs/language-core`][core-pkg]       | ![npm][core-npm]       | Language core layer    |
-| [`@mpxjs/typescript-plugin`][ts-pkg]     | ![npm][ts-npm]         | TypeScript plugin      |
-| [`@mpxjs/language-shared`][shared-pkg]   | ![npm][shared-npm]     | Shared utilities       |
+| Package                                  | Version             | Description            |
+| ---------------------------------------- | ------------------- | ---------------------- |
+| [`vscode`][mpx-vscode-readme]            | in Progress         | VS Code extension      |
+| [`@mpxjs/language-server`][server-pkg]   | ![npm][server-npm]  | Language server        |
+| [`@mpxjs/language-service`][service-pkg] | ![npm][service-npm] | Language service layer |
+| [`@mpxjs/language-core`][core-pkg]       | ![npm][core-npm]    | Language core layer    |
+| [`@mpxjs/typescript-plugin`][ts-pkg]     | ![npm][ts-npm]      | TypeScript plugin      |
+| [`@mpxjs/language-shared`][shared-pkg]   | ![npm][shared-npm]  | Shared utilities       |
 
 ## Dependency Flow
 
@@ -120,7 +120,7 @@ For details on our planned features and future direction, please refer to our [r
 
 <!-- NPM Badge Links -->
 
-[mpx-vscode-npm]: https://img.shields.io/npm/v/@mpxjs/vscode-mpx
+[mpx-vscode-market]: https://img.shields.io/npm/v/@mpxjs/vscode-mpx
 [server-npm]: https://img.shields.io/npm/v/@mpxjs/language-server
 [service-npm]: https://img.shields.io/npm/v/@mpxjs/language-service
 [core-npm]: https://img.shields.io/npm/v/@mpxjs/language-core
