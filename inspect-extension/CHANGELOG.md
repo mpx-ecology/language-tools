@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/mpx-ecology/language-tools/compare/v0.1.0...v0.2.0) (2025-06-26)
+
+
+### Features
+
+* **service:** add template plugin for attrs completion and hover support ([075173e](https://github.com/mpx-ecology/language-tools/commit/075173ed45ef98defcaa1a68804447e73def8977))
+
+
+
+
+
 # 0.1.0 (2025-06-24)
 
 

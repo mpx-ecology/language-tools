@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/mpx-ecology/language-tools/compare/v0.1.0...v0.2.0) (2025-06-26)
+
+
+### Bug Fixes
+
+* **core:** remove unnecessary ts-ignore and update code feature handling ([a62bf31](https://github.com/mpx-ecology/language-tools/commit/a62bf310459804aca9803c7cbb11d3d863f39f78))
+
+
+
+
+
 # 0.1.0 (2025-06-24)
 
 

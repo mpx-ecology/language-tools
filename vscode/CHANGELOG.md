@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/mpx-ecology/language-tools/compare/v0.1.0...v0.2.0) (2025-06-26)
+
+
+### Bug Fixes
+
+* **vscode:** correct markdown description ([48a606f](https://github.com/mpx-ecology/language-tools/commit/48a606fb365faca92e34a7b1310daf9ccf7024c7))
+
+
+### Features
+
+* **service:** enhance template plugin with improved HTML data handling ([1ecef1b](https://github.com/mpx-ecology/language-tools/commit/1ecef1bd60ea03744e631f22386d7590431e1c12))
+
+
+
+
+
 # 0.1.0 (2025-06-24)
 
 
