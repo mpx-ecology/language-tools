@@ -40,9 +40,7 @@ export function* generateScriptSetup(
     // no script block, generate script setup code at root
     yield* generateSetupFunction(options, ctx, scriptSetup, scriptSetupRanges)
   } else {
-    if (!options.scriptRanges?.exportDefault) {
-      yield `export default `
-    }
+    yield `export default `
     yield `await (async () => {${newLine}`
     yield* generateSetupFunction(options, ctx, scriptSetup, scriptSetupRanges)
     yield `})()`

@@ -334,12 +334,7 @@ export function getDefaultCompilerOptions(
     inferTemplateDollarSlots: false,
     skipTemplateCheck: false,
     fallthroughAttributes: false,
-    fallthroughComponentNames: [
-      'Transition',
-      'KeepAlive',
-      'Teleport',
-      'Suspense',
-    ],
+    fallthroughComponentNames: [],
     dataAttributes: [],
     htmlAttributes: ['aria-*'],
     optionsWrapper: [`(await import('${lib}')).defineComponent(`, `)`],

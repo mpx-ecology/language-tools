@@ -12,13 +12,6 @@ export function parseScriptRanges(
   withNode: boolean,
   mpxCompilerOptions: MpxCompilerOptions,
 ) {
-  let exportDefault:
-    | (TextRange & {
-        expression: TextRange
-        args: TextRange
-        argsNode: ts.ObjectLiteralExpression | undefined
-      })
-    | undefined
   let createComponentObj:
     | (TextRange & {
         expression: TextRange
@@ -53,7 +46,6 @@ export function parseScriptRanges(
   })
 
   return {
-    exportDefault,
     createComponentObj,
     bindings,
   }
