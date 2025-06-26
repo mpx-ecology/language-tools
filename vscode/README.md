@@ -4,8 +4,6 @@
 
 ## Features
 
-> 🔔 当前处于 MVP 开发测试阶段，具体请参阅 [讨论区](https://github.com/mpx-ecology/language-tools/discussions/4)。
-
 有关插件详细功能介绍和使用说明，请参阅 [Wiki 文档][mpx-vscode-wiki]。
 
 ## Feedback
