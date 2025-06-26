@@ -198,7 +198,7 @@ function createTsx(
   })
 
   const getGeneratedTemplate = computed(() => {
-    if (getResolvedOptions().skipTemplateCodegen || !sfc.template) {
+    if (getResolvedOptions().skipTemplateCheck || !sfc.template) {
       return
     }
 

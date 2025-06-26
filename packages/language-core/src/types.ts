@@ -35,7 +35,7 @@ export interface MpxCompilerOptions {
   inferComponentDollarRefs: boolean
   inferTemplateDollarRefs: boolean
   inferTemplateDollarSlots: boolean
-  skipTemplateCodegen: boolean
+  skipTemplateCheck: boolean
   fallthroughAttributes: boolean
   fallthroughComponentNames: string[]
   dataAttributes: string[]

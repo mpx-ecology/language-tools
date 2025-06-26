@@ -332,7 +332,7 @@ export function getDefaultCompilerOptions(
     inferComponentDollarRefs: false,
     inferTemplateDollarRefs: false,
     inferTemplateDollarSlots: false,
-    skipTemplateCodegen: false,
+    skipTemplateCheck: false,
     fallthroughAttributes: false,
     fallthroughComponentNames: [
       'Transition',
