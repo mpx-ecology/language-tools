@@ -22,11 +22,12 @@
 | \<template\> 支持 TS 类型检查、补全提示... | ❌     | ✅             |
 | \<template\> 支持定义跳转、查找参考引用    | ❌     | ✅             |
 | \<template\> 样式类名跳转 \<style\>        | ❌     | ✅             |
-| \<template\> 自定义组件跳转                | ❌     | in Progress    |
+| \<template\> 原生组件标签及属性补全提示    | ✅     | ✅ (enhanced)  |
+| \<template\> 原生组件属性校验              | ❌     | in Progress    |
+| \<template\> 自定义组件跳转、属性校验      | ❌     | in Progress    |
 | SFC blocks 编辑器视图拆分                  | ❌     | ✅             |
 | 支持选择 typescript 版本                   | ❌     | ✅             |
 | 关联 tsconfig 配置                         | ✅     | ✅ (enhanced)  |
-| 原生组件标签及属性补全提示 (wx:xxx)        | ✅     | ✅ (enhanced)  |
 | 格式化 formatter                           | ✅     | 60% (enhanced) |
 
 ### More
