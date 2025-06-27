@@ -1,0 +1,17 @@
+<template>
+  <view>
+    <!-- @mpx-skip -->
+    <view> {{ error_unknownProp }} </view>
+    <!-- @mpx-skip -->
+    <view> {{ knownProp1 }} </view>
+  </view>
+</template>
+
+<script setup lang="ts">
+defineProps<{
+    knownProp1: string
+    knownProp2: string
+    knownProp3: string
+    knownProp4_will_trigger_unused_expect_error: string
+}>()
+</script>
