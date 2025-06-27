@@ -21,18 +21,14 @@ export function createTemplateCodegenContext(
     if (features.verification && stack.length) {
       const data = stack[stack.length - 1]
       if (data.ignoreError) {
-        // We are currently in a region of code covered by a @vue-ignore directive, so don't
-        // even bother performing any type-checking: set verification to false.
+        // We are currently in a region of code covered by a @mpx-ignore directive.
         return {
           ...features,
           verification: false,
         }
       }
       if (data.expectError !== undefined) {
-        // We are currently in a region of code covered by a @vue-expect-error directive. We need to
-        // keep track of the number of errors encountered within this region so that we can know whether
-        // we will need to propagate an "unused ts-expect-error" diagnostic back to the original
-        // .vue file or not.
+        // We are currently in a region of code covered by a @mpx-expect-error directive.
         return {
           ...features,
           verification: {
@@ -253,7 +249,7 @@ export function createTemplateCodegenContext(
           {
             verification: {
               // If no errors/warnings/diagnostics were reported within the region of code covered
-              // by the @vue-expect-error directive, then we should allow any `unused @ts-expect-error`
+              // by the @mpx-expect-error directive, then we should allow any `unused @ts-expect-error`
               // diagnostics to be reported upward.
               shouldReport: () => data.expectError!.token === 0,
             },
