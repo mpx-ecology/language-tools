@@ -14,19 +14,20 @@
 
 ### Feature Comparison
 
-| Feature                                    | Legacy | New               |
-| ------------------------------------------ | ------ | ----------------- |
-| 语法高亮                                   | ✅     | ✅                |
-| SFC blocks 语言支持                        | ✅     | ✅                |
-| Emmet 支持                                 | ✅     | ✅                |
-| \<template\> 支持 TS 类型检查、补全提示... | ❌     | ✅                |
-| \<template\> 支持定义跳转、查找参考引用    | ❌     | ✅                |
-| \<template\> 样式类名跳转 \<style\>        | ❌     | ✅                |
-| \<script ts\> 支持关联 tsconfig 配置       | ❌     | ✅                |
-| \<template\> 自定义组件跳转                | ❌     | in Progress       |
-| SFC blocks 编辑器视图拆分                  | ❌     | ✅                |
-| 原生组件标签及属性补全提示 (wx:xxx)        | ✅     | ✅ (enhanced)     |
-| 格式化 formatter                           | ✅     | in Progress (60%) |
+| Feature                                    | Legacy | New            |
+| ------------------------------------------ | ------ | -------------- |
+| 语法高亮                                   | ✅     | ✅             |
+| SFC blocks 语言支持                        | ✅     | ✅             |
+| Emmet 支持                                 | ✅     | ✅             |
+| \<template\> 支持 TS 类型检查、补全提示... | ❌     | ✅             |
+| \<template\> 支持定义跳转、查找参考引用    | ❌     | ✅             |
+| \<template\> 样式类名跳转 \<style\>        | ❌     | ✅             |
+| \<template\> 自定义组件跳转                | ❌     | in Progress    |
+| SFC blocks 编辑器视图拆分                  | ❌     | ✅             |
+| 支持选择 typescript 版本                   | ❌     | ✅             |
+| 关联 tsconfig 配置                         | ✅     | ✅ (enhanced)  |
+| 原生组件标签及属性补全提示 (wx:xxx)        | ✅     | ✅ (enhanced)  |
+| 格式化 formatter                           | ✅     | 60% (enhanced) |
 
 ### More
 
