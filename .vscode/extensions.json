@@ -2,7 +2,6 @@
   "recommendations": [
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "antfu.pnpm-catalog-lens",
-    "johnsoncodehk.volarjs-labs"
+    "antfu.pnpm-catalog-lens"
   ]
 }
