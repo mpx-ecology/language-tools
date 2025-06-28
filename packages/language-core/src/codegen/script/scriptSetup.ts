@@ -55,14 +55,18 @@ function* generateSetupFunction(
 ): Generator<Code> {
   let setupCodeModifies: [Code[], number, number][] = []
   if (scriptSetupRanges.defineProps) {
-    const { name, statement, callExp, typeArg } = scriptSetupRanges.defineProps
+    const { statement, callExp, typeArg } = scriptSetupRanges.defineProps
+    /**
+     * fix: set `name` to `undefined`
+     * 额外给 __VLS_defineProps 赋值一次，防止仅解构一部分时找不到未解构类型
+     */
     setupCodeModifies.push(
       ...generateDefineWithType(
         scriptSetup,
         statement,
         scriptSetupRanges.withDefaults?.callExp ?? callExp,
         typeArg,
-        name,
+        undefined,
         `__VLS_defineProps`,
         `__VLS_Props`,
       ),

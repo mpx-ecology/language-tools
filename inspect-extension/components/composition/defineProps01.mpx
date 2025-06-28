@@ -1,0 +1,16 @@
+<script setup lang="ts">
+const { msg = 'default msg' } = defineProps({
+    msg: String,
+    count: Number
+});
+
+defineExpose({
+  msg1: msg
+})
+</script>
+
+<template>
+  <view>
+    {{ msg1 }} - {{ count }}
+  </view>
+</template>
