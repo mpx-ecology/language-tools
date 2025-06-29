@@ -37,7 +37,6 @@ async function main() {
       esbuildProblemMatcherPlugin,
       umd2esmPlugin,
       resolveShareModulePlugin,
-      // schemasPlugin,
       metasPlugin,
     ],
   })
@@ -146,26 +145,6 @@ const resolveShareModulePlugin = {
         }
       },
     )
-  },
-}
-
-/**
- * @type {import('esbuild').Plugin}
- */
-const schemasPlugin = {
-  name: 'schemas',
-  setup(build) {
-    build.onEnd(() => {
-      if (!fs.existsSync(resolve('dist/schemas'))) {
-        fs.mkdirSync(resolve('dist/schemas'))
-      }
-      fs.cpSync(
-        resolve(
-          'node_modules/@mpxjs/language-core/schemas/mpx-tsconfig.schema.json',
-        ),
-        resolve('dist/schemas/mpx-tsconfig.schema.json'),
-      )
-    })
   },
 }
 

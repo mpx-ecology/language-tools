@@ -197,7 +197,22 @@ try {
       )
 
       /**
-       * only support VSCode >= 1.87.0
+       * support for VS Code < 1.87.0
+       */
+
+      // patch jsTsLanguageModes
+      text = text.replace(
+        't.$u=[t.$r,t.$s,t.$p,t.$q]',
+        s => s + '.concat("mpx")',
+      )
+      // patch isSupportedLanguageMode
+      text = text.replace(
+        '.languages.match([t.$p,t.$q,t.$r,t.$s]',
+        s => s + '.concat("mpx")',
+      )
+
+      /**
+       * support for VS Code >= 1.87.0
        */
 
       // patch jsTsLanguageModes
