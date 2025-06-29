@@ -7,9 +7,10 @@
     "watch:base": "tsc -b -w",
     "watch:vscode": "pnpm -F mpx run watch",
     "test": "vitest",
-    "clean": "rimraf --glob .eslintcache \"**/*.tsbuildinfo\"",
     "lint": "eslint --cache .",
     "format": "prettier --write --cache .",
+    "clean": "rimraf -g .eslintcache \"**/*.tsbuildinfo\" && pnpm clean:out",
+    "clean:out": "rimraf -g \"packages/*/out\" \"vscode/out\" \"vscode/dist\"",
     "version:patch": "pnpm build && lerna version patch --yes --force-publish",
     "publish:npm": "lerna publish from-package --yes",
     "postinstall": "simple-git-hooks"
