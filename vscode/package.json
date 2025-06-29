@@ -5,7 +5,8 @@
   "icon": "images/icon.png",
   "displayName": "Mpx",
   "description": "Mpx language support for Visual Studio Code",
-  "publisher": "wangshun",
+  "publisher": "Mpx",
+  "author": "Soon Wang",
   "repository": {
     "type": "git",
     "url": "https://github.com/mpx-ecology/language-tools.git",
@@ -307,6 +308,7 @@
     "@mpxjs/language-core": "workspace:*",
     "@mpxjs/language-server": "workspace:*",
     "@mpxjs/typescript-plugin": "workspace:*",
+    "@types/node": "catalog:",
     "@types/semver": "catalog:",
     "@types/vscode": "^1.88.0",
     "@volar/vscode": "catalog:",
