@@ -21,6 +21,6 @@ interface NativeComponentAttrs {
 }
 
 interface MpxImg {
-  src: number
+  src: string
 }
 `
