@@ -12,6 +12,8 @@ import { hyphenateTag } from './shared'
 import {
   generateGlobalTypes,
   getGlobalTypesFileName,
+  nativeComponentsTypesContents,
+  nativeComponentsTypesFileName,
 } from '../codegen/globalTypes'
 
 export function createParsedCommandLineByJson(
@@ -285,6 +287,7 @@ export function setupGlobalTypes(
   }
   try {
     let dir = rootDir
+
     while (
       !host.fileExists(
         path.join(dir, 'node_modules', mpxOptions.lib, 'package.json'),
@@ -296,6 +299,7 @@ export function setupGlobalTypes(
       }
       dir = parentDir
     }
+
     const globalTypesPath = path.join(
       dir,
       'node_modules',
@@ -305,6 +309,15 @@ export function setupGlobalTypes(
     const globalTypesContents =
       `// @ts-nocheck\n` + `export {};\n` + generateGlobalTypes(mpxOptions)
     host.writeFile(globalTypesPath, globalTypesContents)
+
+    const nativeComponentsTypesPath = path.join(
+      dir,
+      'node_modules',
+      '.mpx-global-types',
+      `${nativeComponentsTypesFileName}.d.ts`,
+    )
+    host.writeFile(nativeComponentsTypesPath, nativeComponentsTypesContents)
+
     return { absolutePath: globalTypesPath }
   } catch {
     // noop

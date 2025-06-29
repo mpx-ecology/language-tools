@@ -1,0 +1,6 @@
+<template>
+    <view>
+        <image />
+        <!-- ^ 报错提示：缺少必要的 src 属性 -->
+    </view>
+</template>

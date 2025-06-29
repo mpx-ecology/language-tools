@@ -187,6 +187,15 @@ export function* generateScript(
   return ctx
 }
 
+/**
+ * 用 debuggger 作为 script 部分的默认分隔符
+ * 可以正常拦截非正常结束部分的报错
+ * eg:
+ * <script>
+ * const a = 
+ *       ^ Expression expected.ts-plugin(1109)
+ * </script>
+ */
 export function* generateScriptSectionPartiallyEnding(
   source: string,
   end: number,

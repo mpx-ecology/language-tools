@@ -54,7 +54,7 @@ function* generateTemplateCtx(options: ScriptCodegenOptions): Generator<Code> {
 }
 
 function* generateTemplateElements(): Generator<Code> {
-  yield `let __VLS_elements!: __VLS_IntrinsicElements${endOfLine}`
+  yield `let __VLS_elements!: __VLS_NativeComponents${endOfLine}`
 }
 
 function* generateTemplateComponents(): Generator<Code> {

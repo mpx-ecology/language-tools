@@ -1,6 +1,9 @@
-import type { MpxCompilerOptions } from '../types'
-import { getSlotsPropertyName } from '../utils/shared'
+import type { MpxCompilerOptions } from '../../types'
+import { getSlotsPropertyName } from '../../utils/shared'
 import { defineComponentTypesContents } from './defineComponentTypes'
+import { nativeComponentsTypesFileName } from './nativeComponentsTypes'
+
+export * from './nativeComponentsTypes'
 
 export function getGlobalTypesFileName({
   checkUnknownProps,
@@ -29,8 +32,8 @@ export function generateGlobalTypes({
 	const __VLS_placeholder: any;
 
 	type __VLS_NativeElements = __VLS_SpreadMerge<SVGElementTagNameMap, HTMLElementTagNameMap>;
-	type __VLS_IntrinsicElements = ${`import('${lib}/jsx-runtime').JSX.IntrinsicElements;`}
-	type __VLS_Element = ${`import('${lib}/jsx-runtime').JSX.Element;`}
+	type __VLS_NativeComponents = ${`import('./${nativeComponentsTypesFileName}').MpxNativeComponents;`}
+	type __VLS_Element = ${`import('./${nativeComponentsTypesFileName}').MpxElement;`}
 	type __VLS_GlobalComponents = ${`import('${lib}').GlobalComponents;`}
 	type __VLS_GlobalDirectives = import('${lib}').GlobalDirectives;
 	type __VLS_IsAny<T> = 0 extends 1 & T ? true : false;
