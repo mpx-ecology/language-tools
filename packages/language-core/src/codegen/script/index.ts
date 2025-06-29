@@ -192,7 +192,7 @@ export function* generateScript(
  * 可以正常拦截非正常结束部分的报错
  * eg:
  * <script>
- * const a = 
+ * const a =
  *       ^ Expression expected.ts-plugin(1109)
  * </script>
  */
