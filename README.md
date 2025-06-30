@@ -37,14 +37,14 @@
 
 ## Core Packages
 
-| Package                                  | Version             | Description            |
-| ---------------------------------------- | ------------------- | ---------------------- |
-| [`vscode`][mpx-vscode-readme]            | in Progress         | VS Code extension      |
-| [`@mpxjs/language-server`][server-pkg]   | ![npm][server-npm]  | Language server        |
-| [`@mpxjs/language-service`][service-pkg] | ![npm][service-npm] | Language service layer |
-| [`@mpxjs/language-core`][core-pkg]       | ![npm][core-npm]    | Language core layer    |
-| [`@mpxjs/typescript-plugin`][ts-pkg]     | ![npm][ts-npm]      | TypeScript plugin      |
-| [`@mpxjs/language-shared`][shared-pkg]   | ![npm][shared-npm]  | Shared utilities       |
+| Package                                  | Description            |
+| ---------------------------------------- | ---------------------- |
+| [`vscode`][mpx-vscode-readme]            | Mpx VS Code extension  |
+| [`@mpxjs/language-server`][server-pkg]   | LSP server             |
+| [`@mpxjs/language-service`][service-pkg] | Language service layer |
+| [`@mpxjs/language-core`][core-pkg]       | Language core layer    |
+| [`@mpxjs/typescript-plugin`][ts-pkg]     | TypeScript plugin      |
+| [`@mpxjs/language-shared`][shared-pkg]   | Shared utilities       |
 
 ## Dependency Flow
 
@@ -85,11 +85,11 @@ flowchart TD
 
 ## Dive In
 
-For architecture details and source code documentation, please refer to our [deepwiki][mpx-deep-wiki].
+For architecture details and source code documentation, please refer to our [Deepwiki][mpx-deep-wiki].
 
 ## RoadMap
 
-For details on our planned features and future direction, please refer to our [roadmap].
+For details on our planned features and future direction, please refer to our [Roadmap].
 
 ## Credits
 
