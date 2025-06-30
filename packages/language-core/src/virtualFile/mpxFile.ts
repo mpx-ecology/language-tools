@@ -1,12 +1,12 @@
 import type * as ts from 'typescript'
 import type { VirtualCode } from '@volar/language-core'
 import type { MpxCompilerOptions, MpxLanguagePluginReturn } from '../types'
-
 import { computed, signal } from 'alien-signals'
 import { allCodeFeatures } from '../plugins'
 import { computedSfc } from './computedSfc'
 import { computedMpxSfc } from './computedMpxSfc'
 import { computedEmbeddedCodes } from './computedEmbeddedCodes'
+
 export class MpxVirtualCode implements VirtualCode {
   id = 'main'
 

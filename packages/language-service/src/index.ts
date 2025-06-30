@@ -11,13 +11,15 @@ import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-servic
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
 import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
 import { create as createMpxTemplatePlugin } from './plugins/mpx-template'
+import { create as createMpxDocumentLinksPlugin } from './plugins/mpx-document-links'
+import { create as createCSSPlugin } from './plugins/css'
 import { Commands } from './types'
 
 export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
 export * from './types'
 
-export function getHybridModeLanguageServicePlugins(
+export function createMpxLanguageServicePlugins(
   ts: typeof import('typescript'),
   tsPluginClient:
     | (IRequests & {
@@ -51,10 +53,13 @@ function getCommonLanguageServicePlugins(
   return [
     createMpxSfcPlugin(),
     createMpxTemplatePlugin(),
+    createMpxDocumentLinksPlugin(),
+    createCSSPlugin(),
     createJsonPlugin(),
     createEmmetPlugin({
       mappedLanguages: {
         'mpx-root-tags': 'html',
+        postcss: 'scss',
       },
     }),
     {

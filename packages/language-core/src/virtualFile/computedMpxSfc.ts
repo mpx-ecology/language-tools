@@ -1,7 +1,6 @@
 import type * as ts from 'typescript'
 import type { SFCParseResult } from '@vue/compiler-sfc'
 import type { MpxLanguagePluginReturn } from '../types'
-
 import { computed } from 'alien-signals'
 
 export function computedMpxSfc(

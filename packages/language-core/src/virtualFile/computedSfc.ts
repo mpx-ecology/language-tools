@@ -7,7 +7,6 @@ import type {
   SfcBlock,
   SfcBlockAttr,
 } from '../types'
-
 import { computed, pauseTracking, resumeTracking } from 'alien-signals'
 import { parseCssClassNames } from '../utils/parseCssClassNames'
 import { parseCssVars } from '../utils/parseCssVars'

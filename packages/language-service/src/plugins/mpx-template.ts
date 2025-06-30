@@ -31,7 +31,7 @@ export function create(): LanguageServicePlugin {
   })
 
   return {
-    name: `mpx-template`,
+    name: 'mpx-template',
     capabilities: {
       ...baseService.capabilities,
       completionProvider: {

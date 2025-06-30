@@ -18,8 +18,8 @@ import {
 import {
   LanguageService,
   createLanguageService,
+  createMpxLanguageServicePlugins,
   createUriMap,
-  getHybridModeLanguageServicePlugins,
 } from '@mpxjs/language-service'
 
 const connection = createConnection()
@@ -109,7 +109,7 @@ connection.onInitialize(params => {
         simpleLs = undefined
       },
     },
-    getHybridModeLanguageServicePlugins(
+    createMpxLanguageServicePlugins(
       ts,
       options.typescript.tsserverRequestCommand
         ? {

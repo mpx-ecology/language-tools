@@ -219,6 +219,9 @@ importers:
       '@vue/compiler-dom':
         specifier: 'catalog:'
         version: 3.5.13
+      volar-service-css:
+        specifier: 0.0.64
+        version: 0.0.64(@volar/language-service@2.4.12)
       volar-service-emmet:
         specifier: 0.0.63
         version: 0.0.63(@volar/language-service@2.4.12)
@@ -231,6 +234,9 @@ importers:
       volar-service-typescript:
         specifier: 0.0.64
         version: 0.0.64(@volar/language-service@2.4.12)
+      vscode-css-languageservice:
+        specifier: ^6.3.6
+        version: 6.3.6
       vscode-html-languageservice:
         specifier: ^5.5.0
         version: 5.5.0
@@ -4304,6 +4310,14 @@ packages:
       yaml:
         optional: true
 
+  volar-service-css@0.0.64:
+    resolution: {integrity: sha512-BtLq85adIft+Q0PZqllKXMVH7HHk6UmM7Opuj43IhR4AOVkqbNIcsiXhuh12ITVJGTkCGa9xXAPzClorPya6EQ==}
+    peerDependencies:
+      '@volar/language-service': ~2.4.0
+    peerDependenciesMeta:
+      '@volar/language-service':
+        optional: true
+
   volar-service-emmet@0.0.63:
     resolution: {integrity: sha512-dP96bxXsbfWH8D4n+jWnFD/zVDnm+1LgCV12yIwPIhmpJyElEnzmaKR7EGBZVf3tIkKmUObnU8YATZBn5iG9eQ==}
     peerDependencies:
@@ -4335,6 +4349,9 @@ packages:
     peerDependenciesMeta:
       '@volar/language-service':
         optional: true
+
+  vscode-css-languageservice@6.3.6:
+    resolution: {integrity: sha512-fU4h8mT3KlvfRcbF74v/M+Gzbligav6QMx4AD/7CbclWPYOpGb9kgIswfpZVJbIcOEJJACI9iYizkNwdiAqlHw==}
 
   vscode-ext-gen@1.0.2:
     resolution: {integrity: sha512-CgKGhGvO4Zpz87v3LRmDLtM1FaMVilJCy7fwKzxvrRnhUPTBgj9zkjlPM8lcVAq5vm87v9V8HzVer9COtU5bNA==}
@@ -8965,6 +8982,14 @@ snapshots:
       tsx: 4.19.3
       yaml: 2.7.1
 
+  volar-service-css@0.0.64(@volar/language-service@2.4.12):
+    dependencies:
+      vscode-css-languageservice: 6.3.6
+      vscode-languageserver-textdocument: 1.0.12
+      vscode-uri: 3.1.0
+    optionalDependencies:
+      '@volar/language-service': 2.4.12
+
   volar-service-emmet@0.0.63(@volar/language-service@2.4.12):
     dependencies:
       '@emmetio/css-parser': 0.4.0
@@ -8999,6 +9024,13 @@ snapshots:
       vscode-uri: 3.1.0
     optionalDependencies:
       '@volar/language-service': 2.4.12
+
+  vscode-css-languageservice@6.3.6:
+    dependencies:
+      '@vscode/l10n': 0.0.18
+      vscode-languageserver-textdocument: 1.0.12
+      vscode-languageserver-types: 3.17.5
+      vscode-uri: 3.1.0
 
   vscode-ext-gen@1.0.2:
     dependencies:
