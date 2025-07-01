@@ -1,12 +1,14 @@
+import type { CodeInformation } from '@volar/language-core'
 import type { Code, MpxLanguagePlugin } from '../types'
 import * as CompilerDOM from '@vue/compiler-dom'
 import { forEachElementNode } from '../codegen/template'
 import { allCodeFeatures } from './shared'
 
-const codeFeatures = {
+const codeFeatures: CodeInformation = {
   ...allCodeFeatures,
   format: false,
   structure: false,
+  verification: false,
 }
 
 const plugin: MpxLanguagePlugin = () => {
@@ -24,8 +26,7 @@ const plugin: MpxLanguagePlugin = () => {
       if (embeddedFile.id !== 'template_inline_css' || !sfc.template?.ast) {
         return
       }
-      embeddedFile.parentCodeId =
-        sfc.template.lang === 'md' ? 'root_tags' : 'template'
+      embeddedFile.parentCodeId = 'template'
       embeddedFile.content.push(...generate(sfc.template.ast))
     },
   }
@@ -44,7 +45,8 @@ function* generate(
         prop.arg?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION &&
         prop.exp?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION &&
         prop.arg.content === 'style' &&
-        prop.exp.constType === CompilerDOM.ConstantTypes.CAN_STRINGIFY
+        prop.exp.constType === CompilerDOM.ConstantTypes.CAN_STRINGIFY &&
+        hasNotExpression(prop.arg.loc.source)
       ) {
         const endCrt = prop.arg.loc.source[prop.arg.loc.source.length - 1] // " | '
         const start = prop.arg.loc.source.indexOf(endCrt) + 1
@@ -62,4 +64,8 @@ function* generate(
       }
     }
   }
+}
+
+function hasNotExpression(source: string): boolean {
+  return !source.includes('{{') && !source.includes('}}')
 }
