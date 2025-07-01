@@ -17,15 +17,17 @@ function shouldCombineIfBranchNode(
   )
 }
 
-export function transformMpxTemplateNodes<T extends Node>(children: T[]): T[] {
-  const mapedResult = children.map(child => visitNode(child) ?? child)
+export function transformMpxTemplateNodes<T extends Node>(
+  children: T[] = [],
+): T[] {
+  const mappedResult = children.map(child => visitNode(child) ?? child)
 
   const result: T[] = []
 
-  if (mapedResult.length) {
-    for (let i = 0; i < mapedResult.length; i++) {
+  if (mappedResult.length) {
+    for (let i = 0; i < mappedResult.length; i++) {
       const prev = result[result.length - 1]
-      const item = mapedResult[i]
+      const item = mappedResult[i]
 
       if (item.type === CompilerDOM.NodeTypes.IF_BRANCH) {
         const ifNode: CompilerDOM.IfNode =
@@ -47,10 +49,7 @@ export function transformMpxTemplateNodes<T extends Node>(children: T[]): T[] {
           shouldCombineIfBranchNode(lastBranch.mpxCondition, item.mpxCondition)
         ) {
           ifNode.branches.push(item)
-          continue
         }
-
-        continue
       } else {
         result.push(item)
       }
@@ -160,112 +159,112 @@ type ElNode =
   | CompilerDOM.TemplateNode
 
 function tryProcessWxFor(node: ElNode) {
-  const captureResult: [
-    _for: CompilerDOM.AttributeNode | undefined,
-    key: CompilerDOM.AttributeNode | undefined,
-    index: CompilerDOM.AttributeNode | undefined,
-  ] = [] as any
-  let _forIndex = -1
-  {
-    let count = 0
-    const captureAttr = ['wx:for', 'wx:for-item', 'wx:for-index']
-    const captureIndex: number[] = []
+  try {
+    const captureResult: CompilerDOM.AttributeNode[] = []
+    let _forIndex = -1
 
-    for (let i = node.props.length - 1; i >= 0; i--) {
-      const prop = node.props[i]
-      if (prop.type !== CompilerDOM.NodeTypes.ATTRIBUTE) {
-        continue
-      }
+    {
+      let count = 0
+      const captureAttr = ['wx:for', 'wx:for-item', 'wx:for-index']
 
-      const index = captureAttr.indexOf(prop.name)
-      if (index === -1) continue
+      for (let i = node.props.length - 1; i >= 0; i--) {
+        const prop = node.props[i]
+        if (prop.type !== CompilerDOM.NodeTypes.ATTRIBUTE) {
+          continue
+        }
 
-      count++
+        const index = captureAttr.indexOf(prop.name)
+        if (index === -1) continue
 
-      captureResult[index] = prop
-      captureIndex[index] = i
+        count++
 
-      if (prop.name === 'wx:for') {
-        _forIndex = i
-      }
+        captureResult[index] = prop
 
-      if (count >= captureAttr.length) {
-        break
-      }
-    }
+        if (prop.name === 'wx:for') {
+          _forIndex = i
+        }
 
-    if (count < 1) return
-  }
-
-  {
-    const [prop, value, index] = captureResult
-    if (!prop) {
-      return
-    }
-    function createVarNode(
-      node: CompilerDOM.AttributeNode | undefined,
-      defailtText: string,
-    ): CompilerDOM.ExpressionNode {
-      if (node && node.value) {
-        stripSourceLocationQuotes(node.value.loc)
-
-        return {
-          type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
-          content: node.value.content || '',
-          isStatic: false,
-          constType: CompilerDOM.ConstantTypes.NOT_CONSTANT,
-          loc: node.value.loc,
+        if (count >= captureAttr.length) {
+          break
         }
       }
 
-      return {
-        type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
-        content: defailtText,
-        isStatic: false,
-        constType: CompilerDOM.ConstantTypes.NOT_CONSTANT,
-        loc: {
-          start: prop?.value?.loc.start ?? { offset: 0, column: 0, line: 0 },
-          end: { offset: 0, column: 0, line: 0 },
-          source: defailtText,
-        },
-      } satisfies CompilerDOM.SimpleExpressionNode
+      if (count < 1) return
     }
 
-    node.props.splice(_forIndex, 1)
+    {
+      const [prop, value, index] = captureResult
+      if (!prop) {
+        return
+      }
+      function createVarNode(
+        node: CompilerDOM.AttributeNode | undefined,
+        defaultText: string,
+      ): CompilerDOM.ExpressionNode {
+        if (node && node.value) {
+          stripSourceLocationQuotes(node.value.loc)
 
-    const contentLoc = prop.value!.loc
-    stripSourceLocationQuotes(contentLoc)
-    stripSourceLocationBrace(contentLoc)
+          return {
+            type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
+            content: node.value.content || '',
+            isStatic: false,
+            constType: CompilerDOM.ConstantTypes.NOT_CONSTANT,
+            loc: node.value.loc,
+          }
+        }
 
-    const valueNode = createVarNode(value, 'item')
-    const indexNode = createVarNode(index, 'index')
-    const source = {
-      constType: 0,
-      content: contentLoc.source,
-      isStatic: false,
-      loc: contentLoc,
-      type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
-    } satisfies CompilerDOM.ExpressionNode
-    const children = transformMpxTemplateNodes([node])
-    return {
-      type: CompilerDOM.NodeTypes.FOR,
-      valueAlias: valueNode,
-      keyAlias: undefined,
-      objectIndexAlias: indexNode,
-      loc: contentLoc,
-      children: children as CompilerDOM.TemplateChildNode[],
-      parseResult: {
-        mpx: true,
-        defaultIndex: !index,
-        defaultValue: !value,
+        return {
+          type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
+          content: defaultText,
+          isStatic: false,
+          constType: CompilerDOM.ConstantTypes.NOT_CONSTANT,
+          loc: {
+            start: prop?.value?.loc.start ?? { offset: 0, column: 0, line: 0 },
+            end: { offset: 0, column: 0, line: 0 },
+            source: defaultText,
+          },
+        } satisfies CompilerDOM.SimpleExpressionNode
+      }
+
+      node.props.splice(_forIndex, 1)
+
+      const contentLoc = prop.value!.loc
+      stripSourceLocationQuotes(contentLoc)
+      stripSourceLocationBrace(contentLoc)
+
+      const valueNode = createVarNode(value, 'item')
+      const indexNode = createVarNode(index, 'index')
+      const source = {
+        constType: 0,
+        content: contentLoc.source,
+        isStatic: false,
+        loc: contentLoc,
+        type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
+      } satisfies CompilerDOM.ExpressionNode
+      const children = transformMpxTemplateNodes([node])
+      return {
+        type: CompilerDOM.NodeTypes.FOR,
+        valueAlias: valueNode,
+        keyAlias: undefined,
+        objectIndexAlias: indexNode,
+        loc: contentLoc,
+        children: children as CompilerDOM.TemplateChildNode[],
+        parseResult: {
+          mpx: true,
+          defaultIndex: !index,
+          defaultValue: !value,
+          source,
+          key: undefined,
+          value: valueNode,
+          index: indexNode,
+          finalized: true,
+        },
         source,
-        key: undefined,
-        value: valueNode,
-        index: indexNode,
-        finalized: true,
-      },
-      source,
-    } satisfies CompilerDOM.ForNode
+      } satisfies CompilerDOM.ForNode
+    }
+  } catch (error) {
+    console.warn('[MPX] Failed to process wx:for:', error)
+    return undefined
   }
 }
 
@@ -288,8 +287,7 @@ function tryProcessBindEvent(
     arg: {
       // tap
       type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
-      // should trim quotes
-      content: prop.name.slice(4),
+      content: nameLoc.source,
       isStatic: true,
       constType: CompilerDOM.ConstantTypes.CAN_STRINGIFY,
       loc: nameLoc,
@@ -297,7 +295,7 @@ function tryProcessBindEvent(
     exp: {
       // handleTap
       type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
-      // should trim quotesx
+      // should trim quotes
       content: prop.value?.content || '',
       loc: prop.value?.loc ?? emptySourceLocation(),
       isStatic: false,
