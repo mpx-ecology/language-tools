@@ -215,4 +215,8 @@ declare module '@vue/compiler-dom' {
     defaultValue?: boolean
     defaultIndex?: boolean
   }
+
+  export interface IfBranchNode {
+    mpxCondition?: 'if' | 'elif' | 'else'
+  }
 }

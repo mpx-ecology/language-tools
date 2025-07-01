@@ -1,27 +1,41 @@
 <template>
-  <view class="list">
-    <view wx:if="{{ shouldShow > 100}}">
-      Case1: {{ shouldShow }}
+  <view>
+		<!-- Case1: Type Narrowing 类型收窄 -->
+    <view wx:if="{{ typeof msg === 'string'}}">
+      msg should be string: {{ msg }}
     </view>
-    <view wx:elif="{{ shouldShow > 10}}">
-      Case2: {{ shouldShow }}
+    <view wx:elif="{{ typeof msg === 'number' }}">
+      msg should be number: {{ msg }}
     </view>
     <view wx:else>
-      Case3: {{ shouldShow }}
+      msg should be undefined: {{ msg }}
     </view>
+
+		<!-- Case2: Type Narrowing for undefined -->
+		<view wx:if="{{ status }}">
+			{{ status.message }}
+		</view>
+
+		<!-- Case3: Type Narrowing -->
+		<view wx:if="{{ typeof foo === 'string' }}">
+			{{ foo }}
+		</view>
+
+    <!-- Case4: 表达式带空格 -->
+     <view wx:if="  {{ status?.message && msg }}"></view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref } from "@mpxjs/core"
-const shouldShow = ref(0)
+
+let msg = ref<string | number>()
+let status: { message: string } | undefined;
+let foo: any
 
 defineExpose({
-  shouldShow,
+  msg,
+	status,
+	foo
  })
 </script>
-
-<style lang="stylus">
-  .list
-    background-color red
-</style>
