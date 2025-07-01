@@ -155,7 +155,7 @@ export function createParsedCommandLine(
       mpxOptions: resolvedMpxOptions,
     }
   } catch (err) {
-    // console.warn('Failed to resolve tsconfig path:', tsConfigPath, err);
+    console.warn('[Mpx] Failed to resolve tsconfig path:', tsConfigPath, err)
     return {
       fileNames: [],
       options: {},
@@ -266,11 +266,9 @@ function resolvePath(scriptPath: string, root: string) {
   try {
     if (require?.resolve) {
       return require.resolve(scriptPath, { paths: [root] })
-    } else {
-      // console.warn('failed to resolve path:', scriptPath, 'require.resolve is not supported in web');
     }
   } catch (error) {
-    // console.warn(error);
+    console.warn('[Mpx] Failed to resolve path:', scriptPath, error)
   }
 }
 
