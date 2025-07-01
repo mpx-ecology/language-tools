@@ -1,20 +1,23 @@
 <template>
-  <view class="list">
-    <view wx:if="{{ shouldShow > 100}}">
+  <view>
+    <view wx:if="{{ typeof shouldShow === 'string'}}">
       Case1: {{ shouldShow }}
     </view>
-    <view wx:elif="{{ shouldShow > 10}}">
+    <view wx:elif="{{ typeof shouldShow === 'number' }}">
       Case2: {{ shouldShow }}
     </view>
     <view wx:else>
       Case3: {{ shouldShow }}
     </view>
+
+    <!-- space -->
+     <view wx:if="  {{ typeof shouldShow === 'number'}}"></view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref } from "@mpxjs/core"
-const shouldShow = ref(0)
+let shouldShow = ref<string | number>('1')
 
 defineExpose({
   shouldShow,
@@ -22,6 +25,4 @@ defineExpose({
 </script>
 
 <style lang="stylus">
-  .list
-    background-color red
 </style>

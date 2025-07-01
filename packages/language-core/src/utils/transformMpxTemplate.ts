@@ -1,11 +1,64 @@
 import * as CompilerDOM from '@vue/compiler-dom'
 import type { Node } from '../internalTypes'
+import { findResultSync } from '../utils/utils'
 
-export function transformMpxTemplateNodes<T extends Node>(children: T[]): T[] {
-  return children.map(child => visitNode(child) ?? child)
+function shouldCombineIfBranchNode(
+  prevCondition: CompilerDOM.IfBranchNode['mpxCondition'],
+  condition: CompilerDOM.IfBranchNode['mpxCondition'],
+): boolean {
+  if (!prevCondition || !condition) return false
+
+  return (
+    // if elif/else
+    (prevCondition === 'if' && ['elif', 'else'].includes(condition)) ||
+    // elif else
+    (prevCondition === 'elif' && condition === 'else')
+    // else !(if/elif)
+  )
 }
 
-import { findResultSync } from '../utils/utils'
+export function transformMpxTemplateNodes<T extends Node>(children: T[]): T[] {
+  const mapedResult = children.map(child => visitNode(child) ?? child)
+
+  const result: T[] = []
+
+  if (mapedResult.length) {
+    for (let i = 0; i < mapedResult.length; i++) {
+      const prev = result[result.length - 1]
+      const item = mapedResult[i]
+
+      if (item.type === CompilerDOM.NodeTypes.IF_BRANCH) {
+        const ifNode: CompilerDOM.IfNode =
+          prev?.type === CompilerDOM.NodeTypes.IF
+            ? prev
+            : {
+                type: CompilerDOM.NodeTypes.IF,
+                branches: [],
+                loc: item.loc,
+              }
+        if (ifNode !== prev) {
+          result.push(ifNode as T)
+        }
+
+        const lastBranch = ifNode.branches[ifNode.branches.length - 1]
+
+        if (
+          !lastBranch ||
+          shouldCombineIfBranchNode(lastBranch.mpxCondition, item.mpxCondition)
+        ) {
+          ifNode.branches.push(item)
+          continue
+        }
+
+        continue
+      } else {
+        result.push(item)
+      }
+    }
+  }
+
+  return result
+}
 
 function stripSourceLocationSource(prefix?: string, suffix?: string) {
   return (location: CompilerDOM.SourceLocation) => {
@@ -52,10 +105,42 @@ function stripListSourceLocationText(
     return isMatched
   }
 }
+function many<T extends (...args: any) => boolean>(fn: T): T {
+  return ((...args: any[]) => {
+    let r = false
+    while (fn(...args)) {
+      r = true
+      continue
+    }
+    return r
+  }) as unknown as T
+}
+function combine<T extends (...args: any) => boolean>(...fns: T[]) {
+  return (...args: any[]) => {
+    let r = false
+    for (const fn of fns) {
+      r = fn(...args) || r
+    }
+    return r
+  }
+}
 
-const stripSourceLocationQuotes = stripListSourceLocationText(
-  ['"', "'"],
-  ['"', "'"],
+const stripSpaces = many(stripListSourceLocationText([' '], [' ']))
+
+/**
+ * `"` `'`
+ */
+const stripSourceLocationQuotes = combine(
+  stripSpaces,
+  stripListSourceLocationText(['"', "'"], ['"', "'"]),
+)
+
+/**
+ * `{{` `}}`
+ */
+const stripSourceLocationBrace = combine(
+  stripSpaces,
+  stripListSourceLocationText(['{{'], ['}}']),
 )
 
 const eventPrefixList = [
@@ -68,13 +153,13 @@ const eventPrefixList = [
 ]
 const stripBindPrefix = stripListSourceLocationText(eventPrefixList)
 
-function tryProcessWxFor(
-  node:
-    | CompilerDOM.PlainElementNode
-    | CompilerDOM.ComponentNode
-    | CompilerDOM.SlotOutletNode
-    | CompilerDOM.TemplateNode,
-) {
+type ElNode =
+  | CompilerDOM.PlainElementNode
+  | CompilerDOM.ComponentNode
+  | CompilerDOM.SlotOutletNode
+  | CompilerDOM.TemplateNode
+
+function tryProcessWxFor(node: ElNode) {
   const captureResult: [
     _for: CompilerDOM.AttributeNode | undefined,
     key: CompilerDOM.AttributeNode | undefined,
@@ -150,7 +235,7 @@ function tryProcessWxFor(
 
     const contentLoc = prop.value!.loc
     stripSourceLocationQuotes(contentLoc)
-    stripListSourceLocationText(['{{'], ['}}'])(contentLoc)
+    stripSourceLocationBrace(contentLoc)
 
     const valueNode = createVarNode(value, 'item')
     const indexNode = createVarNode(index, 'index')
@@ -223,6 +308,52 @@ function tryProcessBindEvent(
   }
 }
 
+function tryProcessCondition(node: ElNode) {
+  // wx:if="{{ condition }}"
+  // wx:elif="{{ condition }}"
+  // wx:else
+  const conditionIndex = node.props.findIndex(item => {
+    return (
+      item.type === CompilerDOM.NodeTypes.ATTRIBUTE &&
+      ['wx:if', 'wx:elif', 'wx:else'].includes(item.name)
+    )
+  })
+
+  if (conditionIndex === -1) return
+
+  {
+    const ifBranch = node.props[conditionIndex] as CompilerDOM.AttributeNode
+    node.props.splice(conditionIndex, 1)
+
+    const children = transformMpxTemplateNodes([node])
+
+    if (ifBranch.value) {
+      stripSourceLocationQuotes(ifBranch.value.loc)
+      stripSourceLocationBrace(ifBranch.value.loc)
+    }
+
+    if (ifBranch.name) stripSourceLocationSource('wx:', '')(ifBranch.nameLoc)
+
+    return {
+      type: CompilerDOM.NodeTypes.IF_BRANCH,
+      condition:
+        ifBranch.nameLoc.source === 'else'
+          ? undefined
+          : ({
+              type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
+              content: ifBranch.value?.loc.source ?? '',
+              isStatic: false,
+              constType: CompilerDOM.ConstantTypes.NOT_CONSTANT,
+              loc: ifBranch.value?.loc ?? emptySourceLocation(),
+            } satisfies CompilerDOM.ExpressionNode),
+      loc: ifBranch.loc,
+      children,
+      mpxCondition: ifBranch.nameLoc
+        .source as CompilerDOM.IfBranchNode['mpxCondition'],
+    } satisfies CompilerDOM.IfBranchNode
+  }
+}
+
 function isEventBind(name: string) {
   return eventPrefixList.some(item => name.startsWith(item))
 }
@@ -240,7 +371,10 @@ function visitNode<T extends Node>(node: T): T | undefined {
     // TODO Mpx comment
   } else if (node.type === CompilerDOM.NodeTypes.ELEMENT) {
     // pre process for
-    const replaceNode = tryProcessWxFor(node)
+    const replaceNode = findResultSync(
+      [() => tryProcessWxFor(node), () => tryProcessCondition(node)],
+      fn => fn(),
+    )
 
     if (replaceNode) {
       return replaceNode as T
