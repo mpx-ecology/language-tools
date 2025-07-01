@@ -13,7 +13,7 @@
     "clean:out": "rimraf -g \"packages/*/out\" \"vscode/out\" \"vscode/dist\"",
     "version:patch": "pnpm build && lerna version patch --yes --force-publish",
     "publish:npm": "lerna publish from-package --yes",
-    "postinstall": "simple-git-hooks"
+    "postinstall": "simple-git-hooks && pnpm clean"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged",
