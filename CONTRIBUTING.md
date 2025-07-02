@@ -8,6 +8,7 @@
 - pnpm 版本：[package.json](./package.json) `packageManager`
 
 建议通过 node 自带的 corepack 来自动安装仓库要求的 pnpm：
+
 ```sh
 corepack enable
 ```
