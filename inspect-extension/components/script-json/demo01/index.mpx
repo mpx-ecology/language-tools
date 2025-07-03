@@ -12,6 +12,6 @@ createPage({})
   {
     "usingComponents": {
       "list": "../components/list"
-    }
+    } 
   }
 </script>

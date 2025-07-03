@@ -135,13 +135,6 @@ export function createMpxLanguagePlugin<T>(
                       ? ts.ScriptKind.TSX
                       : ts.ScriptKind.TS,
             }
-          } else if (/json_(js|ts)/.test(code.id)) {
-            const lang = code.id.slice('json_'.length)
-            return {
-              code,
-              extension: '.' + lang,
-              scriptKind: lang === 'js' ? ts.ScriptKind.JS : ts.ScriptKind.JSON,
-            }
           }
         }
       },

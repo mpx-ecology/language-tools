@@ -11,14 +11,13 @@ defineProps<{
 }>()
 </script>
 
-<style lang="css">
-.list {
-  
-}
+<style lang="stylus">
+  .list
+    color red
 </style>
 
 <script name="json">
-  const wxConfig = { component: true, usingComponents: {} };
+  const wxConfig: any = { component: true, usingComponents: {} };
   const aliConfig = { component: true, usingComponents: {} };
   let finalConfig = null;
   if (__mpx_mode__ === "ali") {
