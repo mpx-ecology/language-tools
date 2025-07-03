@@ -5,14 +5,14 @@ import type { IRequests } from '@mpxjs/typescript-plugin/src/requests'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { parse } from '@mpxjs/language-core'
 import { create as createEmmetPlugin } from 'volar-service-emmet'
-import { create as createJsonPlugin } from 'volar-service-json'
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic'
 import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-service-typescript/lib/plugins/docCommentTemplate'
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
 import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
-import { create as createMpxTemplatePlugin } from './plugins/mpx-template'
+import { create as createMpxTemplatePlugin } from './plugins/mpx-sfc-template'
+import { create as createMpxCSSPlugin } from './plugins/mpx-sfc-css'
+import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
 import { create as createMpxDocumentLinksPlugin } from './plugins/mpx-document-links'
-import { create as createCSSPlugin } from './plugins/css'
 import { Commands } from './types'
 
 export * from '@volar/language-service'
@@ -53,9 +53,9 @@ function getCommonLanguageServicePlugins(
   return [
     createMpxSfcPlugin(),
     createMpxTemplatePlugin(),
+    createMpxCSSPlugin(),
+    createMpxJsonJsonPlugin(),
     createMpxDocumentLinksPlugin(),
-    createCSSPlugin(),
-    createJsonPlugin(),
     createEmmetPlugin({
       mappedLanguages: {
         'mpx-root-tags': 'html',
