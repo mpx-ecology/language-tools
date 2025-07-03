@@ -10,6 +10,7 @@ const globalTypes = `
     O extends AnyObject = {},
   >(
     opt: ThisTypedComponentOpt<D, P, C, M, Mi, S, O>,
+    config?: { customCtor: any }
   ): ComponentIns<D, P, C, M, Mi, S, O>
   // #endregion
 
@@ -23,6 +24,7 @@ const globalTypes = `
     O extends AnyObject = {},
   >(
     opt: ThisTypedPageOpt<D, P, C, M, Mi, O>,
+    config?: { customCtor: any }
   ): ComponentIns<D, P, C, M, Mi, O>
   // #endregion
 `
@@ -162,7 +164,7 @@ export type ComponentIns<
   UnboxMixinsField<Mi, 'data'> &
   M &
   UnboxMixinsField<Mi, 'methods'> & {
-    [K in keyof S]: S[K] extends Ref<infer V> ? V : S[K]
+    [K in keyof S]: S[K] extends import('@mpxjs/core').Ref<infer V> ? V : S[K]
   } & GetPropsType<P & UnboxMixinsField<Mi, 'properties'>> &
   GetComputedType<C & UnboxMixinsField<Mi, 'computed'>> &
   WxComponentIns<D, P, M> &
@@ -170,11 +172,6 @@ export type ComponentIns<
   MpxComProps<O>
 type GetDataType<T> = T extends () => any ? ReturnType<T> : T
 type MpxComProps<O> = { $rawOptions: O }
-export interface Ref<T = any> {
-  value: T
-  [RefSymbol]: true
-}
-declare const RefSymbol: unique symbol
 export interface MpxComponentIns {
   [k: string]: any
 }

@@ -156,7 +156,7 @@ export function generateGlobalTypes({
 	function __VLS_tryAsConstant<const T>(t: T): T;
 
 	type UnwrapRefs<T> = {
-		[K in keyof T]: T[K] extends { value: any }
+		[K in keyof T]: T[K] extends import('${lib}').Ref
 			? import('${lib}').UnwrapRef<T[K]>
 			: T[K]
 	}

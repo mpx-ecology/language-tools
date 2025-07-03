@@ -1,5 +1,8 @@
 <template>
-  <view class="title"> title: {{ title }} </view>
+  <view class="title"> 
+    title: {{ title }}
+    titleRef: {{ titleRef }}
+  </view>
   <view wx:class="list" bindtap="onClick">
     <view> parentText: {{ parentText }} </view>
     <view> msg: {{ msg }} </view>
@@ -9,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent } from '@mpxjs/core'
+import { createComponent, ref } from '@mpxjs/core'
 
 createComponent({
   properties:{
@@ -26,10 +29,12 @@ createComponent({
       b: 2
     }
   },
-  setup() {
-    console.log('setup')
+  setup(props, context) {
+    console.log('setup', props.parentText)
+    context.triggerEvent('requestSuccess', {})
     return {
-      title: 'Mpx component'
+      title: 'Mpx component',
+      titleRef: ref('Mpx component'),
     }
   },
   computed: {
@@ -42,7 +47,7 @@ createComponent({
   },
   methods: {
     onClick() {
-      console.log('click', this.count, this.content)
+      console.log('click', this.titleRef, this.content)
       this.count++
     }
   },

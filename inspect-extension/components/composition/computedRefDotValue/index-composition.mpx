@@ -1,0 +1,28 @@
+<template>
+  <view>
+    {{ mapResetInfo.source }}
+    {{ mapResetInfo1.trackAttrs.uid }}
+  </view>
+</template>
+
+<script lang="ts" setup>
+import { computed } from '@mpxjs/core'
+import useMapDrag from './useMapDrag'
+
+const { mapResetInfo } = useMapDrag()
+
+const mapResetInfo1 = computed(() => {
+  return {
+    source: 'estimate',
+    statusType: 'success',
+    trackAttrs: {
+      uid: 1,
+    },
+  }
+})
+
+defineExpose({
+  mapResetInfo,
+  mapResetInfo1
+})
+</script>

@@ -1,0 +1,24 @@
+<template>
+  <view>
+    {{ msg.a }} - {{ count.b.value.a }} - {{ computedMsg.count }}
+  </view>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from '@mpxjs/core'
+
+const msg = ref({ a: 'default message' })
+const count = { b: ref({ a: 123 }) }
+const computedMsg = computed(() => {
+  return {
+    msg: msg.value.a,
+    count: count.b.value.a
+  }
+})
+
+defineExpose({
+  msg,
+  count,
+  computedMsg
+})
+</script>

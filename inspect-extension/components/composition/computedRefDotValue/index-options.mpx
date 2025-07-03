@@ -1,0 +1,34 @@
+<template>
+  <view>
+    {{ mapResetInfo.source }}
+    {{ mapResetInfo1.statusType}}
+  </view>
+</template>
+
+<script lang="ts">
+import { createPage, computed } from '@mpxjs/core'
+import useMapDrag from './useMapDrag'
+
+createPage({
+  setup(){
+    const { mapResetInfo } = useMapDrag()
+
+    const mapResetInfo1 = computed(() => {
+      return {
+        source: 'estimate',
+        statusType: 'success',
+        trackAttrs: {
+          uid: 1,
+        },
+      }
+    })
+
+    return {
+      mapResetInfo,
+      mapResetInfo1
+    }
+  },
+  computed: {
+  }
+})
+</script>
