@@ -75,6 +75,7 @@ export function* generateTemplateChild(
         yield* generateVSlot(options, ctx, node, slotDir)
       } else if (
         node.tagType === CompilerDOM.ElementTypes.ELEMENT ||
+        node.tagType === CompilerDOM.ElementTypes.COMPONENT ||
         node.tagType === CompilerDOM.ElementTypes.TEMPLATE
       ) {
         yield* generateElement(options, ctx, node)

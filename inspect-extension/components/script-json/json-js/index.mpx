@@ -1,0 +1,30 @@
+<template>
+  <view>
+    {{ msg }} - {{ count }}
+  </view>
+</template>
+
+<script setup lang="ts">
+defineProps<{
+  msg: string
+  count?: number
+}>()
+</script>
+
+<style lang="css">
+.list {
+  
+}
+</style>
+
+<script name="json">
+  const wxConfig = { component: true, usingComponents: {} };
+  const aliConfig = { component: true, usingComponents: {} };
+  let finalConfig = null;
+  if (__mpx_mode__ === "ali") {
+    finalConfig = aliConfig1;
+  } else {
+    finalConfig = wxConfig;
+  }
+  module.exports = finalConfig;
+</script>

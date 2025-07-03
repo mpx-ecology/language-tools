@@ -1,6 +1,5 @@
 import type { MpxLanguagePlugin } from '../types'
-// import { allCodeFeatures } from './shared'
-// import { allCodeFeatures } from './shared'
+import { allCodeFeatures } from './shared'
 
 const plugin: MpxLanguagePlugin = () => {
   return {
@@ -11,28 +10,18 @@ const plugin: MpxLanguagePlugin = () => {
         lang: string
       }[] = []
       if (sfc.json) {
-        const json = sfc.json
         result.push({
-          id: 'mpx_json',
-          lang: json.lang,
+          id: 'json_' + sfc.json.lang,
+          lang: sfc.json.lang,
         })
       }
       return result
     },
 
     resolveEmbeddedCode(_fileName, sfc, embeddedFile) {
-      if (embeddedFile.id === 'mpx_json' && sfc.json) {
-        embeddedFile.content.push([
-          sfc.json.content,
-          sfc.json.name,
-          0,
-          {
-            verification: true,
-            completion: true,
-            semantic: true,
-            navigation: true,
-          },
-        ])
+      const json = /json_(js|json)/.test(embeddedFile.id) ? sfc.json : undefined
+      if (json) {
+        embeddedFile.content.push([json.content, json.name, 0, allCodeFeatures])
       }
     },
   }

@@ -17,9 +17,9 @@ if (!commitRE.test(msg)) {
       pico.red(
         `  Proper commit message format is required for automated changelog generation. Examples:\n\n`,
       ) +
-      `    ${pico.green(`feat(compiler): add 'comments' option`)}\n` +
+      `    ${pico.green(`feat(core): update tags and attributes types`)}\n` +
       `    ${pico.green(
-        `fix(v-model): handle events on blur (close #28)`,
+        `fix(service): handle bind events on native components (close #28)`,
       )}\n\n` +
       pico.red(`  See .github/commit-convention.md for more details.\n`),
   )

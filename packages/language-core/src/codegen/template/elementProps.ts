@@ -9,11 +9,12 @@ import { codeFeatures } from '../codeFeatures'
 import { createTsAst, newLine } from '../utils'
 import { wrapWith } from '../utils/wrapWith'
 import { generateUnicode } from '../utils/unicode'
-import { hyphenateAttr, hyphenateTag } from '../../utils/shared'
+import { hyphenateTag } from '../../utils/shared'
 import { generateInterpolation } from './interpolation'
 import { generateObjectProperty } from './objectProperty'
 import { generateModifiers } from './elementDirectives'
 import { generateEventArg, generateEventExpression } from './elementEvents'
+
 export interface FailedPropExpression {
   node: CompilerDOM.SimpleExpressionNode
   prefix: string
@@ -34,19 +35,15 @@ export function* generateElementProps(
   for (const prop of props) {
     if (prop.type === CompilerDOM.NodeTypes.DIRECTIVE && prop.name === 'on') {
       if (prop.arg?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
-        if (!isComponent) {
-          yield `...{ `
-          yield* generateEventArg(
-            ctx,
-            prop.arg.loc.source,
-            prop.arg.loc.start.offset,
-          )
-          yield `: `
-          yield* generateEventExpression(options, ctx, prop)
-          yield `},`
-        } else {
-          yield `...{ '${camelize('on-' + prop.arg.loc.source)}': {} as any },`
-        }
+        yield `...{ `
+        yield* generateEventArg(
+          ctx,
+          prop.arg.loc.source,
+          prop.arg.loc.start.offset,
+        )
+        yield `: `
+        yield* generateEventExpression(options, ctx, prop)
+        yield `},`
         yield newLine
       } else if (
         !prop.arg &&
@@ -99,8 +96,8 @@ export function* generateElementProps(
       }
 
       const shouldSpread = propName === 'style' || propName === 'class'
-      const shouldCamelize =
-        isComponent && getShouldCamelize(options, prop, propName)
+      const shouldCamelize = false
+      // isComponent && getShouldCamelize(options, prop, propName)
 
       if (shouldSpread) {
         yield `...{ `
@@ -119,7 +116,7 @@ export function* generateElementProps(
               )
             : wrapWith(
                 prop.loc.start.offset,
-                prop.loc.start.offset + 'v-model'.length,
+                prop.loc.start.offset + 'wx:model'.length,
                 ctx.codeFeatures.withoutHighlightAndCompletion,
                 propName,
               )),
@@ -173,8 +170,8 @@ export function* generateElementProps(
       }
 
       const shouldSpread = prop.name === 'style' || prop.name === 'class'
-      const shouldCamelize =
-        isComponent && getShouldCamelize(options, prop, prop.name)
+      const shouldCamelize = false
+      // isComponent && getShouldCamelize(options, prop, prop.name)
       const codeInfo = getPropsCodeInfo(ctx, strictPropsCheck)
 
       if (shouldSpread) {
@@ -321,7 +318,6 @@ function* generateAttrValueWithDoubleCurly(
     _ast?.statements?.[0] &&
     options.ts.isLabeledStatement(_ast.statements[0])
   ) {
-    // attrNodeAst.source = content = `{${content}}`
     prefix = `({`
     suffix = `})`
   }
@@ -339,22 +335,22 @@ function* generateAttrValueWithDoubleCurly(
   )
 }
 
-function getShouldCamelize(
-  options: TemplateCodegenOptions,
-  prop: CompilerDOM.AttributeNode | CompilerDOM.DirectiveNode,
-  propName: string,
-) {
-  return (
-    (prop.type !== CompilerDOM.NodeTypes.DIRECTIVE ||
-      !prop.arg ||
-      (prop.arg?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION &&
-        prop.arg.isStatic)) &&
-    hyphenateAttr(propName) === propName &&
-    !options.mpxCompilerOptions.htmlAttributes.some(pattern =>
-      minimatch(propName, pattern),
-    )
-  )
-}
+// function getShouldCamelize(
+//   options: TemplateCodegenOptions,
+//   prop: CompilerDOM.AttributeNode | CompilerDOM.DirectiveNode,
+//   propName: string,
+// ) {
+//   return (
+//     (prop.type !== CompilerDOM.NodeTypes.DIRECTIVE ||
+//       !prop.arg ||
+//       (prop.arg?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION &&
+//         prop.arg.isStatic)) &&
+//     hyphenateAttr(propName) === propName &&
+//     !options.mpxCompilerOptions.htmlAttributes.some(pattern =>
+//       minimatch(propName, pattern),
+//     )
+//   )
+// }
 
 function getPropsCodeInfo(
   ctx: TemplateCodegenContext,

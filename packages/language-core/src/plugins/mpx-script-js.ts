@@ -1,3 +1,4 @@
+import type * as ts from 'typescript'
 import type { MpxLanguagePlugin } from '../types'
 
 const plugin: MpxLanguagePlugin = ({ modules }) => {
@@ -10,7 +11,7 @@ const plugin: MpxLanguagePlugin = ({ modules }) => {
         return ts.createSourceFile(
           `mpx_script.${lang}`,
           script,
-          ts.ScriptTarget.Latest,
+          99 satisfies ts.ScriptTarget.Latest,
         )
       }
     },

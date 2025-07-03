@@ -17,7 +17,7 @@ const fileRegistries: {
   files: Map<string, MpxVirtualCode>
 }[] = []
 
-function getVueFileRegistry(key: string, plugins: MpxLanguagePlugin[]) {
+function getMpxFileRegistry(key: string, plugins: MpxLanguagePlugin[]) {
   let fileRegistry = fileRegistries.find(
     r =>
       r.key === key &&
@@ -71,7 +71,7 @@ export function createMpxLanguagePlugin<T>(
     mpxCompilerOptions,
   }
   const plugins = createPlugins(pluginContext)
-  const fileRegistry = getVueFileRegistry(
+  const fileRegistry = getMpxFileRegistry(
     getFileRegistryKey(compilerOptions, mpxCompilerOptions, plugins),
     mpxCompilerOptions.plugins,
   )
@@ -134,6 +134,13 @@ export function createMpxLanguagePlugin<T>(
                     : lang === 'tsx'
                       ? ts.ScriptKind.TSX
                       : ts.ScriptKind.TS,
+            }
+          } else if (/json_(js|ts)/.test(code.id)) {
+            const lang = code.id.slice('json_'.length)
+            return {
+              code,
+              extension: '.' + lang,
+              scriptKind: lang === 'js' ? ts.ScriptKind.JS : ts.ScriptKind.JSON,
             }
           }
         }

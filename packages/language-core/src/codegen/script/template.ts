@@ -47,9 +47,9 @@ function* generateTemplateCtx(options: ScriptCodegenOptions): Generator<Code> {
     } else {
       yield `const __VLS_defineExposeUnrefs = __VLS_defineExpose as any as UnwrapRefs<typeof __VLS_defineExpose>${newLine}`
     }
-    yield `const __VLS_ctx = { ...__VLS_defineProps, ...__VLS_defineExposeUnrefs }${endOfLine}`
+    yield `const __MPX_ctx = { ...__VLS_defineProps, ...__VLS_defineExposeUnrefs }${endOfLine}`
   } else {
-    yield `const __VLS_ctx = __VLS_defineComponent${endOfLine}`
+    yield `const __MPX_ctx = __VLS_defineComponent${endOfLine}`
   }
 }
 
@@ -58,7 +58,7 @@ function* generateTemplateElements(): Generator<Code> {
 }
 
 function* generateTemplateComponents(): Generator<Code> {
-  const types: Code[] = [`typeof __VLS_ctx`]
+  const types: Code[] = [`typeof __MPX_ctx`]
 
   yield `type __VLS_LocalComponents =`
   for (const type of types) {
@@ -73,7 +73,7 @@ function* generateTemplateComponents(): Generator<Code> {
 export function* generateTemplateDirectives(
   _options: ScriptCodegenOptions,
 ): Generator<Code> {
-  const types: Code[] = [`typeof __VLS_ctx`]
+  const types: Code[] = [`typeof __MPX_ctx`]
 
   yield `type __VLS_LocalDirectives =`
   for (const type of types) {

@@ -1,6 +1,43 @@
 <template>
     <view>
-        <image />
-        <!-- ^ 报错提示：缺少必要的 src 属性 -->
+        <view class="page-section page-section-spacing swiper">
+        <swiper
+          indicator-dots="{{ indicatorDots }}"
+          autoplay="{{ autoplay }}"
+          interval="{{ interval }}"
+          duration="{{ duration }}"
+          bindchange="{{ onSwiperChange }}"
+        >
+          <block wx:for="{{ backgroundList }}" wx:key="*this">
+            <swiper-item>
+              <view class="swiper-item">
+                {{ item }}
+              </view>
+            </swiper-item>
+        </block>
+      </swiper>
+    </view>
     </view>
 </template>
+
+<script setup lang="ts">
+const hello = (a?: number) => {
+  console.log('hello', a)
+}
+
+const onSwiperChange = (e: any) => {
+  console.log('swiper changed', e.detail.current)
+}
+
+const backgroundList = ['bg1', 'bg2', 'bg3'] as const
+
+defineExpose({
+  hello,
+  onSwiperChange,
+  indicatorDots: true,
+  autoplay: true,
+  interval: 3000,
+  duration: 500,
+  backgroundList
+})
+</script>

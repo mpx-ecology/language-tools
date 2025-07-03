@@ -464,7 +464,7 @@ function* generateElementReference(
       const [content, startOffset] = normalizeAttributeValue(prop.value)
 
       // navigation support for `const foo = ref()`
-      yield `/** @type {typeof __VLS_ctx`
+      yield `/** @type {typeof __MPX_ctx`
       yield* generatePropertyAccess(
         options,
         ctx,

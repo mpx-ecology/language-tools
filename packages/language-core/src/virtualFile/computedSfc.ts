@@ -179,28 +179,24 @@ export function computedSfc(
     },
   )
 
-  const json = computedNullableSfcBlock(
+  const getJson = computedNullableSfcBlock(
     'json',
     'json',
     computed(() => getParseResult()?.descriptor.json ?? undefined),
     (block, base): NonNullable<Sfc['json']> => {
       const getLang = computed(() => {
-        const type = block().jsonType
-        return type === 'application/json' ? 'json' : 'ts'
+        return block().jsonType === 'application/json' ? 'json' : 'js'
       })
 
       const getAst = computed(() => {
-        for (const plugin of plugins) {
-          const ast = plugin.compileSFCScript?.(getLang(), base.content)
-          if (ast) {
-            return ast
-          }
-        }
+        const lang = getLang()
 
         return ts.createSourceFile(
-          fileName + '.' + getLang(),
+          `mpx_script.${lang}`,
           '',
-          99 satisfies ts.ScriptTarget.Latest,
+          lang === 'json'
+            ? (100 satisfies ts.ScriptTarget.JSON)
+            : (99 satisfies ts.ScriptTarget.Latest),
         )
       })
 
@@ -212,7 +208,6 @@ export function computedSfc(
         },
 
         ast: (() => {
-          if (!['ts', 'js'].includes(getLang())) return
           return getAst()
         })(),
       })
@@ -242,7 +237,7 @@ export function computedSfc(
       return customBlocks
     },
     get json() {
-      return json()
+      return getJson()
     },
   }
 
