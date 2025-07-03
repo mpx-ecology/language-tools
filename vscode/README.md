@@ -13,8 +13,8 @@
 ## Credits
 
 - [vue-language-tools] & [Volar], created by [Johnson Chu].
-- [vscode-mpx], a legacy VS Code extension for Mpx, created by [pagnkelly].
-- [mpx-template-features], a legacy VS Code extension for Mpx template, created by [Soon Wang].
+- [vscode-mpx], a legacy extension for Mpx, created by [pagnkelly].
+- [mpx-template-features], a legacy extension for Mpx template, created by [Soon Wang].
 
 <!-- Reference Links -->
 
