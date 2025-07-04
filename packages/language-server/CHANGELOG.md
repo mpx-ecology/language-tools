@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/mpx-ecology/language-tools/compare/v0.2.0...v0.3.0) (2025-07-04)
+
+
+### Features
+
+* **service:** add mpx-css and mpx-document-link plugins ([55154a0](https://github.com/mpx-ecology/language-tools/commit/55154a06831f9b4de404183a56ee61a97fe4bc7d))
+
+
+
+
+
 # [0.2.0](https://github.com/mpx-ecology/language-tools/compare/v0.1.0...v0.2.0) (2025-06-26)
 
 **Note:** Version bump only for package @mpxjs/language-server

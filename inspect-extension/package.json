@@ -1,7 +1,7 @@
 {
   "name": "inspect",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "debug for mpx vscode extension",
   "devDependencies": {
     "@mpxjs/core": "2.10.6",

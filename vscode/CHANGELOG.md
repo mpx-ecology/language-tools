@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/mpx-ecology/language-tools/compare/v0.2.0...v0.3.0) (2025-07-04)
+
+
+### Features
+
+* **vscode:** update information for extension ([d0efa2d](https://github.com/mpx-ecology/language-tools/commit/d0efa2d0d85c8daa9a3a781244b233eba4f72cfd))
+
+
+
+
+
 # [0.2.0](https://github.com/mpx-ecology/language-tools/compare/v0.1.0...v0.2.0) (2025-06-26)
 
 
