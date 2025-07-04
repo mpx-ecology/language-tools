@@ -34,6 +34,13 @@ interface NativeComponentAttrs {
   swiper: MpxSwiper
   'swiper-item': MpxSwiperItem
   view: MpxView
+
+  //基础内容
+  icon: MpxIcon
+  progress: MpxProgress
+  'rich-text': MpxRichText
+  selection: MpxSelection
+  text: MpxText
 }
 
 interface MpxImg {
@@ -165,4 +172,41 @@ interface MpxView {
   'hover-stop-propagation'?: boolean
   'hover-start-time'?: number
   'hover-stay-time'?: number
+}
+
+interface MpxIcon {
+  type: string
+  size?: number | string
+  color?: string
+}
+
+interface MpxProgress {
+  percent?: number
+  'show-info'?: boolean
+  'border-radius'?: number | string
+  'font-size'?: number | string
+  'stroke-width'?: number | string
+  color?: string
+  activeColor?: string
+  backgroundColor?: string
+  active?: boolean
+  'active-mode'?: string
+  duration?: number
+  bindactiveend?: Function
+}
+
+interface MpxRichText {
+  nodes?: Array<string> | string
+  space?: string
+  'user-select'?: boolean
+}
+
+interface MpxSelection {
+  'disabled-context-menu'?: boolean
+  bindselectionchange?: Function
+}
+
+interface MpxText {
+  selectable?: boolean
+  'user-select'?: boolean
 }
