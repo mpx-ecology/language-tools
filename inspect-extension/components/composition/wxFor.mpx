@@ -39,14 +39,21 @@
         {{item11}} {{index11}}
       </view>
     </view>
+    <!-- wx:for 比 wx:if 优先级更高，  -->
+     <view wx:for="{{listData2}}" wx:key="*this" wx:if="{{item}}">
+      Case7: item should be string.
+      {{item}} {{index}}
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
 const listData = ['手机', '电视', '电脑']
+const listData2 = ['手机', '电视', undefined]
 
 defineExpose({
   listData,
+  listData2
  })
 </script>
 
