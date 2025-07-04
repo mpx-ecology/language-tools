@@ -1,0 +1,29 @@
+<template>
+  <view>
+    <view class="title">
+      {{ $t('local.title') }}
+      <view>
+        {{ $tm('local.driver') }}
+      </view>
+    </view>
+  </view>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  lifetimes: {
+    ready() {
+      console.log('ready')
+    },
+  },
+})
+</script>
+
+<style lang="stylus">
+  .title
+    color green
+  .list
+    background-color red
+</style>

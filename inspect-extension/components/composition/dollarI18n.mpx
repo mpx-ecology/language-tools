@@ -1,0 +1,21 @@
+<template>
+  <view>
+    <view class="title">
+      {{ $t('local.title') }}
+      <view>
+        {{ $tm('local.driver') }}
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="ts">
+defineExpose({})
+</script>
+
+<style lang="stylus">
+  .title
+    color green
+  .list
+    background-color red
+</style>

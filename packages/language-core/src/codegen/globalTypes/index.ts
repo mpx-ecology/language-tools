@@ -155,13 +155,16 @@ export function generateGlobalTypes({
 	function __VLS_asFunctionalSlot<S>(slot: S): S extends () => infer R ? (props: {}) => R : NonNullable<S>;
 	function __VLS_tryAsConstant<const T>(t: T): T;
 
+	type I18nValues = { [k: string]: string } | Array<string>
+
 	type UnwrapRefs<T> = {
 		[K in keyof T]: T[K] extends import('${lib}').Ref
 			? import('${lib}').UnwrapRef<T[K]>
 			: T[K]
 	}
-	${defineComponentTypesContents.globalTypes}
+	${defineComponentTypesContents.globalTypes()}
 }
-` + defineComponentTypesContents.localTypes
+` + defineComponentTypesContents.localTypes(lib)
+
   return text
 }

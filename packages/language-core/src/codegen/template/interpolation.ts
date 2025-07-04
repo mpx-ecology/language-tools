@@ -186,7 +186,7 @@ function* generateVar(
     }
 
     if (ctx.dollarVars.has(curVar.text)) {
-      yield [`__VLS_dollars.`, undefined]
+      yield [`__MPX_dollars.`, undefined]
     }
     if (!builtInVars.includes(curVar.text)) {
       yield [`__MPX_ctx.`, undefined]

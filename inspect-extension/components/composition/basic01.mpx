@@ -1,9 +1,17 @@
 <template>
-  <view class="title"> title: {{ title }} </view>
-  <view wx:class="list" bindtap="onClick">
-    <view> msg: {{ msg }} </view>
-    <view> obj: {{ obj.a + obj.b }} </view>
-    <view> content: {{ content }} </view>
+  <view>
+    <view class="title"> title: {{ title }} </view>
+    <view wx:class="list" bindtap="onClick">
+      <view> msg: {{ msg }} </view>
+      <view> obj: {{ obj.a + obj.b }} </view>
+      <view> content: {{ content }} </view>
+    </view>
+    <view class="title">
+      {{ $t('local.title') }}
+      <view>
+        {{ $tm('local.driver') }}
+      </view>
+    </view>
   </view>
 </template>
 
@@ -22,12 +30,12 @@ const content = computed(() => {
   return msg.value
 })
 const obj = {
-	a: 1,
-	b: 2
+  a: 1,
+  b: 2
 }
 
 const onClick = (a?: number) => {
-	console.log('click', a)
+  console.log('click', a)
 }
 
 defineExpose({
@@ -45,4 +53,3 @@ defineExpose({
   .list
     background-color red
 </style>
-  

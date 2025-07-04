@@ -36,18 +36,13 @@ function* generateTemplateCtx(options: ScriptCodegenOptions): Generator<Code> {
     const { defineProps, defineExpose } = options.scriptSetupRanges || {}
     if (!defineProps) {
       yield `const __VLS_defineProps = {}${endOfLine}`
-    } else {
-      const name = defineProps?.name
-      if (name) {
-        yield `const __VLS_defineProps = ${name}${newLine}`
-      }
     }
     if (!defineExpose) {
       yield `const __VLS_defineExposeUnrefs = {}${endOfLine}`
     } else {
       yield `const __VLS_defineExposeUnrefs = __VLS_defineExpose as any as UnwrapRefs<typeof __VLS_defineExpose>${newLine}`
     }
-    yield `const __MPX_ctx = { ...__VLS_defineProps, ...__VLS_defineExposeUnrefs }${endOfLine}`
+    yield `const __MPX_ctx = { ...__MPX_dollars, ...__VLS_defineProps, ...__VLS_defineExposeUnrefs }${endOfLine}`
   } else {
     yield `const __MPX_ctx = __VLS_defineComponent${endOfLine}`
   }

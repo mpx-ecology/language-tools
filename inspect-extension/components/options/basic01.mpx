@@ -1,13 +1,21 @@
 <template>
-  <view class="title"> 
-    title: {{ title }}
-    titleRef: {{ titleRef }}
-  </view>
-  <view wx:class="list" bindtap="onClick">
-    <view> parentText: {{ parentText }} </view>
-    <view> msg: {{ msg }} </view>
-    <view> obj: {{ obj.a + obj.b }} </view>
-    <view> content: {{ content }} </view>
+  <view>
+    <view class="title">
+      title: {{ title }}
+      titleRef: {{ titleRef }}
+    </view>
+    <view wx:class="list" bindtap="onClick">
+      <view> parentText: {{ parentText }} </view>
+      <view> msg: {{ msg }} </view>
+      <view> obj: {{ obj.a + obj.b }} </view>
+      <view> content: {{ content }} </view>
+    </view>
+    <view class="title">
+      {{ $t('local.title') }}
+      <view>
+        {{ $tm('local.driver') }}
+      </view>
+    </view>
   </view>
 </template>
 
@@ -15,7 +23,7 @@
 import { createComponent, ref } from '@mpxjs/core'
 
 createComponent({
-  properties:{
+  properties: {
     parentText: {
       type: String,
       value: 'parent text',
@@ -47,7 +55,7 @@ createComponent({
   },
   methods: {
     onClick() {
-      console.log('click', this.titleRef, this.content)
+      console.log('click', this.titleRef, this.content, this.$forceUpdate())
       this.count++
     }
   },

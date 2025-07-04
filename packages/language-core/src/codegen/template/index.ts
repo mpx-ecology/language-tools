@@ -53,10 +53,15 @@ export function* generateTemplate(
 
   const speicalTypes = [
     [slotsPropertyName, yield* generateSlots(options, ctx)],
-    ['$refs', yield* generateTemplateRefs(ctx)],
+    // ['$refs', yield* generateTemplateRefs(ctx)],
+    // 内置的一些 $xx 变量（适用于组合式组件）
+    ['$t', '(key: string, values?: I18nValues) => string'],
+    ['$tc', '(key: string, choice: number, values?: I18nValues) => string'],
+    ['$te', '(key: string) => boolean'],
+    ['$tm', '(key: string): any'],
   ]
 
-  yield `var __VLS_dollars!: {${newLine}`
+  yield `var __MPX_dollars!: {${newLine}`
   for (const [name, type] of speicalTypes) {
     yield `${name}: ${type}${endOfLine}`
   }
@@ -98,29 +103,29 @@ function* generateSlots(
   return `__VLS_Slots`
 }
 
-function* generateTemplateRefs(ctx: TemplateCodegenContext): Generator<Code> {
-  yield `type __VLS_TemplateRefs = {}`
-  for (const [name, refs] of ctx.templateRefs) {
-    yield `${newLine}& `
-    if (refs.length >= 2) {
-      yield `(`
-    }
-    for (let i = 0; i < refs.length; i++) {
-      const { typeExp, offset } = refs[i]
-      if (i) {
-        yield ` | `
-      }
-      yield `{ `
-      yield* generateObjectProperty(name, offset, ctx.codeFeatures.navigation)
-      yield `: ${typeExp} }`
-    }
-    if (refs.length >= 2) {
-      yield `)`
-    }
-  }
-  yield endOfLine
-  return `__VLS_TemplateRefs`
-}
+// function* generateTemplateRefs(ctx: TemplateCodegenContext): Generator<Code> {
+//   yield `type __VLS_TemplateRefs = {}`
+//   for (const [name, refs] of ctx.templateRefs) {
+//     yield `${newLine}& `
+//     if (refs.length >= 2) {
+//       yield `(`
+//     }
+//     for (let i = 0; i < refs.length; i++) {
+//       const { typeExp, offset } = refs[i]
+//       if (i) {
+//         yield ` | `
+//       }
+//       yield `{ `
+//       yield* generateObjectProperty(name, offset, ctx.codeFeatures.navigation)
+//       yield `: ${typeExp} }`
+//     }
+//     if (refs.length >= 2) {
+//       yield `)`
+//     }
+//   }
+//   yield endOfLine
+//   return `__VLS_TemplateRefs`
+// }
 
 export function* forEachElementNode(
   node: CompilerDOM.RootNode | CompilerDOM.TemplateChildNode,

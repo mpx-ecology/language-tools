@@ -1,4 +1,6 @@
-const globalTypes = `
+import { MpxCompilerOptions } from '../../types'
+
+const globalTypes = () => `
   // #region DefineComponent - global types
   function DefineComponent<
     D extends Data = {},
@@ -15,7 +17,7 @@ const globalTypes = `
   // #endregion
 
   // #region DefinePage - global types
-  export function DefinePage<
+  function DefinePage<
     D extends Data = {},
     P extends Properties = {},
     C = {},
@@ -29,7 +31,7 @@ const globalTypes = `
   // #endregion
 `
 
-const localTypes = `
+const localTypes = (lib: MpxCompilerOptions['lib']) => `
 // #region DefineComponent - local types
 type Data = object | (() => object)
 interface Properties {
@@ -122,19 +124,7 @@ type FullPropType<T> = {
   value?: T
   optionalTypes?: WechatMiniprogram.Component.ShortProperty[]
 }
-export type PropType<T> = {
-  __type: T
-} & (T extends string
-  ? StringConstructor
-  : T extends number
-    ? NumberConstructor
-    : T extends boolean
-      ? BooleanConstructor
-      : T extends any[]
-        ? ArrayConstructor
-        : T extends object
-          ? ObjectConstructor
-          : never)
+type PropType = import('${lib}').PropType
 type UnboxMixinField<T extends Mixin<{}, {}, {}, {}>, F> = F extends keyof T ? T[F] : {}
 type UnboxMixinsField<Mi extends Array<any>, F> = UnionToIntersection<
   RequiredPropertiesForUnion<UnboxMixinField<ArrayType<Mi>, F>>
@@ -152,7 +142,7 @@ interface Mixin<D, P, C, M> {
   methods?: M
   [index: string]: any
 }
-export type ComponentIns<
+type ComponentIns<
   D extends Data = {},
   P extends Properties = {},
   C = {},
@@ -164,7 +154,7 @@ export type ComponentIns<
   UnboxMixinsField<Mi, 'data'> &
   M &
   UnboxMixinsField<Mi, 'methods'> & {
-    [K in keyof S]: S[K] extends import('@mpxjs/core').Ref<infer V> ? V : S[K]
+    [K in keyof S]: S[K] extends import('${lib}').Ref<infer V> ? V : S[K]
   } & GetPropsType<P & UnboxMixinsField<Mi, 'properties'>> &
   GetComputedType<C & UnboxMixinsField<Mi, 'computed'>> &
   WxComponentIns<D, P, M> &
@@ -172,10 +162,8 @@ export type ComponentIns<
   MpxComProps<O>
 type GetDataType<T> = T extends () => any ? ReturnType<T> : T
 type MpxComProps<O> = { $rawOptions: O }
-export interface MpxComponentIns {
-  [k: string]: any
-}
-export type GetComputedType<T> = {
+type MpxComponentIns = import('${lib}').MpxComponentIns
+type GetComputedType<T> = {
   [K in keyof T]: T[K] extends { get: (...args: any[]) => infer R }
     ? R
     : T[K] extends (...args: any[]) => infer R
