@@ -1,6 +1,6 @@
 import type * as ts from 'typescript'
 import type { TemplateCodegenContext } from './context'
-import type { Code, MpxCodeInformation } from '../../types'
+import type { Code, MpxCodeInformation, MpxCompilerOptions } from '../../types'
 
 import { isGloballyAllowed, makeMap } from '@vue/shared'
 import { collectVars, createTsAst, identifierRegex } from '../utils'
@@ -8,11 +8,15 @@ import { getNodeText, getStartEnd } from '../../utils/shared'
 
 const isLiteralWhitelisted = /*@__PURE__*/ makeMap('true,false,null,this')
 
+// Mpx 支持编译注入的全局声明变量
+export const builtInVars = ['__mpx_mode__', '__mpx_env__']
+
 export function* generateInterpolation(
   options: {
     ts: typeof ts
     destructuredPropNames: Set<string> | undefined
     templateRefNames: Set<string> | undefined
+    mpxCompilerOptions: MpxCompilerOptions
   },
   ctx: TemplateCodegenContext,
   source: string,
@@ -184,7 +188,9 @@ function* generateVar(
     if (ctx.dollarVars.has(curVar.text)) {
       yield [`__VLS_dollars.`, undefined]
     }
-    yield [`__MPX_ctx.`, undefined]
+    if (!builtInVars.includes(curVar.text)) {
+      yield [`__MPX_ctx.`, undefined]
+    }
     yield [
       code.slice(curVar.offset, curVar.offset + curVar.text.length),
       curVar.offset,

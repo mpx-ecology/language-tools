@@ -1,0 +1,10 @@
+<template>
+  <view content="{{ __mpx_mode__ }}">
+    {{ __mpx_mode__ }}
+  </view>
+</template>
+
+<script lang="ts">
+const isWx = __mpx_mode__ === 'wx'
+console.log('---> debug', isWx)
+</script>
