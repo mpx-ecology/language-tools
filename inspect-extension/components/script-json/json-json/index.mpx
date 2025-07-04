@@ -12,8 +12,7 @@ createPage({})
   {
     "usingComponents": {
       // 注释测试
-      "list": "../components/list",
-      "sd": "xxc", // 允许末行尾随逗号
+      "list": "../components/list", // 允许末行尾随逗号
     } 
   }
 </script>
