@@ -20,7 +20,7 @@
 | SFC blocks 语言支持                          | ✅     | ✅                |
 | Emmet 支持                                   | ✅     | ✅                |
 | \<template\> 原生组件标签及属性补全提示      | ✅     | ✅ (enhanced)     |
-| 格式化 formatter                             | ✅     | 60% (enhanced)    |
+| 格式化 formatter                             | ✅     | ✅ (enhanced)     |
 | 关联 tsconfig 配置                           | ✅     | ✅ (enhanced)     |
 | 支持 Monorepo                                | ❌     | ✅                |
 | 支持选择 typescript 版本                     | ❌     | ✅                |
