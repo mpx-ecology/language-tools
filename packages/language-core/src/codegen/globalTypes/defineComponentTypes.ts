@@ -115,16 +115,15 @@ interface WatchField {
 type GetPropsType<T extends Properties> = {
   readonly [K in keyof T]: T[K] extends FullPropType<infer V>
     ? V
-    : T[K] extends PropType<infer V>
+    : T[K] extends import('@mpxjs/core').PropType<infer V>
       ? V
       : WechatMiniprogram.Component.PropertyToData<T[K]>
 }
 type FullPropType<T> = {
-  type: PropType<T>
+  type: import('@mpxjs/core').PropType<T>
   value?: T
   optionalTypes?: WechatMiniprogram.Component.ShortProperty[]
 }
-type PropType = import('${lib}').PropType
 type UnboxMixinField<T extends Mixin<{}, {}, {}, {}>, F> = F extends keyof T ? T[F] : {}
 type UnboxMixinsField<Mi extends Array<any>, F> = UnionToIntersection<
   RequiredPropertiesForUnion<UnboxMixinField<ArrayType<Mi>, F>>

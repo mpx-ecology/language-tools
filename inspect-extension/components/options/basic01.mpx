@@ -6,6 +6,7 @@
     </view>
     <view wx:class="list" bindtap="onClick">
       <view> parentText: {{ parentText }} </view>
+      <view> parentObj: {{ parentObj.a.b.c }} </view>
       <view> msg: {{ msg }} </view>
       <view> obj: {{ obj.a + obj.b }} </view>
       <view> content: {{ content }} </view>
@@ -27,6 +28,10 @@ createComponent({
     parentText: {
       type: String,
       value: 'parent text',
+    },
+    parentObj: {
+      type: Object,
+      value: {},
     }
   },
   data: {
@@ -55,7 +60,8 @@ createComponent({
   },
   methods: {
     onClick() {
-      console.log('click', this.titleRef, this.content, this.$forceUpdate())
+      console.log('click', this.titleRef, this.content, this.$forceUpdate)
+      console.log('---> debug', this.parentObj)
       this.count++
     }
   },

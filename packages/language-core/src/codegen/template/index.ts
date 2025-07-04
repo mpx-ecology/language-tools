@@ -58,7 +58,7 @@ export function* generateTemplate(
     ['$t', '(key: string, values?: I18nValues) => string'],
     ['$tc', '(key: string, choice: number, values?: I18nValues) => string'],
     ['$te', '(key: string) => boolean'],
-    ['$tm', '(key: string): any'],
+    ['$tm', '(key: string) => any'],
   ]
 
   yield `var __MPX_dollars!: {${newLine}`
