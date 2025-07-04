@@ -1,6 +1,8 @@
 <template>
     <view>
         <view class="page-section page-section-spacing swiper">
+        <icon />
+        <!-- ^ 缺少必填属性 `type` -->
         <swiper
           indicator-dots="{{ indicatorDots }}"
           autoplay="{{ autoplay }}"
