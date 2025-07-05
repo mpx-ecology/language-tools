@@ -41,6 +41,23 @@ interface NativeComponentAttrs {
   'rich-text': MpxRichText
   selection: MpxSelection
   text: MpxText
+
+  //表单组件
+  button: MpxButton
+  checkbox: MpxCheckbox
+  'checkbox-group': MpxCheckboxGroup
+  editor: MpxEditor
+  'editor-portal': MpxEditorPortal
+  form: MpxForm
+  input: MpxInput
+  label: MpxLabel
+  picker: MpxPicker
+  'picker-view': MpxPickerView
+  radio: MpxRadio
+  'radio-group': MpxRadioGroup
+  slider: MpxSlider
+  switch: MpxSwitch
+  textarea: MpxTextarea
 }
 
 interface MpxImg {
@@ -209,4 +226,195 @@ interface MpxSelection {
 interface MpxText {
   selectable?: boolean
   'user-select'?: boolean
+}
+
+interface MpxButton {
+  size?: string
+  type?: string
+  plain?: boolean
+  disabled?: boolean
+  loading?: boolean
+  'form-type'?: string
+  'open-type'?: string
+  'hover-class'?: string
+  'hover-stop-propagation'?: boolean
+  'hover-start-time'?: number
+  'hover-stay-time'?: number
+  lang?: string
+  'session-from'?: string
+  'send-message-title'?: string
+  'send-message-path'?: string
+  'send-message-img'?: string
+  'app-parameter'?: string
+  'show-message-card'?: boolean
+  'phone-number-no-quota-toast'?: boolean
+  'need-show-entrance'?: boolean
+  'entrance-path'?: string
+  bindgetuserinfo?: Function
+  bindcontact?: Function
+  createliveactivity?: Function
+  bindgetphonenumber?: Function
+  bindgetrealtimephonenumber?: Function
+  binderror?: Function
+  bindopensetting?: Function
+  bindlaunchapp?: Function
+  bindchooseavatar?: Function
+  bindagreeprivacyauthorization?: Function
+}
+
+interface MpxCheckbox {
+  value?: string
+  disabled?: boolean
+  checked?: boolean
+  color?: string
+}
+
+interface MpxCheckboxGroup {
+  bindchange?: Function
+}
+
+interface MpxEditor {
+  'read-only'?: boolean
+  placeholder?: string
+  'show-img-size'?: boolean
+  'show-img-toolbar'?: boolean
+  'show-img-resize'?: boolean
+  'enable-formats'?: boolean
+  enterkeyhint?: string
+  'confirm-hold'?: boolean
+  bindready?: Function
+  bindfocus?: Function
+  bindblur?: Function
+  bindinput?: Function
+  bindstatuschange?: Function
+}
+
+interface MpxEditorPortal {
+  key: string
+}
+
+interface MpxForm {
+  'report-submit'?: boolean
+  'report-submit-timeout'?: number
+  bindsubmit?: Function
+  bindreset?: Function
+  bindsubmitToGroup?: Function
+}
+
+interface MpxInput {
+  value: string
+  type?: string
+  password?: boolean
+  placeholder: string
+  'placeholder-style': string
+  disabled?: boolean
+  maxlength?: number
+  'cursor-spacing'?: number
+  'auto-focus'?: boolean
+  focus?: boolean
+  'confirm-type'?: string
+  'always-embed'?: boolean
+  'confirm-hold'?: boolean
+  cursor: number
+  'cursor-color'?: string
+  'selection-start'?: number
+  'selection-end'?: number
+  'adjust-position'?: boolean
+  'hold-keyboard'?: boolean
+  'safe-password-cert-path'?: string
+  'safe-password-length'?: number
+  'safe-password-time-stamp'?: number
+  'safe-password-nonce'?: string
+  'safe-password-salt'?: string
+  'safe-password-custom-hash'?: string
+  bindinput: Function
+  bindchange: Function
+  bindfocus: Function
+  bindblur: Function
+  bindconfirm: Function
+  bindkeyboardheightchange: Function
+  bindnicknamereview: Function
+}
+
+interface MpxLabel {
+  for?: string
+}
+
+interface MpxPicker {
+  'header-text'?: string
+  mode?: string
+  disabled?: boolean
+  bindcancel?: Function
+}
+
+interface MpxPickerView {
+  value?: Array<number>
+  'mask-class'?: string
+  'indicator-style'?: string
+  bindchange?: Function
+  bindpickstart?: Function
+  bindpickend?: Function
+}
+
+interface MpxRadio {
+  value?: string
+  checked?: boolean
+  disabled?: boolean
+  color?: string
+}
+
+interface MpxRadioGroup {
+  bindchange?: Function
+}
+
+interface MpxSlider {
+  min?: number
+  max?: number
+  step?: number
+  disabled?: boolean
+  value?: number
+  color?: string
+  'selected-color'?: string
+  activeColor?: string
+  backgroundColor?: string
+  'block-size'?: number
+  'block-color'?: string
+  'show-value'?: boolean
+  bindchange?: Function
+  bindchanging?: Function
+}
+
+interface MpxSwitch {
+  checked?: boolean
+  disabled?: boolean
+  type?: string
+  color?: string
+  bindchange?: Function
+}
+
+interface MpxTextarea {
+  value?: string
+  placeholder?: string
+  'placeholder-style'?: string
+  disabled?: boolean
+  maxlength?: number
+  'auto-focus'?: boolean
+  focus?: boolean
+  'auto-height'?: boolean
+  'cursor-spacing'?: number
+  cursor: number
+  'selection-start'?: number
+  'selection-end'?: number
+  'adjust-position'?: boolean
+  'hold-keyboard'?: boolean
+  'disable-default-padding'?: boolean
+  'confirm-type'?: string
+  'confirm-hold'?: boolean
+  'adjust-keyboard-to'?: boolean
+  bindfocus: Function
+  bindblur: Function
+  bindlinechange: Function
+  bindinput: Function
+  bindconfirm: Function
+  bindkeyboardheightchange: Function
 }
