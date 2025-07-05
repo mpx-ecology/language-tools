@@ -11,7 +11,6 @@ catalog:
   '@volar/typescript': ~2.4.12
   '@volar/vscode': ~2.4.12
   '@vue/compiler-dom': ^3.5.0
-  '@vue/shared': ^3.5.0
   '@types/node': ^22.15.32
   '@types/path-browserify': ^1.0.1
   '@types/semver': ^7.7.0

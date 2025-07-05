@@ -1,15 +1,14 @@
 import type * as ts from 'typescript'
 import type { TemplateCodegenContext } from './context'
 import type { Code, MpxCodeInformation, MpxCompilerOptions } from '../../types'
-
-import { isGloballyAllowed, makeMap } from '@vue/shared'
+import { isGloballyAllowed, makeMap } from '@mpxjs/language-shared'
 import { collectVars, createTsAst, identifierRegex } from '../utils'
 import { getNodeText, getStartEnd } from '../../utils/shared'
 
 const isLiteralWhitelisted = /*@__PURE__*/ makeMap('true,false,null,this')
-
-// Mpx 支持编译注入的全局声明变量
-export const builtInVars = ['__mpx_mode__', '__mpx_env__']
+const isMpxGloballyWhitelisted = /*@__PURE__*/ makeMap(
+  '__mpx_mode__,__mpx_env__',
+)
 
 export function* generateInterpolation(
   options: {
@@ -187,8 +186,7 @@ function* generateVar(
 
     if (ctx.dollarVars.has(curVar.text)) {
       yield [`__MPX_dollars.`, undefined]
-    }
-    if (!builtInVars.includes(curVar.text)) {
+    } else {
       yield [`__MPX_ctx.`, undefined]
     }
     yield [
@@ -323,6 +321,7 @@ function shouldIdentifierSkipped(
   return (
     ctx.hasLocalVariable(text) ||
     isGloballyAllowed(text) ||
+    isMpxGloballyWhitelisted(text) ||
     isLiteralWhitelisted(text) ||
     text === 'require' ||
     text.startsWith('__VLS_') ||

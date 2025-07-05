@@ -1,5 +1,9 @@
-import { SFCDescriptor, SFCJsonBlock, SFCScriptBlock } from '@vue/compiler-sfc'
 import type * as ts from 'typescript'
+import type {
+  SFCDescriptor,
+  SFCJsonBlock,
+  SFCScriptBlock,
+} from '@vue/compiler-sfc'
 
 export interface ProcessJsonBlockOptions {
   uri?: string

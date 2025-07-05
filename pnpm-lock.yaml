@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@mpxjs/core':
+      specifier: latest
+      version: 2.10.7
     '@types/node':
       specifier: ^22.15.32
       version: 22.15.32
@@ -31,9 +34,6 @@ catalogs:
       specifier: ~2.4.12
       version: 2.4.12
     '@vue/compiler-dom':
-      specifier: ^3.5.0
-      version: 3.5.13
-    '@vue/shared':
       specifier: ^3.5.0
       version: 3.5.13
     path-browserify:
@@ -93,8 +93,8 @@ importers:
   inspect-extension:
     devDependencies:
       '@mpxjs/core':
-        specifier: 2.10.6
-        version: 2.10.6(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
+        specifier: 'catalog:'
+        version: 2.10.7(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -130,9 +130,6 @@ importers:
       '@vue/compiler-vue2':
         specifier: ^2.7.16
         version: 2.7.16
-      '@vue/shared':
-        specifier: 'catalog:'
-        version: 3.5.13
       alien-signals:
         specifier: ^1.0.3
         version: 1.0.13
@@ -698,8 +695,8 @@ packages:
       react-native-safe-area-context:
         optional: true
 
-  '@mpxjs/core@2.10.6':
-    resolution: {integrity: sha512-WohUYTe3uJPbMkzfZwUoWhYfKH2Hoh4H/NdAhYyTDydgxyfOeixBIdO3xx6jfzfsh4hUlhv7GeWGmyhfQAUuhg==}
+  '@mpxjs/core@2.10.7':
+    resolution: {integrity: sha512-26xTxOPGO5MimX631AyXdtKsw1lv6cnwqqOWgtXlGv44ji/rKoXOS6R8PVZpB9/2C6ADji2DuFVqoXqPuP/ryw==}
     peerDependencies:
       '@d11/react-native-fast-image': '*'
       '@mpxjs/api-proxy': ^2.9.0
@@ -4960,32 +4957,32 @@ snapshots:
       - supports-color
       - typescript
 
-  '@mpxjs/api-proxy@2.10.4(@mpxjs/core@2.10.6)':
+  '@mpxjs/api-proxy@2.10.4(@mpxjs/core@2.10.7)':
     dependencies:
-      '@mpxjs/utils': 2.10.6(@mpxjs/core@2.10.6)
+      '@mpxjs/utils': 2.10.6(@mpxjs/core@2.10.7)
       axios: 1.8.4
     transitivePeerDependencies:
       - '@mpxjs/core'
       - debug
 
-  '@mpxjs/core@2.10.6(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)':
+  '@mpxjs/core@2.10.7(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)':
     dependencies:
-      '@mpxjs/api-proxy': 2.10.4(@mpxjs/core@2.10.6)
-      '@mpxjs/store': 2.10.4(@mpxjs/core@2.10.6)
-      '@mpxjs/utils': 2.10.6(@mpxjs/core@2.10.6)
+      '@mpxjs/api-proxy': 2.10.4(@mpxjs/core@2.10.7)
+      '@mpxjs/store': 2.10.4(@mpxjs/core@2.10.7)
+      '@mpxjs/utils': 2.10.6(@mpxjs/core@2.10.7)
       lodash: 4.17.21
       miniprogram-api-typings: 3.12.3
     optionalDependencies:
       vue: 2.7.16
 
-  '@mpxjs/store@2.10.4(@mpxjs/core@2.10.6)':
+  '@mpxjs/store@2.10.4(@mpxjs/core@2.10.7)':
     dependencies:
-      '@mpxjs/core': 2.10.6(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
-      '@mpxjs/utils': 2.10.6(@mpxjs/core@2.10.6)
+      '@mpxjs/core': 2.10.7(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
+      '@mpxjs/utils': 2.10.6(@mpxjs/core@2.10.7)
 
-  '@mpxjs/utils@2.10.6(@mpxjs/core@2.10.6)':
+  '@mpxjs/utils@2.10.6(@mpxjs/core@2.10.7)':
     dependencies:
-      '@mpxjs/core': 2.10.6(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
+      '@mpxjs/core': 2.10.7(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
 
   '@napi-rs/wasm-runtime@0.2.4':
     dependencies:

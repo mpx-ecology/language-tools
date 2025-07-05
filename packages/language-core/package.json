@@ -24,8 +24,6 @@
     "@mpxjs/language-shared": "workspace:*",
     "@volar/language-core": "catalog:",
     "@vue/compiler-dom": "catalog:",
-    "@vue/compiler-vue2": "^2.7.16",
-    "@vue/shared": "catalog:",
     "alien-signals": "^1.0.3",
     "enhanced-resolve": "^5.18.1",
     "minimatch": "^9.0.3",
