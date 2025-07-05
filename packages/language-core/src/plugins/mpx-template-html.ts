@@ -14,7 +14,7 @@ const shouldAddSuffix = /(?<=<[^>/]+)$/
 const plugin: MpxLanguagePlugin = ({ modules }) => {
   return {
     name: 'mpx-template-html',
-    
+
     compileSFCTemplate(lang, template, options) {
       if (lang === 'html') {
         const compiler = modules['@vue/compiler-dom']
