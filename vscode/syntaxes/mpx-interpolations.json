@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "fileTypes": [],
-  "injectionSelector": "L:text.pug -comment -string.comment, L:text.html.derivative -comment.block, L:text.html.markdown -comment.block",
+  "injectionSelector": "L:text.html.derivative -comment.block, L:text.html.markdown -comment.block",
   "patterns": [
     {
       "include": "source.mpx#mpx-interpolations"

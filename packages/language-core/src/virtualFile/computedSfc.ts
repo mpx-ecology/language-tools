@@ -111,6 +111,40 @@ export function computedSfc(
       })
     },
   )
+  const getJson = computedNullableSfcBlock(
+    'json',
+    'json',
+    computed(() => getParseResult()?.descriptor.json ?? undefined),
+    (block, base): NonNullable<Sfc['json']> => {
+      const getLang = computed(() => {
+        return block().jsonType === 'application/json' ? 'json' : 'js'
+      })
+
+      const getAst = computed(() => {
+        const lang = getLang()
+
+        return ts.createSourceFile(
+          `mpx_script.${lang}`,
+          '',
+          lang === 'json'
+            ? (100 satisfies ts.ScriptTarget.JSON)
+            : (99 satisfies ts.ScriptTarget.Latest),
+        )
+      })
+
+      return mergeObject(base, {
+        jsonType: block().jsonType,
+
+        get lang() {
+          return getLang()
+        },
+
+        ast: (() => {
+          return getAst()
+        })(),
+      })
+    },
+  )
   const hasScript = computed(() => !!getParseResult()?.descriptor.script)
   const hasScriptSetup = computed(
     () => !!getParseResult()?.descriptor.scriptSetup,
@@ -179,41 +213,6 @@ export function computedSfc(
     },
   )
 
-  const getJson = computedNullableSfcBlock(
-    'json',
-    'json',
-    computed(() => getParseResult()?.descriptor.json ?? undefined),
-    (block, base): NonNullable<Sfc['json']> => {
-      const getLang = computed(() => {
-        return block().jsonType === 'application/json' ? 'json' : 'js'
-      })
-
-      const getAst = computed(() => {
-        const lang = getLang()
-
-        return ts.createSourceFile(
-          `mpx_script.${lang}`,
-          '',
-          lang === 'json'
-            ? (100 satisfies ts.ScriptTarget.JSON)
-            : (99 satisfies ts.ScriptTarget.Latest),
-        )
-      })
-
-      return mergeObject(base, {
-        jsonType: block().jsonType,
-
-        get lang() {
-          return getLang()
-        },
-
-        ast: (() => {
-          return getAst()
-        })(),
-      })
-    },
-  )
-
   return {
     get content() {
       return getContent()
@@ -230,14 +229,14 @@ export function computedSfc(
     get scriptSetup() {
       return getScriptSetup()
     },
+    get json() {
+      return getJson()
+    },
     get styles() {
       return styles
     },
     get customBlocks() {
       return customBlocks
-    },
-    get json() {
-      return getJson()
     },
   }
 

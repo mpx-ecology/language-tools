@@ -1,11 +1,11 @@
 import mpxFilePlugin from './plugins/mpx-file'
 import mpxRootTagsPlugin from './plugins/mpx-root-tags'
 import mpxScriptJsPlugin from './plugins/mpx-script-js'
-import mpxSfcCustomBlocksPlugin from './plugins/mpx-sfc-customblocks'
-import mpxSfcScriptsFormatPlugin from './plugins/mpx-sfc-scripts'
-import mpxSfcStylesPlugin from './plugins/mpx-sfc-styles'
-import mpxSfcJsonPlugin from './plugins/mpx-sfc-json'
+import mpxSfcScriptFormatPlugin from './plugins/mpx-sfc-script'
 import mpxSfcTemplatePlugin from './plugins/mpx-sfc-template'
+import mpxSfcStylePlugin from './plugins/mpx-sfc-style'
+import mpxSfcJsonPlugin from './plugins/mpx-sfc-json'
+import mpxSfcCustomBlocksPlugin from './plugins/mpx-sfc-customblocks'
 import mpxTemplateHtmlPlugin from './plugins/mpx-template-html'
 import mpxTemplateInlineCssPlugin from './plugins/mpx-template-inline-css'
 import mpxTemplateInlineTsPlugin from './plugins/mpx-template-inline-ts'
@@ -22,11 +22,11 @@ export function createPlugins(pluginContext: Parameters<MpxLanguagePlugin>[0]) {
     mpxTemplateHtmlPlugin,
     mpxTemplateInlineCssPlugin,
     mpxTemplateInlineTsPlugin,
-    mpxSfcStylesPlugin,
+    mpxSfcTemplatePlugin,
+    mpxSfcScriptFormatPlugin,
+    mpxSfcStylePlugin,
     mpxSfcJsonPlugin,
     mpxSfcCustomBlocksPlugin,
-    mpxSfcScriptsFormatPlugin,
-    mpxSfcTemplatePlugin,
     mpxTsxPlugin,
     ...pluginContext.mpxCompilerOptions.plugins,
   ]

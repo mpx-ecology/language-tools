@@ -19,7 +19,7 @@ export function createScriptCodegenContext(options: ScriptCodegenOptions) {
   return {
     generatedTemplate: false,
     generatedPropsType: false,
-    bypassDefineComponent: options.lang === 'js' || options.lang === 'jsx',
+    bypassDefineComponent: options.lang === 'js',
     bindingNames: new Set([
       ...(options.scriptRanges?.bindings.map(({ range }) =>
         options.sfc.script!.content.slice(range.start, range.end),

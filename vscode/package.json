@@ -78,7 +78,6 @@
           "text": "plaintext",
           "text.html.derivative": "html",
           "text.html.markdown": "markdown",
-          "text.pug": "jade",
           "source.css": "css",
           "source.css.scss": "scss",
           "source.css.less": "less",
@@ -87,13 +86,7 @@
           "source.postcss": "postcss",
           "source.js": "javascript",
           "source.ts": "typescript",
-          "source.js.jsx": "javascriptreact",
-          "source.tsx": "typescriptreact",
           "source.coffee": "coffeescript",
-          "meta.tag.js": "jsx-tags",
-          "meta.tag.tsx": "jsx-tags",
-          "meta.tag.without-attributes.js": "jsx-tags",
-          "meta.tag.without-attributes.tsx": "jsx-tags",
           "source.json": "json",
           "source.json.comments": "jsonc",
           "source.json5": "json5",
@@ -115,8 +108,7 @@
         "injectTo": [
           "source.mpx",
           "text.html.markdown",
-          "text.html.derivative",
-          "text.pug"
+          "text.html.derivative"
         ]
       },
       {
@@ -125,8 +117,7 @@
         "injectTo": [
           "source.mpx",
           "text.html.markdown",
-          "text.html.derivative",
-          "text.pug"
+          "text.html.derivative"
         ]
       }
     ],

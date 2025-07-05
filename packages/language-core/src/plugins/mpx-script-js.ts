@@ -6,7 +6,7 @@ const plugin: MpxLanguagePlugin = ({ modules }) => {
     name: 'mpx-script-js',
 
     compileSFCScript(lang, script) {
-      if (lang === 'js' || lang === 'ts' || lang === 'jsx' || lang === 'tsx') {
+      if (lang === 'js' || lang === 'ts') {
         const ts = modules.typescript
         return ts.createSourceFile(
           `mpx_script.${lang}`,

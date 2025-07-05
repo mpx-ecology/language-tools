@@ -13,11 +13,9 @@ export function* generateSrc(src: SfcBlockAttr): Generator<Code> {
     text = text.slice(0, -'.d.ts'.length)
   } else if (text.endsWith('.ts')) {
     text = text.slice(0, -'.ts'.length)
-  } else if (text.endsWith('.tsx')) {
-    text = text.slice(0, -'.tsx'.length) + '.jsx'
   }
 
-  if (!text.endsWith('.js') && !text.endsWith('.jsx')) {
+  if (!text.endsWith('.js')) {
     text = text + '.js'
   }
 

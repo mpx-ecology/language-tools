@@ -13,7 +13,7 @@ import { CompilerOptionsResolver } from '../utils/ts'
 
 export const tsCodegen = new WeakMap<Sfc, ReturnType<typeof createTsx>>()
 
-const validLangs = new Set(['js', 'jsx', 'ts', 'tsx'])
+const validLangs = new Set(['js', 'ts'])
 
 const plugin: MpxLanguagePlugin = ctx => {
   let appendedGlobalTypes = false
@@ -37,7 +37,7 @@ const plugin: MpxLanguagePlugin = ctx => {
     },
 
     resolveEmbeddedCode(fileName, sfc, embeddedFile) {
-      if (/script_(js|jsx|ts|tsx)/.test(embeddedFile.id)) {
+      if (/script_(js|ts)/.test(embeddedFile.id)) {
         const codegen = useCodegen(fileName, sfc)
         const tsx = codegen.getGeneratedScript()
         if (tsx) {

@@ -132,7 +132,7 @@ function* generateSetupFunction(
       ])
     }
   }
-  const isTs = options.lang !== 'js' && options.lang !== 'jsx'
+  const isTs = options.lang !== 'js'
   for (const { callExp, exp, arg } of scriptSetupRanges.useTemplateRef) {
     const templateRefType = arg
       ? [

@@ -20,7 +20,7 @@
     "commit-msg": "tsx scripts/verify-commit.ts"
   },
   "lint-staged": {
-    "*.{js,json}": [
+    "*.{js,json,md}": [
       "prettier --write --cache"
     ],
     "*.ts": [

@@ -121,19 +121,12 @@ export function createMpxLanguagePlugin<T>(
       })),
       getServiceScript(root) {
         for (const code of forEachEmbeddedCode(root)) {
-          if (/script_(js|jsx|ts|tsx)/.test(code.id)) {
+          if (/script_(js|ts)/.test(code.id)) {
             const lang = code.id.slice('script_'.length)
             return {
               code,
               extension: '.' + lang,
-              scriptKind:
-                lang === 'js'
-                  ? ts.ScriptKind.JS
-                  : lang === 'jsx'
-                    ? ts.ScriptKind.JSX
-                    : lang === 'tsx'
-                      ? ts.ScriptKind.TSX
-                      : ts.ScriptKind.TS,
+              scriptKind: lang === 'js' ? ts.ScriptKind.JS : ts.ScriptKind.TS,
             }
           }
         }

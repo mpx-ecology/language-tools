@@ -323,10 +323,6 @@ export function resolveCommonLanguageId(lang: string) {
       return 'typescript'
     case 'mts':
       return 'typescript'
-    case 'jsx':
-      return 'javascriptreact'
-    case 'tsx':
-      return 'typescriptreact'
   }
   return lang
 }
