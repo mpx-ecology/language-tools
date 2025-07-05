@@ -116,32 +116,27 @@ export function computedSfc(
     'json',
     computed(() => getParseResult()?.descriptor.json ?? undefined),
     (block, base): NonNullable<Sfc['json']> => {
-      const getLang = computed(() => {
-        return block().jsonType === 'application/json' ? 'json' : 'js'
-      })
-
       const getAst = computed(() => {
-        const lang = getLang()
-
-        return ts.createSourceFile(
-          `mpx_script.${lang}`,
-          '',
-          lang === 'json'
-            ? (100 satisfies ts.ScriptTarget.JSON)
-            : (99 satisfies ts.ScriptTarget.Latest),
-        )
+        const lang = block().lang ?? 'json'
+        for (const plugin of plugins) {
+          const ast = plugin.compileSFCJson?.(lang, base.content)
+          if (ast) {
+            return ast
+          }
+        }
+        return ts.createSourceFile('', '', 100 satisfies ts.ScriptTarget.JSON)
       })
-
+      const getUsingComponents = computed(() => {
+        // TODO 根据 getAst() 解析 usingComponents
+        return undefined
+      })
       return mergeObject(base, {
-        jsonType: block().jsonType,
-
-        get lang() {
-          return getLang()
-        },
-
-        ast: (() => {
+        get ast() {
           return getAst()
-        })(),
+        },
+        get usingComponents() {
+          return getUsingComponents()
+        },
       })
     },
   )

@@ -3,17 +3,13 @@ import type {
   CompilerError,
   SFCBlock,
   SFCDescriptor,
+  SFCJsonBlock,
   SFCParseResult,
   SFCScriptBlock,
   SFCStyleBlock,
   SFCTemplateBlock,
 } from '@vue/compiler-sfc'
-
 import * as CompilerDOM from '@vue/compiler-dom'
-import {
-  type ProcessJsonBlockOptions,
-  processJsonBlock,
-} from './processJsonBlock'
 
 declare module '@vue/compiler-sfc' {
   interface SFCDescriptor {
@@ -21,12 +17,7 @@ declare module '@vue/compiler-sfc' {
   }
 }
 
-interface ParseOptions extends ProcessJsonBlockOptions {}
-
-export function parse(
-  source: string,
-  options: ParseOptions = {},
-): SFCParseResult {
+export function parse(source: string): SFCParseResult {
   const errors: CompilerError[] = []
   const ast = CompilerDOM.parse(source, {
     // there are no components at SFC parsing level
@@ -65,14 +56,18 @@ export function parse(
         break
       }
       case 'script': {
-        const scriptBlock = createBlock(node, source) as SFCScriptBlock
-        const isSetup = !!scriptBlock.setup
-        if (isSetup && !descriptor.scriptSetup) {
-          descriptor.scriptSetup = scriptBlock
+        const scriptBlock = createBlock(node, source) as
+          | SFCScriptBlock
+          | SFCJsonBlock
+
+        if (isJsonBlock(scriptBlock)) {
+          descriptor.json = scriptBlock
           break
         }
 
-        if (processJsonBlock(scriptBlock, descriptor, options)) {
+        const isSetup = !!scriptBlock.setup
+        if (isSetup && !descriptor.scriptSetup) {
+          descriptor.scriptSetup = scriptBlock
           break
         }
 
@@ -161,6 +156,16 @@ function isScriptBlock(block: SFCBlock): block is SFCScriptBlock {
 
 function isStyleBlock(block: SFCBlock): block is SFCStyleBlock {
   return block.type === 'style'
+}
+
+function isJsonBlock(block: SFCBlock): block is SFCJsonBlock {
+  const { type, name } = block.attrs
+  const isJson = name === 'json' || type === 'application/json'
+  if (isJson) {
+    block.lang = name === 'json' ? 'js' : 'json'
+    block.type = 'json'
+  }
+  return isJson
 }
 
 function parseAttr(

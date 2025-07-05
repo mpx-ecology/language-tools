@@ -1,9 +1,24 @@
+import type * as ts from 'typescript'
 import type { MpxLanguagePlugin } from '../types'
 import { allCodeFeatures } from './shared'
 
-const plugin: MpxLanguagePlugin = () => {
+const plugin: MpxLanguagePlugin = ({ modules }) => {
   return {
     name: 'mpx-sfc-json',
+
+    compileSFCJson(lang, json) {
+      if (lang === 'js' || lang === 'json') {
+        const ts = modules.typescript
+        return ts.createSourceFile(
+          `mpx_json.${lang}`,
+          json,
+          lang === 'json'
+            ? (100 satisfies ts.ScriptTarget.JSON)
+            : (99 satisfies ts.ScriptTarget.Latest),
+        )
+      }
+    },
+
     getEmbeddedCodes(_fileName, sfc) {
       const result: {
         id: string

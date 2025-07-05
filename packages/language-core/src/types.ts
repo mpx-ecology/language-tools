@@ -100,6 +100,7 @@ export type MpxLanguagePluginReturn = {
     oldResult: CompilerDOM.CodegenResult,
     textChange: { start: number; end: number; newText: string },
   ): CompilerDOM.CodegenResult | undefined
+  compileSFCJson?(lang: string, json: string): ts.SourceFile | undefined
   getEmbeddedCodes?(fileName: string, sfc: Sfc): { id: string; lang: string }[]
   resolveEmbeddedCode?(
     fileName: string,
@@ -170,7 +171,10 @@ export interface Sfc {
     }[]
   })[]
   json:
-    | (SfcBlock & Pick<SFCJsonBlock, 'jsonType' | 'usingComponents'>)
+    | (SfcBlock & {
+        ast: ts.SourceFile
+        usingComponents: SFCJsonBlock['usingComponents']
+      })
     | undefined
   customBlocks: readonly (SfcBlock & {
     type: string
@@ -190,7 +194,6 @@ declare module '@vue/compiler-sfc' {
 
   interface SFCJsonBlock extends SFCBlock {
     type: 'json'
-    jsonType: 'application/json' | 'application/script'
     usingComponents?: Promise<
       Map<
         string,
