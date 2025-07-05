@@ -5,6 +5,7 @@ import { allCodeFeatures } from './shared'
 const plugin: MpxLanguagePlugin = () => {
   return {
     name: 'mpx-root-tags',
+
     getEmbeddedCodes() {
       return [
         {

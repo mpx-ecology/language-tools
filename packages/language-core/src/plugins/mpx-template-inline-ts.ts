@@ -24,6 +24,7 @@ const plugin: MpxLanguagePlugin = ctx => {
 
   return {
     name: 'mpx-template-inline-ts',
+
     getEmbeddedCodes(_fileName, sfc) {
       if (!sfc.template?.ast) {
         return []
