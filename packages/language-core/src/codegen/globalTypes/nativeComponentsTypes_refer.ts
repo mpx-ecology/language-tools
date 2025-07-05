@@ -20,8 +20,6 @@ interface ReservedProps {
 }
 
 interface NativeComponentAttrs {
-  img: MpxImg
-  image: MpxImg
   // 视图容器
   'cover-image': MpxCoverImage
   'cover-view': MpxCoverView
@@ -58,10 +56,27 @@ interface NativeComponentAttrs {
   slider: MpxSlider
   switch: MpxSwitch
   textarea: MpxTextarea
-}
 
-interface MpxImg {
-  src: string
+  // 导航组件
+  'functional-page-navigator': MpxFunctionalPageNavigator
+  navigator: MpxNavigator
+
+  //媒体组件
+  audio: MpxAudio
+  camera: MpxCamera
+  'channel-live': MpxChannelLive
+  'channel-video': MpxChannelVideo
+  image: MpxImage
+  'live-player': MpxLivePlayer
+  'live-pusher': MpxLivePusher
+  video: MpxVideo
+  'video-room': MpxVideoRoom
+
+  //地图组件
+  map: MpxMap
+
+  //画布
+  canvas: MpxCanvas
 }
 
 interface MpxCoverImage {
@@ -417,4 +432,294 @@ interface MpxTextarea {
   bindinput: Function
   bindconfirm: Function
   bindkeyboardheightchange: Function
+}
+
+interface MpxFunctionalPageNavigator {
+  version?: string
+  name?: string
+  args?: object
+  bindsuccess?: Function
+  bindfail?: Function
+  bindcancel?: Function
+}
+
+interface MpxNavigator {
+  target?: string
+  url?: string
+  'open-type'?: string
+  delta?: number
+  'app-id'?: string
+  path?: string
+  'extra-data'?: object
+  version?: string
+  'short-link'?: string
+  'hover-class'?: string
+  'hover-stop-propagation'?: boolean
+  'hover-start-time'?: number
+  'hover-stay-time'?: number
+  bindsuccess?: Function
+  bindfail?: Function
+  bindcomplete?: Function
+}
+interface MpxAudio {
+  id?: string
+  src?: string
+  loop?: boolean
+  controls?: boolean
+  poster?: string
+  name?: string
+  ahthor?: string
+  binderror?: Function
+  bindplay?: Function
+  bindpause?: Function
+  bindtimeupdate?: Function
+  bindended?: Function
+}
+
+interface MpxCamera {
+  mode?: string
+  resolution?: string
+  'device-position'?: string
+  flash?: string
+  'frame-size'?: string
+  bindstop?: Function
+  binderror?: Function
+  bindinitdone?: Function
+  bindscandone?: Function
+}
+
+interface MpxChannelLive {
+  'feed-id': string
+  'finder-user-name': string
+}
+
+interface MpxChannelVideo {
+  'feed-id': string
+  'finder-user-name': string
+  'feed-token'?: string
+  autoplay?: string
+  loop?: boolean
+  muted?: boolean
+  'object-fit'?: string
+  binderror?: Function
+}
+
+interface MpxImage {
+  src?: string
+  mode?: string
+  'show-menu-by-longpress'?: boolean
+  binderror?: Function
+  bindload?: Function
+}
+
+interface MpxLivePlayer {
+  src?: string
+  mode?: string
+  autoplay?: boolean
+  muted?: boolean
+  orientation?: string
+  'object-fit'?: string
+  'background-mute'?: boolean
+  'min-cache'?: number
+  'max-cache'?: number
+  'sound-mode'?: string
+  'auto-pause-if-navigate'?: boolean
+  'auto-pause-if-open-native'?: boolean
+  'picture-in-picture-mode'?: string | Array<string>
+  'picture-in-picture-init-position'?: string
+  'enable-auto-rotation'?: boolean
+  'referrer-policy'?: string
+  'enable-casting'?: boolean
+  bindstatechange?: Function
+  bindfullscreenchange?: Function
+  bindnetstatus?: Function
+  bindaudiovolumeupdate?: Function
+  bindenterpictureinpicture?: Function
+  bindleavepictureinpicture?: Function
+  bindcastinguserselect?: Function
+  bindcastingstatechange?: Function
+  bindcastinginterrupt?: Function
+}
+
+interface MpxLivePusher {
+  url?: string
+  mode?: string
+  autoplay?: boolean
+  enableVideoCustomRender?: boolean
+  muted?: boolean
+  'enable-camera': boolean
+  'auto-focus'?: boolean
+  orientation?: string
+  beauty?: number
+  whiteness?: number
+  aspect?: string
+  'min-bitrate'?: number
+  'max-bitrate'?: number
+  'audio-quality'?: string
+  'waiting-image'?: string
+  'waiting-image-hash'?: string
+  zoom?: boolean
+  'device-position'?: string
+  'background-mute'?: boolean
+  mirror?: boolean
+  'remote-mirror'?: boolean
+  'local-mirror'?: string
+  'audio-reverb-type'?: number
+  'enable-mic'?: boolean
+  'enable-agc'?: boolean
+  'enable-ans'?: boolean
+  'audio-volume-type'?: string
+  'video-width'?: number
+  'video-height'?: number
+  'beauty-style'?: string
+  filter?: string
+  'picture-in-picture-mode'?: string | Array<string>
+  'voice-changer-type'?: number
+  'custom-effects'?: boolean
+  'skin-whiteness'?: number
+  'skin-smoothness'?: number
+  'face-thinness'?: number
+  'eye-bigness'?: number
+  fps?: number
+  bindstatechange?: Function
+  bindnetstatus?: Function
+  binderror?: Function
+  bindbgmstart?: Function
+  bindbgmprogress?: Function
+  bindbgmcomplete?: Function
+  bindaudiovolumenotify?: Function
+  bindenterpictureinpicture?: Function
+  bindleavepictureinpicture?: Function
+}
+
+interface MpxVideo {
+  src: string
+  duration?: number
+  controls?: boolean
+  'danmu-list'?: Array<object>
+  'danmu-btn'?: boolean
+  'enable-danmu'?: boolean
+  autoplay?: boolean
+  loop?: boolean
+  muted?: boolean
+  'initial-time'?: number
+  'page-gesture'?: boolean
+  direction?: number
+  'show-progress'?: boolean
+  'show-fullscreen-btn'?: boolean
+  'show-play-btn'?: boolean
+  'show-center-play-btn'?: boolean
+  'enable-progress-gesture'?: boolean
+  'object-fit'?: string
+  poster?: string
+  'show-mute-btn'?: boolean
+  title?: string
+  'play-btn-position'?: string
+  'enable-play-gesture'?: boolean
+  'auto-play-gesture'?: boolean
+  'auto-pause-if-navigate'?: boolean
+  'auto-pause-if-open-native'?: boolean
+  'vslide-gesture'?: boolean
+  'vslide-gesture-in-fullscreen'?: boolean
+  'show-bottom-progress'?: boolean
+  'ad-unit-id'?: string
+  'poster-for-crawker'?: string
+  'show-casting-button'?: boolean
+  'picture-in-picture-mode'?: string | Array<string>
+  'picture-in-picture-init-position'?: string
+  'enable-auto-rotation'?: boolean
+  'show-screen-lock-button'?: boolean
+  'show-snapshot-button'?: boolean
+  'show-background-playback-button'?: boolean
+  'background-poster'?: string
+  'referrer-policy'?: string
+  'is-drm'?: boolean
+  'is-live'?: boolean
+  'provision-url'?: string
+  'certificate-url'?: string
+  'license-url'?: string
+  'preferred-peak-bit-rate'?: number
+  bindplay?: Function
+  bindpause?: Function
+  bindended?: Function
+  bindtimeupdate?: Function
+  bindfullscreenchange?: Function
+  bindwaiting?: Function
+  binderror?: Function
+  bindprogress?: Function
+  bindloadedmetadata?: Function
+  bindontrolstoggle?: Function
+  bindenterpictureinpicture?: Function
+  bindleavepictureinpicture?: Function
+  bindseekcomplete?: Function
+  bindcastinguserselect?: Function
+  bindcastingstatechange?: Function
+  bindcastinginterrupt?: Function
+}
+
+interface MpxVideoRoom {
+  openid: string
+  mode: string
+  'device-position': string
+  'object-fit': string
+  binderror?: Function
+}
+
+interface MpxMap {
+  longitude: number
+  latitude: number
+  scale?: number
+  'min-scale'?: number
+  'max-scale'?: number
+  markers?: Array<object>
+  covers?: Array<object>
+  polyline?: Array<object>
+  circles?: Array<object>
+  controls?: Array<object>
+  'include-points'?: Array<object>
+  'show-location'?: boolean
+  ploygons?: Array<object>
+  subkey?: string
+  'layer-style'?: number
+  rotate?: number
+  skew?: number
+  'enable-3D'?: boolean
+  'show-compass'?: boolean
+  'show-scale'?: boolean
+  'enable-overlooking'?: boolean
+  'enable-auto-max-overlooking'?: boolean
+  'enable-zoom'?: boolean
+  'enable-scroll'?: boolean
+  'enable-rotate'?: boolean
+  'enable-satellite'?: boolean
+  'enable-traffic'?: boolean
+  'enable-poi'?: boolean
+  'enable-building'?: boolean
+  setting?: object
+  bindtap?: Function
+  bindmarkertap?: Function
+  bindlabeltap?: Function
+  bindcontroltap?: Function
+  bindcallouttap?: Function
+  bindupdated?: Function
+  bindregionchange?: Function
+  bindpoitap?: Function
+  bindpolulinetap?: Function
+  bindabilitysuccess?: Function
+  bindablityfail?: Function
+  bindauthsuccess?: Function
+  bindinterpolatepoint?: Function
+  binderror?: Function
+}
+
+interface MpxCanvas {
+  type?: string
+  'canvas-id': string
+  'disable-scroll'?: boolean
+  bindtouchstart?: Function
+  bindtouchmove?: Function
+  bindtouchend?: Function
+  bindtouchcancel?: Function
+  bindlongtap?: Function
+  binderror?: Function
 }
