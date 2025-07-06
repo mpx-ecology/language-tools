@@ -14,9 +14,11 @@ export function create(
 ): LanguageServicePlugin {
   return {
     name: 'mpx-document-highlights',
+
     capabilities: {
       documentHighlightProvider: true,
     },
+
     create(context) {
       return {
         async provideDocumentHighlights(document, position) {

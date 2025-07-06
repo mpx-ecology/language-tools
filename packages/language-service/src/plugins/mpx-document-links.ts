@@ -6,9 +6,11 @@ import { MpxVirtualCode, Sfc, tsCodegen } from '@mpxjs/language-core'
 export function create(): LanguageServicePlugin {
   return {
     name: 'mpx-document-links',
+
     capabilities: {
       documentLinkProvider: {},
     },
+
     create(context) {
       return {
         provideDocumentLinks(document) {

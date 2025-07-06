@@ -58,7 +58,9 @@ export function create(): LanguageServicePlugin {
 
   return {
     ...htmlService,
+
     name: 'mpx-sfc',
+
     capabilities: {
       ...htmlService.capabilities,
       diagnosticProvider: {
@@ -66,6 +68,7 @@ export function create(): LanguageServicePlugin {
         workspaceDiagnostics: false,
       },
     },
+
     create(context) {
       const htmlServiceInstance = htmlService.create(context)
 

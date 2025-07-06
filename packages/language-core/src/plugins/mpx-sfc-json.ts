@@ -25,9 +25,10 @@ const plugin: MpxLanguagePlugin = ({ modules }) => {
         lang: string
       }[] = []
       if (sfc.json) {
+        const lang = sfc.json.lang
         result.push({
-          id: 'json_' + sfc.json.lang,
-          lang: sfc.json.lang,
+          id: `json_${lang}`,
+          lang: lang,
         })
       }
       return result

@@ -15,7 +15,9 @@ export function create(): LanguageServicePlugin {
 
   return {
     ...base,
+
     name: 'mpx-css',
+
     create(context) {
       const baseInstance = base.create(context)
       const {
@@ -25,6 +27,7 @@ export function create(): LanguageServicePlugin {
 
       return {
         ...baseInstance,
+
         async provideDiagnostics(document, token) {
           let diagnostics =
             (await baseInstance.provideDiagnostics?.(document, token)) ?? []
@@ -41,6 +44,7 @@ export function create(): LanguageServicePlugin {
           }
           return diagnostics
         },
+
         /**
          * If the editing position is within the virtual code and navigation is enabled,
          * skip the CSS renaming feature.
