@@ -2,7 +2,10 @@
 
 import type * as ts from 'typescript'
 import type { IRequests } from '@mpxjs/typescript-plugin/src/requests'
-import type { LanguageServicePlugin } from '@volar/language-service'
+import type {
+  LanguageServiceContext,
+  LanguageServicePlugin,
+} from '@volar/language-service'
 import { parse } from '@mpxjs/language-core'
 import { create as createEmmetPlugin } from 'volar-service-emmet'
 import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic'
@@ -11,6 +14,7 @@ import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-docum
 import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
 import { create as createMpxTemplatePlugin } from './plugins/mpx-sfc-template'
 import { create as createMpxCSSPlugin } from './plugins/mpx-sfc-css'
+import { create as createMpxJsonJsPlugin } from './plugins/mpx-sfc-json-js'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
 import { create as createMpxDocumentLinksPlugin } from './plugins/mpx-document-links'
 import { Commands } from './types'
@@ -33,7 +37,7 @@ export function createMpxLanguageServicePlugins(
   const plugins = [
     createTypeScriptSyntacticPlugin(ts),
     createTypeScriptDocCommentTemplatePlugin(ts),
-    ...getCommonLanguageServicePlugins(ts),
+    ...getCommonLanguageServicePlugins(ts, () => tsPluginClient),
   ]
   if (tsPluginClient) {
     plugins.push(
@@ -48,12 +52,14 @@ export function createMpxLanguageServicePlugins(
 }
 
 function getCommonLanguageServicePlugins(
-  _ts: typeof import('typescript'),
+  ts: typeof import('typescript'),
+  getTsPluginClient: (context: LanguageServiceContext) => IRequests | undefined,
 ): LanguageServicePlugin[] {
   return [
     createMpxSfcPlugin(),
     createMpxTemplatePlugin(),
     createMpxCSSPlugin(),
+    createMpxJsonJsPlugin(ts, getTsPluginClient),
     createMpxJsonJsonPlugin(),
     createMpxDocumentLinksPlugin(),
     createEmmetPlugin({

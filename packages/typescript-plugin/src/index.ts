@@ -13,6 +13,7 @@ import { getElementAttrs } from './requests/getElementAttrs'
 import { getElementNames } from './requests/getElementNames'
 import { getImportPathForFile } from './requests/getImportPathForFile'
 import { getPropertiesAtLocation } from './requests/getPropertiesAtLocation'
+import { getSemanticDiagnostics } from './requests/getSemanticDiagnostics'
 
 const windowsPathReg = /\\/g
 const project2Service = new WeakMap<
@@ -173,6 +174,17 @@ export = createLanguageServicePlugin((ts, info) => {
         response: getElementNames.apply(getRequestContext(args[0]), args),
       }
     })
+    session.addProtocolHandler(
+      'mpx:getSemanticDiagnostics',
+      ({ arguments: args }) => {
+        return {
+          response: getSemanticDiagnostics.apply(
+            getRequestContext(args[0]),
+            args,
+          ),
+        }
+      },
+    )
 
     projectService.logger.info('Mpx specific commands are successfully added.')
   }

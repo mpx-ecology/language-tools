@@ -32,6 +32,7 @@ export function create(): LanguageServicePlugin {
 
   return {
     name: 'mpx-template',
+
     capabilities: {
       ...baseService.capabilities,
       completionProvider: {
@@ -42,14 +43,17 @@ export function create(): LanguageServicePlugin {
       },
       hoverProvider: true,
     },
+
     create(context) {
       const baseServiceInstance = baseService.create(context)
 
       return {
         ...baseServiceInstance,
+
         dispose() {
           baseServiceInstance.dispose?.()
         },
+
         async provideCompletionItems(
           document,
           position,
@@ -74,6 +78,7 @@ export function create(): LanguageServicePlugin {
           }
           return htmlComplete
         },
+
         async provideHover(document, position, token) {
           if (document.languageId !== 'html') {
             return

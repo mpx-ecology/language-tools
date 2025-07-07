@@ -140,6 +140,9 @@ connection.onInitialize(params => {
             getPropertiesAtLocation(...args: any[]) {
               return sendTsRequest('mpx:getPropertiesAtLocation', args)
             },
+            getSemanticDiagnostics(...args: any[]) {
+              return sendTsRequest('mpx:getSemanticDiagnostics', args)
+            },
             getDocumentHighlights(fileName: string, position: any) {
               return sendTsRequest(
                 'documentHighlights-full', // ts internal command

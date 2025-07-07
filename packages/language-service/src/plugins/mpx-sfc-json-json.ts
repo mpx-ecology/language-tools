@@ -18,5 +18,5 @@ export function create(): LanguageServicePlugin {
     },
   })
 
-  return base
+  return { ...base, name: 'mpx-json-json' }
 }
