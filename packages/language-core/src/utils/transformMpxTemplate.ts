@@ -10,11 +10,8 @@ function shouldCombineIfBranchNode(
   if (!prevCondition || !condition) return false
 
   return (
-    // if elif/else
-    (prevCondition === 'if' && ['elif', 'else'].includes(condition)) ||
-    // elif else
-    (prevCondition === 'elif' && ['else', 'elif'].includes(condition))
-    // else !(if/elif)
+    ['if', 'elif'].includes(prevCondition) &&
+    ['elif', 'else'].includes(condition)
   )
 }
 
@@ -348,7 +345,7 @@ function tryProcessBindEvent(
   }
 }
 
-function tryProcessCondition(node: ElNode, options: CompilerOptions) {
+function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
   // wx:if="{{ condition }}"
   // wx:elif="{{ condition }}"
   // wx:else
@@ -413,11 +410,11 @@ function visitNode<T extends Node>(
   if (node.type === CompilerDOM.NodeTypes.COMMENT) {
     // TODO Mpx comment
   } else if (node.type === CompilerDOM.NodeTypes.ELEMENT) {
-    // pre process for
     const replaceNode = findResultSync(
+      // wx:for 比 wx:if 优先级更高
       [
         () => tryProcessWxFor(node, options),
-        () => tryProcessCondition(node, options),
+        () => tryProcessWxIf(node, options),
       ],
       fn => fn(),
     )
