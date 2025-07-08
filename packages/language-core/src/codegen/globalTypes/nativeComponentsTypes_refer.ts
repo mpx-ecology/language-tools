@@ -9,18 +9,23 @@
 export interface MpxNativeComponents extends NativeComponents {
   [name: string]: any
 }
-
 type NativeComponents = {
-  [K in keyof NativeComponentAttrs]: NativeComponentAttrs[K] & ReservedProps
+  [K in keyof NativeComponentAttrs]: NativeComponentAttrs[K] &
+    Kub2Camel<NativeComponentAttrs[K]> &
+    ReservedProps
 }
-
+type Kub2Camel<T> = {
+  [K in keyof T as Camel<K>]: T[K]
+}
+type Camel<K> = K extends `${infer K1}-${infer K2}`
+  ? `${K1}${Capitalize<Camel<K2>>}`
+  : K
+type EventHandler<T = any> = ($event: T, ...args: any[]) => void
 interface ReservedProps {
   key?: PropertyKey
   ref?: any
 }
-
 interface NativeComponentAttrs {
-  // 视图容器
   'cover-image': MpxCoverImage
   'cover-view': MpxCoverView
   'match-media': MpxMatchMedia
@@ -32,15 +37,11 @@ interface NativeComponentAttrs {
   swiper: MpxSwiper
   'swiper-item': MpxSwiperItem
   view: MpxView
-
-  //基础内容
   icon: MpxIcon
   progress: MpxProgress
   'rich-text': MpxRichText
   selection: MpxSelection
   text: MpxText
-
-  //表单组件
   button: MpxButton
   checkbox: MpxCheckbox
   'checkbox-group': MpxCheckboxGroup
@@ -56,12 +57,8 @@ interface NativeComponentAttrs {
   slider: MpxSlider
   switch: MpxSwitch
   textarea: MpxTextarea
-
-  // 导航组件
   'functional-page-navigator': MpxFunctionalPageNavigator
   navigator: MpxNavigator
-
-  //媒体组件
   audio: MpxAudio
   camera: MpxCamera
   'channel-live': MpxChannelLive
@@ -71,25 +68,18 @@ interface NativeComponentAttrs {
   'live-pusher': MpxLivePusher
   video: MpxVideo
   'video-room': MpxVideoRoom
-
-  //地图组件
   map: MpxMap
-
-  //画布
   canvas: MpxCanvas
 }
-
 interface MpxCoverImage {
   src?: string
   'referrer-policy'?: string
-  bindload?: Function
-  binderror?: Function
+  bindload?: EventHandler
+  binderror?: EventHandler
 }
-
 interface MpxCoverView {
   'scroll-top'?: number | string
 }
-
 interface MpxMatchMedia {
   'min-width'?: number
   'max-width'?: number
@@ -99,11 +89,9 @@ interface MpxMatchMedia {
   height?: number
   orientation?: string
 }
-
 interface MpxMovableArea {
   'scale-area'?: boolean
 }
-
 interface MpxMovableView {
   direction?: string
   inertia?: boolean
@@ -118,12 +106,11 @@ interface MpxMovableView {
   'scale-max'?: number
   'scale-value'?: number
   animation?: boolean
-  bindchange?: Function
-  bindscale?: Function
-  htouchmove?: Function
-  vtouchmove?: Function
+  bindchange?: EventHandler
+  bindscale?: EventHandler
+  htouchmove?: EventHandler
+  vtouchmove?: EventHandler
 }
-
 interface MpxPageContainer {
   show?: boolean
   duration?: number
@@ -134,13 +121,10 @@ interface MpxPageContainer {
   'close-on-slide-down'?: boolean
   'overlay-style'?: string
   'custom-style'?: string
-  // bind:beforeenter bind:enter bind:enter bind:afterenter bind:beforeleave bind:leave bind:afterleave bind:clickoverlay
 }
-
 interface MpxRootPortal {
   enable?: boolean
 }
-
 interface MpxScrollView {
   'scroll-x'?: boolean
   'scroll-y'?: boolean
@@ -161,19 +145,18 @@ interface MpxScrollView {
   bounces?: boolean
   'show-scrollbar'?: boolean
   'fast-deceleration'?: boolean
-  binddragstart?: Function
-  binddragging?: Function
-  binddragend?: Function
-  bindscrolltoupper?: Function
-  bindscrolltolower?: Function
-  bindscroll?: Function
-  bindrefresherpulling?: Function
-  bindrefresherrefresh?: Function
-  bindrefresherrestore?: Function
-  bindrefresherabort?: Function
+  binddragstart?: EventHandler
+  binddragging?: EventHandler
+  binddragend?: EventHandler
+  bindscrolltoupper?: EventHandler
+  bindscrolltolower?: EventHandler
+  bindscroll?: EventHandler
+  bindrefresherpulling?: EventHandler
+  bindrefresherrefresh?: EventHandler
+  bindrefresherrestore?: EventHandler
+  bindrefresherabort?: EventHandler
   'scroll-anchoring'?: boolean
 }
-
 interface MpxSwiper {
   'indicator-dots'?: boolean
   'indicator-color'?: string
@@ -189,29 +172,25 @@ interface MpxSwiper {
   'next-margin'?: string
   'easing-function'?: string
   direction?: string
-  bindchange?: Function
-  bindtransition?: Function
-  bindanimationfinish?: Function
+  bindchange?: EventHandler
+  bindtransition?: EventHandler
+  bindanimationfinish?: EventHandler
 }
-
 interface MpxSwiperItem {
   'item-id'?: string
   'skip-hidden-item-layout'?: boolean
 }
-
 interface MpxView {
   'hover-class'?: string
   'hover-stop-propagation'?: boolean
   'hover-start-time'?: number
   'hover-stay-time'?: number
 }
-
 interface MpxIcon {
   type: string
   size?: number | string
   color?: string
 }
-
 interface MpxProgress {
   percent?: number
   'show-info'?: boolean
@@ -224,25 +203,21 @@ interface MpxProgress {
   active?: boolean
   'active-mode'?: string
   duration?: number
-  bindactiveend?: Function
+  bindactiveend?: EventHandler
 }
-
 interface MpxRichText {
   nodes?: Array<string> | string
   space?: string
   'user-select'?: boolean
 }
-
 interface MpxSelection {
   'disabled-context-menu'?: boolean
-  bindselectionchange?: Function
+  bindselectionchange?: EventHandler
 }
-
 interface MpxText {
   selectable?: boolean
   'user-select'?: boolean
 }
-
 interface MpxButton {
   size?: string
   type?: string
@@ -265,29 +240,26 @@ interface MpxButton {
   'phone-number-no-quota-toast'?: boolean
   'need-show-entrance'?: boolean
   'entrance-path'?: string
-  bindgetuserinfo?: Function
-  bindcontact?: Function
-  createliveactivity?: Function
-  bindgetphonenumber?: Function
-  bindgetrealtimephonenumber?: Function
-  binderror?: Function
-  bindopensetting?: Function
-  bindlaunchapp?: Function
-  bindchooseavatar?: Function
-  bindagreeprivacyauthorization?: Function
+  bindgetuserinfo?: EventHandler
+  bindcontact?: EventHandler
+  createliveactivity?: EventHandler
+  bindgetphonenumber?: EventHandler
+  bindgetrealtimephonenumber?: EventHandler
+  binderror?: EventHandler
+  bindopensetting?: EventHandler
+  bindlaunchapp?: EventHandler
+  bindchooseavatar?: EventHandler
+  bindagreeprivacyauthorization?: EventHandler
 }
-
 interface MpxCheckbox {
   value?: string
   disabled?: boolean
   checked?: boolean
   color?: string
 }
-
 interface MpxCheckboxGroup {
-  bindchange?: Function
+  bindchange?: EventHandler
 }
-
 interface MpxEditor {
   'read-only'?: boolean
   placeholder?: string
@@ -297,25 +269,22 @@ interface MpxEditor {
   'enable-formats'?: boolean
   enterkeyhint?: string
   'confirm-hold'?: boolean
-  bindready?: Function
-  bindfocus?: Function
-  bindblur?: Function
-  bindinput?: Function
-  bindstatuschange?: Function
+  bindready?: EventHandler
+  bindfocus?: EventHandler
+  bindblur?: EventHandler
+  bindinput?: EventHandler
+  bindstatuschange?: EventHandler
 }
-
 interface MpxEditorPortal {
   key: string
 }
-
 interface MpxForm {
   'report-submit'?: boolean
   'report-submit-timeout'?: number
-  bindsubmit?: Function
-  bindreset?: Function
-  bindsubmitToGroup?: Function
+  bindsubmit?: EventHandler
+  bindreset?: EventHandler
+  bindsubmitToGroup?: EventHandler
 }
-
 interface MpxInput {
   value: string
   type?: string
@@ -342,46 +311,40 @@ interface MpxInput {
   'safe-password-nonce'?: string
   'safe-password-salt'?: string
   'safe-password-custom-hash'?: string
-  bindinput: Function
-  bindchange: Function
-  bindfocus: Function
-  bindblur: Function
-  bindconfirm: Function
-  bindkeyboardheightchange: Function
-  bindnicknamereview: Function
+  bindinput?: EventHandler
+  bindchange?: EventHandler
+  bindfocus?: EventHandler
+  bindblur?: EventHandler
+  bindconfirm?: EventHandler
+  bindkeyboardheightchange?: EventHandler
+  bindnicknamereview?: EventHandler
 }
-
 interface MpxLabel {
   for?: string
 }
-
 interface MpxPicker {
   'header-text'?: string
   mode?: string
   disabled?: boolean
-  bindcancel?: Function
+  bindcancel?: EventHandler
 }
-
 interface MpxPickerView {
   value?: Array<number>
   'mask-class'?: string
   'indicator-style'?: string
-  bindchange?: Function
-  bindpickstart?: Function
-  bindpickend?: Function
+  bindchange?: EventHandler
+  bindpickstart?: EventHandler
+  bindpickend?: EventHandler
 }
-
 interface MpxRadio {
   value?: string
   checked?: boolean
   disabled?: boolean
   color?: string
 }
-
 interface MpxRadioGroup {
-  bindchange?: Function
+  bindchange?: EventHandler
 }
-
 interface MpxSlider {
   min?: number
   max?: number
@@ -395,18 +358,16 @@ interface MpxSlider {
   'block-size'?: number
   'block-color'?: string
   'show-value'?: boolean
-  bindchange?: Function
-  bindchanging?: Function
+  bindchange?: EventHandler
+  bindchanging?: EventHandler
 }
-
 interface MpxSwitch {
   checked?: boolean
   disabled?: boolean
   type?: string
   color?: string
-  bindchange?: Function
+  bindchange?: EventHandler
 }
-
 interface MpxTextarea {
   value?: string
   placeholder?: string
@@ -426,23 +387,21 @@ interface MpxTextarea {
   'confirm-type'?: string
   'confirm-hold'?: boolean
   'adjust-keyboard-to'?: boolean
-  bindfocus: Function
-  bindblur: Function
-  bindlinechange: Function
-  bindinput: Function
-  bindconfirm: Function
-  bindkeyboardheightchange: Function
+  bindfocus?: EventHandler
+  bindblur?: EventHandler
+  bindlinechange?: EventHandler
+  bindinput?: EventHandler
+  bindconfirm?: EventHandler
+  bindkeyboardheightchange?: EventHandler
 }
-
 interface MpxFunctionalPageNavigator {
   version?: string
   name?: string
   args?: object
-  bindsuccess?: Function
-  bindfail?: Function
-  bindcancel?: Function
+  bindsuccess?: EventHandler
+  bindfail?: EventHandler
+  bindcancel?: EventHandler
 }
-
 interface MpxNavigator {
   target?: string
   url?: string
@@ -457,9 +416,9 @@ interface MpxNavigator {
   'hover-stop-propagation'?: boolean
   'hover-start-time'?: number
   'hover-stay-time'?: number
-  bindsuccess?: Function
-  bindfail?: Function
-  bindcomplete?: Function
+  bindsuccess?: EventHandler
+  bindfail?: EventHandler
+  bindcomplete?: EventHandler
 }
 interface MpxAudio {
   id?: string
@@ -468,50 +427,45 @@ interface MpxAudio {
   controls?: boolean
   poster?: string
   name?: string
-  ahthor?: string
-  binderror?: Function
-  bindplay?: Function
-  bindpause?: Function
-  bindtimeupdate?: Function
-  bindended?: Function
+  author?: string
+  binderror?: EventHandler
+  bindplay?: EventHandler
+  bindpause?: EventHandler
+  bindtimeupdate?: EventHandler
+  bindended?: EventHandler
 }
-
 interface MpxCamera {
   mode?: string
   resolution?: string
   'device-position'?: string
   flash?: string
   'frame-size'?: string
-  bindstop?: Function
-  binderror?: Function
-  bindinitdone?: Function
-  bindscandone?: Function
+  bindstop?: EventHandler
+  binderror?: EventHandler
+  bindinitdone?: EventHandler
+  bindscandone?: EventHandler
 }
-
 interface MpxChannelLive {
   'feed-id': string
   'finder-user-name': string
 }
-
 interface MpxChannelVideo {
   'feed-id': string
   'finder-user-name': string
-  'feed-token'?: string
-  autoplay?: string
+  'feed-token': string
+  autoplay: string
   loop?: boolean
   muted?: boolean
   'object-fit'?: string
-  binderror?: Function
+  binderror?: EventHandler
 }
-
 interface MpxImage {
   src?: string
   mode?: string
   'show-menu-by-longpress'?: boolean
-  binderror?: Function
-  bindload?: Function
+  binderror?: EventHandler
+  bindload?: EventHandler
 }
-
 interface MpxLivePlayer {
   src?: string
   mode?: string
@@ -530,24 +484,23 @@ interface MpxLivePlayer {
   'enable-auto-rotation'?: boolean
   'referrer-policy'?: string
   'enable-casting'?: boolean
-  bindstatechange?: Function
-  bindfullscreenchange?: Function
-  bindnetstatus?: Function
-  bindaudiovolumeupdate?: Function
-  bindenterpictureinpicture?: Function
-  bindleavepictureinpicture?: Function
-  bindcastinguserselect?: Function
-  bindcastingstatechange?: Function
-  bindcastinginterrupt?: Function
+  bindstatechange?: EventHandler
+  bindfullscreenchange?: EventHandler
+  bindnetstatus?: EventHandler
+  bindaudiovolumeupdate?: EventHandler
+  bindenterpictureinpicture?: EventHandler
+  bindleavepictureinpicture?: EventHandler
+  bindcastinguserselect?: EventHandler
+  bindcastingstatechange?: EventHandler
+  bindcastinginterrupt?: EventHandler
 }
-
 interface MpxLivePusher {
   url?: string
   mode?: string
   autoplay?: boolean
   enableVideoCustomRender?: boolean
   muted?: boolean
-  'enable-camera': boolean
+  'enable-camera'?: boolean
   'auto-focus'?: boolean
   orientation?: string
   beauty?: number
@@ -581,17 +534,16 @@ interface MpxLivePusher {
   'face-thinness'?: number
   'eye-bigness'?: number
   fps?: number
-  bindstatechange?: Function
-  bindnetstatus?: Function
-  binderror?: Function
-  bindbgmstart?: Function
-  bindbgmprogress?: Function
-  bindbgmcomplete?: Function
-  bindaudiovolumenotify?: Function
-  bindenterpictureinpicture?: Function
-  bindleavepictureinpicture?: Function
+  bindstatechange?: EventHandler
+  bindnetstatus?: EventHandler
+  binderror?: EventHandler
+  bindbgmstart?: EventHandler
+  bindbgmprogress?: EventHandler
+  bindbgmcomplete?: EventHandler
+  bindaudiovolumenotify?: EventHandler
+  bindenterpictureinpicture?: EventHandler
+  bindleavepictureinpicture?: EventHandler
 }
-
 interface MpxVideo {
   src: string
   duration?: number
@@ -639,32 +591,30 @@ interface MpxVideo {
   'certificate-url'?: string
   'license-url'?: string
   'preferred-peak-bit-rate'?: number
-  bindplay?: Function
-  bindpause?: Function
-  bindended?: Function
-  bindtimeupdate?: Function
-  bindfullscreenchange?: Function
-  bindwaiting?: Function
-  binderror?: Function
-  bindprogress?: Function
-  bindloadedmetadata?: Function
-  bindontrolstoggle?: Function
-  bindenterpictureinpicture?: Function
-  bindleavepictureinpicture?: Function
-  bindseekcomplete?: Function
-  bindcastinguserselect?: Function
-  bindcastingstatechange?: Function
-  bindcastinginterrupt?: Function
+  bindplay?: EventHandler
+  bindpause?: EventHandler
+  bindended?: EventHandler
+  bindtimeupdate?: EventHandler
+  bindfullscreenchange?: EventHandler
+  bindwaiting?: EventHandler
+  binderror?: EventHandler
+  bindprogress?: EventHandler
+  bindloadedmetadata?: EventHandler
+  bindontrolstoggle?: EventHandler
+  bindenterpictureinpicture?: EventHandler
+  bindleavepictureinpicture?: EventHandler
+  bindseekcomplete?: EventHandler
+  bindcastinguserselect?: EventHandler
+  bindcastingstatechange?: EventHandler
+  bindcastinginterrupt?: EventHandler
 }
-
 interface MpxVideoRoom {
   openid: string
   mode: string
   'device-position': string
   'object-fit': string
-  binderror?: Function
+  binderror?: EventHandler
 }
-
 interface MpxMap {
   longitude: number
   latitude: number
@@ -678,7 +628,7 @@ interface MpxMap {
   controls?: Array<object>
   'include-points'?: Array<object>
   'show-location'?: boolean
-  ploygons?: Array<object>
+  polygons?: Array<object>
   subkey?: string
   'layer-style'?: number
   rotate?: number
@@ -696,30 +646,29 @@ interface MpxMap {
   'enable-poi'?: boolean
   'enable-building'?: boolean
   setting?: object
-  bindtap?: Function
-  bindmarkertap?: Function
-  bindlabeltap?: Function
-  bindcontroltap?: Function
-  bindcallouttap?: Function
-  bindupdated?: Function
-  bindregionchange?: Function
-  bindpoitap?: Function
-  bindpolulinetap?: Function
-  bindabilitysuccess?: Function
-  bindablityfail?: Function
-  bindauthsuccess?: Function
-  bindinterpolatepoint?: Function
-  binderror?: Function
+  bindtap?: EventHandler
+  bindmarkertap?: EventHandler
+  bindlabeltap?: EventHandler
+  bindcontroltap?: EventHandler
+  bindcallouttap?: EventHandler
+  bindupdated?: EventHandler
+  bindregionchange?: EventHandler
+  bindpoitap?: EventHandler
+  bindpolulinetap?: EventHandler
+  bindabilitysuccess?: EventHandler
+  bindablityfail?: EventHandler
+  bindauthsuccess?: EventHandler
+  bindinterpolatepoint?: EventHandler
+  binderror?: EventHandler
 }
-
 interface MpxCanvas {
   type?: string
-  'canvas-id': string
+  'canvas-id'?: string
   'disable-scroll'?: boolean
-  bindtouchstart?: Function
-  bindtouchmove?: Function
-  bindtouchend?: Function
-  bindtouchcancel?: Function
-  bindlongtap?: Function
-  binderror?: Function
+  bindtouchstart?: EventHandler
+  bindtouchmove?: EventHandler
+  bindtouchend?: EventHandler
+  bindtouchcancel?: EventHandler
+  bindlongtap?: EventHandler
+  binderror?: EventHandler
 }
