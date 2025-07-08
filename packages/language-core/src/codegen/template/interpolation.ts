@@ -30,6 +30,7 @@ export function* generateInterpolation(
   suffix: string = '',
 ): Generator<Code> {
   for (const segment of forEachInterpolationSegment(
+    options.mpxCompilerOptions,
     options.ts,
     options.destructuredPropNames,
     options.templateRefNames,
@@ -94,6 +95,7 @@ type Segment = [
 ]
 
 function* forEachInterpolationSegment(
+  options: MpxCompilerOptions,
   ts: typeof import('typescript'),
   destructuredPropNames: Set<string> | undefined,
   templateRefNames: Set<string> | undefined,
@@ -110,7 +112,12 @@ function* forEachInterpolationSegment(
 
   if (
     identifierRegex.test(originalCode) &&
-    !shouldIdentifierSkipped(ctx, originalCode, destructuredPropNames)
+    !shouldIdentifierSkipped(
+      ctx,
+      originalCode,
+      destructuredPropNames,
+      options.templateGlobalDefs,
+    )
   ) {
     ctxVars.push({
       text: originalCode,
@@ -120,7 +127,14 @@ function* forEachInterpolationSegment(
     const ast = createTsAst(ts, astHolder, code)
     const varCb = (id: ts.Identifier) => {
       const text = getNodeText(ts, id, ast)
-      if (!shouldIdentifierSkipped(ctx, text, destructuredPropNames)) {
+      if (
+        !shouldIdentifierSkipped(
+          ctx,
+          text,
+          destructuredPropNames,
+          options.templateGlobalDefs,
+        )
+      ) {
         ctxVars.push({
           text,
           offset: getStartEnd(ts, id, ast).start,
@@ -317,6 +331,7 @@ function shouldIdentifierSkipped(
   ctx: TemplateCodegenContext,
   text: string,
   destructuredPropNames: Set<string> | undefined,
+  templateGlobalDefs: string[],
 ) {
   return (
     ctx.hasLocalVariable(text) ||
@@ -325,6 +340,7 @@ function shouldIdentifierSkipped(
     isLiteralWhitelisted(text) ||
     text === 'require' ||
     text.startsWith('__VLS_') ||
-    destructuredPropNames?.has(text)
+    destructuredPropNames?.has(text) ||
+    templateGlobalDefs.includes(text)
   )
 }

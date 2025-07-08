@@ -43,6 +43,7 @@ export interface MpxCompilerOptions {
   optionsWrapper: [string, string] | []
   optionsComponentCtor: string[]
   optionsPageCtor: string[]
+  templateGlobalDefs: string[]
   macros: {
     defineProps: string[]
     defineSlots: string[]
