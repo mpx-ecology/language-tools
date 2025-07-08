@@ -1,6 +1,7 @@
 import * as CompilerDOM from '@vue/compiler-dom'
 import type { Node } from '../internalTypes'
 import { findResultSync } from '../utils/utils'
+import { CompilerOptions } from '@vue/compiler-dom'
 
 function shouldCombineIfBranchNode(
   prevCondition: CompilerDOM.IfBranchNode['mpxCondition'],
@@ -9,18 +10,25 @@ function shouldCombineIfBranchNode(
   if (!prevCondition || !condition) return false
 
   return (
-    // if elif/else
-    (prevCondition === 'if' && ['elif', 'else'].includes(condition)) ||
-    // elif else
-    (prevCondition === 'elif' && condition === 'else')
-    // else !(if/elif)
+    ['if', 'elif'].includes(prevCondition) &&
+    ['elif', 'else'].includes(condition)
   )
 }
 
+// const mpxErrorMessages = Object.entries({
+//   ...CompilerDOM.errorMessages,
+// }).reduce(
+//   (r, [key, message]) => ({
+//     ...r,
+//     [key]: message.replace('v-', 'wx:').replace('else-if', 'elif'),
+//   }),
+//   {} as Record<number, string>,
+// )
 export function transformMpxTemplateNodes<T extends Node>(
   children: T[] = [],
+  options: CompilerOptions,
 ): T[] {
-  const mappedResult = children.map(child => visitNode(child) ?? child)
+  const mappedResult = children.map(child => visitNode(child, options) ?? child)
 
   const result: T[] = []
 
@@ -30,26 +38,57 @@ export function transformMpxTemplateNodes<T extends Node>(
       const item = mappedResult[i]
 
       if (item.type === CompilerDOM.NodeTypes.IF_BRANCH) {
-        const ifNode: CompilerDOM.IfNode =
-          prev?.type === CompilerDOM.NodeTypes.IF
-            ? prev
-            : {
-                type: CompilerDOM.NodeTypes.IF,
-                branches: [],
-                loc: item.loc,
-              }
-        if (ifNode !== prev) {
-          result.push(ifNode as T)
+        const createNewIfNode = () =>
+          ({
+            type: CompilerDOM.NodeTypes.IF,
+            branches: [],
+            loc: item.loc,
+          }) as CompilerDOM.IfNode
+        let ifNode: CompilerDOM.IfNode | undefined
+
+        if (
+          item.mpxCondition === 'if' ||
+          prev?.type !== CompilerDOM.NodeTypes.IF
+        ) {
+          ifNode = createNewIfNode()
+        } else if (prev.type === CompilerDOM.NodeTypes.IF) {
+          ifNode = prev
+        } else {
+          ifNode = createNewIfNode()
+        }
+
+        const storeIf = () => {
+          if (prev !== ifNode) {
+            result.push(ifNode as unknown as T)
+          }
         }
 
         const lastBranch = ifNode.branches[ifNode.branches.length - 1]
 
         if (
-          !lastBranch ||
-          shouldCombineIfBranchNode(lastBranch.mpxCondition, item.mpxCondition)
+          (!lastBranch && item.mpxCondition === 'if') ||
+          (lastBranch &&
+            shouldCombineIfBranchNode(
+              lastBranch.mpxCondition,
+              item.mpxCondition,
+            ))
         ) {
           ifNode.branches.push(item)
+          storeIf()
+          continue
         }
+
+        // options.onError?.(
+        //   CompilerDOM.createCompilerError(
+        //     CompilerDOM.ErrorCodes.X_V_ELSE_NO_ADJACENT_IF,
+        //     item.loc,
+        //     mpxErrorMessages,
+        //   ),
+        // )
+
+        // const errorIfNode = prev === ifNode ? createNewIfNode() : ifNode;
+        // errorIfNode.branches.push(item)
+        // result.push(errorIfNode as unknown as T)
       } else {
         result.push(item)
       }
@@ -158,7 +197,7 @@ type ElNode =
   | CompilerDOM.SlotOutletNode
   | CompilerDOM.TemplateNode
 
-function tryProcessWxFor(node: ElNode) {
+function tryProcessWxFor(node: ElNode, options: CompilerOptions) {
   try {
     const captureResult: CompilerDOM.AttributeNode[] = []
     let _forIndex = -1
@@ -241,7 +280,7 @@ function tryProcessWxFor(node: ElNode) {
         loc: contentLoc,
         type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
       } satisfies CompilerDOM.ExpressionNode
-      const children = transformMpxTemplateNodes([node])
+      const children = transformMpxTemplateNodes([node], options)
       return {
         type: CompilerDOM.NodeTypes.FOR,
         valueAlias: valueNode,
@@ -306,7 +345,7 @@ function tryProcessBindEvent(
   }
 }
 
-function tryProcessCondition(node: ElNode) {
+function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
   // wx:if="{{ condition }}"
   // wx:elif="{{ condition }}"
   // wx:else
@@ -323,7 +362,7 @@ function tryProcessCondition(node: ElNode) {
     const ifBranch = node.props[conditionIndex] as CompilerDOM.AttributeNode
     node.props.splice(conditionIndex, 1)
 
-    const children = transformMpxTemplateNodes([node])
+    const children = transformMpxTemplateNodes([node], options)
 
     if (ifBranch.value) {
       stripSourceLocationQuotes(ifBranch.value.loc)
@@ -364,13 +403,19 @@ function emptySourceLocation(): CompilerDOM.SourceLocation {
   }
 }
 
-function visitNode<T extends Node>(node: T): T | undefined {
+function visitNode<T extends Node>(
+  node: T,
+  options: CompilerOptions,
+): T | undefined {
   if (node.type === CompilerDOM.NodeTypes.COMMENT) {
     // TODO Mpx comment
   } else if (node.type === CompilerDOM.NodeTypes.ELEMENT) {
-    // pre process for
     const replaceNode = findResultSync(
-      [() => tryProcessWxFor(node), () => tryProcessCondition(node)],
+      // wx:for 比 wx:if 优先级更高
+      [
+        () => tryProcessWxFor(node, options),
+        () => tryProcessWxIf(node, options),
+      ],
       fn => fn(),
     )
 
@@ -392,11 +437,11 @@ function visitNode<T extends Node>(node: T): T | undefined {
       }
     }
 
-    node.children = transformMpxTemplateNodes(node.children)
+    node.children = transformMpxTemplateNodes(node.children, options)
   } else if (node.type === CompilerDOM.NodeTypes.IF) {
     for (let i = 0; i < node.branches.length; i++) {
       const branch = node.branches[i]
-      branch.children = transformMpxTemplateNodes(branch.children)
+      branch.children = transformMpxTemplateNodes(branch.children, options)
     }
   } else if (node.type === CompilerDOM.NodeTypes.FOR) {
     // const { leftExpressionRange, leftExpressionText } = parseWxForNode(node)
@@ -407,10 +452,10 @@ function visitNode<T extends Node>(node: T): T | undefined {
     //   source.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION
     // ) {
     // }
-    node.children = transformMpxTemplateNodes(node.children)
+    node.children = transformMpxTemplateNodes(node.children, options)
   } else if (node.type === CompilerDOM.NodeTypes.TEXT_CALL) {
     // {{ var }}
-    visitNode(node.content)
+    visitNode(node.content, options)
   } else if (node.type === CompilerDOM.NodeTypes.COMPOUND_EXPRESSION) {
     // {{ ... }} {{ ... }}
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

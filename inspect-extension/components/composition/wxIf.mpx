@@ -1,41 +1,62 @@
 <template>
   <view>
-		<!-- Case1: Type Narrowing 类型收窄 -->
-    <view wx:if="{{ typeof msg === 'string'}}">
+    <!-- Case1: Type Narrowing 类型收窄 -->
+    <view wx:if="{{typeof msg === 'string'}}">
       msg should be string: {{ msg }}
     </view>
-    <view wx:elif="{{ typeof msg === 'number' }}">
+    <view wx:elif="{{typeof msg === 'number'}}">
       msg should be number: {{ msg }}
+    </view>
+    <view wx:elif="{{ typeof msg === 'boolean' }}">
+      msg should be boolean: {{ msg }}
     </view>
     <view wx:else>
       msg should be undefined: {{ msg }}
     </view>
 
-		<!-- Case2: Type Narrowing for undefined -->
-		<view wx:if="{{ status }}">
-			{{ status.message }}
-		</view>
+    <!-- Case2: Type Narrowing for undefined -->
+    <view wx:if="{{status}}">
+      {{ status.message }}
+    </view>
 
-		<!-- Case3: Type Narrowing -->
-		<view wx:if="{{ typeof foo === 'string' }}">
-			{{ foo }}
-		</view>
+    <!-- Case3: Type Narrowing -->
+    <view wx:if="{{typeof foo === 'string'}}">
+      {{ foo }}
+    </view>
 
     <!-- Case4: 表达式带空格 -->
-     <view wx:if="  {{ status?.message && msg }}"></view>
+    <view wx:if="  {{status?.message && msg}}">{{ msg }} {{ status.message }}</view>
+
+    <!-- Case5: 嵌套 -->
+    <view wx:if="{{status?.message}}">
+      <view wx:if="{{msg}}">{{ msg }}</view>
+      <view wx:else>{{ msg }}</view>
+
+      <view wx:if="{{ status.message }}">{{status.message}}</view>
+      <view wx:else>status.message is undefined</view>
+    </view>
+    <view wx:else>{{ status?.message }}</view>
+
+    <!-- Case6: 错误 -->
+    <view wx:elif="{{msg && status?.message}}">
+    </view>
+    <view wx:elif="{{hello}}">
+      msg is undefined or status.message is undefined
+    </view>
+
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref } from "@mpxjs/core"
 
-let msg = ref<string | number>()
+let msg = ref<string | number | boolean>()
 let status: { message: string } | undefined;
 let foo: any
 
 defineExpose({
   msg,
-	status,
-	foo
- })
+  status,
+  foo
+})
 </script>
