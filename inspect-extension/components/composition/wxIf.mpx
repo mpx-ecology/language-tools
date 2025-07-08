@@ -7,6 +7,9 @@
     <view wx:elif="{{ typeof msg === 'number' }}">
       msg should be number: {{ msg }}
     </view>
+    <view wx:elif="{{ typeof msg === 'number' }}">
+      msg should be number: {{ msg }}
+    </view>
     <view wx:else>
       msg should be undefined: {{ msg }}
     </view>
@@ -22,7 +25,25 @@
 		</view>
 
     <!-- Case4: 表达式带空格 -->
-     <view wx:if="  {{ status?.message && msg }}"></view>
+     <view wx:if="  {{ status?.message && msg }}">{{msg}} {{status.message}}</view>
+
+    <!-- Case5: 嵌套 -->
+    <view wx:if="{{ status?.message }}">
+      <view wx:if="{{ msg }}">{{msg}}</view>
+      <view wx:else>{{msg}} is undefined</view>
+
+      <view wx:if="{{ status.message }}">{{status.message}}</view>
+      <view wx:else>status.message is undefined</view>
+    </view>
+    <view wx:else>{{status?.message}}</view>
+
+    <!-- Case6: 错误 -->
+    <view wx:elif="{{ msg && status?.message }}">
+    </view>
+    <view wx:elif="{{hello}}">
+      msg is undefined or status.message is undefined
+    </view>
+
   </view>
 </template>
 

@@ -32,7 +32,10 @@ const plugin: MpxLanguagePlugin = ({ modules }) => {
 
         // @ts-expect-error ignore
         result.__addedSuffix = addedSuffix
-        result.ast.children = transformMpxTemplateNodes(result.ast.children)
+        result.ast.children = transformMpxTemplateNodes(
+          result.ast.children,
+          options,
+        )
         return result
       }
     },

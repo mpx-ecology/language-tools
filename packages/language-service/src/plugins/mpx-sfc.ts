@@ -130,11 +130,13 @@ export function create(): LanguageServicePlugin {
             const { startTagEnd = Infinity, endTagStart = -Infinity } =
               template ?? {}
 
-            for (const error of mpxSfc.errors) {
+            for (const error of mpxSfc.errors.concat(
+              sfc.template?.errors ?? [],
+            )) {
               if ('code' in error) {
                 const start = error.loc?.start.offset ?? 0
                 const end = error.loc?.end.offset ?? 0
-                if (end < startTagEnd || start >= endTagStart) {
+                if (start > startTagEnd || end <= endTagStart) {
                   sfcErrors.push({
                     range: {
                       start: document.positionAt(start),
