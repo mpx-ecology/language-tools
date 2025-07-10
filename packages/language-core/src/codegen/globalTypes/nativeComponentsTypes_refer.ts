@@ -656,7 +656,7 @@ interface MpxMap {
   bindpoitap?: EventHandler
   bindpolylinetap?: EventHandler
   bindabilitysuccess?: EventHandler
-  bindablityfail?: EventHandler
+  bindabilityfail?: EventHandler
   bindauthsuccess?: EventHandler
   bindinterpolatepoint?: EventHandler
   binderror?: EventHandler

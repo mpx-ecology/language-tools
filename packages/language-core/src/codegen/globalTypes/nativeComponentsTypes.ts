@@ -281,11 +281,11 @@ interface MpxForm {
   bindsubmitToGroup?: EventHandler
 }
 interface MpxInput {
-  value: string
+  value?: string
   type?: string
   password?: boolean
-  placeholder: string
-  'placeholder-style': string
+  placeholder?: string
+  'placeholder-style'?: string
   disabled?: boolean
   maxlength?: number
   'cursor-spacing'?: number
@@ -294,7 +294,7 @@ interface MpxInput {
   'confirm-type'?: string
   'always-embed'?: boolean
   'confirm-hold'?: boolean
-  cursor: number
+  cursor?: number
   'cursor-color'?: string
   'selection-start'?: number
   'selection-end'?: number
@@ -373,7 +373,7 @@ interface MpxTextarea {
   focus?: boolean
   'auto-height'?: boolean
   'cursor-spacing'?: number
-  cursor: number
+  cursor?: number
   'selection-start'?: number
   'selection-end'?: number
   'adjust-position'?: boolean
@@ -448,7 +448,7 @@ interface MpxChannelVideo {
   'feed-id': string
   'finder-user-name': string
   'feed-token': string
-  autoplay: string
+  autoplay?: boolean
   loop?: boolean
   muted?: boolean
   'object-fit'?: string
@@ -595,7 +595,7 @@ interface MpxVideo {
   binderror?: EventHandler
   bindprogress?: EventHandler
   bindloadedmetadata?: EventHandler
-  bindontrolstoggle?: EventHandler
+  bindcontrolstoggle?: EventHandler
   bindenterpictureinpicture?: EventHandler
   bindleavepictureinpicture?: EventHandler
   bindseekcomplete?: EventHandler
@@ -649,9 +649,9 @@ interface MpxMap {
   bindupdated?: EventHandler
   bindregionchange?: EventHandler
   bindpoitap?: EventHandler
-  bindpolulinetap?: EventHandler
+  bindpolylinetap?: EventHandler
   bindabilitysuccess?: EventHandler
-  bindablityfail?: EventHandler
+  bindabilityfail?: EventHandler
   bindauthsuccess?: EventHandler
   bindinterpolatepoint?: EventHandler
   binderror?: EventHandler
@@ -667,4 +667,5 @@ interface MpxCanvas {
   bindlongtap?: EventHandler
   binderror?: EventHandler
 }
+
 `
