@@ -37,7 +37,13 @@
     </view>
     <view wx:else>{{ status?.message }}</view>
 
-    <!-- Case6: 错误 -->
+    <!-- Case6: skip comment -->
+    <view wx:if="{{status?.message && msg}}">
+    </view>
+    <!-- comment -->
+    <view wx:else>{{status?.message}}</view>
+
+    <!-- Case7: 错误 -->
     <view wx:elif="{{msg && status?.message}}">
     </view>
     <view wx:elif="{{hello}}">
