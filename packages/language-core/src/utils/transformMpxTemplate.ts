@@ -32,9 +32,20 @@ export function transformMpxTemplateNodes<T extends Node>(
 
   const result: T[] = []
 
+  const findPrevIfNode = () => {
+    for (let i = result.length - 1; i >= 0; i--) {
+      const item = result[i]
+      if (item.type === CompilerDOM.NodeTypes.IF) {
+        return item as CompilerDOM.IfNode
+      } else if (item.type === CompilerDOM.NodeTypes.COMMENT) {
+        continue
+      }
+      return
+    }
+  }
   if (mappedResult.length) {
     for (let i = 0; i < mappedResult.length; i++) {
-      const prev = result[result.length - 1]
+      const prev = findPrevIfNode()
       const item = mappedResult[i]
 
       if (item.type === CompilerDOM.NodeTypes.IF_BRANCH) {
