@@ -128,9 +128,6 @@ export function computedSfc(
       })
       const getUsingComponents = computed(() => {
         // TODO 根据 getAst() 解析 usingComponents
-        const ast = getAst()
-
-        // ast.statements.forEach(item => )
         return undefined
       })
       return mergeObject(base, {
