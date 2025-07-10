@@ -1,6 +1,6 @@
 import type { CodeInformation } from '@volar/language-core'
 import type * as CompilerDOM from '@vue/compiler-dom'
-import type { SFCJsonBlock, SFCParseResult } from '@vue/compiler-sfc'
+import type { SFCParseResult } from '@vue/compiler-sfc'
 import type { Segment } from 'muggle-string'
 import type * as ts from 'typescript'
 import type { MpxEmbeddedCode } from './virtualFile/embeddedFile'
@@ -138,6 +138,15 @@ export type SfcBlockAttr =
       quotes: boolean
     }
 
+export type SfcJsonBlockUsingComponents = Map<
+  string,
+  {
+    text: string
+    offset: number
+    nameOffset: number
+  }
+>
+
 export interface Sfc {
   content: string
   comments: string[]
@@ -174,7 +183,7 @@ export interface Sfc {
   json:
     | (SfcBlock & {
         ast: ts.SourceFile
-        usingComponents: SFCJsonBlock['usingComponents']
+        usingComponents: SfcJsonBlockUsingComponents | undefined
       })
     | undefined
   customBlocks: readonly (SfcBlock & {
