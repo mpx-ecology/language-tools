@@ -21,6 +21,7 @@ createPage({})
     "usingComponents": {
       // 注释测试
       "list": "../components/list", // 允许末行尾随逗号
+      "list1": "../components/list1", // 允许末行尾随逗号
       "main": "../components/list",
     } 
   }

@@ -77,6 +77,38 @@ export function create(): LanguageServicePlugin {
           if (!htmlComplete) {
             return
           }
+          const helper = templateCodegenHelper(context, document.uri)
+          const usingComponents = helper?.sfc.json?.usingComponents
+          if (usingComponents?.size) {
+            htmlComplete.items = htmlComplete.items.filter(
+              item => !usingComponents.has(item.label),
+            )
+            for (const [
+              componentTag,
+              { text: componentPath },
+            ] of usingComponents) {
+              htmlComplete.items.push({
+                label: componentTag,
+                labelDetails: {
+                  description: '自定义组件',
+                },
+                detail: componentPath,
+                // documentation: {
+                //   kind: 'markdown',
+                //   value: `自定义组件：\`${componentPath}\``,
+                // },
+                insertTextFormat: 1,
+                kind: 10,
+                textEdit: {
+                  range: {
+                    start: position,
+                    end: position,
+                  },
+                  newText: componentTag,
+                },
+              })
+            }
+          }
           return htmlComplete
         },
 
