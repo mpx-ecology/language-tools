@@ -6,20 +6,15 @@ export interface MpxNativeComponents extends NativeComponents {
 }
 type NativeComponents = {
   [K in keyof NativeComponentAttrs]: NativeComponentAttrs[K] &
-    Kub2Camel<NativeComponentAttrs[K]> &
-    ReservedProps
+    Kubab2Camel<NativeComponentAttrs[K]>
 }
-type Kub2Camel<T> = {
+type Kubab2Camel<T> = {
   [K in keyof T as Camel<K>]: T[K]
 }
 type Camel<K> = K extends \`$\{infer K1}-$\{infer K2}\`
   ? \`$\{K1}$\{Capitalize<Camel<K2>>}\`
   : K
 type EventHandler<T = any> = ($event: T, ...args: any[]) => void
-interface ReservedProps {
-  key?: PropertyKey
-  ref?: any
-}
 interface NativeComponentAttrs {
   'cover-image': MpxCoverImage
   'cover-view': MpxCoverView
@@ -667,5 +662,4 @@ interface MpxCanvas {
   bindlongtap?: EventHandler
   binderror?: EventHandler
 }
-
 `
