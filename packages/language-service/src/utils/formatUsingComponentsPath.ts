@@ -17,6 +17,8 @@ export function formatUsingComponentsPath(
 
   let formattedFilePath = ''
 
+  // 目前仅支持自动寻找补全 .mpx 后缀路径
+  // .ios.mpx 和 .ali.mpx 这种条件编译后缀，暂时不支持，因为需要根据编译时环境变量来判断
   if (!componentPath.endsWith('.mpx')) {
     componentPath += '.mpx'
   }
