@@ -1,8 +1,14 @@
 import type * as ts from 'typescript'
-import type { MpxLanguagePlugin } from '../types'
+import type {
+  MpxLanguagePlugin,
+  ResolvedUsingComponentInfo,
+  UsingComponentInfo,
+} from '../types'
 import { allCodeFeatures } from './shared'
+import { withResolvers } from '../utils/utils'
+import { formatUsingComponentsPath } from '../utils/formatUsingComponentsPath'
 
-const plugin: MpxLanguagePlugin = ({ modules }) => {
+const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
   return {
     name: 'mpx-sfc-json',
 
@@ -43,6 +49,36 @@ const plugin: MpxLanguagePlugin = ({ modules }) => {
         }
         embeddedFile.content.push([content, json.name, 1, allCodeFeatures])
       }
+    },
+
+    resolveUsingComponentsPath(
+      usingComponents: Map<string, UsingComponentInfo>,
+      uri: string,
+    ) {
+      const { promise, resolve } =
+        withResolvers<Map<string, ResolvedUsingComponentInfo>>()
+
+      const result: Map<string, ResolvedUsingComponentInfo> = new Map()
+      Promise.allSettled(
+        [...usingComponents.entries()].map(async ([name, info]) => {
+          const resolvedFilename = await formatUsingComponentsPath(
+            info.text,
+            uri,
+            compilerOptions,
+          )
+
+          if (resolvedFilename) {
+            result.set(name, {
+              text: info.text,
+              offset: info.offset,
+              nameOffset: info.nameOffset,
+              realFilename: resolvedFilename,
+            })
+          }
+        }),
+      ).then(() => resolve(result))
+
+      return promise
     },
   }
 }
