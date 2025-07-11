@@ -1,6 +1,7 @@
+import type { Disposable } from '@volar/language-service'
 import * as html from 'vscode-html-languageservice'
 import { create as createHtmlService } from 'volar-service-html'
-import { LanguageServicePlugin } from '../types'
+import { LanguageServicePlugin, SfcJsonBlockUsingComponents } from '../types'
 import templateBuiltInData from '../data/template'
 import { templateCodegenHelper } from '../utils/templateCodegenHelper'
 
@@ -12,23 +13,27 @@ export function create(): LanguageServicePlugin {
   const mpxBuiltInTagsSet = new Set(
     templateBuiltInData?.tags?.map(tag => tag.name),
   )
-  const htmlBuilInData = html.getDefaultHTMLDataProvider()
-  /**
-   * 去除 HTML 内置标签中与 Mpx 同名的标签，
-   * 比如 <input>、<button>、<form> ..
-   * 避免补全出现重复标签以及 hover 优先级问题
-   */
-  // @ts-ignore
-  htmlBuilInData._tags = htmlBuilInData._tags.filter(
-    (htmlTag: html.ITagData) => !mpxBuiltInTagsSet.has(htmlTag.name),
-  )
+
+  let htmlBuilInData = [html.getDefaultHTMLDataProvider()]
+  let extraCustomData: html.IHTMLDataProvider[] = []
+
+  const onDidChangeCustomDataListeners = new Set<() => void>()
+  const onDidChangeCustomData = (listener: () => void): Disposable => {
+    onDidChangeCustomDataListeners.add(listener)
+    return {
+      dispose() {
+        onDidChangeCustomDataListeners.delete(listener)
+      },
+    }
+  }
 
   const baseService = createHtmlService({
     documentSelector: ['html'],
     useDefaultDataProvider: false,
     getCustomData() {
-      return [mpxBuiltInData, htmlBuilInData]
+      return [...extraCustomData, mpxBuiltInData, ...htmlBuilInData]
     },
+    onDidChangeCustomData,
   })
 
   return {
@@ -47,6 +52,36 @@ export function create(): LanguageServicePlugin {
 
     create(context) {
       const baseServiceInstance = baseService.create(context)
+
+      const runUpdateExtraCustomData = (
+        usingComponents?: SfcJsonBlockUsingComponents,
+      ) => {
+        updateExtraCustomData({
+          getId: () => 'mpx-template-custom-json',
+          isApplicable: () => true,
+          provideTags: () => {
+            const tags: html.ITagData[] = []
+            if (usingComponents?.size) {
+              for (const [
+                componentTag,
+                { text: componentPath },
+              ] of usingComponents) {
+                if (!componentTag) {
+                  continue
+                }
+                tags.push({
+                  name: componentTag,
+                  description: `自定义组件：${componentPath}`,
+                  attributes: [],
+                })
+              }
+            }
+            return tags
+          },
+          provideAttributes: () => [],
+          provideValues: () => [],
+        })
+      }
 
       return {
         ...baseServiceInstance,
@@ -67,6 +102,9 @@ export function create(): LanguageServicePlugin {
           if (!context.project.mpx) {
             return
           }
+          const helper = templateCodegenHelper(context, document.uri)
+          const usingComponents = helper?.sfc.json?.usingComponents
+          runUpdateExtraCustomData(usingComponents)
           const htmlComplete =
             await baseServiceInstance.provideCompletionItems?.(
               document,
@@ -77,38 +115,16 @@ export function create(): LanguageServicePlugin {
           if (!htmlComplete) {
             return
           }
-          const helper = templateCodegenHelper(context, document.uri)
-          const usingComponents = helper?.sfc.json?.usingComponents
-          if (usingComponents?.size) {
-            htmlComplete.items = htmlComplete.items.filter(
-              item => !usingComponents.has(item.label),
-            )
-            for (const [
-              componentTag,
-              { text: componentPath },
-            ] of usingComponents) {
-              htmlComplete.items.push({
-                label: componentTag,
-                labelDetails: {
-                  description: '自定义组件',
-                },
-                detail: componentPath,
-                // documentation: {
-                //   kind: 'markdown',
-                //   value: `自定义组件：\`${componentPath}\``,
-                // },
-                insertTextFormat: 1,
-                kind: 10,
-                textEdit: {
-                  range: {
-                    start: position,
-                    end: position,
-                  },
-                  newText: componentTag,
-                },
-              })
+          htmlComplete.items.forEach(item => {
+            if (usingComponents?.has(item.label)) {
+              const componentPath = usingComponents.get(item.label)?.text
+              if (componentPath) {
+                item.labelDetails = {
+                  description: `自定义组件`,
+                }
+              }
             }
-          }
+          })
           return htmlComplete
         },
 
@@ -116,37 +132,39 @@ export function create(): LanguageServicePlugin {
           if (document.languageId !== 'html') {
             return
           }
+          const helper = templateCodegenHelper(context, document.uri)
+          const usingComponents = helper?.sfc.json?.usingComponents
+          runUpdateExtraCustomData(usingComponents)
           const res = await baseServiceInstance.provideHover?.(
             document,
             position,
             token,
           )
-          if (res?.range?.start) {
-            const offset = document.offsetAt(res.range.start)
-            const helper = templateCodegenHelper(context, document.uri)
-            if (helper) {
-              const { codegen, sfc } = helper
-              const templateNodeTags =
-                codegen?.getGeneratedTemplate()?.templateNodeTags ?? []
-              const usingComponents = sfc.json?.usingComponents
-              if (usingComponents?.size) {
-                for (const nodeTag of templateNodeTags) {
-                  const { name: componentTag, startTagOffset } = nodeTag
-                  if (
-                    usingComponents.has(componentTag) &&
-                    startTagOffset === offset
-                  ) {
-                    return undefined
-                    // 自定义组件已经有了 document link 提供 hover 描述信息
-                    // res.contents = `自定义组件：${usingComponents.get(componentTag)?.text}`
-                  }
-                }
-              }
-            }
+          // @ts-ignore
+          if (res?.contents?.value?.startsWith('自定义组件')) {
+            return
           }
           return res
         },
       }
     },
+  }
+
+  function updateExtraCustomData(extraData: html.IHTMLDataProvider) {
+    /**
+     * 去除 HTML 内置标签中与 Mpx 内置标签以及自定义组件同名的标签，
+     * 比如 <input>、<button>、<form> ..
+     * 避免补全出现重复标签以及 hover 优先级问题
+     */
+    const htmlBuilInData2 = html.getDefaultHTMLDataProvider()
+    // @ts-ignore
+    htmlBuilInData2._tags = htmlBuilInData2._tags.filter(
+      (htmlTag: html.ITagData) =>
+        !mpxBuiltInTagsSet.has(htmlTag.name) &&
+        !extraData.provideTags().some(tag => tag.name === htmlTag.name),
+    )
+    extraCustomData = [extraData]
+    htmlBuilInData = [htmlBuilInData2]
+    onDidChangeCustomDataListeners.forEach(l => l())
   }
 }
