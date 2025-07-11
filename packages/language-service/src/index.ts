@@ -16,7 +16,7 @@ import { create as createMpxTemplatePlugin } from './plugins/mpx-sfc-template'
 import { create as createMpxCSSPlugin } from './plugins/mpx-sfc-css'
 import { create as createMpxJsonJsPlugin } from './plugins/mpx-sfc-json-js'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
-import { create as createMpxDocumentLinksPlugin } from './plugins/mpx-document-links'
+import { create as createMpxTemplateLinksPlugin } from './plugins/mpx-sfc-template-links'
 import { Commands } from './types'
 
 export * from '@volar/language-service'
@@ -61,7 +61,7 @@ function getCommonLanguageServicePlugins(
     createMpxCSSPlugin(),
     createMpxJsonJsPlugin(ts, getTsPluginClient),
     createMpxJsonJsonPlugin(),
-    createMpxDocumentLinksPlugin(),
+    createMpxTemplateLinksPlugin(),
     createEmmetPlugin({
       mappedLanguages: {
         'mpx-root-tags': 'html',

@@ -1,5 +1,8 @@
 <template>
-  <list></list>
+  <view>
+    <list class="list"></list>
+    <list />
+  </view>
 </template>
 
 <script lang="ts">
@@ -7,6 +10,11 @@ import { createPage } from '@mpxjs/core'
 
 createPage({})
 </script>
+
+<style lang="stylus">
+  .list
+    color red
+</style>
 
 <script type="application/json">
   {

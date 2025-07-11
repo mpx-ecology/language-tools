@@ -59,6 +59,11 @@ export function createTemplateCodegenContext(
     propsVar: string
   }[] = []
   const blockConditions: string[] = []
+  const templateNodeTags: {
+    name: string
+    startTagOffset: number
+    endTagOffset?: number
+  }[] = []
   const scopedClasses: {
     source: string
     className: string
@@ -101,6 +106,7 @@ export function createTemplateCodegenContext(
     dollarVars,
     accessExternalVariables,
     blockConditions,
+    templateNodeTags,
     scopedClasses,
     emptyClassOffsets,
     bindingAttrLocs,

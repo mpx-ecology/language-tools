@@ -2,10 +2,11 @@ import type * as vscode from 'vscode-languageserver-protocol'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode, Sfc, tsCodegen } from '@mpxjs/language-core'
+import { formatUsingComponentsPath } from '../utils/formatUsingComponentsPath'
 
 export function create(): LanguageServicePlugin {
   return {
-    name: 'mpx-document-links',
+    name: 'mpx-template-links',
 
     capabilities: {
       documentLinkProvider: {},
@@ -16,23 +17,26 @@ export function create(): LanguageServicePlugin {
         provideDocumentLinks(document) {
           const uri = URI.parse(document.uri)
           const decoded = context.decodeEmbeddedDocumentUri(uri)
-          const sourceScript =
-            decoded && context.language.scripts.get(decoded[0])
+          if (!decoded) {
+            return
+          }
+          const [documentUri, embeddedCodeId] = decoded
+          const sourceScript = context.language.scripts.get(documentUri)
           const virtualCode =
-            decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1])
+            sourceScript?.generated?.embeddedCodes.get(embeddedCodeId)
           if (!sourceScript?.generated || virtualCode?.id !== 'template') {
             return
           }
-
           const root = sourceScript.generated.root
           if (!(root instanceof MpxVirtualCode)) {
             return
           }
 
           const result: vscode.DocumentLink[] = []
-
           const { sfc } = root
           const codegen = tsCodegen.get(sfc)
+
+          // #region document link for style class
           const scopedClasses =
             codegen?.getGeneratedTemplate()?.scopedClasses ?? []
           const styleClasses = new Map<
@@ -101,6 +105,40 @@ export function create(): LanguageServicePlugin {
               }
             }
           }
+          // #endregion
+
+          // #region document link for component tag
+          const templateNodeTags =
+            codegen?.getGeneratedTemplate()?.templateNodeTags ?? []
+          const usingComponents = sfc.json?.usingComponents
+          if (usingComponents?.size) {
+            for (const nodeTag of templateNodeTags) {
+              const {
+                name: componentTag,
+                startTagOffset,
+                endTagOffset,
+              } = nodeTag
+              if (!usingComponents.has(componentTag) || !startTagOffset) {
+                continue
+              }
+              const targetFilePath = formatUsingComponentsPath(
+                usingComponents.get(componentTag)?.text,
+                root.fileName,
+              )
+              const addLink = (offset: number) => {
+                result.push({
+                  range: {
+                    start: document.positionAt(offset),
+                    end: document.positionAt(offset + componentTag.length),
+                  },
+                  target: targetFilePath,
+                })
+              }
+              addLink(startTagOffset)
+              endTagOffset && addLink(endTagOffset)
+            }
+          }
+          // #endregion
 
           return result
         },

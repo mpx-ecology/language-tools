@@ -329,6 +329,12 @@ export function* generateElement(
 
   ctx.currentComponent?.childTypes.push(`__VLS_NativeElements['${node.tag}']`)
 
+  ctx.templateNodeTags.push({
+    name: node.tag,
+    startTagOffset: startTagOffset,
+    endTagOffset: endTagOffset,
+  })
+
   yield `__VLS_asFunctionalElement(__VLS_elements`
   yield* generatePropertyAccess(
     options,
