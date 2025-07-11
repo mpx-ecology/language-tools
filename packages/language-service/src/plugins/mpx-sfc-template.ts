@@ -2,6 +2,7 @@ import * as html from 'vscode-html-languageservice'
 import { create as createHtmlService } from 'volar-service-html'
 import { LanguageServicePlugin } from '../types'
 import templateBuiltInData from '../data/template'
+import { templateCodegenHelper } from '../utils/templateCodegenHelper'
 
 export function create(): LanguageServicePlugin {
   const mpxBuiltInData = html.newHTMLDataProvider(
@@ -88,6 +89,29 @@ export function create(): LanguageServicePlugin {
             position,
             token,
           )
+          if (res?.range?.start) {
+            const offset = document.offsetAt(res.range.start)
+            const helper = templateCodegenHelper(context, document.uri)
+            if (helper) {
+              const { codegen, sfc } = helper
+              const templateNodeTags =
+                codegen?.getGeneratedTemplate()?.templateNodeTags ?? []
+              const usingComponents = sfc.json?.usingComponents
+              if (usingComponents?.size) {
+                for (const nodeTag of templateNodeTags) {
+                  const { name: componentTag, startTagOffset } = nodeTag
+                  if (
+                    usingComponents.has(componentTag) &&
+                    startTagOffset === offset
+                  ) {
+                    return undefined
+                    // 自定义组件已经有了 document link 提供 hover 描述信息
+                    // res.contents = `自定义组件：${usingComponents.get(componentTag)?.text}`
+                  }
+                }
+              }
+            }
+          }
           return res
         },
       }

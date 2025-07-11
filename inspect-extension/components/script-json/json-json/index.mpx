@@ -1,7 +1,7 @@
 <template>
   <view>
     <list class="list"></list>
-    <list />
+    <main />
   </view>
 </template>
 
@@ -21,6 +21,7 @@ createPage({})
     "usingComponents": {
       // 注释测试
       "list": "../components/list", // 允许末行尾随逗号
+      "main": "../components/list",
     } 
   }
 </script>

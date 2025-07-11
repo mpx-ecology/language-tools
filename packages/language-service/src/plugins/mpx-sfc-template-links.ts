@@ -121,8 +121,9 @@ export function create(): LanguageServicePlugin {
               if (!usingComponents.has(componentTag) || !startTagOffset) {
                 continue
               }
+              const componentPath = usingComponents.get(componentTag)?.text
               const targetFilePath = formatUsingComponentsPath(
-                usingComponents.get(componentTag)?.text,
+                componentPath,
                 root.fileName,
               )
               const addLink = (offset: number) => {
@@ -132,6 +133,7 @@ export function create(): LanguageServicePlugin {
                     end: document.positionAt(offset + componentTag.length),
                   },
                   target: targetFilePath,
+                  tooltip: `自定义组件：${componentPath}`,
                 })
               }
               addLink(startTagOffset)

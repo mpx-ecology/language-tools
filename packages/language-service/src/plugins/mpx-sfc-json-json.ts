@@ -50,7 +50,6 @@ export function create(): LanguageServicePlugin {
           if (embeddedCodeId !== 'json_json') {
             return
           }
-
           const sourceScript = context.language.scripts.get(documentUri)
           const virtualCode =
             sourceScript?.generated?.embeddedCodes.get(embeddedCodeId)
@@ -72,27 +71,13 @@ export function create(): LanguageServicePlugin {
           }
 
           for (const [
-            componentName,
-            {
-              text: componentPath,
-              offset: componentPathOffset,
-              nameOffset: componentNameOffset,
-            },
+            _,
+            { text: componentPath, offset: componentPathOffset },
           ] of usingComponents) {
             const targetFilePath = formatUsingComponentsPath(
               componentPath,
               root.fileName,
             )
-
-            result.push({
-              range: {
-                start: document.positionAt(componentNameOffset),
-                end: document.positionAt(
-                  componentNameOffset + componentName.length,
-                ),
-              },
-              target: targetFilePath,
-            })
             result.push({
               range: {
                 start: document.positionAt(componentPathOffset),
@@ -101,6 +86,7 @@ export function create(): LanguageServicePlugin {
                 ),
               },
               target: targetFilePath,
+              tooltip: `自定义组件：${componentPath}`,
             })
           }
 
