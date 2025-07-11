@@ -69,9 +69,7 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
 
           if (resolvedFilename) {
             result.set(name, {
-              text: info.text,
-              offset: info.offset,
-              nameOffset: info.nameOffset,
+              ...info,
               realFilename: resolvedFilename,
             })
           }
