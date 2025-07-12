@@ -177,16 +177,22 @@ export = createLanguageServicePlugin((ts, info) => {
         }
       },
     )
-    session.addProtocolHandler('_mpx:getElementAttrs', ({ arguments: args }) => {
-      return {
-        response: getElementAttrs.apply(getRequestContext(args[0]), args),
-      }
-    })
-    session.addProtocolHandler('_mpx:getElementNames', ({ arguments: args }) => {
-      return {
-        response: getElementNames.apply(getRequestContext(args[0]), args),
-      }
-    })
+    session.addProtocolHandler(
+      '_mpx:getElementAttrs',
+      ({ arguments: args }) => {
+        return {
+          response: getElementAttrs.apply(getRequestContext(args[0]), args),
+        }
+      },
+    )
+    session.addProtocolHandler(
+      '_mpx:getElementNames',
+      ({ arguments: args }) => {
+        return {
+          response: getElementNames.apply(getRequestContext(args[0]), args),
+        }
+      },
+    )
 
     projectService.logger.info('Mpx specific commands are successfully added.')
   }
