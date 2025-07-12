@@ -4,8 +4,6 @@
 <!-- etc. download icon -->
 </div>
 
-> 🚧 **Work in Progress**
-
 ## Why new Extension?
 
 ### Background
@@ -29,8 +27,8 @@
 | \<template\> 支持定义跳转、查找参考引用      | ❌     | ✅                |
 | \<template\> 样式类名跳转 \<style\>          | ❌     | ✅                |
 | \<template\> style 属性支持原生 CSS 补全提示 | ❌     | ✅                |
-| \<template\> 原生组件属性检查                | ❌     | in Progress (50%) |
-| \<template\> 自定义组件跳转、属性检查        | ❌     | in Progress       |
+| \<template\> 原生组件属性检查                | ❌     | ✅                |
+| \<template\> 自定义组件跳转、属性检查        | ❌     | in Progress (50%) |
 
 ### More
 

@@ -1,8 +1,8 @@
-import path = require('node:path')
+import type * as ts from 'typescript'
+import * as path from 'node:path'
 import { URI } from 'vscode-uri'
 import { findResult } from './utils'
 import { tryResolveByTsConfig, tryResolvePackage } from './resolve'
-import type * as ts from 'typescript'
 
 export const uriToFileName = (uri: string) =>
   URI.parse(uri).fsPath.replace(/\\/g, '/')

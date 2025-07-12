@@ -2,7 +2,7 @@
   <view>
     <list class="list"></list>
     <list />
-    <list1 />
+    <list-alias />
   </view>
 </template>
 
@@ -22,7 +22,7 @@ createPage({})
     "usingComponents": {
       // 注释测试
       "list": "../components/list", // 允许末行尾随逗号，
-      "list1": "@/script-json/components/list.mpx"
+      "list-alias": "@/script-json/components/list.mpx"
     }
   }
 </script>
