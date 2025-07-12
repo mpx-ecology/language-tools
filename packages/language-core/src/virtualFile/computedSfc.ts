@@ -130,6 +130,16 @@ export function computedSfc(
       const getUsingComponents = computed(() =>
         parseUsingComponents(ts, getAst()),
       )
+      const getResolvedUsingComponents = computed(() => {
+        for (const plugin of plugins) {
+          if (typeof plugin.resolveUsingComponentsPath === 'function') {
+            return plugin.resolveUsingComponentsPath(
+              getUsingComponents(),
+              fileName,
+            )
+          }
+        }
+      })
       return mergeObject(base, {
         get ast() {
           return getAst()
@@ -137,7 +147,10 @@ export function computedSfc(
         get usingComponents() {
           return getUsingComponents()
         },
-      })
+        get resolveUsingComponents() {
+          return getResolvedUsingComponents()
+        },
+      } satisfies Partial<Sfc['json']>)
     },
   )
   const hasScript = computed(() => !!getParseResult()?.descriptor.script)

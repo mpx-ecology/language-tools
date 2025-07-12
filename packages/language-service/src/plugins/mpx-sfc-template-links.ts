@@ -2,7 +2,6 @@ import type * as vscode from 'vscode-languageserver-protocol'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode, Sfc, tsCodegen } from '@mpxjs/language-core'
-import { formatUsingComponentsPath } from '../utils/formatUsingComponentsPath'
 
 export function create(): LanguageServicePlugin {
   return {
@@ -14,7 +13,7 @@ export function create(): LanguageServicePlugin {
 
     create(context) {
       return {
-        provideDocumentLinks(document) {
+        async provideDocumentLinks(document) {
           const uri = URI.parse(document.uri)
           const decoded = context.decodeEmbeddedDocumentUri(uri)
           if (!decoded) {
@@ -110,7 +109,7 @@ export function create(): LanguageServicePlugin {
           // #region document link for component tag
           const templateNodeTags =
             codegen?.getGeneratedTemplate()?.templateNodeTags ?? []
-          const usingComponents = sfc.json?.usingComponents
+          const usingComponents = await sfc.json?.resolveUsingComponents
           if (usingComponents?.size) {
             for (const nodeTag of templateNodeTags) {
               const {
@@ -121,11 +120,8 @@ export function create(): LanguageServicePlugin {
               if (!usingComponents.has(componentTag) || !startTagOffset) {
                 continue
               }
-              const componentPath = usingComponents.get(componentTag)?.text
-              const targetFilePath = formatUsingComponentsPath(
-                componentPath,
-                root.fileName,
-              )
+              const { text: componentPath, realFilename: targetFilePath } =
+                usingComponents.get(componentTag)!
               const addLink = (offset: number) => {
                 result.push({
                   range: {

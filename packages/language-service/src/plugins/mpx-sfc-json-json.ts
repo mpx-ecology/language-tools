@@ -3,7 +3,6 @@ import type { LanguageServicePlugin } from '@volar/language-service'
 import { create as baseCreate } from 'volar-service-json'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode } from '@mpxjs/language-core'
-import { formatUsingComponentsPath } from '../utils/formatUsingComponentsPath'
 
 export function create(): LanguageServicePlugin {
   const base = baseCreate({
@@ -40,7 +39,7 @@ export function create(): LanguageServicePlugin {
       return {
         ...baseInstance,
 
-        provideDocumentLinks(document) {
+        async provideDocumentLinks(document) {
           const uri = URI.parse(document.uri)
           const decoded = context.decodeEmbeddedDocumentUri(uri)
           if (!decoded) {
@@ -64,7 +63,7 @@ export function create(): LanguageServicePlugin {
 
           const result: vscode.DocumentLink[] = []
 
-          const usingComponents = root.sfc.json.usingComponents
+          const usingComponents = await root.sfc.json.resolveUsingComponents
 
           if (!usingComponents?.size) {
             return result
@@ -72,12 +71,12 @@ export function create(): LanguageServicePlugin {
 
           for (const [
             _,
-            { text: componentPath, offset: componentPathOffset },
+            {
+              text: componentPath,
+              offset: componentPathOffset,
+              realFilename: targetFilePath,
+            },
           ] of usingComponents) {
-            const targetFilePath = formatUsingComponentsPath(
-              componentPath,
-              root.fileName,
-            )
             result.push({
               range: {
                 start: document.positionAt(componentPathOffset),
