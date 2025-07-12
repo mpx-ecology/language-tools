@@ -1,14 +1,15 @@
 import * as fs from 'node:fs'
+import * as path from 'node:path'
 import * as vscode from 'vscode'
+import * as lsp from '@volar/vscode/node'
+import * as protocol from '@mpxjs/language-server/out/protocol'
 import {
   defineExtension,
   executeCommand,
   extensionContext,
   onDeactivate,
 } from 'reactive-vscode'
-import * as lsp from '@volar/vscode/node'
 import { createLabsInfo } from '@volar/vscode'
-import * as protocol from '@mpxjs/language-server/out/protocol'
 import { config, displayName } from './config'
 import {
   activate as activateLanguageClient,
@@ -64,73 +65,65 @@ export const { activate, deactivate } = defineExtension(async () => {
 
   const context = extensionContext.value!
 
-  activateLanguageClient(
-    context,
-    (id, name, documentSelector, initOptions, port, outputChannel) => {
-      class _LanguageClient extends lsp.LanguageClient {
-        fillInitializeParams(params: lsp.InitializeParams) {
-          params.locale = vscode.env.language
-        }
+  activateLanguageClient((id, name, documentSelector, port, outputChannel) => {
+    class _LanguageClient extends lsp.LanguageClient {
+      fillInitializeParams(params: lsp.InitializeParams) {
+        params.locale = vscode.env.language
       }
+    }
 
-      const serverModule = vscode.Uri.joinPath(
-        context.extensionUri,
-        'server.js',
+    // Setup typescript.js in production mode
+    if (fs.existsSync(path.join(__dirname, 'server.js'))) {
+      fs.writeFileSync(
+        path.join(__dirname, 'typescript.js'),
+        `module.exports = require("${vscode.env.appRoot.replace(
+          /\\/g,
+          '/',
+        )}/extensions/node_modules/typescript/lib/typescript.js");`,
       )
+    }
 
-      const serverOptions: lsp.ServerOptions = {
-        run: {
-          module: serverModule.fsPath,
-          transport: lsp.TransportKind.ipc,
-          options: {},
-        },
-        debug: {
-          module: serverModule.fsPath,
-          transport: lsp.TransportKind.ipc,
-          options: { execArgv: ['--nolazy', '--inspect=' + port] },
-        },
-      }
-      const clientOptions: lsp.LanguageClientOptions = {
-        documentSelector: documentSelector,
-        initializationOptions: initOptions,
-        markdown: {
-          isTrusted: true,
-          supportHtml: true,
-        },
-        outputChannel,
-      }
-      const client = new _LanguageClient(id, name, serverOptions, clientOptions)
-      client.start()
+    const serverModule = vscode.Uri.joinPath(context.extensionUri, 'server.js')
+    const serverOptions: lsp.ServerOptions = {
+      run: {
+        module: serverModule.fsPath,
+        transport: lsp.TransportKind.ipc,
+        options: {},
+      },
+      debug: {
+        module: serverModule.fsPath,
+        transport: lsp.TransportKind.ipc,
+        options: { execArgv: ['--nolazy', '--inspect=' + port] },
+      },
+    }
+    const clientOptions: lsp.LanguageClientOptions = {
+      documentSelector: documentSelector,
+      markdown: {
+        isTrusted: true,
+        supportHtml: true,
+      },
+      outputChannel,
+    }
+    const client = new _LanguageClient(id, name, serverOptions, clientOptions)
 
-      volarLabs.addLanguageClient(client)
+    /**
+     * Proxy command request from mpx-lsp-server to builtin tsserver
+     */
 
-      updateProviders(client)
-
-      /**
-       * Proxy command request from mpx-lsp-server to builtin tsserver
-       */
-
-      client.onRequest('tsserverRequest', async ([command, args]) => {
-        const tsserver = (globalThis as any).__TSSERVER__?.semantic
-        if (!tsserver) {
-          return
-        }
-        try {
-          const res = await tsserver.executeImpl(command, args, {
-            isAsync: true,
-            expectsResult: true,
-            lowPriority: true,
-            requireSemantic: true,
-          })[0]
-          return res.body
-        } catch {
-          // noop
-        }
+    client.onNotification('tsserver/request', async ([seq, command, args]) => {
+      const res = await vscode.commands.executeCommand<
+        { body: unknown } | undefined
+      >('typescript.tsserverRequest', command, args, {
+        isAsync: true,
+        lowPriority: true,
       })
+      client.sendNotification('tsserver/response', [seq, res?.body])
+    })
 
-      return client
-    },
-  )
+    client.start()
+    volarLabs.addLanguageClient(client)
+    return client
+  })
 
   onDeactivate(() => {
     deactivateLanguageClient()
@@ -138,23 +131,6 @@ export const { activate, deactivate } = defineExtension(async () => {
 
   return volarLabs.extensionExports
 })
-
-function updateProviders(client: lsp.LanguageClient) {
-  const initializeFeatures = (client as any).initializeFeatures
-
-  ;(client as any).initializeFeatures = (...args: any) => {
-    const capabilities = (client as any)._capabilities as lsp.ServerCapabilities
-
-    if (!config.codeActions.enabled) {
-      capabilities.codeActionProvider = undefined
-    }
-    if (!config.codeLens.enabled) {
-      capabilities.codeLensProvider = undefined
-    }
-
-    return initializeFeatures.call(client, ...args)
-  }
-}
 
 try {
   const tsExtension = vscode.extensions.getExtension(
@@ -186,33 +162,7 @@ try {
       )
 
       /**
-       * Expose tsserver process in SingleTsServer constructor
-       */
-
-      text = text.replace(
-        ',this._callbacks.destroy("server errored")}))',
-        s =>
-          s +
-          ',globalThis.__TSSERVER__||={},globalThis.__TSSERVER__[arguments[1]]=this',
-      )
-
-      /**
-       * support for VS Code < 1.87.0
-       */
-
-      // patch jsTsLanguageModes
-      text = text.replace(
-        't.$u=[t.$r,t.$s,t.$p,t.$q]',
-        s => s + '.concat("mpx")',
-      )
-      // patch isSupportedLanguageMode
-      text = text.replace(
-        '.languages.match([t.$p,t.$q,t.$r,t.$s]',
-        s => s + '.concat("mpx")',
-      )
-
-      /**
-       * support for VS Code >= 1.87.0
+       * Only support for VS Code >= 1.87.0
        */
 
       // patch jsTsLanguageModes

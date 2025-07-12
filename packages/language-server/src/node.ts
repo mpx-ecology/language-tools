@@ -1,13 +1,7 @@
-import type * as ts from 'typescript'
 import type { LanguageServer } from '@volar/language-server'
-import type { MpxInitializationOptions } from './types'
-
+import * as ts from 'typescript'
 import { URI } from 'vscode-uri'
-import {
-  createConnection,
-  createServer,
-  loadTsdkByPath,
-} from '@volar/language-server/node'
+import { createConnection, createServer } from '@volar/language-server/node'
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject'
 import {
   createLanguage,
@@ -25,24 +19,17 @@ import {
 const connection = createConnection()
 const server = createServer(connection)
 
+const tsserverRequestHandlers = new Map<number, (response: any) => void>()
+let tsserverRequestId = 0
+
 connection.listen()
 
+connection.onNotification('tsserver/response', ([id, response]) => {
+  tsserverRequestHandlers.get(id)?.(response)
+  tsserverRequestHandlers.delete(id)
+})
+
 connection.onInitialize(params => {
-  const options: MpxInitializationOptions = params.initializationOptions
-
-  if (!options.typescript?.tsdk) {
-    throw new Error('typescript.tsdk is required')
-  }
-  if (!options.typescript?.tsserverRequestCommand) {
-    connection.console.warn(
-      'typescript.tsserverRequestCommand is required for complete TS features',
-    )
-  }
-
-  const { typescript: ts } = loadTsdkByPath(
-    options.typescript.tsdk,
-    params.locale,
-  )
   const tsconfigProjects = createUriMap<LanguageService>()
   const file2ProjectInfo = new Map<
     string,
@@ -67,15 +54,12 @@ connection.onInitialize(params => {
     {
       setup() {},
       async getLanguageService(uri) {
-        if (
-          uri.scheme === 'file' &&
-          options.typescript.tsserverRequestCommand
-        ) {
+        if (uri.scheme === 'file') {
           const fileName = uri.fsPath.replace(/\\/g, '/')
           let projectInfoPromise = file2ProjectInfo.get(fileName)
           if (!projectInfoPromise) {
             projectInfoPromise = sendTsRequest<ts.server.protocol.ProjectInfo>(
-              ts.server.protocol.CommandTypes.ProjectInfo,
+              `_mpx:${ts.server.protocol.CommandTypes.ProjectInfo}`,
               {
                 file: fileName,
                 needFileNameList: false,
@@ -85,7 +69,7 @@ connection.onInitialize(params => {
           }
           const projectInfo = await projectInfoPromise
           if (projectInfo) {
-            const { configFileName } = projectInfo
+            const { configFileName } = projectInfo || {}
             let ls = tsconfigProjects.get(URI.file(configFileName))
             if (!ls) {
               ls = createLs(server, configFileName)
@@ -109,78 +93,77 @@ connection.onInitialize(params => {
         simpleLs = undefined
       },
     },
-    createMpxLanguageServicePlugins(
-      ts,
-      options.typescript.tsserverRequestCommand
-        ? {
-            collectExtractProps(...args: any[]) {
-              return sendTsRequest('mpx:collectExtractProps', args)
-            },
-            getComponentDirectives(...args: any[]) {
-              return sendTsRequest('mpx:getComponentDirectives', args)
-            },
-            getComponentEvents(...args: any[]) {
-              return sendTsRequest('mpx:getComponentEvents', args)
-            },
-            getComponentNames(...args: any[]) {
-              return sendTsRequest('mpx:getComponentNames', args)
-            },
-            getComponentProps(...args: any[]) {
-              return sendTsRequest('mpx:getComponentProps', args)
-            },
-            getElementAttrs(...args: any[]) {
-              return sendTsRequest('mpx:getElementAttrs', args)
-            },
-            getElementNames(...args: any[]) {
-              return sendTsRequest('mpx:getElementNames', args)
-            },
-            getImportPathForFile(...args: any[]) {
-              return sendTsRequest('mpx:getImportPathForFile', args)
-            },
-            getPropertiesAtLocation(...args: any[]) {
-              return sendTsRequest('mpx:getPropertiesAtLocation', args)
-            },
-            getDocumentHighlights(fileName: string, position: any) {
-              return sendTsRequest(
-                'documentHighlights-full', // ts internal command
-                {
-                  file: fileName,
-                  ...({ position } as unknown as {
-                    line: number
-                    offset: number
-                  }),
-                  filesToSearch: [fileName],
-                } satisfies ts.server.protocol.DocumentHighlightsRequestArgs,
-              )
-            },
-            async getQuickInfoAtPosition(
-              fileName: any,
-              { line, character }: any,
-            ) {
-              const result = await sendTsRequest<ts.QuickInfo>(
-                ts.server.protocol.CommandTypes.Quickinfo,
-                {
-                  file: fileName,
-                  line: line + 1,
-                  offset: character + 1,
-                } satisfies ts.server.protocol.FileLocationRequestArgs,
-              )
-              return ts.displayPartsToString(result?.displayParts ?? [])
-            },
-          }
-        : undefined,
-    ),
+    createMpxLanguageServicePlugins(ts, {
+      collectExtractProps(...args: any[]) {
+        return sendTsRequest('_mpx:collectExtractProps', args)
+      },
+      getComponentDirectives(...args: any[]) {
+        return sendTsRequest('_mpx:getComponentDirectives', args)
+      },
+      getComponentEvents(...args: any[]) {
+        return sendTsRequest('_mpx:getComponentEvents', args)
+      },
+      getComponentNames(...args: any[]) {
+        return sendTsRequest('_mpx:getComponentNames', args)
+      },
+      getComponentProps(...args: any[]) {
+        return sendTsRequest('_mpx:getComponentProps', args)
+      },
+      getElementAttrs(...args: any[]) {
+        return sendTsRequest('_mpx:getElementAttrs', args)
+      },
+      getElementNames(...args: any[]) {
+        return sendTsRequest('_mpx:getElementNames', args)
+      },
+      getImportPathForFile(...args: any[]) {
+        return sendTsRequest('_mpx:getImportPathForFile', args)
+      },
+      getPropertiesAtLocation(...args: any[]) {
+        return sendTsRequest('_mpx:getPropertiesAtLocation', args)
+      },
+      getDocumentHighlights(fileName: string, position: any) {
+        return sendTsRequest(
+          '_mpx:documentHighlights-full', // ts internal command
+          {
+            file: fileName,
+            ...({ position } as unknown as {
+              line: number
+              offset: number
+            }),
+            filesToSearch: [fileName],
+          } satisfies ts.server.protocol.DocumentHighlightsRequestArgs,
+        )
+      },
+      async getQuickInfoAtPosition(fileName: any, { line, character }: any) {
+        const result = await sendTsRequest<ts.QuickInfo>(
+          `_mpx:${ts.server.protocol.CommandTypes.Quickinfo}`,
+          {
+            file: fileName,
+            line: line + 1,
+            offset: character + 1,
+          } satisfies ts.server.protocol.FileLocationRequestArgs,
+        )
+        return ts.displayPartsToString(result?.displayParts ?? [])
+      },
+    }),
   )
 
   /**
    * Send request to client
    */
-
-  function sendTsRequest<T>(command: string, args: any): Promise<T | null> {
-    return connection.sendRequest<T>(
-      options.typescript.tsserverRequestCommand!,
-      [command, args],
-    )
+  async function sendTsRequest<T>(
+    command: string,
+    args: any,
+  ): Promise<T | null> {
+    return await new Promise<T | null>(resolve => {
+      const requestId = ++tsserverRequestId
+      tsserverRequestHandlers.set(requestId, resolve)
+      connection.sendNotification('tsserver/request', [
+        requestId,
+        command,
+        args,
+      ])
+    })
   }
 
   function createLs(server: LanguageServer, tsconfig: string | undefined) {
