@@ -46,5 +46,7 @@ export function parseUsingComponents(
     }
   }
 
+  console.log('---> debug parseUsingComponents', usingComponents)
+
   return usingComponents
 }

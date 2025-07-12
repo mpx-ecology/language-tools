@@ -109,18 +109,9 @@ export type MpxLanguagePluginReturn = {
     embeddedFile: MpxEmbeddedCode,
   ): void
   resolveUsingComponentsPath?(
-    usingComponentsPath: Map<string, UsingComponentInfo>,
+    usingComponentsPath: SfcJsonBlockUsingComponents,
     uri: string,
-  ): Promise<Map<string, ResolvedUsingComponentInfo> | void> | void
-}
-
-export type UsingComponentInfo = {
-  text: string
-  offset: number
-  nameOffset: number
-}
-export type ResolvedUsingComponentInfo = UsingComponentInfo & {
-  realFilename?: string
+  ): Promise<SfcJsonResolvedBlockUsingComponents>
 }
 
 export type MpxLanguagePlugin = (ctx: {
@@ -151,13 +142,18 @@ export type SfcBlockAttr =
       quotes: boolean
     }
 
-export type SfcJsonBlockUsingComponents = Map<
+export interface UsingComponentInfo {
+  text: string
+  offset: number
+  nameOffset: number
+}
+export interface ResolvedUsingComponentInfo extends UsingComponentInfo {
+  realFilename?: string
+}
+export type SfcJsonBlockUsingComponents = Map<string, UsingComponentInfo>
+export type SfcJsonResolvedBlockUsingComponents = Map<
   string,
-  {
-    text: string
-    offset: number
-    nameOffset: number
-  }
+  ResolvedUsingComponentInfo
 >
 
 export interface Sfc {
@@ -197,18 +193,15 @@ export interface Sfc {
     | (SfcBlock & {
         ast: ts.SourceFile
         usingComponents: SfcJsonBlockUsingComponents | undefined
-        resolveUsingComponents: Promise<ResolveUsingComponentsReturn>
+        resolveUsingComponents:
+          | Promise<SfcJsonResolvedBlockUsingComponents>
+          | undefined
       })
     | undefined
   customBlocks: readonly (SfcBlock & {
     type: string
   })[]
 }
-
-export type ResolveUsingComponentsReturn = Map<
-  string,
-  ResolvedUsingComponentInfo
->
 
 declare module '@vue/compiler-sfc' {
   interface SFCBlock {

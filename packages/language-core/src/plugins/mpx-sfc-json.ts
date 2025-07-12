@@ -1,8 +1,8 @@
 import type * as ts from 'typescript'
 import type {
   MpxLanguagePlugin,
-  ResolvedUsingComponentInfo,
-  UsingComponentInfo,
+  SfcJsonBlockUsingComponents,
+  SfcJsonResolvedBlockUsingComponents,
 } from '../types'
 import { allCodeFeatures } from './shared'
 import { withResolvers } from '../utils/utils'
@@ -52,13 +52,13 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
     },
 
     resolveUsingComponentsPath(
-      usingComponents: Map<string, UsingComponentInfo>,
+      usingComponents: SfcJsonBlockUsingComponents,
       uri: string,
     ) {
       const { promise, resolve } =
-        withResolvers<Map<string, ResolvedUsingComponentInfo>>()
+        withResolvers<SfcJsonResolvedBlockUsingComponents>()
+      const result: SfcJsonResolvedBlockUsingComponents = new Map()
 
-      const result: Map<string, ResolvedUsingComponentInfo> = new Map()
       Promise.allSettled(
         [...usingComponents.entries()].map(async ([name, info]) => {
           const resolvedFilename = await formatUsingComponentsPath(

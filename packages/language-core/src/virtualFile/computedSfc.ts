@@ -127,20 +127,19 @@ export function computedSfc(
         }
         return ts.createSourceFile('', '', 100 satisfies ts.ScriptTarget.JSON)
       })
-      const getResolvedUsingComponents = computed(async () => {
-        for (const plugin of plugins) {
-          const result = await plugin.resolveUsingComponentsPath?.(
-            getUsingComponents(),
-            fileName,
-          )
-
-          if (result) return result
-        }
-        return new Map()
-      })
       const getUsingComponents = computed(() =>
         parseUsingComponents(ts, getAst()),
       )
+      const getResolvedUsingComponents = computed(() => {
+        for (const plugin of plugins) {
+          if (typeof plugin.resolveUsingComponentsPath === 'function') {
+            return plugin.resolveUsingComponentsPath(
+              getUsingComponents(),
+              fileName,
+            )
+          }
+        }
+      })
       return mergeObject(base, {
         get ast() {
           return getAst()
