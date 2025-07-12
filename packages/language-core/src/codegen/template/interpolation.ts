@@ -9,6 +9,7 @@ const isLiteralWhitelisted = /*@__PURE__*/ makeMap('true,false,null,this')
 const isMpxGloballyWhitelisted = /*@__PURE__*/ makeMap(
   '__mpx_mode__,__mpx_env__',
 )
+const isMpxGlobalDollarsWhitelisted = /*@__PURE__*/ makeMap('$t,$tc,$te,$tm')
 
 export function* generateInterpolation(
   options: {
@@ -236,7 +237,10 @@ function* generateVar(
       ctx.accessExternalVariable(curVar.text)
     }
 
-    if (ctx.dollarVars.has(curVar.text)) {
+    if (
+      isMpxGlobalDollarsWhitelisted(curVar.text) ||
+      ctx.dollarVars.has(curVar.text)
+    ) {
       yield [`__MPX_dollars.`, undefined]
     } else {
       yield [`__MPX_ctx.`, undefined]

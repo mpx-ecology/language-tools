@@ -7,7 +7,6 @@ import { getComponentEvents } from './getComponentEvents'
 import { getComponentDirectives } from './getComponentDirectives'
 import { getElementAttrs } from './getElementAttrs'
 import { getElementNames } from './getElementNames'
-import { getSemanticDiagnostics } from './getSemanticDiagnostics'
 
 type ToRequest<T extends (...args: any) => any> = (
   ...args: Parameters<T>
@@ -26,7 +25,6 @@ export interface IRequests {
   getQuickInfoAtPosition: ToRequest<
     (fileName: string, position: { line: number; character: number }) => string
   >
-  getSemanticDiagnostics: ToRequest<typeof getSemanticDiagnostics>
 }
 
 export {
@@ -39,5 +37,4 @@ export {
   getComponentDirectives,
   getElementAttrs,
   getElementNames,
-  getSemanticDiagnostics,
 }
