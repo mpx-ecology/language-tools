@@ -29,5 +29,8 @@
   },
   "devDependencies": {
     "@types/node": "catalog:"
+  },
+  "peerDependencies": {
+    "typescript": "*"
   }
 }

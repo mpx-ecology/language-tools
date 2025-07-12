@@ -1,5 +1,5 @@
 import type { SfcJsonBlockUsingComponents } from '../types'
-import * as ts from 'typescript'
+import type * as ts from 'typescript'
 
 export function parseUsingComponents(
   ts: typeof import('typescript'),
