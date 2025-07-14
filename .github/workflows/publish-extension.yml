@@ -33,8 +33,8 @@ jobs:
         run: pnpm run build && pnpm -F mpx-official pack:vsce
 
       - uses: actions/github-script@v7
-        id: checkPrerelease
-        name: Check if prerelease
+        id: checkReleaseInfo
+        name: Check if prerelease and set vsix path
         with:
           script: |
             const version = context.ref.replace('refs/tags/v', '').split('.');
@@ -45,13 +45,13 @@ jobs:
         id: publishToVSMarketplace
         uses: HaaLeo/publish-vscode-extension@v2
         with:
-          preRelease: ${{ steps.checkPrerelease.outputs.preRelease == 'true' }}
-          extensionFile: ${{ steps.checkPrerelease.outputs.vsixPath }}
+          preRelease: ${{ steps.checkReleaseInfo.outputs.preRelease == 'true' }}
+          extensionFile: ${{ steps.checkReleaseInfo.outputs.vsixPath }}
           registryUrl: https://marketplace.visualstudio.com
           pat: ${{ secrets.VSCE_PAT }}
 
       - name: Publish to Open VSX Registry
         uses: HaaLeo/publish-vscode-extension@v2
         with:
-          extensionFile: ${{ steps.checkPrerelease.outputs.vsixPath }}
+          extensionFile: ${{ steps.checkReleaseInfo.outputs.vsixPath }}
           pat: ${{ secrets.OPEN_VSX_PAT }}
