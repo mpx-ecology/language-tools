@@ -2,8 +2,8 @@
 
 [![vscode-marketplace-version](https://img.shields.io/vscode-marketplace/v/mpxjs.mpx-official.svg?label=vscode%20marketplace&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=mpxjs.mpx-official)
 [![vscode-marketplace-downloads](https://img.shields.io/vscode-marketplace/d/mpxjs.mpx-official.svg?label=vscode%20marketplace%20Downloads&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=mpxjs.mpx-official)
-![open-vsx-version](https://img.shields.io/open-vsx/v/mpxjs/mpx-official?label=Open%20VSX&style=flat-square)
-![open-vsx-downloads](https://img.shields.io/open-vsx/dt/mpxjs/mpx-official?label=Open%20VSX%20Downloads&style=flat-square)
+[![open-vsx-version](https://img.shields.io/open-vsx/v/mpxjs/mpx-official?label=Open%20VSX&style=flat-square)](https://open-vsx.org/extension/mpxjs/mpx-official)
+[![open-vsx-downloads](https://img.shields.io/open-vsx/dt/mpxjs/mpx-official?label=Open%20VSX%20Downloads&style=flat-square)](https://open-vsx.org/extension/mpxjs/mpx-official)
 
 ## Why new Extension?
 
