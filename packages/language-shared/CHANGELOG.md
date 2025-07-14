@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0](https://github.com/mpx-ecology/language-tools/compare/v0.3.0...v1.0.0) (2025-07-14)
+
+
+### Features
+
+* refactor shared code and update deps ([3d8c0dd](https://github.com/mpx-ecology/language-tools/commit/3d8c0ddb874137d55f424bbdca97082da5cde0de))
+
+
+
+
+
 # [0.3.0](https://github.com/mpx-ecology/language-tools/compare/v0.2.0...v0.3.0) (2025-07-04)
 
 **Note:** Version bump only for package @mpxjs/language-shared

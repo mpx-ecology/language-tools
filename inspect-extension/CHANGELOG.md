@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0](https://github.com/mpx-ecology/language-tools/compare/v0.3.0...v1.0.0) (2025-07-14)
+
+
+### Bug Fixes
+
+* filter comment when find ifNode prev node ([b52acdb](https://github.com/mpx-ecology/language-tools/commit/b52acdb5cde41d688325178b7d84974a09107afb))
+* wx condition ([a9704d8](https://github.com/mpx-ecology/language-tools/commit/a9704d8a81805c1eeed749663a5663f7655566e3))
+
+
+### Features
+
+* **core:** enhance codegen for attributesValue ([b41754e](https://github.com/mpx-ecology/language-tools/commit/b41754ee2552e260dcf3fd9f303b4f5fdf66518d))
+* enhance template document link for custom component ([75e7bff](https://github.com/mpx-ecology/language-tools/commit/75e7bffa3202bce476fa416894a5221055a2786a))
+* **inspect:** update wx:for and wx:if priority case ([4df6996](https://github.com/mpx-ecology/language-tools/commit/4df6996a9b7732246837ba95d6098507a8a6c799))
+* refactor and cleanup code ([d34747a](https://github.com/mpx-ecology/language-tools/commit/d34747af1f6573e22c7bf674486d8e126a7e902f))
+* refactor shared code and update deps ([3d8c0dd](https://github.com/mpx-ecology/language-tools/commit/3d8c0ddb874137d55f424bbdca97082da5cde0de))
+* **service:** support for custom components in template completion ([a8345b6](https://github.com/mpx-ecology/language-tools/commit/a8345b63ba8447c962fb027aa8ae1ac3528ecfe3))
+* support abs path resolve ([c0702de](https://github.com/mpx-ecology/language-tools/commit/c0702ded94df3fa23dab8cacb6fd172a37e9813f))
+* support document link for json component ([9a7f9f7](https://github.com/mpx-ecology/language-tools/commit/9a7f9f75da5f372f411b481857a8c385f9dbd5a1))
+* support template global definitions ([a8c5b56](https://github.com/mpx-ecology/language-tools/commit/a8c5b56d3c28714b149062be116fb4c382ce2fc0))
+
+
+
+
+
 # [0.3.0](https://github.com/mpx-ecology/language-tools/compare/v0.2.0...v0.3.0) (2025-07-04)
 
 
