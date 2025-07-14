@@ -82,6 +82,10 @@ flowchart TD
   class vscode,inspect extension
 ```
 
+## Contributing
+
+For details on how to contribute to this project, please refer to our [Contributing Guide][contributing-guide].
+
 ## Dive In
 
 For architecture details and source code documentation, please refer to our [Deepwiki][mpx-deep-wiki].
@@ -110,6 +114,7 @@ For details on our planned features and future direction, please refer to our [R
 [Johnson Chu]: https://github.com/johnsoncodehk
 [pagnkelly]: https://github.com/pagnkelly
 [Soon Wang]: https://github.com/wangshunnn
+[contributing-guide]: ./CONTRIBUTING.md
 
 <!-- Package Links -->
 
