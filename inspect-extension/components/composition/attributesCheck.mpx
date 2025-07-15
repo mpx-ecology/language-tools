@@ -1,25 +1,26 @@
 <template>
-    <view>
-        <view class="page-section page-section-spacing swiper">
-        <icon />
-        <!-- ^ 缺少必填属性 `type` -->
-        <swiper
-          indicator-dots="{{ indicatorDots }}"
-          autoplay="{{ autoplay }}"
-          interval="{{ interval }}"
-          duration="{{ duration }}"
-          bindchange="{{ onSwiperChange }}"
-        >
-          <block wx:for="{{ backgroundList }}" wx:key="*this">
-            <swiper-item>
-              <view class="swiper-item">
-                {{ item }}
-              </view>
-            </swiper-item>
-        </block>
-      </swiper>
+  <view>
+    <view class="page-section page-section-spacing swiper">
+      <icon />
+      <button plain="{{ true }}" />
+      <!-- ^ 缺少必填属性 `type` -->
+      <swiper
+        indicator-dots="{{ indicatorDots }}"
+        autoplay="{{ autoplay }}"
+        interval="{{ interval }}"
+        duration="{{ duration }}"
+        bindchange="{{ onSwiperChange }}"
+      >
+        <block wx:for="{{ backgroundList }}" wx:key="*this">
+          <swiper-item>
+            <view class="swiper-item">
+              {{ item }}
+            </view>
+          </swiper-item>
+      </block>
+    </swiper>
     </view>
-    </view>
+  </view>
 </template>
 
 <script setup lang="ts">

@@ -1,8 +1,12 @@
 import type * as html from 'vscode-html-languageservice'
-import { MpxDocs, MpxDocsUrl, WxDocs, WxDocsUrl } from './utils'
+import {
+  MpxDirectivesUrl,
+  MpxDocs,
+  MpxGuideUrl,
+  WxDocs,
+  WxDocsUrl,
+} from './utils'
 
-const MpxGuideUrl = `${MpxDocsUrl}/guide`
-const MpxDirectivesUrl = `${MpxDocsUrl}/api/directives.html#`
 const MpxRNCompUrl = `${MpxGuideUrl}/platform/rn.html#`
 const WxCompUrl = `${WxDocsUrl}/component`
 const RNBasicComp = '跨端输出 RN'
@@ -22,7 +26,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '指定要使用的模板名称，可以是一个字符串或一个表达式。\n\n- **注意**：如果是字符串，则必须与 `name` 属性的值相同；如果是表达式，则必须返回一个字符串。',
+              '指定要使用的模板名称，可以是一个字符串或一个表达式。\n\n- 注意：如果是字符串，则必须与 `name` 属性的值相同；如果是表达式，则必须返回一个字符串。',
           },
         },
         {
@@ -49,7 +53,7 @@ const data: html.HTMLDataV1 = {
       name: 'view',
       description: {
         kind: 'markdown',
-        value: `视图容器。\n\n- **注意**：如果需要使用滚动视图，请使用 [scroll-view](${WxCompUrl}/scroll-view.html)。\n\n- 支持 Mpx 跨端输出 RN 的基础组件。`,
+        value: `视图容器。\n\n- 注意：如果需要使用滚动视图，请使用 [scroll-view](${WxCompUrl}/scroll-view.html)。\n\n- 支持 Mpx 跨端输出 RN 的基础组件。`,
       },
       attributes: [
         {
@@ -330,7 +334,7 @@ const data: html.HTMLDataV1 = {
       name: 'swiper',
       description: {
         kind: 'markdown',
-        value: `滑块视图容器。\n\n- **注意**：其中只可放置 swiper-item 组件，否则会导致未定义的行为。`,
+        value: `滑块视图容器。\n\n- 注意：其中只可放置 swiper-item 组件，否则会导致未定义的行为。`,
       },
       attributes: [
         {
@@ -468,7 +472,7 @@ const data: html.HTMLDataV1 = {
       name: 'swiper-item',
       description: {
         kind: 'markdown',
-        value: `滑块视图容器子元素。\n\n- **注意**：仅可放置在 swiper 组件中，宽高自动设置为 100%。`,
+        value: `滑块视图容器子元素。\n\n- 注意：仅可放置在 swiper 组件中，宽高自动设置为 100%。`,
       },
       attributes: [
         {
@@ -498,7 +502,7 @@ const data: html.HTMLDataV1 = {
       name: 'movable-area',
       description: {
         kind: 'markdown',
-        value: `[movable-view](${WxCompUrl}/movable-view.html) 的可移动区域。\n\n- **注意**：movable-area 不支持设置 scale-area`,
+        value: `[movable-view](${WxCompUrl}/movable-view.html) 的可移动区域。\n\n- 注意：movable-area 不支持设置 scale-area`,
       },
       attributes: [
         {
@@ -521,7 +525,7 @@ const data: html.HTMLDataV1 = {
       name: 'movable-view',
       description: {
         kind: 'markdown',
-        value: `可移动的视图容器，在页面中可以拖拽滑动。\n\n- **注意**：movable-view 必须在 [movable-area](${WxCompUrl}/movable-area.html) 组件中，并且必须是直接子节点，否则不能移动。`,
+        value: `可移动的视图容器，在页面中可以拖拽滑动。\n\n- 注意：movable-view 必须在 [movable-area](${WxCompUrl}/movable-area.html) 组件中，并且必须是直接子节点，否则不能移动。`,
       },
       attributes: [
         {
@@ -671,7 +675,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '是否启用传送门功能，启用后组件内容将渲染在应用的最顶层。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '是否启用传送门功能，启用后组件内容将渲染在应用的最顶层。\n\n- 默认值：`false`',
           },
         },
       ],
@@ -688,7 +692,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '覆盖在原生组件之上的文本视图。功能同 view 组件。\n\n- **注意**：目前微信原生组件均已支持同层渲染，建议使用 view 替代。（详见微信文档）',
+          '覆盖在原生组件之上的文本视图。功能同 view 组件。\n\n- 注意：目前微信原生组件均已支持同层渲染，建议使用 view 替代。（详见微信文档）',
       },
       attributes: [
         {
@@ -696,7 +700,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '设置顶部滚动偏移量，仅在设置了 overflow-y: scroll 成为滚动元素后生效。\n\n- **类型**：`number | string`\n- **说明**：如果设置为字符串，会尝试转换为数字；若转换失败则无效。',
+              '设置顶部滚动偏移量，仅在设置了 overflow-y: scroll 成为滚动元素后生效。\n\n- 说明：如果设置为字符串，会尝试转换为数字；若转换失败则无效。',
           },
         },
       ],
@@ -727,8 +731,7 @@ const data: html.HTMLDataV1 = {
           name: 'size',
           description: {
             kind: 'markdown',
-            value:
-              '图标的大小。\n\n- **类型**：`number | string`\n- **默认值**：23。',
+            value: '图标的大小。\n\n- 默认值：23。',
           },
         },
         {
@@ -759,15 +762,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '文本是否可选，影响长按复制等功能。\n\n- **类型**：`boolean`\n- **默认值**：`false`\n- **注意**：已废弃。',
+              '文本是否可选，影响长按复制等功能。\n\n- 默认值：`false`\n- 注意：已废弃。',
           },
         },
         {
           name: 'user-select',
           description: {
             kind: 'markdown',
-            value:
-              '是否允许用户选中文字。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否允许用户选中文字。\n\n- 默认值：`false`',
           },
         },
       ],
@@ -791,7 +793,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '按钮的大小。\n\n- **可选值**：`default`（默认）、`mini`（小尺寸）',
+              '按钮的大小。\n\n- 可选值：`default`（默认）、`mini`（小尺寸）',
           },
         },
         {
@@ -799,31 +801,28 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '按钮的样式类型。\n\n- **可选值**：`primary`（绿色）、`default`（白色）、`warn`（红色）',
+              '按钮的样式类型。\n\n- 可选值：`primary`（绿色）、`default`（白色）、`warn`（红色）',
           },
         },
         {
           name: 'plain',
           description: {
             kind: 'markdown',
-            value:
-              '按钮是否镂空，背景色透明。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '按钮是否镂空，背景色透明。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'disabled',
           description: {
             kind: 'markdown',
-            value:
-              '是否禁用按钮。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否禁用按钮。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'loading',
           description: {
             kind: 'markdown',
-            value:
-              '名称前是否带 loading 图标。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '名称前是否带 loading 图标。\n\n- 默认值：`false`',
           },
         },
         {
@@ -831,7 +830,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '用于 `<form>` 组件，点击分别会触发 `<form>` 组件的 submit/reset 事件。\n\n- **可选值**：`submit`、`reset`、`submitToGroup`',
+              '用于 `<form>` 组件，点击分别会触发 `<form>` 组件的 submit/reset 事件。\n\n- 可选值：`submit`、`reset`、`submitToGroup`',
           },
         },
         {
@@ -839,7 +838,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '微信开放能力，用于调用微信提供的各种功能。\n\n- **可选值**：\n  - `contact`（打开客服会话）\n  - `share`（触发分享）\n  - `getUserInfo`（获取用户信息）\n  - `launchApp`（打开APP）\n  - `openSetting`（打开授权设置页）\n  - `feedback`（打开意见反馈）\n  - `getPhoneNumber`（获取用户手机号）\n  - `getRealnameAuthInfo`（获取实名认证信息）',
+              '微信开放能力，用于调用微信提供的各种功能。\n\n- 可选值：\n  - `contact`（打开客服会话）\n  - `share`（触发分享）\n  - `getUserInfo`（获取用户信息）\n  - `launchApp`（打开APP）\n  - `openSetting`（打开授权设置页）\n  - `feedback`（打开意见反馈）\n  - `getPhoneNumber`（获取用户手机号）\n  - `getRealnameAuthInfo`（获取实名认证信息）',
           },
         },
         {
@@ -855,22 +854,21 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '指定是否阻止本节点的祖先节点出现点击态。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '指定是否阻止本节点的祖先节点出现点击态。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'hover-start-time',
           description: {
             kind: 'markdown',
-            value: '按住后多久出现点击态，单位为毫秒。\n\n- **默认值**：`20`',
+            value: '按住后多久出现点击态，单位为毫秒。\n\n- 默认值：`20`',
           },
         },
         {
           name: 'hover-stay-time',
           description: {
             kind: 'markdown',
-            value:
-              '手指松开后点击态保留时间，单位为毫秒。\n\n- **默认值**：`70`',
+            value: '手指松开后点击态保留时间，单位为毫秒。\n\n- 默认值：`70`',
           },
         },
         {
@@ -878,7 +876,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '指定返回用户信息的语言。\n\n- **可选值**：`zh_CN`（简体中文）、`zh_TW`（繁体中文）、`en`（英文）',
+              '指定返回用户信息的语言。\n\n- 可选值：`zh_CN`（简体中文）、`zh_TW`（繁体中文）、`en`（英文）',
           },
         },
         {
@@ -931,15 +929,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '当手机号快速验证或手机号实时验证额度用尽时，是否对用户展示“申请获取你的手机号，但该功能使用次数已达当前小程序上限，暂时无法使用”的提示，默认展示，open-type="getPhoneNumber" 或 open-type="getRealtimePhoneNumber" 时有效。\n\n- **类型**：`boolean`\n- **默认值**：`true`',
+              '当手机号快速验证或手机号实时验证额度用尽时，是否对用户展示“申请获取你的手机号，但该功能使用次数已达当前小程序上限，暂时无法使用”的提示，默认展示，open-type="getPhoneNumber" 或 open-type="getRealtimePhoneNumber" 时有效。\n\n- 默认值：`true`',
           },
         },
         {
           name: 'need-show-entrance',
           description: {
             kind: 'markdown',
-            value:
-              '转发的文本消息是否要带小程序入口。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '转发的文本消息是否要带小程序入口。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1044,7 +1041,7 @@ const data: html.HTMLDataV1 = {
           name: 'for',
           description: {
             kind: 'markdown',
-            value: '指定关联的表单元素的 ID。\n\n- **类型**：`string`',
+            value: '指定关联的表单元素的 ID。',
           },
         },
       ],
@@ -1075,16 +1072,14 @@ const data: html.HTMLDataV1 = {
           name: 'disabled',
           description: {
             kind: 'markdown',
-            value:
-              '是否禁用多选框。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否禁用多选框。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'checked',
           description: {
             kind: 'markdown',
-            value:
-              '初始时是否选中。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '初始时是否选中。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1146,16 +1141,14 @@ const data: html.HTMLDataV1 = {
           name: 'checked',
           description: {
             kind: 'markdown',
-            value:
-              '初始时是否选中。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '初始时是否选中。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'disabled',
           description: {
             kind: 'markdown',
-            value:
-              '是否禁用单选框。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否禁用单选框。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1210,7 +1203,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '是否在表单提交时报告相关数据（如formId、字段值等），用于数据分析。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '是否在表单提交时报告相关数据（如formId、字段值等），用于数据分析。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1272,15 +1265,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '输入框的类型。\n\n- **可选值**：\n  - `text`（普通文本，默认值）\n  - `number`（数字键盘）\n  - `idcard`（身份证键盘）\n  - `digit`（带小数点的数字键盘）\n  - `safe-password`（密码安全输入键盘）\n  - `nickname`（昵称输入键盘）',
+              '输入框的类型。\n\n- 可选值：\n  - `text`（普通文本，默认值）\n  - `number`（数字键盘）\n  - `idcard`（身份证键盘）\n  - `digit`（带小数点的数字键盘）\n  - `safe-password`（密码安全输入键盘）\n  - `nickname`（昵称输入键盘）',
           },
         },
         {
           name: 'password',
           description: {
             kind: 'markdown',
-            value:
-              '是否是密码类型。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否是密码类型。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1301,8 +1293,7 @@ const data: html.HTMLDataV1 = {
           name: 'disabled',
           description: {
             kind: 'markdown',
-            value:
-              '是否禁用输入框。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否禁用输入框。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1310,7 +1301,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '最大输入长度，设置为 `-1` 时不限制最大长度。\n\n- **类型**：`number`\n- **默认值**：`140`',
+              '最大输入长度，设置为 `-1` 时不限制最大长度。\n\n- 默认值：`140`',
           },
         },
         {
@@ -1325,15 +1316,14 @@ const data: html.HTMLDataV1 = {
           name: 'auto-focus',
           description: {
             kind: 'markdown',
-            value:
-              '自动聚焦，拉起键盘。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '自动聚焦，拉起键盘。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'focus',
           description: {
             kind: 'markdown',
-            value: '获取焦点。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '获取焦点。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1341,7 +1331,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '设置键盘右下角按钮的文字，仅在 `type="text"` 时生效。\n\n- **可选值**：\n  - `done`（完成）\n  - `go`（前往）\n  - `next`（下一项）\n  - `search`（搜索）\n  - `send`（发送）',
+              '设置键盘右下角按钮的文字，仅在 `type="text"` 时生效。\n\n- 可选值：\n  - `done`（完成）\n  - `go`（前往）\n  - `next`（下一项）\n  - `search`（搜索）\n  - `send`（发送）',
           },
         },
         {
@@ -1357,7 +1347,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '点击键盘右下角按钮时是否保持键盘不收起。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '点击键盘右下角按钮时是否保持键盘不收起。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1380,7 +1370,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '光标起始位置，自动聚焦时有效，需与 `selection-end` 搭配使用。\n\n- **类型**：`number`\n- **默认值**：`-1`',
+              '光标起始位置，自动聚焦时有效，需与 `selection-end` 搭配使用。\n\n- 默认值：`-1`',
           },
         },
         {
@@ -1388,15 +1378,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '光标结束位置，自动聚焦时有效，需与 `selection-start` 搭配使用。\n\n- **类型**：`number`\n- **默认值**：`-1`',
+              '光标结束位置，自动聚焦时有效，需与 `selection-start` 搭配使用。\n\n- 默认值：`-1`',
           },
         },
         {
           name: 'adjust-position',
           description: {
             kind: 'markdown',
-            value:
-              '键盘弹起时，是否自动上推页面。\n\n- **类型**：`boolean`\n- **默认值**：`true`',
+            value: '键盘弹起时，是否自动上推页面。\n\n- 默认值：`true`',
           },
         },
         {
@@ -1404,7 +1393,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '`focus` 时，点击页面的时候不收起键盘。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '`focus` 时，点击页面的时候不收起键盘。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1412,31 +1401,28 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '安全键盘加密公钥的路径，只支持包内路径。\n\n- **注意**：鸿蒙 OS 暂不支持。\n- **版本支持**：2.18.0+',
+              '安全键盘加密公钥的路径，只支持包内路径。\n\n- 注意：鸿蒙 OS 暂不支持。',
           },
         },
         {
           name: 'safe-password-length',
           description: {
             kind: 'markdown',
-            value:
-              '安全键盘输入密码长度。\n\n- **类型**：`number`\n- **注意**：鸿蒙 OS 暂不支持。\n- **版本支持**：2.18.0+',
+            value: '安全键盘输入密码长度。\n\n- 注意：鸿蒙 OS 暂不支持。',
           },
         },
         {
           name: 'safe-password-time-stamp',
           description: {
             kind: 'markdown',
-            value:
-              '安全键盘加密时间戳。\n\n- **类型**：`number`\n- **注意**：鸿蒙 OS 暂不支持。\n- **版本支持**：2.18.0+',
+            value: '安全键盘加密时间戳。\n\n- 注意：鸿蒙 OS 暂不支持。',
           },
         },
         {
           name: 'safe-password-nonce',
           description: {
             kind: 'markdown',
-            value:
-              '安全键盘加密盐值。\n\n- **注意**：鸿蒙 OS 暂不支持。\n- **版本支持**：2.18.0+',
+            value: '安全键盘加密盐值。\n\n- 注意：鸿蒙 OS 暂不支持。',
           },
         },
         {
@@ -1444,7 +1430,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '安全键盘计算hash盐值，若指定custom-hash则无效。\n\n- **注意**：鸿蒙 OS 暂不支持。\n- **版本支持**：2.18.0+',
+              '安全键盘计算hash盐值，若指定custom-hash则无效。\n\n- 注意：鸿蒙 OS 暂不支持。',
           },
         },
         {
@@ -1452,7 +1438,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              "安全键盘计算hash的算法表达式，如 `md5(sha1('foo' + sha256(sm3(password + 'bar'))))`。\n\n- **注意**：鸿蒙 OS 暂不支持。\n- **版本支持**：2.18.0+",
+              "安全键盘计算hash的算法表达式，如 `md5(sha1('foo' + sha256(sm3(password + 'bar'))))`。\n\n- 注意：鸿蒙 OS 暂不支持。",
           },
         },
         {
@@ -1559,8 +1545,7 @@ const data: html.HTMLDataV1 = {
           name: 'disabled',
           description: {
             kind: 'markdown',
-            value:
-              '是否禁用输入框。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否禁用输入框。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1568,22 +1553,21 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '最大输入长度，设置为 `-1` 时不限制最大长度。\n\n- **类型**：`number`\n- **默认值**：`140`',
+              '最大输入长度，设置为 `-1` 时不限制最大长度。\n\n- 默认值：`140`',
           },
         },
         {
           name: 'auto-focus',
           description: {
             kind: 'markdown',
-            value:
-              '自动聚焦，拉起键盘。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '自动聚焦，拉起键盘。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'focus',
           description: {
             kind: 'markdown',
-            value: '获取焦点。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '获取焦点。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1591,7 +1575,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '是否自动增高，设置为 `true` 时文本区域高度会随内容增加而增高。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '是否自动增高，设置为 `true` 时文本区域高度会随内容增加而增高。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1606,8 +1590,7 @@ const data: html.HTMLDataV1 = {
           name: 'cursor',
           description: {
             kind: 'markdown',
-            value:
-              '指定 focus 时的光标位置。\n\n- **类型**：`number`\n- **默认值**：`-1`',
+            value: '指定 focus 时的光标位置。\n\n- 默认值：`-1`',
           },
         },
         {
@@ -1615,7 +1598,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '光标起始位置，自动聚焦时有效，需与 `selection-end` 搭配使用。\n\n- **类型**：`number`\n- **默认值**：`-1`',
+              '光标起始位置，自动聚焦时有效，需与 `selection-end` 搭配使用。\n\n- 默认值：`-1`',
           },
         },
         {
@@ -1623,15 +1606,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '光标结束位置，自动聚焦时有效，需与 `selection-start` 搭配使用。\n\n- **类型**：`number`\n- **默认值**：`-1`',
+              '光标结束位置，自动聚焦时有效，需与 `selection-start` 搭配使用。\n\n- 默认值：`-1`',
           },
         },
         {
           name: 'adjust-position',
           description: {
             kind: 'markdown',
-            value:
-              '键盘弹起时，是否自动上推页面。\n\n- **类型**：`boolean`\n- **默认值**：`true`',
+            value: '键盘弹起时，是否自动上推页面。\n\n- 默认值：`true`',
           },
         },
         {
@@ -1639,15 +1621,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '`focus` 时，点击页面的时候不收起键盘。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '`focus` 时，点击页面的时候不收起键盘。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'disable-default-padding',
           description: {
             kind: 'markdown',
-            value:
-              '是否去掉 iOS 下的默认内边距。\n\n- **类型**：`boolean`\n- **默认值**：`false`\n- **版本支持**：2.10.0+',
+            value: '是否去掉 iOS 下的默认内边距。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1655,7 +1636,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '设置键盘右下角按钮的文字。\n\n- **类型**：`string`\n- **默认值**：`return`\n- **合法值**：\n  - `send`：右下角按钮为“发送”\n  - `search`：右下角按钮为“搜索”\n  - `next`：右下角按钮为“下一个”\n  - `go`：右下角按钮为“前往”\n  - `done`：右下角按钮为“完成”\n  - `return`：右下角按钮为“换行”\n- **版本支持**：2.13.0+',
+              '设置键盘右下角按钮的文字。\n\n- 默认值：`return`\n- **合法值**：\n  - `send`：右下角按钮为“发送”\n  - `search`：右下角按钮为“搜索”\n  - `next`：右下角按钮为“下一个”\n  - `go`：右下角按钮为“前往”\n  - `done`：右下角按钮为“完成”\n  - `return`：右下角按钮为“换行”',
           },
         },
         {
@@ -1663,7 +1644,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '点击键盘右下角按钮时是否保持键盘不收起。\n\n- **类型**：`boolean`\n- **默认值**：`false`\n- **版本支持**：2.16.0+',
+              '点击键盘右下角按钮时是否保持键盘不收起。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1671,7 +1652,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '键盘对齐位置。\n\n- **类型**：`string`\n- **默认值**：`cursor`\n- **合法值**：\n  - `cursor`：对齐光标位置\n  - `bottom`：对齐输入框底部\n- **版本支持**：2.16.1+',
+              '键盘对齐位置。\n\n- 默认值：`cursor`\n- **合法值**：\n  - `cursor`：对齐光标位置\n  - `bottom`：对齐输入框底部',
           },
         },
         {
@@ -1718,7 +1699,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '键盘高度发生变化时触发的事件。\n\n- **事件对象**：\n  - `$event.detail.height` 为变化后的键盘高度；\n  - `$event.detail.duration` 为变化所用的时间。',
+              '键盘高度发生变化时触发的事件。\n\n- **事件对象**：\n  - `$event.detail.height` 为变化后的键盘高度\n  - `$event.detail.duration` 为变化所用的时间。',
           },
         },
       ],
@@ -1742,7 +1723,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '当前选中的下标值，数组格式。\n\n- **类型**：`Array<number>`\n- **说明**：数组中的每个元素对应 `picker-view-column` 的选中下标。',
+              '当前选中的下标值，数组格式。\n\n- 说明：数组中的每个元素对应 `picker-view-column` 的选中下标。',
           },
         },
         {
@@ -1824,15 +1805,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '选择器的类型。\n\n- **可选值**：\n  - `selector`（普通选择器）\n  - `multiSelector`（多列选择器）\n  - `time`（时间选择器）\n  - `date`（日期选择器）\n  - `region`（省市区选择器）',
+              '选择器的类型。\n\n- 可选值：\n  - `selector`（普通选择器）\n  - `multiSelector`（多列选择器）\n  - `time`（时间选择器）\n  - `date`（日期选择器）\n  - `region`（省市区选择器）',
           },
         },
         {
           name: 'disabled',
           description: {
             kind: 'markdown',
-            value:
-              '是否禁用选择器。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否禁用选择器。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1870,7 +1850,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '图片裁剪、缩放的模式。\n\n- **可选值**：\n  - `scaleToFill`（不保持纵横比缩放图片，使图片的宽高完全拉伸至填满 image 元素）\n  - `aspectFit`（保持纵横比缩放图片，使图片的长边能完全显示出来）\n  - `aspectFill`（保持纵横比缩放图片，只保证图片的短边能完全显示出来）\n  - `widthFix`（宽度不变，高度自动变化，保持原图宽高比不变）\n  - `heightFix`（高度不变，宽度自动变化，保持原图宽高比不变）\n  - `top`（不缩放图片，只显示图片的顶部区域）\n  - `bottom`（不缩放图片，只显示图片的底部区域）\n  - `center`（不缩放图片，只显示图片的中间区域）\n  - `left`（不缩放图片，只显示图片的左边区域）\n  - `right`（不缩放图片，只显示图片的右边区域）\n  - `top left`（不缩放图片，只显示图片的左上边区域）\n  - `top right`（不缩放图片，只显示图片的右上边区域）\n  - `bottom left`（不缩放图片，只显示图片的左下边区域）\n  - `bottom right`（不缩放图片，只显示图片的右下边区域）',
+              '图片裁剪、缩放的模式。\n\n- 可选值：\n  - `scaleToFill`（不保持纵横比缩放图片，使图片的宽高完全拉伸至填满 image 元素）\n  - `aspectFit`（保持纵横比缩放图片，使图片的长边能完全显示出来）\n  - `aspectFill`（保持纵横比缩放图片，只保证图片的短边能完全显示出来）\n  - `widthFix`（宽度不变，高度自动变化，保持原图宽高比不变）\n  - `heightFix`（高度不变，宽度自动变化，保持原图宽高比不变）\n  - `top`（不缩放图片，只显示图片的顶部区域）\n  - `bottom`（不缩放图片，只显示图片的底部区域）\n  - `center`（不缩放图片，只显示图片的中间区域）\n  - `left`（不缩放图片，只显示图片的左边区域）\n  - `right`（不缩放图片，只显示图片的右边区域）\n  - `top left`（不缩放图片，只显示图片的左上边区域）\n  - `top right`（不缩放图片，只显示图片的右上边区域）\n  - `bottom left`（不缩放图片，只显示图片的左下边区域）\n  - `bottom right`（不缩放图片，只显示图片的右下边区域）',
           },
         },
         {
@@ -1878,7 +1858,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '是否开启长按图片显示识别小程序码菜单。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '是否开启长按图片显示识别小程序码菜单。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1894,7 +1874,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '当图片加载完成时触发的事件。\n\n- **事件对象**：\n  - `$event.detail.width` 为图片宽度；\n  - `$event.detail.height` 为图片高度。',
+              '当图片加载完成时触发的事件。\n\n- **事件对象**：\n  - `$event.detail.width` 为图片宽度\n  - `$event.detail.height` 为图片高度。',
           },
         },
       ],
@@ -1917,16 +1897,14 @@ const data: html.HTMLDataV1 = {
           name: 'checked',
           description: {
             kind: 'markdown',
-            value:
-              '初始时是否选中。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '初始时是否选中。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'disabled',
           description: {
             kind: 'markdown',
-            value:
-              '是否禁用开关。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否禁用开关。\n\n- 默认值：`false`',
           },
         },
         {
@@ -1934,7 +1912,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '开关的样式类型。\n\n- **可选值**：\n  - `switch`（开关样式，默认值）\n  - `checkbox`（复选框样式）',
+              '开关的样式类型。\n\n- 可选值：\n  - `switch`（开关样式，默认值）\n  - `checkbox`（复选框样式）',
           },
         },
         {
@@ -1973,7 +1951,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '跳转的目标位置。\n\n- **可选值**：\n  - `self`（当前小程序，默认值）\n  - `miniProgram`（跳转到其他小程序）',
+              '跳转的目标位置。\n\n- 可选值：\n  - `self`（当前小程序，默认值）\n  - `miniProgram`（跳转到其他小程序）',
           },
         },
         {
@@ -1988,7 +1966,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '跳转方式。\n\n- **可选值**：\n  - `navigate`（对应 `wx.navigateTo` 的功能，保留当前页面，跳转到应用内的某个页面）\n  - `redirect`（对应 `wx.redirectTo` 的功能，关闭当前页面，跳转到应用内的某个页面）\n  - `switchTab`（对应 `wx.switchTab` 的功能，跳转到 tabBar 页面，并关闭其他所有非 tabBar 页面）\n  - `reLaunch`（对应 `wx.reLaunch` 的功能，关闭所有页面，打开到应用内的某个页面）\n  - `navigateBack`（对应 `wx.navigateBack` 的功能，关闭当前页面，返回上一页面或多级页面）\n  - `exit`（退出小程序，`target="miniProgram"` 时生效）',
+              '跳转方式。\n\n- 可选值：\n  - `navigate`（对应 `wx.navigateTo` 的功能，保留当前页面，跳转到应用内的某个页面）\n  - `redirect`（对应 `wx.redirectTo` 的功能，关闭当前页面，跳转到应用内的某个页面）\n  - `switchTab`（对应 `wx.switchTab` 的功能，跳转到 tabBar 页面，并关闭其他所有非 tabBar 页面）\n  - `reLaunch`（对应 `wx.reLaunch` 的功能，关闭所有页面，打开到应用内的某个页面）\n  - `navigateBack`（对应 `wx.navigateBack` 的功能，关闭当前页面，返回上一页面或多级页面）\n  - `exit`（退出小程序，`target="miniProgram"` 时生效）',
           },
         },
         {
@@ -1996,7 +1974,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '当 `open-type="navigateBack"` 时有效，表示回退的层数。\n\n- **类型**：`number`\n- **默认值**：`1`',
+              '当 `open-type="navigateBack"` 时有效，表示回退的层数。\n\n- 默认值：`1`',
           },
         },
         {
@@ -2028,7 +2006,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '当 `target="miniProgram"` 时有效，要打开的小程序版本。\n\n- **可选值**：\n  - `release`（正式版，默认值）\n  - `trial`（体验版）\n  - `develop`（开发版）',
+              '当 `target="miniProgram"` 时有效，要打开的小程序版本。\n\n- 可选值：\n  - `release`（正式版，默认值）\n  - `trial`（体验版）\n  - `develop`（开发版）',
           },
         },
         {
@@ -2052,22 +2030,21 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '指定是否阻止本节点的祖先节点出现点击态。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '指定是否阻止本节点的祖先节点出现点击态。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'hover-start-time',
           description: {
             kind: 'markdown',
-            value: '按住后多久出现点击态，单位为毫秒。\n\n- **默认值**：`50`',
+            value: '按住后多久出现点击态，单位为毫秒。\n\n- 默认值：`50`',
           },
         },
         {
           name: 'hover-stay-time',
           description: {
             kind: 'markdown',
-            value:
-              '手指松开后点击态保留时间，单位为毫秒。\n\n- **默认值**：`600`',
+            value: '手指松开后点击态保留时间，单位为毫秒。\n\n- 默认值：`600`',
           },
         },
         {
@@ -2115,7 +2092,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '渲染的节点列表，支持 HTML 字符串或对象数组格式。\n\n- **类型**：`string | Array<object>`\n- **说明**：\n  - 字符串格式：直接支持的 HTML 标签字符串，如 \`<div>文本</div>\`\n  - 对象数组格式：每个对象包含 \`name\`（标签名）、\`attrs\`（属性）、\`children\`（子节点）字段\n- **注意**：不支持所有 HTML 标签，仅支持官方文档规定的安全标签子集',
+              '渲染的节点列表，支持 HTML 字符串或对象数组格式。\n\n- 说明：\n  - 字符串格式：直接支持的 HTML 标签字符串，如 \`<div>文本</div>\`\n  - 对象数组格式：每个对象包含 \`name\`（标签名）、\`attrs\`（属性）、\`children\`（子节点）字段\n- 注意：不支持所有 HTML 标签，仅支持官方文档规定的安全标签子集',
           },
         },
         {
@@ -2123,7 +2100,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '是否显示连续空格。\n\n- **可选值**：\n  - `nbsp`（将连续空格渲染为 &nbsp;）\n  - `emsp`（将连续空格渲染为 &emsp;）\n  - `ensp`（将连续空格渲染为 &ensp;）',
+              '是否显示连续空格。\n\n- 可选值：\n  - `nbsp`（将连续空格渲染为 &nbsp;）\n  - `emsp`（将连续空格渲染为 &emsp;）\n  - `ensp`（将连续空格渲染为 &ensp;）',
           },
         },
         {
@@ -2131,7 +2108,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '文本是否可选，该属性会使节点显示为 block。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '文本是否可选，该属性会使节点显示为 block。\n\n- 默认值：`false`',
           },
         },
       ],
@@ -2155,7 +2132,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '指定画布的渲染上下文类型。\n\n- **可选值**：\n  - `2d`（2D渲染上下文，默认值）\n  - `webgl`（WebGL渲染上下文，用于3D绘图）',
+              '指定画布的渲染上下文类型。\n\n- 可选值：\n  - `2d`（2D渲染上下文，默认值）\n  - `webgl`（WebGL渲染上下文，用于3D绘图）',
           },
         },
         {
@@ -2171,7 +2148,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '当在 canvas 中移动时且有绑定手势事件时，禁止屏幕滚动以及下拉刷新。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '当在 canvas 中移动时且有绑定手势事件时，禁止屏幕滚动以及下拉刷新。\n\n- 默认值：`false`',
           },
         },
         {
@@ -2241,7 +2218,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              'webview 指向网页的链接。\n\n- **说明**：\n  - 可打开关联的公众号的文章；\n  - 其它网页需登录小程序管理后台配置业务域名；\n- **版本支持**：1.6.4+',
+              'webview 指向网页的链接。\n\n- 说明：\n  - 可打开关联的公众号的文章\n  - 其它网页需登录小程序管理后台配置业务域名；',
           },
         },
         {
@@ -2249,7 +2226,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '网页向小程序 postMessage 时触发的事件。\n\n- **触发时机**：小程序后退、组件销毁、分享、复制链接（2.31.1及以上版本）；\n- **事件对象**：`e.detail = { data }`，其中 `data` 是多次 postMessage 的参数组成的数组；\n- **版本支持**：1.6.4+',
+              '网页向小程序 postMessage 时触发的事件。\n\n- **触发时机**：小程序后退、组件销毁、分享、复制链接（2.31.1及以上版本）\n- **事件对象**：`e.detail = { data }`，其中 `data` 是多次 postMessage 的参数组成的数组',
           },
         },
         {
@@ -2257,7 +2234,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '网页加载成功时触发的事件。\n\n- **事件对象**：`e.detail = { src }`，其中 `src` 为当前加载的网页地址；\n- **版本支持**：1.6.4+',
+              '网页加载成功时触发的事件。\n\n- **事件对象**：`e.detail = { src }`，其中 `src` 为当前加载的网页地址；',
           },
         },
         {
@@ -2265,7 +2242,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '网页加载失败时触发的事件。\n\n- **事件对象**：`e.detail = { url, fullUrl }`，其中 `fullUrl` 为加载失败时的完整 url；\n- **版本支持**：1.6.4+',
+              '网页加载失败时触发的事件。\n\n- **事件对象**：`e.detail = { url, fullUrl }`，其中 `fullUrl` 为加载失败时的完整 url。',
           },
         },
       ],
@@ -2288,16 +2265,14 @@ const data: html.HTMLDataV1 = {
           name: 'show',
           description: {
             kind: 'markdown',
-            value:
-              '是否显示容器。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否显示容器。\n\n- 默认值：`false`',
           },
         },
         {
           name: 'duration',
           description: {
             kind: 'markdown',
-            value:
-              '动画时长，单位为毫秒。\n\n- **类型**：`number`\n- **默认值**：`300`',
+            value: '动画时长，单位为毫秒。\n\n- 默认值：`300`',
           },
         },
         {
@@ -2305,15 +2280,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '容器的层级，用于控制与其他组件的堆叠顺序。\n\n- **类型**：`number`\n- **默认值**：`100`',
+              '容器的层级，用于控制与其他组件的堆叠顺序。\n\n- 默认值：`100`',
           },
         },
         {
           name: 'overlay',
           description: {
             kind: 'markdown',
-            value:
-              '是否显示遮罩层。\n\n- **类型**：`boolean`\n- **默认值**：`true`',
+            value: '是否显示遮罩层。\n\n- 默认值：`true`',
           },
         },
         {
@@ -2321,15 +2295,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '容器弹出的位置。\n\n- **可选值**：\n  - `bottom`（从底部弹出，默认值）\n  - `top`（从顶部弹出）\n  - `right`（从右侧弹出）\n  - `left`（从左侧弹出）',
+              '容器弹出的位置。\n\n- 可选值：\n  - `bottom`（从底部弹出，默认值）\n  - `top`（从顶部弹出）\n  - `right`（从右侧弹出）\n  - `left`（从左侧弹出）',
           },
         },
         {
           name: 'round',
           description: {
             kind: 'markdown',
-            value:
-              '是否显示显示圆角。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+            value: '是否显示显示圆角。\n\n- 默认值：`false`',
           },
         },
         {
@@ -2337,7 +2310,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '是否允许向下滑动关闭容器（仅 `position="bottom"` 时有效）。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+              '是否允许向下滑动关闭容器（仅 `position="bottom"` 时有效）。\n\n- 默认值：`false`',
           },
         },
         {
@@ -2365,7 +2338,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '基于表达式值的真假性（[Truthy](https://developer.mozilla.org/zh-CN/docs/Glossary/Truthy)），来有条件地渲染元素。\n在切换时元素及它的数据绑定 / 组件被**销毁并重建**。\n\n- **注意**：如果元素是 `<block/>`，注意它并不是一个组件，它仅仅是一个包装元素，不会在页面中做任何渲染，只接受控制属性。\n\n- **DANGER**：当同时使用时，`wx:for` 比 `wx:if` 优先级更高。详见[列表渲染教程](https://mpxjs.cn/guide/basic/list-render.html)。',
+          '基于表达式值的真假性（[Truthy](https://developer.mozilla.org/zh-CN/docs/Glossary/Truthy)），来有条件地渲染元素。\n在切换时元素及它的数据绑定 / 组件被**销毁并重建**。\n\n- 注意：如果元素是 `<block/>`，注意它并不是一个组件，它仅仅是一个包装元素，不会在页面中做任何渲染，只接受控制属性。\n\n- **DANGER**：当同时使用时，`wx:for` 比 `wx:if` 优先级更高。详见[列表渲染教程](https://mpxjs.cn/guide/basic/list-render.html)。',
       },
       references: [{ name: MpxDocs, url: `${MpxDirectivesUrl}wx-if` }],
     },
@@ -2374,7 +2347,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '表示 `wx:if` 的“else if 块”，可以进行链式调用。\n\n- **注意**：前一兄弟元素必须有 `wx:if` 或 `wx:elif`。',
+          '表示 `wx:if` 的“else if 块”，可以进行链式调用。\n\n- 注意：前一兄弟元素必须有 `wx:if` 或 `wx:elif`。',
       },
       references: [{ name: MpxDocs, url: `${MpxDirectivesUrl}wx-elif` }],
     },
@@ -2384,7 +2357,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '表示 `wx:if` 或 `wx:if` / `wx:elif` 链式调用的“else 块”。\n\n- **注意**：不需要表达式，前一兄弟元素必须有 `wx:if` 或 `wx:elif`。',
+          '表示 `wx:if` 或 `wx:if` / `wx:elif` 链式调用的“else 块”。\n\n- 注意：不需要表达式，前一兄弟元素必须有 `wx:if` 或 `wx:elif`。',
       },
       references: [{ name: MpxDocs, url: `${MpxDirectivesUrl}wx-else` }],
     },
@@ -2393,7 +2366,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '基于表达式值的真假性，来改变元素的可见性。\n\n- **注意**：与 `wx:if` 所不同的是不会移除节点，而是设置节点的 style 为 `display: none`。',
+          '基于表达式值的真假性，来改变元素的可见性。\n\n- 注意：与 `wx:if` 所不同的是不会移除节点，而是设置节点的 style 为 `display: none`。',
       },
       references: [{ name: MpxDocs, url: `${MpxDirectivesUrl}wx-show` }],
     },
@@ -2402,7 +2375,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '基于原始数据多次渲染元素或模板块。\n\n- **期望的绑定值类型**：`Array | Object | number | string`\n\n- **默认**：数组的当前项的下标变量名默认为 index，数组当前项的变量名默认为 item。',
+          '基于原始数据多次渲染元素或模板块。\n\n- 期望的绑定值类型：`Array | Object | number | string`\n\n- 默认：数组的当前项的下标变量名默认为 index，数组当前项的变量名默认为 item。',
       },
       references: [{ name: MpxDocs, url: `${MpxDirectivesUrl}wx-for` }],
     },
@@ -2432,7 +2405,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '如果列表中项目的位置会动态改变或者有新的项目添加到列表中，并且希望列表中的项目保持自己的特征和状态，需要使用 wx:key 来指定列表中项目的唯一的标识符。\n\n- **注意**：\n\n    - 如不提供 wx:key，会报一个 warning， 如果明确知道该列表是静态，或者不必关注其顺序，可以选择忽略。\n\n    - 有相同父元素的子元素必须有独特的 key。重复的 key 会造成渲染错误。',
+          '如果列表中项目的位置会动态改变或者有新的项目添加到列表中，并且希望列表中的项目保持自己的特征和状态，需要使用 wx:key 来指定列表中项目的唯一的标识符。\n\n- 注意：\n\n    - 如不提供 wx:key，会报一个 warning， 如果明确知道该列表是静态，或者不必关注其顺序，可以选择忽略。\n\n    - 有相同父元素的子元素必须有独特的 key。重复的 key 会造成渲染错误。',
       },
       references: [
         {
@@ -2556,7 +2529,7 @@ const data: html.HTMLDataV1 = {
       name: 'bindtouchstart',
       description: {
         kind: 'markdown',
-        value: '事件绑定 - 常用事件。\n\n- **触发条件**：手指触摸动作开始。',
+        value: '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸动作开始。',
       },
       references: [
         { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
@@ -2570,7 +2543,7 @@ const data: html.HTMLDataV1 = {
       name: 'bindtouchmove',
       description: {
         kind: 'markdown',
-        value: '事件绑定 - 常用事件。\n\n- **触发条件**：手指触摸后移动。',
+        value: '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸后移动。',
       },
       references: [
         { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
@@ -2585,7 +2558,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '事件绑定 - 常用事件。\n\n- **触发条件**：手指触摸动作被打断，如来电提醒，弹窗。',
+          '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸动作被打断，如来电提醒，弹窗。',
       },
       references: [
         { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
@@ -2599,7 +2572,7 @@ const data: html.HTMLDataV1 = {
       name: 'bindtouchend',
       description: {
         kind: 'markdown',
-        value: '事件绑定 - 常用事件。\n\n- **触发条件**：手指触摸动作结束。',
+        value: '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸动作结束。',
       },
       references: [
         { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
@@ -2613,7 +2586,7 @@ const data: html.HTMLDataV1 = {
       name: 'bindtap',
       description: {
         kind: 'markdown',
-        value: '事件绑定 - 常用事件。\n\n- **触发条件**：手指触摸后马上离开。',
+        value: '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸后马上离开。',
       },
       references: [
         { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
@@ -2628,7 +2601,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '事件绑定 - 常用事件。\n\n- **触发条件**：手指触摸后，超过 350ms 再离开，推荐使用 `longpress` 代替 `longtap`。',
+          '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸后，超过 350ms 再离开，推荐使用 `longpress` 代替 `longtap`。',
       },
       references: [
         { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
@@ -2643,7 +2616,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '事件绑定 - 常用事件。\n\n- **触发条件**：手指触摸后，超过 350ms 再离开，推荐使用 `longpress` 代替 `longtap`。',
+          '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸后，超过 350ms 再离开，推荐使用 `longpress` 代替 `longtap`。',
       },
       references: [
         { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
