@@ -26,14 +26,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '指定要使用的模板名称，可以是一个字符串或一个表达式。\n\n- 注意：如果是字符串，则必须与 `name` 属性的值相同；如果是表达式，则必须返回一个字符串。',
+              '指定要使用的模板名称，可以是字符串或表达式\n- 注意：字符串需与 name 一致；表达式需返回一个字符串',
           },
         },
         {
           name: 'name',
           description: {
             kind: 'markdown',
-            value: '定义模版的名称，作为唯一标识。',
+            value: '模板唯一标识名\n- 注意：标识唯一，供is引用',
           },
         },
         {
@@ -41,7 +41,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '定义模版的初始数据，类型为对象。可以在模版中使用 `{{data.xxx}}` 来访问这些数据。',
+              '模板初始数据\n- 默认值：{}\n- 注意：用{{data.xxx}}访问，基础类型需包装为对象',
           },
         },
       ],
@@ -53,7 +53,7 @@ const data: html.HTMLDataV1 = {
       name: 'view',
       description: {
         kind: 'markdown',
-        value: `视图容器。\n\n- 注意：如果需要使用滚动视图，请使用 [scroll-view](${WxCompUrl}/scroll-view.html)。\n\n- 支持 Mpx 跨端输出 RN 的基础组件。`,
+        value: `视图容器。\n- 注意：如果需要使用滚动视图，请使用 [scroll-view](${WxCompUrl}/scroll-view.html)。\n\n- 支持 Mpx 跨端输出 RN 的基础组件。`,
       },
       attributes: [
         {
@@ -61,28 +61,28 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '指定按下去的样式类。当 hover-class="none" 时，没有点击态效果',
+              '指定按下去的样式类\n默认值：none\n- 注意：hover-class="none"时无点击态效果',
           },
         },
         {
           name: 'hover-stop-propagation',
           description: {
             kind: 'markdown',
-            value: '指定是否阻止本节点的祖先节点的点击事件。',
+            value: '是否阻止祖先节点的点击态\n默认值：false',
           },
         },
         {
           name: 'hover-start-time',
           description: {
             kind: 'markdown',
-            value: '按住后多久出现点击态，单位毫秒，默认50ms。',
+            value: '按住后出现点击态的延迟时间（ms）\n- 默认值：50',
           },
         },
         {
           name: 'hover-stay-time',
           description: {
             kind: 'markdown',
-            value: '手指松开后点击态保留时间，单位毫秒，默认400ms。',
+            value: '手指松开后点击态的保留时间（ms）\n- 默认值：400',
           },
         },
       ],
@@ -102,44 +102,42 @@ const data: html.HTMLDataV1 = {
           name: 'scroll-x',
           description: {
             kind: 'markdown',
-            value: '是否支持横向滚动，默认不支持。',
+            value: '是否支持横向滚动\n- 默认值：false',
           },
         },
         {
           name: 'scroll-y',
           description: {
             kind: 'markdown',
-            value: '是否支持纵向滚动，默认不支持。',
+            value: '是否支持纵向滚动\n- 默认值：false',
           },
         },
         {
           name: 'upper-threshold',
           description: {
             kind: 'markdown',
-            value:
-              '距离顶部/左边多远时（单位 px）触发scrolltoupper事件，默认50。',
+            value: '距离顶部/左边触发scrolltoupper的距离\n- 默认值：50',
           },
         },
         {
           name: 'lower-threshold',
           description: {
             kind: 'markdown',
-            value:
-              '距离底部/右边多远时（单位 px）触发scrolltolower事件，默认50。',
+            value: '距离底部/右边触发scrolltolower的距离\n- 默认值：50',
           },
         },
         {
           name: 'scroll-top',
           description: {
             kind: 'markdown',
-            value: '设置竖向滚动条位置。',
+            value: '设置竖向滚动条位置',
           },
         },
         {
           name: 'scroll-left',
           description: {
             kind: 'markdown',
-            value: '设置横向滚动条位置。',
+            value: '设置横向滚动条位置',
           },
         },
         {
@@ -147,21 +145,21 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '值应为某子元素id（id不能以数字开头）。设置哪个方向可滚动，则在哪个方向滚动到该元素。',
+              '滚动到指定子元素（值为子元素id，id不能以数字开头）\n- 注意：按滚动方向定位',
           },
         },
         {
           name: 'scroll-into-view-offset',
           description: {
             kind: 'markdown',
-            value: '跳转到scroll-into-view目标节点时的额外偏移,默认值为0。',
+            value: '跳转到scroll-into-view目标节点的额外偏移\n- 默认值：0',
           },
         },
         {
           name: 'scroll-with-animation',
           description: {
             kind: 'markdown',
-            value: '是否在设置滚动条位置时使用动画过渡，默认不使用。',
+            value: '设置滚动条位置时是否使用动画\n- 默认值：false',
           },
         },
         {
@@ -169,28 +167,28 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              'iOS点击顶部状态栏、安卓双击标题栏时，滚动条返回顶部，只支持竖向，默认不使用。',
+              '点击顶部状态栏/双击标题栏时返回顶部（仅竖向有效）\n- 默认值：false',
           },
         },
         {
           name: 'enable-passive',
           description: {
             kind: 'markdown',
-            value: '开启passive特性，能优化一定的滚动性能。',
+            value: '开启passive特性优化滚动性能\n- 默认值：false',
           },
         },
         {
           name: 'refresher-enabled',
           description: {
             kind: 'markdown',
-            value: '是否开启下拉刷新功能，默认不使用。',
+            value: '是否开启下拉刷新\n- 默认值：false',
           },
         },
         {
           name: 'refresher-threshold',
           description: {
             kind: 'markdown',
-            value: '设置自定义下拉刷新阈值，默认45。',
+            value: '下拉刷新阈值\n- 默认值：45',
           },
         },
         {
@@ -198,14 +196,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '设置自定义下拉刷新默认样式，支持设置 black | white | none， none 表示不使用默认样式.',
+              '下拉刷新默认样式\n- 可选值：black | white | none（none为不使用默认样式）',
           },
         },
         {
           name: 'refresher-background',
           description: {
             kind: 'markdown',
-            value: '设置自定义下拉刷新区域背景颜色，默认为透明。',
+            value: '下拉刷新区域背景色\n- 默认值：透明',
           },
         },
         {
@@ -213,22 +211,21 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '设置当前下拉刷新状态，true 表示下拉刷新已经被触发，false 表示下拉刷新未被触发.',
+              '下拉刷新状态（true为已触发，false为未触发）\n- 默认值：false',
           },
         },
         {
           name: 'bounces',
           description: {
             kind: 'markdown',
-            value:
-              'iOS 下 scroll-view 边界弹性控制 (同时开启 enhanced 属性后生效)。',
+            value: 'iOS下边界弹性控制（需开启enhanced）\n- 默认值：true',
           },
         },
         {
           name: 'show-scrollbar',
           description: {
             kind: 'markdown',
-            value: '滚动条显隐控制 (同时开启 enhanced 属性后生效)。',
+            value: '滚动条显隐控制（需开启enhanced）\n- 默认值：true',
           },
         },
         {
@@ -236,7 +233,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '滑动减速速率控制, 仅在 iOS 下生效 (同时开启 enhanced 属性后生效)。',
+              '滑动减速速率控制（iOS下生效，需开启enhanced）\n- 默认值：false',
           },
         },
         {
@@ -244,7 +241,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '滑动开始事件 (同时开启 enhanced 属性后生效) detail { scrollTop, scrollLeft }。',
+              '滑动开始事件（需开启enhanced）\n- 事件对象：{scrollTop, scrollLeft}',
           },
         },
         {
@@ -252,7 +249,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '滑动事件 (同时开启 enhanced 属性后生效) detail { scrollTop, scrollLeft }。',
+              '滑动中事件（需开启enhanced）\n- 事件对象：{scrollTop, scrollLeft}',
           },
         },
         {
@@ -260,21 +257,21 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '滑动结束事件 (同时开启 enhanced 属性后生效) detail { scrollTop, scrollLeft, velocity }。',
+              '滑动结束事件（需开启enhanced）\n- 事件对象：{scrollTop, scrollLeft, velocity}',
           },
         },
         {
           name: 'bindscrolltoupper',
           description: {
             kind: 'markdown',
-            value: '滚动到顶部/左边时触发。',
+            value: '滚动到顶部/左边时触发',
           },
         },
         {
           name: 'bindscrolltolower',
           description: {
             kind: 'markdown',
-            value: '滚动到底部/右边时触发。',
+            value: '滚动到底部/右边时触发',
           },
         },
         {
@@ -282,43 +279,42 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '滚动时触发，event.detail = { scrollLeft, scrollTop, scrollHeight, scrollWidth, deltaX, deltaY }。',
+              '滚动时触发\n- 事件对象：{scrollLeft, scrollTop, scrollHeight, scrollWidth, deltaX, deltaY}',
           },
         },
         {
           name: 'bindrefresherpulling',
           description: {
             kind: 'markdown',
-            value: '自定义下拉刷新控件被下拉。',
+            value: '下拉刷新控件被下拉时触发',
           },
         },
         {
           name: 'bindrefresherrefresh',
           description: {
             kind: 'markdown',
-            value: '自定义下拉刷新控件被触发。',
+            value: '下拉刷新控件被触发时触发',
           },
         },
         {
           name: 'bindrefresherrestore',
           description: {
             kind: 'markdown',
-            value: '自定义下拉刷新控件被恢复。',
+            value: '下拉刷新控件被恢复时触发',
           },
         },
         {
           name: 'bindrefresherabort',
           description: {
             kind: 'markdown',
-            value: '自定义下拉刷新控件被中止。',
+            value: '下拉刷新控件被中止时触发',
           },
         },
         {
           name: 'scroll-anchoring',
           description: {
             kind: 'markdown',
-            value:
-              '开启 scroll anchoring 特性，即控制滚动位置不随内容变化而抖动，可参考 CSS overflow-anchor 属性。',
+            value: '开启scroll anchoring特性（控制滚动位置不随内容抖动）',
           },
         },
       ],
@@ -341,122 +337,121 @@ const data: html.HTMLDataV1 = {
           name: 'indicator-dots',
           description: {
             kind: 'markdown',
-            value: '是否显示面板指示点。',
+            value: '是否显示面板指示点\n- 默认值：false',
           },
         },
         {
           name: 'indicator-color',
           description: {
             kind: 'markdown',
-            value: '指示点颜色。',
+            value: '指示点颜色\n- 默认值：rgba(0,0,0,.3)',
           },
         },
         {
           name: 'indicator-active-color',
           description: {
             kind: 'markdown',
-            value: '当前选中的指示点颜色。',
+            value: '当前选中指示点颜色\n- 默认值：#000000',
           },
         },
         {
           name: 'autoplay',
           description: {
             kind: 'markdown',
-            value: '是否自动切换，默认不自动切换。',
+            value: '是否自动切换\n- 默认值：false',
           },
         },
         {
           name: 'current',
           description: {
             kind: 'markdown',
-            value: '当前所在滑块的 index，默认0。',
+            value: '当前滑块索引\n- 默认值：0',
           },
         },
         {
           name: 'interval',
           description: {
             kind: 'markdown',
-            value: '自动切换时间间隔，单位 ms，默认5000。',
+            value: '自动切换间隔（ms）\n- 默认值：5000',
           },
         },
         {
           name: 'duration',
           description: {
             kind: 'markdown',
-            value: '滑动动画时长，单位 ms，默认500。',
+            value: '滑动动画时长（ms）\n- 默认值：500',
           },
         },
         {
           name: 'circular',
           description: {
             kind: 'markdown',
-            value: '是否采用衔接滑动，默认不衔接。',
+            value: '是否衔接滑动\n- 默认值：false',
           },
         },
         {
           name: 'vertical',
           description: {
             kind: 'markdown',
-            value: '滑动方向是否为纵向。',
+            value: '是否纵向滑动\n- 默认值：false',
           },
         },
         {
           name: 'display-multiple-items',
           description: {
             kind: 'markdown',
-            value: '同时显示的滑块数量，默认为1。',
+            value: '同时显示的滑块数量\n- 默认值：1',
           },
         },
         {
           name: 'previous-margin',
           description: {
             kind: 'markdown',
-            value: '前边距，可用于露出前一项的一小部分，接受 px 和 rpx 值。',
+            value: '前边距（可露出前一项部分，支持px/rpx）\n- 默认值："0px"',
           },
         },
         {
           name: 'next-margin',
           description: {
             kind: 'markdown',
-            value: '后边距，可用于露出后一项的一小部分，接受 px 和 rpx 值。',
+            value: '后边距（可露出后一项部分，支持px/rpx）\n- 默认值："0px"',
           },
         },
         {
           name: 'easing-function',
           description: {
             kind: 'markdown',
-            value: '指定 swiper 切换缓动动画类型。',
+            value:
+              '切换缓动动画类型\n- 默认值："default"\n- 可选值：default ｜ linear ｜ easeInCubic ｜ easeOutCubic ｜ easeInOutCubic',
           },
         },
         {
           name: 'direction',
           description: {
             kind: 'markdown',
-            value: '指定 swiper 切换方向。',
+            value:
+              '切换方向\n- 默认值："all"\n- 可选值：all ｜ positive ｜ negative',
           },
         },
         {
           name: 'bindchange',
           description: {
             kind: 'markdown',
-            value:
-              'current 改变时会触发 change 事件，event.detail = {current, source}。',
+            value: 'current改变时触发\n- 事件对象：{current, source}',
           },
         },
         {
           name: 'bindtransition',
           description: {
             kind: 'markdown',
-            value:
-              'swiper-item 的位置发生改变时会触发 transition 事件，event.detail = {dx: dx, dy: dy}。',
+            value: '滑块位置变化时触发\n- 事件对象：{dx, dy}',
           },
         },
         {
           name: 'bindanimationfinish',
           description: {
             kind: 'markdown',
-            value:
-              'swiper-item 动画结束时会触发 animationfinish 事件，event.detail = {current, source}。',
+            value: '滑块动画结束时触发\n- 事件对象：{current, source}',
           },
         },
       ],
@@ -479,14 +474,14 @@ const data: html.HTMLDataV1 = {
           name: 'item-id',
           description: {
             kind: 'markdown',
-            value: '设置当前 swiper-item 的标识符，必须是唯一的。',
+            value: '当前swiper-item的唯一标识符',
           },
         },
         {
           name: 'skip-hidden-item-layout',
           description: {
             kind: 'markdown',
-            value: '是否跳过隐藏的 swiper-item 布局计算，默认不跳过。',
+            value: '是否跳过隐藏项的布局计算\n- 默认值：false',
           },
         },
       ],
@@ -509,7 +504,7 @@ const data: html.HTMLDataV1 = {
           name: 'scale-area',
           description: {
             kind: 'markdown',
-            value: '是否开启缩放区域，默认不开启。',
+            value: '是否开启缩放区域\n- 默认值：false',
           },
         },
       ],
@@ -533,124 +528,119 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              'movable-view的移动方向，属性值有all、vertical、horizontal、none。',
+              '移动方向\n- 默认值："none"\n- 可选值：all ｜ vertical ｜ horizontal ｜ none',
           },
         },
         {
           name: 'inertia',
           description: {
             kind: 'markdown',
-            value: 'movable-view 是否带有惯性。',
+            value: '是否带惯性\n- 默认值：false',
           },
         },
         {
           name: 'out-of-bounds',
           description: {
             kind: 'markdown',
-            value: '超过可移动区域后，movable-view是否还可以移动，默认不允许。',
+            value: '是否允许移出可移动区域\n- 默认值：false',
           },
         },
         {
           name: 'x',
           description: {
             kind: 'markdown',
-            value:
-              '定义x轴方向的偏移，如果x的值不在可移动范围内，会自动移动到可移动范围；改变x的值会触发动画；单位支持px（默认）、rpx。',
+            value: 'x轴偏移量（支持px/rpx，超出范围会自动调整）',
           },
         },
         {
           name: 'y',
           description: {
             kind: 'markdown',
-            value:
-              '定义y轴方向的偏移，如果y的值不在可移动范围内，会自动移动到可移动范围；改变y的值会触发动画；单位支持px（默认）、rpx。',
+            value: 'y轴偏移量（支持px/rpx，超出范围会自动调整）',
           },
         },
         {
           name: 'damping',
           description: {
             kind: 'markdown',
-            value:
-              '阻尼系数，用于控制x或y改变时的动画和过界回弹的动画，值越大移动越快。',
+            value: '阻尼系数（值越大移动越快）\n- 默认值：20',
           },
         },
         {
           name: 'friction',
           description: {
             kind: 'markdown',
-            value:
-              '摩擦系数，用于控制惯性滑动的动画，值越大摩擦力越大，滑动越快停止；必须大于0，否则会被设置成默认值。',
+            value: '摩擦系数（值越大滑动越快停止，需>0）\n- 默认值：2',
           },
         },
         {
           name: 'disabled',
           description: {
             kind: 'markdown',
-            value: '是否禁用movable-view，默认不禁用。',
+            value: '是否禁用\n- 默认值：false',
           },
         },
         {
           name: 'scale',
           description: {
             kind: 'markdown',
-            value: '是否支持双指缩放，默认缩放手势生效区域是在movable-view内。',
+            value: '是否支持双指缩放\n- 默认值：false',
           },
         },
         {
           name: 'scale-min',
           description: {
             kind: 'markdown',
-            value: '定义缩放倍数最小值。',
+            value: '缩放最小值\n- 默认值：0.1',
           },
         },
         {
           name: 'scale-max',
           description: {
             kind: 'markdown',
-            value: '定义缩放倍数最大值。',
+            value: '缩放最大值\n- 默认值：10',
           },
         },
         {
           name: 'scale-value',
           description: {
             kind: 'markdown',
-            value: '定义缩放倍数，取值范围为 0.1 - 10。',
+            value: '缩放倍数（0.1-10）\n- 默认值：1',
           },
         },
         {
           name: 'animation',
           description: {
             kind: 'markdown',
-            value: '是否使用动画。',
+            value: '是否使用动画\n- 默认值：true',
           },
         },
         {
           name: 'bindchange',
           description: {
             kind: 'markdown',
-            value:
-              '当 movable-view 的位置发生改变时触发，event.detail = {x, y, source}。',
+            value: '位置变化时触发\n- 事件对象：{x, y, source}',
           },
         },
         {
           name: 'bindscale',
           description: {
             kind: 'markdown',
-            value: '缩放过程中触发，event.detail = {scale, x, y}。',
+            value: '缩放时触发\n- 事件对象：{x, y, scale}',
           },
         },
         {
           name: 'htouchmove',
           description: {
             kind: 'markdown',
-            value: '水平方向触摸移动时触发。',
+            value: '水平方向触摸移动时触发',
           },
         },
         {
           name: 'vtouchmove',
           description: {
             kind: 'markdown',
-            value: '垂直方向触摸移动时触发。',
+            value: '垂直方向触摸移动时触发',
           },
         },
       ],
@@ -674,8 +664,7 @@ const data: html.HTMLDataV1 = {
           name: 'enable',
           description: {
             kind: 'markdown',
-            value:
-              '是否启用传送门功能，启用后组件内容将渲染在应用的最顶层。\n\n- 默认值：`false`',
+            value: '是否从页面中脱离出来。\n- 默认值：true',
           },
         },
       ],
@@ -700,7 +689,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '设置顶部滚动偏移量，仅在设置了 overflow-y: scroll 成为滚动元素后生效。\n\n- 说明：如果设置为字符串，会尝试转换为数字；若转换失败则无效。',
+              '顶部滚动偏移量（仅在overflow-y:scroll时生效）\n- 注意：字符串会尝试转为数字，失败则无效',
           },
         },
       ],
@@ -724,21 +713,21 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '图标的类型。可选值包括：\n- success\n- success_no_circle\n- info\n- warn\n- waiting\n- cancel\n- download\n- search\n- clear',
+              '图标类型\n- 可选值：success | success_no_circle | info | warn | waiting | cancel | download | search | clear',
           },
         },
         {
           name: 'size',
           description: {
             kind: 'markdown',
-            value: '图标的大小。\n\n- 默认值：23。',
+            value: '图标大小\n- 默认值：23',
           },
         },
         {
           name: 'color',
           description: {
             kind: 'markdown',
-            value: '图标的颜色，同 CSS 的 color。',
+            value: '图标颜色（同CSS color）',
           },
         },
       ],
@@ -761,15 +750,15 @@ const data: html.HTMLDataV1 = {
           name: 'selectable',
           description: {
             kind: 'markdown',
-            value:
-              '文本是否可选，影响长按复制等功能。\n\n- 默认值：`false`\n- 注意：已废弃。',
+            value: '文本是否可选\n- 默认值：false\n- 注意：已废弃',
           },
         },
         {
           name: 'user-select',
           description: {
             kind: 'markdown',
-            value: '是否允许用户选中文字。\n\n- 默认值：`false`',
+            value:
+              '是否允许用户选中文字\n- 默认值：false\n- 注意：该属性会使文本节点显示为 inline-block',
           },
         },
       ],
@@ -792,8 +781,7 @@ const data: html.HTMLDataV1 = {
           name: 'size',
           description: {
             kind: 'markdown',
-            value:
-              '按钮的大小。\n\n- 可选值：`default`（默认）、`mini`（小尺寸）',
+            value: '按钮大小\n- 可选值：default（默认） | mini（小尺寸）',
           },
         },
         {
@@ -801,28 +789,28 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '按钮的样式类型。\n\n- 可选值：`primary`（绿色）、`default`（白色）、`warn`（红色）',
+              '按钮样式类型\n- 可选值：primary（绿色） | default（白色） | warn（红色）',
           },
         },
         {
           name: 'plain',
           description: {
             kind: 'markdown',
-            value: '按钮是否镂空，背景色透明。\n\n- 默认值：`false`',
+            value: '是否镂空（背景透明）\n- 默认值：false',
           },
         },
         {
           name: 'disabled',
           description: {
             kind: 'markdown',
-            value: '是否禁用按钮。\n\n- 默认值：`false`',
+            value: '是否禁用\n- 默认值：false',
           },
         },
         {
           name: 'loading',
           description: {
             kind: 'markdown',
-            value: '名称前是否带 loading 图标。\n\n- 默认值：`false`',
+            value: '名称前是否带loading图标\n- 默认值：false',
           },
         },
         {
@@ -830,7 +818,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '用于 `<form>` 组件，点击分别会触发 `<form>` 组件的 submit/reset 事件。\n\n- 可选值：`submit`、`reset`、`submitToGroup`',
+              '用于form组件，触发submit/reset事件\n- 可选值：submit | reset | submitToGroup',
           },
         },
         {
@@ -838,90 +826,84 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '微信开放能力，用于调用微信提供的各种功能。\n\n- 可选值：\n  - `contact`（打开客服会话）\n  - `share`（触发分享）\n  - `getUserInfo`（获取用户信息）\n  - `launchApp`（打开APP）\n  - `openSetting`（打开授权设置页）\n  - `feedback`（打开意见反馈）\n  - `getPhoneNumber`（获取用户手机号）\n  - `getRealnameAuthInfo`（获取实名认证信息）',
+              '微信开放能力\n- 可选值：contact（客服会话） | share（分享） | getUserInfo（获取用户信息） | launchApp（打开APP） | openSetting（授权设置） | feedback（意见反馈） | getPhoneNumber（获取手机号） | getRealnameAuthInfo（实名认证信息）',
           },
         },
         {
           name: 'hover-class',
           description: {
             kind: 'markdown',
-            value:
-              '指定按钮按下去的样式类。当 `hover-class="none"` 时，没有点击态效果。',
+            value: '点击时的样式类\n- 注意：hover-class="none"时无点击态',
           },
         },
         {
           name: 'hover-stop-propagation',
           description: {
             kind: 'markdown',
-            value:
-              '指定是否阻止本节点的祖先节点出现点击态。\n\n- 默认值：`false`',
+            value: '是否阻止祖先节点的点击态\n- 默认值：false',
           },
         },
         {
           name: 'hover-start-time',
           description: {
             kind: 'markdown',
-            value: '按住后多久出现点击态，单位为毫秒。\n\n- 默认值：`20`',
+            value: '按住后出现点击态的延迟（ms）\n- 默认值：20',
           },
         },
         {
           name: 'hover-stay-time',
           description: {
             kind: 'markdown',
-            value: '手指松开后点击态保留时间，单位为毫秒。\n\n- 默认值：`70`',
+            value: '手指松开后点击态的保留时间（ms）\n- 默认值：70',
           },
         },
         {
           name: 'lang',
           description: {
             kind: 'markdown',
-            value:
-              '指定返回用户信息的语言。\n\n- 可选值：`zh_CN`（简体中文）、`zh_TW`（繁体中文）、`en`（英文）',
+            value: '返回用户信息的语言\n- 可选值：zh_CN | zh_TW | en',
           },
         },
         {
           name: 'session-from',
           description: {
             kind: 'markdown',
-            value: '会话来源，`open-type="contact"` 时有效。',
+            value: '会话来源（open-type="contact"时有效）',
           },
         },
         {
           name: 'send-message-title',
           description: {
             kind: 'markdown',
-            value: '会话内消息卡片标题，`open-type="contact"` 时有效。',
+            value: '会话内消息卡片标题（open-type="contact"时有效）',
           },
         },
         {
           name: 'send-message-path',
           description: {
             kind: 'markdown',
-            value:
-              '会话内消息卡片点击跳转小程序路径，`open-type="contact"` 时有效。',
+            value: '消息卡片跳转路径（open-type="contact"时有效）',
           },
         },
         {
           name: 'send-message-img',
           description: {
             kind: 'markdown',
-            value: '会话内消息卡片图片，`open-type="contact"` 时有效。',
+            value: '消息卡片图片（open-type="contact"时有效）',
           },
         },
         {
           name: 'app-parameter',
           description: {
             kind: 'markdown',
-            value:
-              '打开 APP 时，向 APP 传递的参数，`open-type="launchApp"` 时有效。',
+            value: '打开APP时传递的参数（open-type="launchApp"时有效）',
           },
         },
         {
           name: 'show-message-card',
           description: {
             kind: 'markdown',
-            value:
-              '是否显示会话内消息卡片，设置此参数为 true，用户进入客服会话会在右下角显示"可能要发送的小程序"提示，用户点击后可以快速发送小程序消息，`open-type="contact"` 时有效。',
+            value: '是否显示会话内消息卡片（open-type="contact"时有效）',
           },
         },
         {
@@ -929,21 +911,22 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '当手机号快速验证或手机号实时验证额度用尽时，是否对用户展示“申请获取你的手机号，但该功能使用次数已达当前小程序上限，暂时无法使用”的提示，默认展示，open-type="getPhoneNumber" 或 open-type="getRealtimePhoneNumber" 时有效。\n\n- 默认值：`true`',
+              '手机号验证额度用尽时是否显示提示\n- 默认值：true\n- 注意：open-type为getPhoneNumber/getRealtimePhoneNumber时有效',
           },
         },
         {
           name: 'need-show-entrance',
           description: {
             kind: 'markdown',
-            value: '转发的文本消息是否要带小程序入口。\n\n- 默认值：`false`',
+            value: '转发文本消息是否带小程序入口\n- 默认值：true',
           },
         },
         {
           name: 'entrance-path',
           description: {
             kind: 'markdown',
-            value: '从消息小程序入口打开小程序的路径，默认为聊天工具启动路径。',
+            value:
+              '从消息入口打开小程序的路径（默认聊天工具启动路径）\n- 默认值：""',
           },
         },
         {
@@ -951,29 +934,28 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '用户点击该按钮时，会返回获取到的用户信息，回调的detail数据与wx.getUserInfo返回的一致，open-type="getUserInfo"时有效。',
+              '获取用户信息回调（open-type="getUserInfo"时有效）\n- 回调数据同wx.getUserInfo',
           },
         },
         {
           name: 'bindcontact',
           description: {
             kind: 'markdown',
-            value: '客服消息回调，`open-type="contact"` 时有效。',
+            value: '客服消息回调（open-type="contact"时有效）',
           },
         },
         {
           name: 'createliveactivity',
           description: {
             kind: 'markdown',
-            value:
-              '新的一次性订阅消息下发机制回调，`open-type="liveActivity"` 时有效。',
+            value: '一次性订阅消息回调（open-type="liveActivity"时有效）',
           },
         },
         {
           name: 'bindgetphonenumber',
           description: {
             kind: 'markdown',
-            value: '获取用户手机号回调，`open-type="getPhoneNumber"` 时有效。',
+            value: '获取手机号回调（open-type="getPhoneNumber"时有效）',
           },
         },
         {
@@ -981,36 +963,35 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '获取用户实时手机号回调，`open-type="getRealTimePhoneNumber"` 时有效。',
+              '获取手机号实时验证回调（open-type="getRealTimePhoneNumber"时有效）',
           },
         },
         {
           name: 'binderror',
           description: {
             kind: 'markdown',
-            value:
-              '当使用开放能力时，发生错误的回调，open-type=launchApp时有效。',
+            value: '开放能力调用错误回调（open-type="launchApp"时有效）',
           },
         },
         {
           name: 'bindopensetting',
           description: {
             kind: 'markdown',
-            value: '打开授权设置页回调，`open-type="openSetting"` 时有效。',
+            value: '打开授权设置页回调（open-type="openSetting"时有效）',
           },
         },
         {
           name: 'bindlaunchapp',
           description: {
             kind: 'markdown',
-            value: '打开 APP 成功的回调，`open-type="launchApp"` 时有效。',
+            value: '打开APP成功回调（open-type="launchApp"时有效）',
           },
         },
         {
           name: 'bindchooseavatar',
           description: {
             kind: 'markdown',
-            value: '获取用户头像回调，`open-type="chooseAvatar"` 时有效。',
+            value: '获取用户头像回调（open-type="chooseAvatar"时有效）',
           },
         },
         {
@@ -1018,7 +999,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '同意隐私授权回调，`open-type="agreePrivacyAuthorization"` 时有效。',
+              '同意隐私授权回调（open-type="agreePrivacyAuthorization"时有效）',
           },
         },
       ],
