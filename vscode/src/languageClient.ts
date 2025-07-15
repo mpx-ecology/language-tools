@@ -1,5 +1,4 @@
 import * as lsp from '@volar/vscode'
-import type { MpxInitializationOptions } from '@mpxjs/language-server'
 import {
   executeCommand,
   nextTick,
@@ -20,15 +19,11 @@ type CreateLanguageClient = (
   id: string,
   name: string,
   langs: lsp.DocumentSelector,
-  initOptions: MpxInitializationOptions,
   port: number,
   outputChannel: vscode.OutputChannel,
 ) => lsp.BaseLanguageClient
 
-export function activate(
-  context: vscode.ExtensionContext,
-  createLc: CreateLanguageClient,
-) {
+export function activate(createLc: CreateLanguageClient) {
   const activeTextEditor = useActiveTextEditor()
   const visibleTextEditors = useVisibleTextEditors()
 
@@ -36,15 +31,16 @@ export function activate(
     activeTextEditor,
     () => {
       if (
-        visibleTextEditors.value.some(editor =>
+        !visibleTextEditors.value.some(editor =>
           config.server.includeLanguages.includes(editor.document.languageId),
         )
       ) {
-        activateLc(context, createLc)
-        nextTick(() => {
-          stop()
-        })
+        return
       }
+      activateLc(createLc)
+      nextTick(() => {
+        stop()
+      })
     },
     {
       immediate: true,
@@ -56,22 +52,11 @@ export function deactivate() {
   return client?.stop()
 }
 
-async function activateLc(
-  context: vscode.ExtensionContext,
-  createLc: CreateLanguageClient,
-) {
+async function activateLc(createLc: CreateLanguageClient) {
   useVscodeContext('mpx.activated', true)
-  const outputChannel = useOutputChannel('Mpx Language Server')
   const selectors = config.server.includeLanguages
 
-  client = createLc(
-    'mpx-language-server',
-    'Mpx Language Server',
-    selectors,
-    await getInitializationOptions(context),
-    6019,
-    outputChannel,
-  )
+  client = createLc('mpx', 'Mpx', selectors, 6019, useOutputChannel('Mpx'))
 
   watch(
     () => config.server.includeLanguages,
@@ -82,19 +67,12 @@ async function activateLc(
     },
   )
 
-  useCommand(
-    'mpx.action.restartServer',
-    async (restartTsServer: boolean = true) => {
-      if (restartTsServer) {
-        await executeCommand('typescript.restartTsServer')
-      }
-      await client.stop()
-      outputChannel.clear()
-      client.clientOptions.initializationOptions =
-        await getInitializationOptions(context)
-      await client.start()
-    },
-  )
+  useCommand('mpx.action.restartServer', async () => {
+    await executeCommand('typescript.restartTsServer')
+    await client.stop()
+    client?.outputChannel.clear()
+    await client?.start()
+  })
 
   activateSplitEditors(client)
 
@@ -109,16 +87,5 @@ async function activateLc(
     if (reload) {
       executeCommand('workbench.action.restartExtensionHost')
     }
-  }
-}
-
-async function getInitializationOptions(
-  context: vscode.ExtensionContext,
-): Promise<MpxInitializationOptions> {
-  return {
-    typescript: {
-      tsdk: (await lsp.getTsdk(context))!.tsdk,
-      tsserverRequestCommand: 'tsserverRequest',
-    },
   }
 }

@@ -9,6 +9,7 @@ const isLiteralWhitelisted = /*@__PURE__*/ makeMap('true,false,null,this')
 const isMpxGloballyWhitelisted = /*@__PURE__*/ makeMap(
   '__mpx_mode__,__mpx_env__',
 )
+const isMpxGlobalDollarsWhitelisted = /*@__PURE__*/ makeMap('$t,$tc,$te,$tm')
 
 export function* generateInterpolation(
   options: {
@@ -30,6 +31,7 @@ export function* generateInterpolation(
   suffix: string = '',
 ): Generator<Code> {
   for (const segment of forEachInterpolationSegment(
+    options.mpxCompilerOptions,
     options.ts,
     options.destructuredPropNames,
     options.templateRefNames,
@@ -87,6 +89,13 @@ interface CtxVar {
   isShorthand?: boolean
 }
 
+interface BracesVar {
+  text: string
+  offset: number
+  /** 1 for '{{', 2 for '}}' */
+  bracesType?: 1 | 2
+}
+
 type Segment = [
   fragment: string,
   offset: number | undefined,
@@ -94,6 +103,7 @@ type Segment = [
 ]
 
 function* forEachInterpolationSegment(
+  options: MpxCompilerOptions,
   ts: typeof import('typescript'),
   destructuredPropNames: Set<string> | undefined,
   templateRefNames: Set<string> | undefined,
@@ -106,11 +116,16 @@ function* forEachInterpolationSegment(
 ): Generator<Segment> {
   const code = prefix + originalCode + suffix
   const offset = start !== undefined ? start - prefix.length : undefined
-  let ctxVars: CtxVar[] = []
+  const ctxVars: CtxVar[] = []
 
   if (
     identifierRegex.test(originalCode) &&
-    !shouldIdentifierSkipped(ctx, originalCode, destructuredPropNames)
+    !shouldIdentifierSkipped(
+      ctx,
+      originalCode,
+      destructuredPropNames,
+      options.templateGlobalDefs,
+    )
   ) {
     ctxVars.push({
       text: originalCode,
@@ -118,24 +133,34 @@ function* forEachInterpolationSegment(
     })
   } else {
     const ast = createTsAst(ts, astHolder, code)
-    const varCb = (id: ts.Identifier) => {
+    const varCb = (id: ts.Identifier, isShorthand = false) => {
       const text = getNodeText(ts, id, ast)
-      if (!shouldIdentifierSkipped(ctx, text, destructuredPropNames)) {
+      if (
+        !shouldIdentifierSkipped(
+          ctx,
+          text,
+          destructuredPropNames,
+          options.templateGlobalDefs,
+        )
+      ) {
         ctxVars.push({
           text,
           offset: getStartEnd(ts, id, ast).start,
+          isShorthand,
         })
       }
     }
     ts.forEachChild(ast, node => walkIdentifiers(ts, node, ast, varCb, ctx))
   }
 
-  ctxVars = ctxVars.sort((a, b) => a.offset - b.offset)
+  const points: (BracesVar | CtxVar)[] = findBracesPoints(code)
+    .concat(ctxVars)
+    .sort((a, b) => a.offset - b.offset)
 
-  if (ctxVars.length) {
-    for (let i = 0; i < ctxVars.length; i++) {
-      const lastVar = ctxVars[i - 1]
-      const curVar = ctxVars[i]
+  if (points.length) {
+    for (let i = 0; i < points.length; i++) {
+      const lastVar = points[i - 1]
+      const curVar = points[i]
       const lastVarEnd = lastVar ? lastVar.offset + lastVar.text.length : 0
 
       yield [
@@ -144,10 +169,19 @@ function* forEachInterpolationSegment(
         i ? undefined : 'startText',
       ]
 
-      yield* generateVar(templateRefNames, ctx, code, offset, curVar)
+      if (isBracesVar(curVar)) {
+        // eg: "{{ a }} {{ b }}" -> "( a ) + '' + ( b )"
+        yield [curVar.bracesType === 1 ? "+ '' +(" : ')', undefined]
+      } else {
+        // eg: "{{ { a } }}" -> "{ a: ctx.a }"
+        if (curVar.isShorthand) {
+          yield [`${curVar.text}: `, undefined]
+        }
+        yield* generateVar(templateRefNames, ctx, code, offset, curVar)
+      }
     }
 
-    const lastVar = ctxVars.at(-1)!
+    const lastVar = points.at(-1)!
     if (lastVar.offset + lastVar.text.length < code.length) {
       yield [
         code.slice(lastVar.offset + lastVar.text.length),
@@ -158,6 +192,25 @@ function* forEachInterpolationSegment(
   } else {
     yield [code, 0]
   }
+}
+
+function findBracesPoints(code: string) {
+  const points: BracesVar[] = []
+  const length = code.length
+  for (let i = 0; i < length - 1; i++) {
+    if (code[i] === '{' && code[i + 1] === '{') {
+      points.push({ text: '{{', offset: i, bracesType: 1 })
+      i++
+    } else if (code[i] === '}' && code[i + 1] === '}') {
+      points.push({ text: '}}', offset: i, bracesType: 2 })
+      i++
+    }
+  }
+  return points
+}
+
+function isBracesVar(node: CtxVar | BracesVar): node is BracesVar {
+  return 'bracesType' in node
 }
 
 function* generateVar(
@@ -184,7 +237,10 @@ function* generateVar(
       ctx.accessExternalVariable(curVar.text)
     }
 
-    if (ctx.dollarVars.has(curVar.text)) {
+    if (
+      isMpxGlobalDollarsWhitelisted(curVar.text) ||
+      ctx.dollarVars.has(curVar.text)
+    ) {
       yield [`__MPX_dollars.`, undefined]
     } else {
       yield [`__MPX_ctx.`, undefined]
@@ -317,6 +373,7 @@ function shouldIdentifierSkipped(
   ctx: TemplateCodegenContext,
   text: string,
   destructuredPropNames: Set<string> | undefined,
+  templateGlobalDefs: string[],
 ) {
   return (
     ctx.hasLocalVariable(text) ||
@@ -325,6 +382,7 @@ function shouldIdentifierSkipped(
     isLiteralWhitelisted(text) ||
     text === 'require' ||
     text.startsWith('__VLS_') ||
-    destructuredPropNames?.has(text)
+    destructuredPropNames?.has(text) ||
+    templateGlobalDefs.includes(text)
   )
 }

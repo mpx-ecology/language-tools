@@ -1,15 +1,10 @@
-import { existsSync } from 'fs'
-import path = require('path')
-
+import type * as ts from 'typescript'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { MatchPathAsync, createMatchPathAsync } from 'tsconfig-paths'
 import { withResolvers } from './utils'
-import { stat } from 'fs/promises'
-import * as fs from 'node:fs'
-import type * as ts from 'typescript'
 
 function createTsAliasMatcher(compilerConfig: ts.CompilerOptions) {
-  // const config = loadConfig(uri);
-  // if (config.resultType === "failed") return;
   return createMatchPathAsync(
     compilerConfig.baseUrl ?? path.join(process.cwd(), './'),
     compilerConfig.paths ?? {},
@@ -41,7 +36,7 @@ async function tryRequest(
         uri,
         pkg => require(pkg),
         (uri, callback) => {
-          callback(undefined, existsSync(uri))
+          callback(undefined, fs.existsSync(uri))
         },
         [],
         async (err, result) => {
@@ -53,7 +48,7 @@ async function tryRequest(
             : path.resolve(process.cwd(), result)
 
           if (
-            await stat(absolute).then(
+            await fs.promises.stat(absolute).then(
               res => res.isDirectory(),
               () => true,
             )

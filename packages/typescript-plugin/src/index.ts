@@ -91,14 +91,17 @@ export = createLanguageServicePlugin((ts, info) => {
       projectService.logger.info('Mpx: there is no addProtocolHandler method.')
       return
     }
-    if ((session as any).mpxCommandsAdded) {
+
+    if ((session as any).handlers.has('_mpx:projectInfo')) {
       return
     }
 
-    ;(session as any).mpxCommandsAdded = true
+    session.addProtocolHandler('_mpx:projectInfo', ({ arguments: args }) => {
+      return (session as any).handlers.get('projectInfo')?.({ arguments: args })
+    })
 
     session.addProtocolHandler(
-      'mpx:collectExtractProps',
+      '_mpx:collectExtractProps',
       ({ arguments: args }) => {
         return {
           response: collectExtractProps.apply(getRequestContext(args[0]), args),
@@ -106,7 +109,18 @@ export = createLanguageServicePlugin((ts, info) => {
       },
     )
     session.addProtocolHandler(
-      'mpx:getImportPathForFile',
+      '_mpx:documentHighlights-full',
+      ({ arguments: args }) => {
+        return (session as any).handlers.get('documentHighlights-full')?.({
+          arguments: args,
+        })
+      },
+    )
+    session.addProtocolHandler('_mpx:quickinfo', ({ arguments: args }) => {
+      return (session as any).handlers.get('quickinfo')?.({ arguments: args })
+    })
+    session.addProtocolHandler(
+      '_mpx:getImportPathForFile',
       ({ arguments: args }) => {
         return {
           response: getImportPathForFile.apply(
@@ -117,7 +131,7 @@ export = createLanguageServicePlugin((ts, info) => {
       },
     )
     session.addProtocolHandler(
-      'mpx:getPropertiesAtLocation',
+      '_mpx:getPropertiesAtLocation',
       ({ arguments: args }) => {
         return {
           response: getPropertiesAtLocation.apply(
@@ -128,7 +142,7 @@ export = createLanguageServicePlugin((ts, info) => {
       },
     )
     session.addProtocolHandler(
-      'mpx:getComponentNames',
+      '_mpx:getComponentNames',
       ({ arguments: args }) => {
         return {
           response:
@@ -137,7 +151,7 @@ export = createLanguageServicePlugin((ts, info) => {
       },
     )
     session.addProtocolHandler(
-      'mpx:getComponentProps',
+      '_mpx:getComponentProps',
       ({ arguments: args }) => {
         return {
           response: getComponentProps.apply(getRequestContext(args[0]), args),
@@ -145,7 +159,7 @@ export = createLanguageServicePlugin((ts, info) => {
       },
     )
     session.addProtocolHandler(
-      'mpx:getComponentEvents',
+      '_mpx:getComponentEvents',
       ({ arguments: args }) => {
         return {
           response: getComponentEvents.apply(getRequestContext(args[0]), args),
@@ -153,7 +167,7 @@ export = createLanguageServicePlugin((ts, info) => {
       },
     )
     session.addProtocolHandler(
-      'mpx:getComponentDirectives',
+      '_mpx:getComponentDirectives',
       ({ arguments: args }) => {
         return {
           response: getComponentDirectives.apply(
@@ -163,16 +177,22 @@ export = createLanguageServicePlugin((ts, info) => {
         }
       },
     )
-    session.addProtocolHandler('mpx:getElementAttrs', ({ arguments: args }) => {
-      return {
-        response: getElementAttrs.apply(getRequestContext(args[0]), args),
-      }
-    })
-    session.addProtocolHandler('mpx:getElementNames', ({ arguments: args }) => {
-      return {
-        response: getElementNames.apply(getRequestContext(args[0]), args),
-      }
-    })
+    session.addProtocolHandler(
+      '_mpx:getElementAttrs',
+      ({ arguments: args }) => {
+        return {
+          response: getElementAttrs.apply(getRequestContext(args[0]), args),
+        }
+      },
+    )
+    session.addProtocolHandler(
+      '_mpx:getElementNames',
+      ({ arguments: args }) => {
+        return {
+          response: getElementNames.apply(getRequestContext(args[0]), args),
+        }
+      },
+    )
 
     projectService.logger.info('Mpx specific commands are successfully added.')
   }

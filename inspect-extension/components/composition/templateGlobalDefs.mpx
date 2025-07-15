@@ -1,0 +1,11 @@
+<template>
+  <view>
+    <!-- 需要在 tsconfig 配置 templateGlobalDefs -->
+    {{ __version__ }} - {{ __is_dev__ }}
+  </view>
+</template>
+
+<script setup lang="ts">
+console.log('---> debug', __version__, __is_dev__)
+</script>
+  

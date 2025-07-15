@@ -1,6 +1,6 @@
 // @ts-check
-const path = require('path')
-const fs = require('fs')
+const fs = require('node:fs')
+const path = require('node:path')
 const esbuild = require('esbuild')
 
 const minify = process.argv.includes('--minify')
@@ -36,7 +36,8 @@ async function main() {
     plugins: [
       esbuildProblemMatcherPlugin,
       umd2esmPlugin,
-      resolveShareModulePlugin,
+      resolveLanguageCorePlugin,
+      resolveTypescriptPlugin,
       metasPlugin,
     ],
   })
@@ -131,7 +132,7 @@ const umd2esmPlugin = {
 /**
  * @type {import('esbuild').Plugin}
  */
-const resolveShareModulePlugin = {
+const resolveLanguageCorePlugin = {
   name: 'resolve-share-module',
   setup(build) {
     build.onResolve(
@@ -141,6 +142,26 @@ const resolveShareModulePlugin = {
       () => {
         return {
           path: 'mpx-language-core-pack',
+          external: true,
+        }
+      },
+    )
+  },
+}
+
+/**
+ * @type {import('esbuild').Plugin}
+ */
+const resolveTypescriptPlugin = {
+  name: 'resolve-typescript-module',
+  setup(build) {
+    build.onResolve(
+      {
+        filter: /^typescript$/,
+      },
+      () => {
+        return {
+          path: './typescript.js',
           external: true,
         }
       },

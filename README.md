@@ -1,10 +1,9 @@
 # Mpx Language Tools
 
-<div align="center">
-<!-- etc. download icon -->
-</div>
-
-> 🚧 **Work in Progress**
+[![vscode-marketplace-version](https://img.shields.io/vscode-marketplace/v/mpxjs.mpx-official.svg?label=vscode%20marketplace&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=mpxjs.mpx-official)
+[![vscode-marketplace-downloads](https://img.shields.io/vscode-marketplace/d/mpxjs.mpx-official.svg?label=vscode%20marketplace%20Downloads&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=mpxjs.mpx-official)
+[![open-vsx-version](https://img.shields.io/open-vsx/v/mpxjs/mpx-official?label=Open%20VSX&style=flat-square)](https://open-vsx.org/extension/mpxjs/mpx-official)
+[![open-vsx-downloads](https://img.shields.io/open-vsx/dt/mpxjs/mpx-official?label=Open%20VSX%20Downloads&style=flat-square)](https://open-vsx.org/extension/mpxjs/mpx-official)
 
 ## Why new Extension?
 
@@ -29,8 +28,8 @@
 | \<template\> 支持定义跳转、查找参考引用      | ❌     | ✅                |
 | \<template\> 样式类名跳转 \<style\>          | ❌     | ✅                |
 | \<template\> style 属性支持原生 CSS 补全提示 | ❌     | ✅                |
-| \<template\> 原生组件属性检查                | ❌     | in Progress (50%) |
-| \<template\> 自定义组件跳转、属性检查        | ❌     | in Progress       |
+| \<template\> 原生组件属性检查                | ❌     | ✅                |
+| \<template\> 自定义组件跳转、属性检查        | ❌     | in Progress (50%) |
 
 ### More
 
@@ -84,6 +83,10 @@ flowchart TD
   class vscode,inspect extension
 ```
 
+## Contributing
+
+For details on how to contribute to this project, please refer to our [Contributing Guide][contributing-guide].
+
 ## Dive In
 
 For architecture details and source code documentation, please refer to our [Deepwiki][mpx-deep-wiki].
@@ -112,6 +115,7 @@ For details on our planned features and future direction, please refer to our [R
 [Johnson Chu]: https://github.com/johnsoncodehk
 [pagnkelly]: https://github.com/pagnkelly
 [Soon Wang]: https://github.com/wangshunnn
+[contributing-guide]: ./CONTRIBUTING.md
 
 <!-- Package Links -->
 

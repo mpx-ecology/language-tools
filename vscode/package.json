@@ -1,9 +1,9 @@
 {
-  "name": "mpx",
+  "name": "mpx-official",
   "private": true,
-  "version": "0.3.0",
+  "version": "1.0.3",
   "icon": "images/icon.png",
-  "displayName": "Mpx",
+  "displayName": "Mpx (Official)",
   "description": "Official Mpx language support for Visual Studio Code",
   "publisher": "mpxjs",
   "author": "Soon Wang",

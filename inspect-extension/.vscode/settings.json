@@ -1,3 +1,4 @@
 {
-  "unocss.languageIds": ["mpx"]
+  "unocss.languageIds": ["mpx"],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

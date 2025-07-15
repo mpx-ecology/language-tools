@@ -3,6 +3,53 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.3](https://github.com/mpx-ecology/language-tools/compare/v1.0.2...v1.0.3) (2025-07-14)
+
+**Note:** Version bump only for package @mpxjs/language-service
+
+
+
+
+
+## [1.0.2](https://github.com/mpx-ecology/language-tools/compare/v1.0.1...v1.0.2) (2025-07-14)
+
+**Note:** Version bump only for package @mpxjs/language-service
+
+
+
+
+
+## [1.0.1](https://github.com/mpx-ecology/language-tools/compare/v1.0.0...v1.0.1) (2025-07-14)
+
+**Note:** Version bump only for package @mpxjs/language-service
+
+
+
+
+
+# [1.0.0](https://github.com/mpx-ecology/language-tools/compare/v0.3.0...v1.0.0) (2025-07-14)
+
+
+### Bug Fixes
+
+* wx condition ([a9704d8](https://github.com/mpx-ecology/language-tools/commit/a9704d8a81805c1eeed749663a5663f7655566e3))
+
+
+### Features
+
+* enhance template document link for custom component ([75e7bff](https://github.com/mpx-ecology/language-tools/commit/75e7bffa3202bce476fa416894a5221055a2786a))
+* handle json js block ([44cafba](https://github.com/mpx-ecology/language-tools/commit/44cafbaa8fc187f0b153a1f78b8acc7c5292d301))
+* parse json usingComponents and add json service document link ([a6192b0](https://github.com/mpx-ecology/language-tools/commit/a6192b071dbf7d0aeae000832dd40831313183ab))
+* refactor and cleanup code ([d34747a](https://github.com/mpx-ecology/language-tools/commit/d34747af1f6573e22c7bf674486d8e126a7e902f))
+* **service:** support for custom components in template completion ([a8345b6](https://github.com/mpx-ecology/language-tools/commit/a8345b63ba8447c962fb027aa8ae1ac3528ecfe3))
+* **service:** update comments ([8d4f00e](https://github.com/mpx-ecology/language-tools/commit/8d4f00e23c0c5ea252c801354abb5c064b5242b1))
+* support abs path resolve ([c0702de](https://github.com/mpx-ecology/language-tools/commit/c0702ded94df3fa23dab8cacb6fd172a37e9813f))
+* support document link for json component ([9a7f9f7](https://github.com/mpx-ecology/language-tools/commit/9a7f9f75da5f372f411b481857a8c385f9dbd5a1))
+
+
+
+
+
 # [0.3.0](https://github.com/mpx-ecology/language-tools/compare/v0.2.0...v0.3.0) (2025-07-04)
 
 

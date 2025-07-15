@@ -1,6 +1,6 @@
 {
   "name": "@mpxjs/language-server",
-  "version": "0.3.0",
+  "version": "1.0.3",
   "license": "MIT",
   "files": [
     "**/*.js",
@@ -29,5 +29,8 @@
   },
   "devDependencies": {
     "@types/node": "catalog:"
+  },
+  "peerDependencies": {
+    "typescript": "*"
   }
 }

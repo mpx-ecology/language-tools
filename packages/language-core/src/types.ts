@@ -1,6 +1,6 @@
 import type { CodeInformation } from '@volar/language-core'
 import type * as CompilerDOM from '@vue/compiler-dom'
-import type { SFCJsonBlock, SFCParseResult } from '@vue/compiler-sfc'
+import type { SFCParseResult } from '@vue/compiler-sfc'
 import type { Segment } from 'muggle-string'
 import type * as ts from 'typescript'
 import type { MpxEmbeddedCode } from './virtualFile/embeddedFile'
@@ -43,6 +43,7 @@ export interface MpxCompilerOptions {
   optionsWrapper: [string, string] | []
   optionsComponentCtor: string[]
   optionsPageCtor: string[]
+  templateGlobalDefs: string[]
   macros: {
     defineProps: string[]
     defineSlots: string[]
@@ -107,6 +108,10 @@ export type MpxLanguagePluginReturn = {
     sfc: Sfc,
     embeddedFile: MpxEmbeddedCode,
   ): void
+  resolveUsingComponentsPath?(
+    usingComponentsPath: SfcJsonBlockUsingComponents,
+    uri: string,
+  ): Promise<SfcJsonResolvedBlockUsingComponents>
 }
 
 export type MpxLanguagePlugin = (ctx: {
@@ -136,6 +141,20 @@ export type SfcBlockAttr =
       offset: number
       quotes: boolean
     }
+
+export interface UsingComponentInfo {
+  text: string
+  offset: number
+  nameOffset: number
+}
+export interface ResolvedUsingComponentInfo extends UsingComponentInfo {
+  realFilename?: string
+}
+export type SfcJsonBlockUsingComponents = Map<string, UsingComponentInfo>
+export type SfcJsonResolvedBlockUsingComponents = Map<
+  string,
+  ResolvedUsingComponentInfo
+>
 
 export interface Sfc {
   content: string
@@ -173,7 +192,10 @@ export interface Sfc {
   json:
     | (SfcBlock & {
         ast: ts.SourceFile
-        usingComponents: SFCJsonBlock['usingComponents']
+        usingComponents: SfcJsonBlockUsingComponents | undefined
+        resolveUsingComponents:
+          | Promise<SfcJsonResolvedBlockUsingComponents>
+          | undefined
       })
     | undefined
   customBlocks: readonly (SfcBlock & {

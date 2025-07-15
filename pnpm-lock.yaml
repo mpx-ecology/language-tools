@@ -185,6 +185,9 @@ importers:
       '@volar/language-server':
         specifier: 'catalog:'
         version: 2.4.12
+      typescript:
+        specifier: '*'
+        version: 5.8.3
       vscode-uri:
         specifier: 'catalog:'
         version: 3.1.0

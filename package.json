@@ -1,11 +1,11 @@
 {
   "private": true,
-  "packageManager": "pnpm@10.12.4",
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
     "build": "tsc -b",
     "watch": "pnpm run \"/^watch:.*/\"",
     "watch:base": "tsc -b -w",
-    "watch:vscode": "pnpm -F mpx run watch",
+    "watch:vscode": "pnpm -F mpx-official run watch",
     "test": "vitest",
     "lint": "eslint --cache .",
     "format": "prettier --write --cache .",

@@ -351,6 +351,7 @@ export function getDefaultCompilerOptions(
     optionsWrapper: [`(await import('${lib}')).defineComponent(`, `)`],
     optionsComponentCtor: ['createComponent'],
     optionsPageCtor: ['createPage'],
+    templateGlobalDefs: [],
     macros: {
       defineProps: ['defineProps'],
       defineSlots: ['defineSlots'],

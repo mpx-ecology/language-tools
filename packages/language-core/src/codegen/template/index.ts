@@ -2,9 +2,10 @@ import type * as ts from 'typescript'
 import type { Code, MpxCompilerOptions, Sfc } from '../../types'
 import * as CompilerDOM from '@vue/compiler-dom'
 
-import { endOfLine, newLine, wrapWith } from '../utils'
+import { endOfLine, newLine } from '../utils'
+// import { endOfLine, newLine, wrapWith } from '../utils'
 import { getSlotsPropertyName } from '../../utils/shared'
-import { generateObjectProperty } from './objectProperty'
+// import { generateObjectProperty } from './objectProperty'
 import { generateTemplateChild, getWxForNode } from './templateChild'
 import { generateStyleScopedClassReferences } from './styleScopedClasses'
 import { TemplateCodegenContext, createTemplateCodegenContext } from './context'
@@ -52,7 +53,7 @@ export function* generateTemplate(
   yield* ctx.generateHoistVariables()
 
   const speicalTypes = [
-    [slotsPropertyName, yield* generateSlots(options, ctx)],
+    // [slotsPropertyName, yield* generateSlots(options, ctx)],
     // ['$refs', yield* generateTemplateRefs(ctx)],
     // 内置的一些 $xx 变量（适用于组合式组件）
     ['$t', '(key: string, values?: I18nValues) => string'],
@@ -70,38 +71,38 @@ export function* generateTemplate(
   return ctx
 }
 
-function* generateSlots(
-  options: TemplateCodegenOptions,
-  ctx: TemplateCodegenContext,
-): Generator<Code> {
-  if (!options.hasDefineSlots) {
-    yield `type __VLS_Slots = {}`
-    for (const { expVar, propsVar } of ctx.dynamicSlots) {
-      yield `${newLine}& { [K in NonNullable<typeof ${expVar}>]?: (props: typeof ${propsVar}) => any }`
-    }
-    for (const slot of ctx.slots) {
-      yield `${newLine}& { `
-      if (slot.name && slot.offset !== undefined) {
-        yield* generateObjectProperty(
-          slot.name,
-          slot.offset,
-          ctx.codeFeatures.withoutHighlightAndCompletion,
-          slot.nodeLoc,
-        )
-      } else {
-        yield* wrapWith(
-          slot.tagRange[0],
-          slot.tagRange[1],
-          ctx.codeFeatures.withoutHighlightAndCompletion,
-          `default`,
-        )
-      }
-      yield `?: (props: typeof ${slot.propsVar}) => any }`
-    }
-    yield `${endOfLine}`
-  }
-  return `__VLS_Slots`
-}
+// function* generateSlots(
+//   options: TemplateCodegenOptions,
+//   ctx: TemplateCodegenContext,
+// ): Generator<Code> {
+//   if (!options.hasDefineSlots) {
+//     yield `type __VLS_Slots = {}`
+//     for (const { expVar, propsVar } of ctx.dynamicSlots) {
+//       yield `${newLine}& { [K in NonNullable<typeof ${expVar}>]?: (props: typeof ${propsVar}) => any }`
+//     }
+//     for (const slot of ctx.slots) {
+//       yield `${newLine}& { `
+//       if (slot.name && slot.offset !== undefined) {
+//         yield* generateObjectProperty(
+//           slot.name,
+//           slot.offset,
+//           ctx.codeFeatures.withoutHighlightAndCompletion,
+//           slot.nodeLoc,
+//         )
+//       } else {
+//         yield* wrapWith(
+//           slot.tagRange[0],
+//           slot.tagRange[1],
+//           ctx.codeFeatures.withoutHighlightAndCompletion,
+//           `default`,
+//         )
+//       }
+//       yield `?: (props: typeof ${slot.propsVar}) => any }`
+//     }
+//     yield `${endOfLine}`
+//   }
+//   return `__VLS_Slots`
+// }
 
 // function* generateTemplateRefs(ctx: TemplateCodegenContext): Generator<Code> {
 //   yield `type __VLS_TemplateRefs = {}`

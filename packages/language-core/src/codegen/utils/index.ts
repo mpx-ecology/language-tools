@@ -86,9 +86,9 @@ export function createTsAst(
   if (astHolder.__volar_ast_text !== text) {
     astHolder.__volar_ast_text = text
     astHolder.__volar_ast = ts.createSourceFile(
-      '/a.ts',
+      'mpx_ast.ts',
       text,
-      99 satisfies ts.ScriptTarget.ESNext,
+      99 satisfies ts.ScriptTarget.Latest,
     )
   }
   return astHolder.__volar_ast as ts.SourceFile

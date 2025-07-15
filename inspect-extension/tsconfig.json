@@ -15,7 +15,8 @@
     }
   },
   "mpxCompilerOptions": {
-    "optionsComponentCtor": ["createComponent", "createComponent1"]
+    "optionsComponentCtor": ["createComponent", "createComponent1"],
+    "templateGlobalDefs": ["__version__", "__is_dev__"]
   },
   "include": ["**/*"]
 }

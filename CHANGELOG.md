@@ -3,6 +3,65 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.3](https://github.com/mpx-ecology/language-tools/compare/v1.0.2...v1.0.3) (2025-07-14)
+
+**Note:** Version bump only for package mpx-language-tools-core
+
+
+
+
+
+## [1.0.2](https://github.com/mpx-ecology/language-tools/compare/v1.0.1...v1.0.2) (2025-07-14)
+
+**Note:** Version bump only for package mpx-language-tools-core
+
+
+
+
+
+## [1.0.1](https://github.com/mpx-ecology/language-tools/compare/v1.0.0...v1.0.1) (2025-07-14)
+
+**Note:** Version bump only for package mpx-language-tools-core
+
+
+
+
+
+# [1.0.0](https://github.com/mpx-ecology/language-tools/compare/v0.3.0...v1.0.0) (2025-07-14)
+
+
+### Bug Fixes
+
+* filter comment when find ifNode prev node ([b52acdb](https://github.com/mpx-ecology/language-tools/commit/b52acdb5cde41d688325178b7d84974a09107afb))
+* rename autofix.ci ([73aa68a](https://github.com/mpx-ecology/language-tools/commit/73aa68a81651760fccf2774d3bf2d8295adeffdd))
+* wx condition ([a9704d8](https://github.com/mpx-ecology/language-tools/commit/a9704d8a81805c1eeed749663a5663f7655566e3))
+
+
+### Features
+
+* clean code ([7183dd8](https://github.com/mpx-ecology/language-tools/commit/7183dd859830da6f171a71f932e15ab59365b6ca))
+* **core:** completion component type inference ([ee94e6c](https://github.com/mpx-ecology/language-tools/commit/ee94e6c359cb0a2203d7cd96e7f5be7c7799edec))
+* **core:** completion component type inference ([6349b9a](https://github.com/mpx-ecology/language-tools/commit/6349b9aab0ed2d1bc43b84eeec5ffe80f60a2e51))
+* **core:** completion component type inference ([0182f1a](https://github.com/mpx-ecology/language-tools/commit/0182f1adb8e7872e33c5a13e67e632996cedf28b))
+* **core:** enhance codegen for attributesValue ([b41754e](https://github.com/mpx-ecology/language-tools/commit/b41754ee2552e260dcf3fd9f303b4f5fdf66518d))
+* **core:** WIP add component types ([e6c304d](https://github.com/mpx-ecology/language-tools/commit/e6c304dd1d89f05686b74cb8f9f25c952eb10f5e))
+* **core:** WIP add form components ([c277bd1](https://github.com/mpx-ecology/language-tools/commit/c277bd1d28ceb8cd54fb47200ddc7dc1751b0806))
+* enhance template document link for custom component ([75e7bff](https://github.com/mpx-ecology/language-tools/commit/75e7bffa3202bce476fa416894a5221055a2786a))
+* handle json js block ([44cafba](https://github.com/mpx-ecology/language-tools/commit/44cafbaa8fc187f0b153a1f78b8acc7c5292d301))
+* **inspect:** update wx:for and wx:if priority case ([4df6996](https://github.com/mpx-ecology/language-tools/commit/4df6996a9b7732246837ba95d6098507a8a6c799))
+* parse json usingComponents and add json service document link ([a6192b0](https://github.com/mpx-ecology/language-tools/commit/a6192b071dbf7d0aeae000832dd40831313183ab))
+* refactor and cleanup code ([d34747a](https://github.com/mpx-ecology/language-tools/commit/d34747af1f6573e22c7bf674486d8e126a7e902f))
+* refactor shared code and update deps ([3d8c0dd](https://github.com/mpx-ecology/language-tools/commit/3d8c0ddb874137d55f424bbdca97082da5cde0de))
+* **service:** support for custom components in template completion ([a8345b6](https://github.com/mpx-ecology/language-tools/commit/a8345b63ba8447c962fb027aa8ae1ac3528ecfe3))
+* **service:** update comments ([8d4f00e](https://github.com/mpx-ecology/language-tools/commit/8d4f00e23c0c5ea252c801354abb5c064b5242b1))
+* support abs path resolve ([c0702de](https://github.com/mpx-ecology/language-tools/commit/c0702ded94df3fa23dab8cacb6fd172a37e9813f))
+* support document link for json component ([9a7f9f7](https://github.com/mpx-ecology/language-tools/commit/9a7f9f75da5f372f411b481857a8c385f9dbd5a1))
+* support template global definitions ([a8c5b56](https://github.com/mpx-ecology/language-tools/commit/a8c5b56d3c28714b149062be116fb4c382ce2fc0))
+
+
+
+
+
 # [0.3.0](https://github.com/mpx-ecology/language-tools/compare/v0.2.0...v0.3.0) (2025-07-04)
 
 

@@ -17,6 +17,7 @@
         {{ $tm('local.driver') }}
       </view>
     </view>
+    <view extraData="{{ { msg, content, content1: content } }}"></view>
   </view>
 </template>
 

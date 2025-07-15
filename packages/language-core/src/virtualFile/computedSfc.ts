@@ -11,6 +11,7 @@ import { computed, pauseTracking, resumeTracking } from 'alien-signals'
 import { parseCssClassNames } from '../utils/parseCssClassNames'
 import { parseCssVars } from '../utils/parseCssVars'
 import { computedArray } from '../utils/signals'
+import { parseUsingComponents } from '../utils/parseJsonUsingComponents'
 
 export function computedSfc(
   ts: typeof import('typescript'),
@@ -115,9 +116,9 @@ export function computedSfc(
     'json',
     'json',
     computed(() => getParseResult()?.descriptor.json ?? undefined),
-    (block, base): NonNullable<Sfc['json']> => {
+    (_, base): NonNullable<Sfc['json']> => {
       const getAst = computed(() => {
-        const lang = block().lang ?? 'json'
+        const lang = base.lang ?? 'json'
         for (const plugin of plugins) {
           const ast = plugin.compileSFCJson?.(lang, base.content)
           if (ast) {
@@ -126,9 +127,18 @@ export function computedSfc(
         }
         return ts.createSourceFile('', '', 100 satisfies ts.ScriptTarget.JSON)
       })
-      const getUsingComponents = computed(() => {
-        // TODO 根据 getAst() 解析 usingComponents
-        return undefined
+      const getUsingComponents = computed(() =>
+        parseUsingComponents(ts, getAst()),
+      )
+      const getResolvedUsingComponents = computed(() => {
+        for (const plugin of plugins) {
+          if (typeof plugin.resolveUsingComponentsPath === 'function') {
+            return plugin.resolveUsingComponentsPath(
+              getUsingComponents(),
+              fileName,
+            )
+          }
+        }
       })
       return mergeObject(base, {
         get ast() {
@@ -137,7 +147,10 @@ export function computedSfc(
         get usingComponents() {
           return getUsingComponents()
         },
-      })
+        get resolveUsingComponents() {
+          return getResolvedUsingComponents()
+        },
+      } satisfies Partial<Sfc['json']>)
     },
   )
   const hasScript = computed(() => !!getParseResult()?.descriptor.script)

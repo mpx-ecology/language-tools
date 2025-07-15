@@ -13,6 +13,7 @@ import { endOfLine, generateSfcBlockSection, newLine } from '../utils'
 import { generateGlobalTypes, getGlobalTypesFileName } from '../globalTypes'
 import { ScriptCodegenContext, createScriptCodegenContext } from './context'
 import { generateScriptSetup, generateScriptSetupImports } from './scriptSetup'
+// import { generateJsonUsingComponents } from './jsonUsingComponents'
 
 export interface ScriptCodegenOptions {
   ts: typeof ts
@@ -168,6 +169,7 @@ export function* generateScript(
   if (!ctx.generatedTemplate) {
     yield* generateTemplate(options, ctx)
     yield* generateComponentSelf(options)
+    // yield* generateJsonUsingComponents(options, ctx)
   }
 
   yield* ctx.localTypes.generate([...ctx.localTypes.getUsedNames()])

@@ -1,5 +1,7 @@
 <template>
-  <view class="{{msg.length > 5 ? 'long' : 'short'}}">
+  <!-- Case: 属性值包含多个 {{ }} -->
+  <view value="{{ msg }}{{ msg }}"></view>
+  <view class="{{msg.length > 5 ? 'long' : 'short'}} {{ msg ? 'yes' : 'no'}}">
      <view wx:if="{{msg.length > 3 ? true : false}}">
       {{ msg ? 'yes' : 'no'}}
     </view>
@@ -13,6 +15,8 @@
     <view wx:show="{{msgConst === 'hello'}}">
       {{ '1' + msg[0] + 2 }}
     </view>
+    <!-- Case: 属性值是对象结构 -->
+    <view extraData="{{ { msg, msgConst, msgConst1: msgConst } }}"></view>
   </view> 
 </template>
 

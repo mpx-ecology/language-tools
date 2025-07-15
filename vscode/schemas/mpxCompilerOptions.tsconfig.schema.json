@@ -2,7 +2,7 @@
   "properties": {
     "mpxCompilerOptions": {
       "type": "object",
-      "markdownDescription": "Mpx 插件编译选项\n\n详见：[文档](https://github.com/mpx-ecology/language-tools/wiki/Mpx-Compiler-Options)",
+      "markdownDescription": "Mpx 插件编译选项。\n\n- 该配置选项只会用于插件使用，不会影响项目实际的编译时和运行时。\n\n详见：[文档](https://github.com/mpx-ecology/language-tools/wiki/Mpx-Compiler-Options)",
       "additionalProperties": false,
       "properties": {
         "optionsComponentCtor": {
@@ -19,6 +19,11 @@
           "type": ["boolean", "null"],
           "default": false,
           "markdownDescription": "跳过 `<template>` 模块的类型检查、定义跳转等等 TS 功能，默认 `false`。\n\n详见：[文档](https://github.com/mpx-ecology/language-tools/wiki/Mpx-Compiler-Options#skiptemplatecheck)"
+        },
+        "templateGlobalDefs": {
+          "type": ["array", "null"],
+          "default": [],
+          "markdownDescription": "为在 `<template>` 模板中使用的全局声明常量提供类型支持，比如编译注入的全局常量 `__version__`，并且在诸如 `global.d.ts` 全局声明文件中声明了类型，那么在组件 `<template>` 模板中使用时能够正确识别声明类型。默认 []。\n\n详见：[文档](https://github.com/mpx-ecology/language-tools/wiki/Mpx-Compiler-Options#templateGlobalDefs)"
         }
       }
     }
