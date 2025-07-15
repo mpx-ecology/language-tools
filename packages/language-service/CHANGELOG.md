@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.4](https://github.com/mpx-ecology/language-tools/compare/v1.0.3...v1.0.4) (2025-07-15)
+
+
+### Features
+
+* **service:** update attrs info ([701fea6](https://github.com/mpx-ecology/language-tools/commit/701fea611252df6891f00336b6fe85ed31fab34d))
+* **service:** wip add the attributes of the tag ([55a9266](https://github.com/mpx-ecology/language-tools/commit/55a9266618dc1983b98f671d8337cf29af00f1aa))
+* **service:** wip add the attributes of the tag ([758f164](https://github.com/mpx-ecology/language-tools/commit/758f164f60544db4aef16994bd6d0802aa8ba509))
+
+
+
+
+
 ## [1.0.3](https://github.com/mpx-ecology/language-tools/compare/v1.0.2...v1.0.3) (2025-07-14)
 
 **Note:** Version bump only for package @mpxjs/language-service
