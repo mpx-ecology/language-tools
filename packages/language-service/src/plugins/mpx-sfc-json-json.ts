@@ -3,6 +3,7 @@ import type { LanguageServicePlugin } from '@volar/language-service'
 import { create as baseCreate } from 'volar-service-json'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode } from '@mpxjs/language-core'
+import mpxJsonSchema from '../data/mpxJsonSchema'
 
 export function create(): LanguageServicePlugin {
   const base = baseCreate({
@@ -17,6 +18,19 @@ export function create(): LanguageServicePlugin {
         ...(await context.env.getConfiguration?.('json.format')),
         // 最后一行换行避免和 </script> 标签同一行
         insertFinalNewline: true,
+      }
+    },
+
+    getLanguageSettings: () => {
+      return {
+        validate: true,
+        schemas: [
+          {
+            uri: 'mpx-json.schema.json',
+            fileMatch: ['*.mpx'],
+            schema: mpxJsonSchema,
+          },
+        ],
       }
     },
   })
