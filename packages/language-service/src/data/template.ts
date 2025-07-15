@@ -1139,7 +1139,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '	radio 标识。当该 radio 选中时，radio-group 的 change 事件会携带 radio 的 value。',
+              'radio 标识。当该 radio 选中时，radio-group 的 change 事件会携带 radio 的 value。',
           },
         },
         {
@@ -1736,7 +1736,52 @@ const data: html.HTMLDataV1 = {
         kind: 'markdown',
         value: `嵌入页面的滚动选择器。其中只可放置 [picker-view-column](${WxCompUrl}/picker-view-column.html) 组件，其它节点不会显示。`,
       },
-      attributes: [],
+      attributes: [
+        {
+          name: 'value',
+          description: {
+            kind: 'markdown',
+            value:
+              '当前选中的下标值，数组格式。\n\n- **类型**：`Array<number>`\n- **说明**：数组中的每个元素对应 `picker-view-column` 的选中下标。',
+          },
+        },
+        {
+          name: 'mask-class',
+          description: {
+            kind: 'markdown',
+            value: '设置蒙层的类名。',
+          },
+        },
+        {
+          name: 'indicator-style',
+          description: {
+            kind: 'markdown',
+            value: '选择器中间选中框的样式，支持 CSS 样式字符串。',
+          },
+        },
+        {
+          name: 'bindchange',
+          description: {
+            kind: 'markdown',
+            value:
+              '滚动选择时触发change事件，event.detail = {value}；value为数组，表示 picker-view 内的 picker-view-column 当前选择的是第几项（下标从 0 开始）。',
+          },
+        },
+        {
+          name: 'bindpickstart',
+          description: {
+            kind: 'markdown',
+            value: '当滚动选择开始时候触发事件。',
+          },
+        },
+        {
+          name: 'bindpickend',
+          description: {
+            kind: 'markdown',
+            value: '当滚动选择结束时候触发事件。',
+          },
+        },
+      ],
       references: [
         { name: WxDocs, url: `${WxCompUrl}/picker-view.html` },
         {
@@ -1766,7 +1811,38 @@ const data: html.HTMLDataV1 = {
         kind: 'markdown',
         value: '从底部弹起的滚动选择器。',
       },
-      attributes: [],
+      attributes: [
+        {
+          name: 'header-text',
+          description: {
+            kind: 'markdown',
+            value: '选择器的标题，仅安卓可用。',
+          },
+        },
+        {
+          name: 'mode',
+          description: {
+            kind: 'markdown',
+            value:
+              '选择器的类型。\n\n- **可选值**：\n  - `selector`（普通选择器）\n  - `multiSelector`（多列选择器）\n  - `time`（时间选择器）\n  - `date`（日期选择器）\n  - `region`（省市区选择器）',
+          },
+        },
+        {
+          name: 'disabled',
+          description: {
+            kind: 'markdown',
+            value:
+              '是否禁用选择器。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+          },
+        },
+        {
+          name: 'bindcancel',
+          description: {
+            kind: 'markdown',
+            value: '取消选择时触发的事件。',
+          },
+        },
+      ],
       references: [
         { name: WxDocs, url: `${WxCompUrl}/picker.html` },
         {
@@ -1781,7 +1857,47 @@ const data: html.HTMLDataV1 = {
         kind: 'markdown',
         value: '图片组件。',
       },
-      attributes: [],
+      attributes: [
+        {
+          name: 'src',
+          description: {
+            kind: 'markdown',
+            value: '图片资源地址。',
+          },
+        },
+        {
+          name: 'mode',
+          description: {
+            kind: 'markdown',
+            value:
+              '图片裁剪、缩放的模式。\n\n- **可选值**：\n  - `scaleToFill`（不保持纵横比缩放图片，使图片的宽高完全拉伸至填满 image 元素）\n  - `aspectFit`（保持纵横比缩放图片，使图片的长边能完全显示出来）\n  - `aspectFill`（保持纵横比缩放图片，只保证图片的短边能完全显示出来）\n  - `widthFix`（宽度不变，高度自动变化，保持原图宽高比不变）\n  - `heightFix`（高度不变，宽度自动变化，保持原图宽高比不变）\n  - `top`（不缩放图片，只显示图片的顶部区域）\n  - `bottom`（不缩放图片，只显示图片的底部区域）\n  - `center`（不缩放图片，只显示图片的中间区域）\n  - `left`（不缩放图片，只显示图片的左边区域）\n  - `right`（不缩放图片，只显示图片的右边区域）\n  - `top left`（不缩放图片，只显示图片的左上边区域）\n  - `top right`（不缩放图片，只显示图片的右上边区域）\n  - `bottom left`（不缩放图片，只显示图片的左下边区域）\n  - `bottom right`（不缩放图片，只显示图片的右下边区域）',
+          },
+        },
+        {
+          name: 'show-menu-by-longpress',
+          description: {
+            kind: 'markdown',
+            value:
+              '是否开启长按图片显示识别小程序码菜单。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+          },
+        },
+        {
+          name: 'binderror',
+          description: {
+            kind: 'markdown',
+            value:
+              '当图片加载出错时触发的事件。\n\n- **事件对象**：`$event.detail.errMsg` 为错误信息。',
+          },
+        },
+        {
+          name: 'bindload',
+          description: {
+            kind: 'markdown',
+            value:
+              '当图片加载完成时触发的事件。\n\n- **事件对象**：\n  - `$event.detail.width` 为图片宽度；\n  - `$event.detail.height` 为图片高度。',
+          },
+        },
+      ],
       references: [
         { name: WxDocs, url: `${WxCompUrl}/image.html` },
         {
@@ -1796,7 +1912,47 @@ const data: html.HTMLDataV1 = {
         kind: 'markdown',
         value: '开关组件。',
       },
-      attributes: [],
+      attributes: [
+        {
+          name: 'checked',
+          description: {
+            kind: 'markdown',
+            value:
+              '初始时是否选中。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+          },
+        },
+        {
+          name: 'disabled',
+          description: {
+            kind: 'markdown',
+            value:
+              '是否禁用开关。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+          },
+        },
+        {
+          name: 'type',
+          description: {
+            kind: 'markdown',
+            value:
+              '开关的样式类型。\n\n- **可选值**：\n  - `switch`（开关样式，默认值）\n  - `checkbox`（复选框样式）',
+          },
+        },
+        {
+          name: 'color',
+          description: {
+            kind: 'markdown',
+            value: '开关的颜色，同 CSS 的 color。仅对 `type="switch"` 有效。',
+          },
+        },
+        {
+          name: 'bindchange',
+          description: {
+            kind: 'markdown',
+            value:
+              '开关状态发生变化时触发的事件。\n\n- **事件对象**：`$event.detail.value` 为当前开关的状态（`true` 或 `false`）。',
+          },
+        },
+      ],
       references: [
         { name: WxDocs, url: `${WxCompUrl}/switch.html` },
         {
@@ -1811,7 +1967,134 @@ const data: html.HTMLDataV1 = {
         kind: 'markdown',
         value: '页面链接。',
       },
-      attributes: [],
+      attributes: [
+        {
+          name: 'target',
+          description: {
+            kind: 'markdown',
+            value:
+              '跳转的目标位置。\n\n- **可选值**：\n  - `self`（当前小程序，默认值）\n  - `miniProgram`（跳转到其他小程序）',
+          },
+        },
+        {
+          name: 'url',
+          description: {
+            kind: 'markdown',
+            value: '当前小程序内的跳转链接。',
+          },
+        },
+        {
+          name: 'open-type',
+          description: {
+            kind: 'markdown',
+            value:
+              '跳转方式。\n\n- **可选值**：\n  - `navigate`（对应 `wx.navigateTo` 的功能，保留当前页面，跳转到应用内的某个页面）\n  - `redirect`（对应 `wx.redirectTo` 的功能，关闭当前页面，跳转到应用内的某个页面）\n  - `switchTab`（对应 `wx.switchTab` 的功能，跳转到 tabBar 页面，并关闭其他所有非 tabBar 页面）\n  - `reLaunch`（对应 `wx.reLaunch` 的功能，关闭所有页面，打开到应用内的某个页面）\n  - `navigateBack`（对应 `wx.navigateBack` 的功能，关闭当前页面，返回上一页面或多级页面）\n  - `exit`（退出小程序，`target="miniProgram"` 时生效）',
+          },
+        },
+        {
+          name: 'delta',
+          description: {
+            kind: 'markdown',
+            value:
+              '当 `open-type="navigateBack"` 时有效，表示回退的层数。\n\n- **类型**：`number`\n- **默认值**：`1`',
+          },
+        },
+        {
+          name: 'app-id',
+          description: {
+            kind: 'markdown',
+            value:
+              '当 target="miniProgram" 且 open-type="navigate" 时有效，要打开的小程序 appId。',
+          },
+        },
+        {
+          name: 'path',
+          description: {
+            kind: 'markdown',
+            value:
+              '当target="miniProgram"且open-type="navigate"时有效，打开的页面路径，如果为空则打开首页。',
+          },
+        },
+        {
+          name: 'extra-data',
+          description: {
+            kind: 'markdown',
+            value:
+              '当target="miniProgram"且open-type="navigate/navigateBack"时有效，需要传递给目标小程序的数据，目标小程序可在 App.onLaunch()，App.onShow() 中获取到这份数据。。',
+          },
+        },
+        {
+          name: 'version',
+          description: {
+            kind: 'markdown',
+            value:
+              '当 `target="miniProgram"` 时有效，要打开的小程序版本。\n\n- **可选值**：\n  - `release`（正式版，默认值）\n  - `trial`（体验版）\n  - `develop`（开发版）',
+          },
+        },
+        {
+          name: 'short-link',
+          description: {
+            kind: 'markdown',
+            value:
+              '当target="miniProgram"时有效，当传递该参数后，可以不传 app-id 和 path。链接可以通过【小程序菜单】->【复制链接】获取。。',
+          },
+        },
+        {
+          name: 'hover-class',
+          description: {
+            kind: 'markdown',
+            value:
+              '指定点击时的样式类，当 `hover-class="none"` 时，没有点击态效果。',
+          },
+        },
+        {
+          name: 'hover-stop-propagation',
+          description: {
+            kind: 'markdown',
+            value:
+              '指定是否阻止本节点的祖先节点出现点击态。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+          },
+        },
+        {
+          name: 'hover-start-time',
+          description: {
+            kind: 'markdown',
+            value: '按住后多久出现点击态，单位为毫秒。\n\n- **默认值**：`50`',
+          },
+        },
+        {
+          name: 'hover-stay-time',
+          description: {
+            kind: 'markdown',
+            value:
+              '手指松开后点击态保留时间，单位为毫秒。\n\n- **默认值**：`600`',
+          },
+        },
+        {
+          name: 'bindsuccess',
+          description: {
+            kind: 'markdown',
+            value:
+              '当target="miniProgram"且open-type="navigate/navigateBack"时有效时有效，跳转小程序成功。',
+          },
+        },
+        {
+          name: 'bindfail',
+          description: {
+            kind: 'markdown',
+            value:
+              '当target="miniProgram"且open-type="navigate/navigateBack"时有效时有效，跳转小程序失败。',
+          },
+        },
+        {
+          name: 'bindcomplete',
+          description: {
+            kind: 'markdown',
+            value:
+              '当target="miniProgram"且open-type="navigate/navigateBack"时有效时有效，跳转小程序完成。',
+          },
+        },
+      ],
       references: [
         { name: WxDocs, url: `${WxCompUrl}/navigator.html` },
         {
@@ -1826,7 +2109,32 @@ const data: html.HTMLDataV1 = {
         kind: 'markdown',
         value: '富文本组件。',
       },
-      attributes: [],
+      attributes: [
+        {
+          name: 'nodes',
+          description: {
+            kind: 'markdown',
+            value:
+              '渲染的节点列表，支持 HTML 字符串或对象数组格式。\n\n- **类型**：`string | Array<object>`\n- **说明**：\n  - 字符串格式：直接支持的 HTML 标签字符串，如 \`<div>文本</div>\`\n  - 对象数组格式：每个对象包含 \`name\`（标签名）、\`attrs\`（属性）、\`children\`（子节点）字段\n- **注意**：不支持所有 HTML 标签，仅支持官方文档规定的安全标签子集',
+          },
+        },
+        {
+          name: 'space',
+          description: {
+            kind: 'markdown',
+            value:
+              '是否显示连续空格。\n\n- **可选值**：\n  - `nbsp`（将连续空格渲染为 &nbsp;）\n  - `emsp`（将连续空格渲染为 &emsp;）\n  - `ensp`（将连续空格渲染为 &ensp;）',
+          },
+        },
+        {
+          name: 'user-select',
+          description: {
+            kind: 'markdown',
+            value:
+              '文本是否可选，该属性会使节点显示为 block。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+          },
+        },
+      ],
       references: [
         { name: WxDocs, url: `${WxCompUrl}/rich-text.html` },
         {
@@ -1841,7 +2149,78 @@ const data: html.HTMLDataV1 = {
         kind: 'markdown',
         value: '画布组件。',
       },
-      attributes: [],
+      attributes: [
+        {
+          name: 'type',
+          description: {
+            kind: 'markdown',
+            value:
+              '指定画布的渲染上下文类型。\n\n- **可选值**：\n  - `2d`（2D渲染上下文，默认值）\n  - `webgl`（WebGL渲染上下文，用于3D绘图）',
+          },
+        },
+        {
+          name: 'canvas-id',
+          description: {
+            kind: 'markdown',
+            value:
+              'canvas 组件的唯一标识符，若指定了 type 则无需再指定该属性。',
+          },
+        },
+        {
+          name: 'disable-scroll',
+          description: {
+            kind: 'markdown',
+            value:
+              '当在 canvas 中移动时且有绑定手势事件时，禁止屏幕滚动以及下拉刷新。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+          },
+        },
+        {
+          name: 'bindtouchstart',
+          description: {
+            kind: 'markdown',
+            value:
+              '手指触摸画布开始时触发的事件。\n\n- **事件对象**：包含触摸点坐标、标识符等信息。',
+          },
+        },
+        {
+          name: 'bindtouchmove',
+          description: {
+            kind: 'markdown',
+            value:
+              '手指在画布上滑动时持续触发的事件。\n\n- **事件对象**：包含触摸点实时坐标等信息。',
+          },
+        },
+        {
+          name: 'bindtouchend',
+          description: {
+            kind: 'markdown',
+            value: '手指离开画布时触发的事件。',
+          },
+        },
+        {
+          name: 'bindtouchcancel',
+          description: {
+            kind: 'markdown',
+            value: '触摸事件被中断时触发的事件（如来电、页面跳转等情况）。',
+          },
+        },
+        {
+          name: 'bindlongtap',
+          description: {
+            kind: 'markdown',
+            value:
+              '手指长按 500ms 之后触发，触发了长按事件后进行移动不会触发屏幕的滚动。',
+          },
+        },
+        {
+          name: 'binderror',
+          description: {
+            kind: 'markdown',
+            value:
+              '画布初始化或渲染过程中发生错误时触发的事件。\n\n- **事件对象**：`$event.detail.errMsg` 为错误信息。',
+          },
+        },
+      ],
       references: [
         { name: WxDocs, url: `${WxCompUrl}/canvas.html` },
         {
@@ -1856,7 +2235,40 @@ const data: html.HTMLDataV1 = {
         kind: 'markdown',
         value: '承载网页的容器。会自动铺满整个页面。',
       },
-      attributes: [],
+      attributes: [
+        {
+          name: 'src',
+          description: {
+            kind: 'markdown',
+            value:
+              'webview 指向网页的链接。\n\n- **说明**：\n  - 可打开关联的公众号的文章；\n  - 其它网页需登录小程序管理后台配置业务域名；\n- **版本支持**：1.6.4+',
+          },
+        },
+        {
+          name: 'bindmessage',
+          description: {
+            kind: 'markdown',
+            value:
+              '网页向小程序 postMessage 时触发的事件。\n\n- **触发时机**：小程序后退、组件销毁、分享、复制链接（2.31.1及以上版本）；\n- **事件对象**：`e.detail = { data }`，其中 `data` 是多次 postMessage 的参数组成的数组；\n- **版本支持**：1.6.4+',
+          },
+        },
+        {
+          name: 'bindload',
+          description: {
+            kind: 'markdown',
+            value:
+              '网页加载成功时触发的事件。\n\n- **事件对象**：`e.detail = { src }`，其中 `src` 为当前加载的网页地址；\n- **版本支持**：1.6.4+',
+          },
+        },
+        {
+          name: 'binderror',
+          description: {
+            kind: 'markdown',
+            value:
+              '网页加载失败时触发的事件。\n\n- **事件对象**：`e.detail = { url, fullUrl }`，其中 `fullUrl` 为加载失败时的完整 url；\n- **版本支持**：1.6.4+',
+          },
+        },
+      ],
       references: [
         { name: WxDocs, url: `${WxCompUrl}/web-view.html` },
         {
@@ -1871,7 +2283,79 @@ const data: html.HTMLDataV1 = {
         kind: 'markdown',
         value: '页面容器。',
       },
-      attributes: [],
+      attributes: [
+        {
+          name: 'show',
+          description: {
+            kind: 'markdown',
+            value:
+              '是否显示容器。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+          },
+        },
+        {
+          name: 'duration',
+          description: {
+            kind: 'markdown',
+            value:
+              '动画时长，单位为毫秒。\n\n- **类型**：`number`\n- **默认值**：`300`',
+          },
+        },
+        {
+          name: 'z-index',
+          description: {
+            kind: 'markdown',
+            value:
+              '容器的层级，用于控制与其他组件的堆叠顺序。\n\n- **类型**：`number`\n- **默认值**：`100`',
+          },
+        },
+        {
+          name: 'overlay',
+          description: {
+            kind: 'markdown',
+            value:
+              '是否显示遮罩层。\n\n- **类型**：`boolean`\n- **默认值**：`true`',
+          },
+        },
+        {
+          name: 'position',
+          description: {
+            kind: 'markdown',
+            value:
+              '容器弹出的位置。\n\n- **可选值**：\n  - `bottom`（从底部弹出，默认值）\n  - `top`（从顶部弹出）\n  - `right`（从右侧弹出）\n  - `left`（从左侧弹出）',
+          },
+        },
+        {
+          name: 'round',
+          description: {
+            kind: 'markdown',
+            value:
+              '是否显示显示圆角。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+          },
+        },
+        {
+          name: 'close-on-slide-down',
+          description: {
+            kind: 'markdown',
+            value:
+              '是否允许向下滑动关闭容器（仅 `position="bottom"` 时有效）。\n\n- **类型**：`boolean`\n- **默认值**：`false`',
+          },
+        },
+        {
+          name: 'overlay-style',
+          description: {
+            kind: 'markdown',
+            value: '遮罩层的样式，支持 CSS 样式字符串。',
+          },
+        },
+        {
+          name: 'custom-style',
+          description: {
+            kind: 'markdown',
+            value:
+              '容器本身的自定义样式，支持 CSS 样式字符串，用于调整容器的外观。',
+          },
+        },
+      ],
       references: [{ name: WxDocs, url: `${WxCompUrl}/page-container.html` }],
     },
   ],
