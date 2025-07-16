@@ -31,29 +31,29 @@ export function create(): LanguageServicePlugin {
 
           const result: vscode.DocumentLink[] = []
 
-          const usingComponents = await root.sfc.json.resolveUsingComponents
+          const { result: usingComponents } =
+            (await root.sfc.json.resolveUsingComponents) || {}
           if (!usingComponents?.size) {
             return result
           }
 
-          for (const [
-            _,
-            {
+          for (const [_, componentsArray] of usingComponents) {
+            for (const {
               text: componentPath,
               offset: componentPathOffset,
               realFilename: targetFilePath,
-            },
-          ] of usingComponents) {
-            result.push({
-              range: {
-                start: document.positionAt(componentPathOffset),
-                end: document.positionAt(
-                  componentPathOffset + componentPath.length,
-                ),
-              },
-              target: targetFilePath,
-              tooltip: `自定义组件：${componentPath}`,
-            })
+            } of componentsArray) {
+              result.push({
+                range: {
+                  start: document.positionAt(componentPathOffset),
+                  end: document.positionAt(
+                    componentPathOffset + componentPath.length,
+                  ),
+                },
+                target: targetFilePath,
+                tooltip: `自定义组件：${componentPath}`,
+              })
+            }
           }
 
           return result

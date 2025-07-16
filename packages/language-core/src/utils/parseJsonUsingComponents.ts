@@ -47,8 +47,11 @@ export function parseUsingComponentsWithJson(
         ts.isStringLiteral(prop.name) &&
         ts.isStringLiteral(prop.initializer)
       ) {
-        // eg: name: 'list', value: '../components/list'
-        usingComponents.set(prop.name.text, {
+        // eg: name: 'list', text: '../components/list'
+        if (!usingComponents.has(prop.name.text)) {
+          usingComponents.set(prop.name.text, [])
+        }
+        usingComponents.get(prop.name.text)!.push({
           text: prop.initializer.text,
           offset: prop.initializer.getStart(sourceFile),
           nameOffset: prop.name.getStart(sourceFile),
@@ -106,7 +109,10 @@ export function parseUsingComponentsWithJs(
             }
 
             if (text) {
-              usingComponents.set(name, {
+              if (!usingComponents.has(name)) {
+                usingComponents.set(name, [])
+              }
+              usingComponents.get(name)!.push({
                 text,
                 offset:
                   _variableOffset ?? prop.initializer.getStart(sourceFile),

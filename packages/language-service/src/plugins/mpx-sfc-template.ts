@@ -62,16 +62,13 @@ export function create(): LanguageServicePlugin {
           provideTags: () => {
             const tags: html.ITagData[] = []
             if (usingComponents?.size) {
-              for (const [
-                componentTag,
-                { text: componentPath },
-              ] of usingComponents) {
+              for (const [componentTag, componentPaths] of usingComponents) {
                 if (!componentTag) {
                   continue
                 }
                 tags.push({
                   name: componentTag,
-                  description: `自定义组件：${componentPath}`,
+                  description: `自定义组件：\n${componentPaths.map(p => p.text).join('\n-')}`,
                   attributes: [],
                 })
               }
@@ -117,8 +114,8 @@ export function create(): LanguageServicePlugin {
           }
           htmlComplete.items.forEach(item => {
             if (usingComponents?.has(item.label)) {
-              const componentPath = usingComponents.get(item.label)?.text
-              if (componentPath) {
+              const componentPaths = usingComponents.get(item.label)
+              if (componentPaths?.length) {
                 item.labelDetails = {
                   description: `自定义组件`,
                 }

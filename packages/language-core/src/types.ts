@@ -150,11 +150,11 @@ export interface UsingComponentInfo {
 export interface ResolvedUsingComponentInfo extends UsingComponentInfo {
   realFilename?: string
 }
-export type SfcJsonBlockUsingComponents = Map<string, UsingComponentInfo>
-export type SfcJsonResolvedBlockUsingComponents = Map<
-  string,
-  ResolvedUsingComponentInfo
->
+export type SfcJsonBlockUsingComponents = Map<string, UsingComponentInfo[]>
+export type SfcJsonResolvedBlockUsingComponents = {
+  result: Map<string, ResolvedUsingComponentInfo[]>
+  errors: UsingComponentInfo[]
+}
 
 export interface Sfc {
   content: string

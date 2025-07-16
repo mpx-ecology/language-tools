@@ -2,6 +2,7 @@
   <view>
     {{ msg }} - {{ count }}
     <list />
+    <list-var></list-var>
     <list-alias />
   </view>
 </template>
@@ -30,6 +31,8 @@ defineProps<{
   const aliConfig = {
     component: true,
     usingComponents: {
+      "list": '../components/list1.mpx',
+      "list-error-path": '../components/list-error.mpx',
       "list-alias": "@/script-json/components/list.mpx"
     }
   };
