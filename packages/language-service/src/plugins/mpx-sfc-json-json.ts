@@ -1,9 +1,9 @@
 import type * as vscode from 'vscode-languageserver-protocol'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { create as baseCreate } from 'volar-service-json'
+import mpxJsonSchema from '../data/mpxJsonSchema'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode } from '@mpxjs/language-core'
-import mpxJsonSchema from '../data/mpxJsonSchema'
 
 export function create(): LanguageServicePlugin {
   const base = baseCreate({
@@ -38,10 +38,7 @@ export function create(): LanguageServicePlugin {
   return {
     name: 'mpx-json-json',
 
-    capabilities: {
-      ...base.capabilities,
-      documentLinkProvider: {},
-    },
+    capabilities: base.capabilities,
 
     create(context) {
       if (!context.project.mpx) {
@@ -53,57 +50,43 @@ export function create(): LanguageServicePlugin {
       return {
         ...baseInstance,
 
-        async provideDocumentLinks(document) {
+        async provideDiagnostics(document) {
           const uri = URI.parse(document.uri)
           const decoded = context.decodeEmbeddedDocumentUri(uri)
           if (!decoded) {
             return
           }
           const [documentUri, embeddedCodeId] = decoded
-          if (embeddedCodeId !== 'json_json') {
+          if (!/json_(js|json)/.test(embeddedCodeId)) {
             return
           }
           const sourceScript = context.language.scripts.get(documentUri)
-          const virtualCode =
-            sourceScript?.generated?.embeddedCodes.get(embeddedCodeId)
-          if (!sourceScript?.generated || virtualCode?.id !== 'json_json') {
-            return
-          }
-
-          const root = sourceScript.generated.root
+          const root = sourceScript?.generated?.root
           if (!(root instanceof MpxVirtualCode) || !root.sfc.json) {
             return
           }
 
-          const result: vscode.DocumentLink[] = []
+          const jsonErrors: vscode.Diagnostic[] = []
 
-          const usingComponents = await root.sfc.json.resolveUsingComponents
-
-          if (!usingComponents?.size) {
-            return result
+          const { errors } = (await root.sfc.json.resolveUsingComponents) || {}
+          if (!errors?.length) {
+            return jsonErrors
           }
 
-          for (const [
-            _,
-            {
-              text: componentPath,
-              offset: componentPathOffset,
-              realFilename: targetFilePath,
-            },
-          ] of usingComponents) {
-            result.push({
+          for (const { text, offset } of errors) {
+            jsonErrors.push({
               range: {
-                start: document.positionAt(componentPathOffset),
-                end: document.positionAt(
-                  componentPathOffset + componentPath.length,
-                ),
+                start: document.positionAt(offset),
+                end: document.positionAt(offset + text.length),
               },
-              target: targetFilePath,
-              tooltip: `自定义组件：${componentPath}`,
+              severity: 1 satisfies typeof vscode.DiagnosticSeverity.Error,
+              // code: '1001',
+              source: 'mpx-json',
+              message: `找不到对应路径文件：'${text}'，请检查文件路径是否正确。`,
             })
           }
 
-          return result
+          return jsonErrors
         },
       }
     },
