@@ -68,7 +68,10 @@ export function create(): LanguageServicePlugin {
                 }
                 tags.push({
                   name: componentTag,
-                  description: `自定义组件：\n${componentPaths.map(p => p.text).join('\n-')}`,
+                  description: {
+                    kind: 'markdown',
+                    value: `自定义组件：\n- ${componentPaths.map(p => p.text).join('\n- ')}`,
+                  },
                   attributes: [],
                 })
               }
