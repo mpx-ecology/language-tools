@@ -128,7 +128,7 @@ export function computedSfc(
         return ts.createSourceFile('', '', 100 satisfies ts.ScriptTarget.JSON)
       })
       const getUsingComponents = computed(() =>
-        parseUsingComponents(ts, getAst()),
+        parseUsingComponents(ts, getAst(), base.lang),
       )
       const getResolvedUsingComponents = computed(() => {
         for (const plugin of plugins) {

@@ -1,6 +1,8 @@
 <template>
   <view>
     {{ msg }} - {{ count }}
+    <list />
+    <list-alias />
   </view>
 </template>
 
@@ -17,8 +19,20 @@ defineProps<{
 </style>
 
 <script name="json">
-  const wxConfig: any = { component: true, usingComponents: {} };
-  const aliConfig = { component: true, usingComponents: {} };
+  const listPath = '../components/list.mpx'
+  const wxConfig: any = {
+    component: true,
+    usingComponents: {
+      list: '../components/list.mpx'
+      "list-var": listPath
+    }
+  };
+  const aliConfig = {
+    component: true,
+    usingComponents: {
+      "list-alias": "@/script-json/components/list.mpx"
+    }
+  };
   let finalConfig = null;
   if (__mpx_mode__ === "ali") {
     finalConfig = aliConfig1;
