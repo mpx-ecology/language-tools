@@ -265,28 +265,27 @@ export function create(): LanguageServicePlugin {
 
           const tags = sfcDataProvider?.provideTags()
 
-          const scriptLangs = getLangs('script')
           const scriptItems = result.items.filter(
             item => item.label === 'script' || item.label === 'script setup',
           )
           for (const scriptItem of scriptItems) {
             scriptItem.kind = 17 satisfies typeof vscode.CompletionItemKind.File
             scriptItem.detail = '.js'
-            for (const lang of scriptLangs) {
-              result.items.push({
-                ...scriptItem,
-                detail: `.${lang}`,
-                kind: 17 satisfies typeof vscode.CompletionItemKind.File,
-                label: scriptItem.label + ' lang="' + lang + '"',
-                textEdit: scriptItem.textEdit
-                  ? {
-                      ...scriptItem.textEdit,
-                      newText:
-                        scriptItem.textEdit.newText + ' lang="' + lang + '"',
-                    }
-                  : undefined,
-              })
-            }
+            result.items.push({
+              ...scriptItem,
+              detail: '.ts',
+              kind: 17 satisfies typeof vscode.CompletionItemKind.File,
+              label: scriptItem.label + ' lang="ts"',
+              textEdit: scriptItem.textEdit
+                ? {
+                    ...scriptItem.textEdit,
+                    newText:
+                      scriptItem.textEdit.newText +
+                      ' lang="ts"' +
+                      `>\n</script>`,
+                  }
+                : undefined,
+            })
           }
 
           result.items.forEach(item => {
@@ -313,33 +312,6 @@ export function create(): LanguageServicePlugin {
             }
           }
 
-          const templateLangs = getLangs('template')
-          const templateItem = result.items.find(
-            item => item.label === 'template',
-          )
-          if (templateItem) {
-            templateItem.kind =
-              17 satisfies typeof vscode.CompletionItemKind.File
-            templateItem.detail = '.html'
-            for (const lang of templateLangs) {
-              if (lang === 'html') {
-                continue
-              }
-              result.items.push({
-                ...templateItem,
-                kind: 17 satisfies typeof vscode.CompletionItemKind.File,
-                detail: `.${lang}`,
-                label: templateItem.label + ' lang="' + lang + '"',
-                textEdit: templateItem.textEdit
-                  ? {
-                      ...templateItem.textEdit,
-                      newText:
-                        templateItem.textEdit.newText + ' lang="' + lang + '"',
-                    }
-                  : undefined,
-              })
-            }
-          }
           return result
 
           function getLangs(label: string) {
