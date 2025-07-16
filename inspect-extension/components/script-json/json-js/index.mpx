@@ -23,7 +23,7 @@ defineProps<{
   const wxConfig: any = {
     component: true,
     usingComponents: {
-      list: '../components/list.mpx'
+      list: '../components/list.mpx',
       "list-var": listPath
     }
   };
@@ -35,7 +35,7 @@ defineProps<{
   };
   let finalConfig = null;
   if (__mpx_mode__ === "ali") {
-    finalConfig = aliConfig1;
+    finalConfig = aliConfig;
   } else {
     finalConfig = wxConfig;
   }
