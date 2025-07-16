@@ -54,36 +54,6 @@ export async function formatUsingComponentsPath(
         return { error: true }
       }
     }
-
-    // 先检查原始路径是否存在
-    try {
-      const stats = fs.statSync(basePath)
-      if (stats.isFile()) {
-        formattedFilePath = basePath
-      } else {
-        // 路径存在但不是文件，返回错误
-        return { error: true }
-      }
-    } catch (err) {
-      // 原始路径不存在，尝试添加 .mpx 后缀再次检查
-      if (!componentPath.endsWith('.mpx')) {
-        const mpxPath = basePath + '.mpx'
-        try {
-          const stats = fs.statSync(mpxPath)
-          if (stats.isFile()) {
-            formattedFilePath = mpxPath
-          } else {
-            return { error: true }
-          }
-        } catch (err) {
-          // 添加 .mpx 后缀的路径也不存在
-          return { error: true }
-        }
-      } else {
-        // 已有 .mpx 后缀但路径不存在
-        return { error: true }
-      }
-    }
   } else {
     const result = await findResult(
       [
@@ -92,7 +62,6 @@ export async function formatUsingComponentsPath(
       ],
       fn => fn(),
     )
-    console.log('---> debug 111', result)
     if (result) {
       formattedFilePath = result
     } else {
