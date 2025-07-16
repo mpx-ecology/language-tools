@@ -21,6 +21,9 @@ createComponent({
 
 <script type="application/json">
   {
-    "component": true
+    "component": true,
+    "backgroundColor": "#ffffff",
+    "backgroundTextStyle": "light",
+    "renderer": "skyline"
   }
 </script>
