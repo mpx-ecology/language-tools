@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.1](https://github.com/mpx-ecology/language-tools/compare/v1.2.0...v1.2.1) (2025-07-17)
+
+
+### Bug Fixes
+
+* review ([6dda9c7](https://github.com/mpx-ecology/language-tools/commit/6dda9c7e18327a211b6539c89b94887c1b554e9c))
+* **service:** resolve valueSet conflict with html default data ([8ca48bd](https://github.com/mpx-ecology/language-tools/commit/8ca48bd44909846efdb5c1b12d023a4e659c95d4))
+* update completion provider ([102613a](https://github.com/mpx-ecology/language-tools/commit/102613a16798b028b9ce7fce2c54758e474ca160))
+* update custom component description format to use markdown ([19097d9](https://github.com/mpx-ecology/language-tools/commit/19097d90c17619469a77f0b288a4bc04721a735e))
+
+
+### Features
+
+* **service:** wip update arribute description message ([51b919b](https://github.com/mpx-ecology/language-tools/commit/51b919b478da44dae44ded6b49833bcd0deb4eb5))
+* **service:** wip update arribute description message ([0bc968d](https://github.com/mpx-ecology/language-tools/commit/0bc968d1d677dd9738f91bd1a0e70d4ab44f85f0))
+
+
+
+
+
 # [1.2.0](https://github.com/mpx-ecology/language-tools/compare/v1.0.4...v1.2.0) (2025-07-16)
 
 
