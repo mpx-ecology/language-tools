@@ -18,8 +18,9 @@
 | 语法高亮                                     | ✅     | ✅            |
 | SFC blocks 语言支持                          | ✅     | ✅            |
 | Emmet 支持                                   | ✅     | ✅            |
-| \<template\> 原生组件标签及属性补全提示      | ✅     | ✅ (enhanced) |
+| 代码片段 snippets                            | ✅     | ✅ (enhanced) |
 | 格式化 formatter                             | ✅     | ✅ (enhanced) |
+| \<template\> 原生组件标签及属性补全提示      | ✅     | ✅ (enhanced) |
 | 关联 tsconfig 配置                           | ✅     | ✅ (enhanced) |
 | 支持 Monorepo                                | ❌     | ✅            |
 | 支持选择 typescript 版本                     | ❌     | ✅            |

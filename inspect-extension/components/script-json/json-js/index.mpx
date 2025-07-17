@@ -4,6 +4,7 @@
     <list />
     <list-var></list-var>
     <list-alias />
+    <list-from-dir></list-from-dir>
   </view>
 </template>
 
@@ -25,7 +26,8 @@ defineProps<{
     component: true,
     usingComponents: {
       list: '../components/list.mpx',
-      "list-var": listPath
+      "list-var": listPath,
+      "list-from-dir": '../components'
     }
   };
   const aliConfig = {
@@ -33,7 +35,8 @@ defineProps<{
     usingComponents: {
       "list": '../components/list1.mpx',
       "list-error-path": '../components/list-error.mpx',
-      "list-alias": "@/script-json/components/list.mpx"
+      "list-alias": "@/script-json/components/list.mpx",
+      "list-from-dir": '@/script-json/components'
     }
   };
   let finalConfig = null;
