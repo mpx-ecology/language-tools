@@ -315,8 +315,6 @@ export function create(): LanguageServicePlugin {
               item.insertTextFormat =
                 2 satisfies typeof vscode.InsertTextFormat.Snippet
               item.detail = isJsonJs ? '.js' : '.json'
-              item.insertTextFormat =
-                2 satisfies typeof vscode.InsertTextFormat.Snippet
               item.label = `${item.label}${label ? ' | ' + label : ''}`
               item.textEdit = item.textEdit
                 ? {
