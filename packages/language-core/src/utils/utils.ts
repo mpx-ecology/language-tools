@@ -24,8 +24,12 @@ export async function findResult<T, R>(
   callback: (item: T) => Promise<R>,
 ): Promise<R | undefined> {
   for (const item of arr) {
-    const result = await callback(item)
-    if (result) return result
+    try {
+      const result = await callback(item)
+      if (result) return result
+    } catch (error) {
+      return undefined
+    }
   }
 }
 

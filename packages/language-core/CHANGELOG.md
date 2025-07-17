@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/mpx-ecology/language-tools/compare/v1.0.4...v1.2.0) (2025-07-16)
+
+
+### Bug Fixes
+
+* review ([0ea6118](https://github.com/mpx-ecology/language-tools/commit/0ea6118b60eefdf486ad00813ae1287792e56716))
+
+
+### Features
+
+* enhance json usingComponents paths handler and add errors diagnostics for mpx json ([a0bc4dc](https://github.com/mpx-ecology/language-tools/commit/a0bc4dcd6f05b32d533124229c16f59f03c37783))
+* **service:** support usingComponents document link for json-js ([a819598](https://github.com/mpx-ecology/language-tools/commit/a8195986d14b8c43cfd3599b17e99fd7cc2c3fcc))
+
+
+
+
+
+## [1.0.4](https://github.com/mpx-ecology/language-tools/compare/v1.0.3...v1.0.4) (2025-07-15)
+
+**Note:** Version bump only for package @mpxjs/language-core
+
+
+
+
+
 ## [1.0.3](https://github.com/mpx-ecology/language-tools/compare/v1.0.2...v1.0.3) (2025-07-14)
 
 **Note:** Version bump only for package @mpxjs/language-core

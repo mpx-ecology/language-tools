@@ -109,7 +109,8 @@ export function create(): LanguageServicePlugin {
           // #region document link for component tag
           const templateNodeTags =
             codegen?.getGeneratedTemplate()?.templateNodeTags ?? []
-          const usingComponents = await sfc.json?.resolveUsingComponents
+          const { result: usingComponents } =
+            (await sfc.json?.resolveUsingComponents) || {}
           if (usingComponents?.size) {
             for (const nodeTag of templateNodeTags) {
               const {
@@ -120,20 +121,53 @@ export function create(): LanguageServicePlugin {
               if (!usingComponents.has(componentTag) || !startTagOffset) {
                 continue
               }
-              const { text: componentPath, realFilename: targetFilePath } =
-                usingComponents.get(componentTag)!
-              const addLink = (offset: number) => {
-                result.push({
-                  range: {
-                    start: document.positionAt(offset),
-                    end: document.positionAt(offset + componentTag.length),
-                  },
-                  target: targetFilePath,
-                  tooltip: `自定义组件：${componentPath}`,
-                })
+              const rawComponentPaths = usingComponents.get(componentTag)!
+
+              // 根据 text 字段去重，创建一个映射表保存唯一的路径
+              const uniqueComponentMap = new Map<
+                string,
+                {
+                  componentPath: string
+                  targetFilePath: string
+                  id: number
+                }
+              >()
+
+              let _index = 1
+              rawComponentPaths.forEach(path => {
+                if (!uniqueComponentMap.has(path.text) && path.realFilename) {
+                  uniqueComponentMap.set(path.text, {
+                    componentPath: path.text,
+                    targetFilePath: path.realFilename,
+                    id: _index++,
+                  })
+                }
+              })
+
+              const uniqueComponentCount = uniqueComponentMap.size
+
+              for (const [
+                componentPath,
+                { targetFilePath, id },
+              ] of uniqueComponentMap.entries()) {
+                const addLink = (offset: number) => {
+                  result.push({
+                    range: {
+                      start: document.positionAt(offset),
+                      end: document.positionAt(offset + componentTag.length),
+                    },
+                    target: targetFilePath,
+                    tooltip:
+                      '自定义组件' +
+                      (uniqueComponentCount > 1
+                        ? `（来源 ${id}/${uniqueComponentCount}）`
+                        : '') +
+                      `：${componentPath}`,
+                  })
+                }
+                addLink(startTagOffset)
+                endTagOffset && addLink(endTagOffset)
               }
-              addLink(startTagOffset)
-              endTagOffset && addLink(endTagOffset)
             }
           }
           // #endregion

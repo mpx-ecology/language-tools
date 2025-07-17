@@ -16,17 +16,21 @@ export function* generateJsonUsingComponents(
 
   yield `type __MPX_jsonComponents = {${newLine}`
 
-  for (const [
-    componentName,
-    {
+  for (const [componentName, componentPaths] of usingComponents) {
+    for (const {
       text: componentPath,
       offset: componentPathOffset,
       // nameOffset: componentNameOffset,
-    },
-  ] of usingComponents) {
-    yield `${componentName}: typeof import('`
+    } of componentPaths) {
+      yield `${componentName}: typeof import('`
 
-    yield [componentPath, 'scriptSetup', componentPathOffset, codeFeatures.all]
+      yield [
+        componentPath,
+        'scriptSetup',
+        componentPathOffset,
+        codeFeatures.all,
+      ]
+    }
 
     yield `)'${newLine}`
   }

@@ -57,24 +57,41 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
     ) {
       const { promise, resolve } =
         withResolvers<SfcJsonResolvedBlockUsingComponents>()
-      const result: SfcJsonResolvedBlockUsingComponents = new Map()
+      const result: SfcJsonResolvedBlockUsingComponents['result'] = new Map()
+      const errors: SfcJsonResolvedBlockUsingComponents['errors'] = []
 
       Promise.allSettled(
         [...usingComponents.entries()].map(async ([name, info]) => {
-          const resolvedFilename = await formatUsingComponentsPath(
-            info.text,
-            uri,
-            compilerOptions,
-          )
+          await Promise.allSettled(
+            info.map(async info => {
+              if (!info.text) {
+                return
+              }
 
-          if (resolvedFilename) {
-            result.set(name, {
-              ...info,
-              realFilename: resolvedFilename,
-            })
-          }
+              const { result: resolvedFilename, error } =
+                (await formatUsingComponentsPath(
+                  info.text,
+                  uri,
+                  compilerOptions,
+                )) || {}
+
+              // 路径错误收集
+              if (error) {
+                errors.push(info)
+                return
+              } else if (resolvedFilename) {
+                if (!result.has(name)) {
+                  result.set(name, [])
+                }
+                result.get(name)!.push({
+                  ...info,
+                  realFilename: resolvedFilename,
+                })
+              }
+            }),
+          )
         }),
-      ).then(() => resolve(result))
+      ).then(() => resolve({ result, errors }))
 
       return promise
     },

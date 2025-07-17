@@ -59,7 +59,7 @@ export function* generateScript(
       yield `/// <reference path=".mpx-global-types/${getGlobalTypesFileName(options.mpxCompilerOptions)}" />${newLine}`
     }
   } else {
-    yield `/// <reference path="./__VLS_fake.d.ts" />${newLine}`
+    yield `/* mpx_reference_placeholder */${newLine}`
   }
 
   yield `/// <reference types="miniprogram-api-typings" />${newLine}`
