@@ -257,57 +257,79 @@ export function create(): LanguageServicePlugin {
           if (!result) {
             return
           }
-          result.items = result.items.filter(
-            item =>
-              item.label !== '!DOCTYPE' &&
-              item.label !== 'Custom Blocks' &&
-              item.label !== 'data-',
-          )
 
           const tags = sfcDataProvider?.provideTags()
 
           const scriptItems = result.items.filter(
             item => item.label === 'script' || item.label === 'script setup',
           )
+
           for (const scriptItem of scriptItems) {
             scriptItem.kind = 17 satisfies typeof vscode.CompletionItemKind.File
-            scriptItem.detail = '.js'
-            scriptItem.textEdit = scriptItem.textEdit
-              ? {
-                  ...scriptItem.textEdit,
-                  newText: scriptItem.textEdit.newText + `>\n</script>`,
-                }
-              : undefined
-
-            for (const { label, code } of scriptSnippets.optionsAPI) {
-              result.items.push({
-                ...scriptItem,
-                detail: '.ts',
-                kind: 17 satisfies typeof vscode.CompletionItemKind.File,
-                label: scriptItem.label + ' lang="ts"' + ` | ${label}`,
-                textEdit: scriptItem.textEdit
-                  ? {
-                      ...scriptItem.textEdit,
-                      newText:
-                        scriptItem.textEdit.newText +
-                        ` lang="ts">\n` +
-                        code +
-                        `\n</script>`,
-                    }
-                  : undefined,
-              })
+            const scriptLabel = scriptItem.label
+            const snippetsCode =
+              scriptSnippets[
+                scriptLabel === 'script' ? 'optionsAPI' : 'compositionAPI'
+              ]
+            for (const [prefixText, lang] of [
+              [scriptLabel, '.js'],
+              [scriptLabel + ' lang="ts"', '.ts'],
+            ]) {
+              for (const { label, code, description = '' } of snippetsCode) {
+                const newText = `${prefixText}>\n${code}\n</script>`
+                result.items.push({
+                  detail: lang,
+                  insertTextFormat:
+                    2 satisfies typeof vscode.InsertTextFormat.Snippet,
+                  kind: 17 satisfies typeof vscode.CompletionItemKind.File,
+                  label: `${prefixText}${label ? ' | ' + label : ''}`,
+                  textEdit: scriptItem.textEdit
+                    ? {
+                        ...scriptItem.textEdit,
+                        newText,
+                      }
+                    : undefined,
+                  documentation: {
+                    kind: 'markdown',
+                    value:
+                      '- ' + description + '\n```ts\n\<' + newText + '\n```',
+                  },
+                })
+              }
             }
           }
 
-          result.items.forEach(item => {
-            if (item.label === 'script name="json"') {
+          const jsonItems = result.items.filter(
+            item =>
+              item.label === 'script name="json"' ||
+              item.label === 'script type="application/json"',
+          )
+
+          for (const item of jsonItems) {
+            const isJsonJs = item.label === 'script name="json"'
+            const snippetsCode =
+              scriptSnippets[isJsonJs ? 'jsonJs' : 'jsonJson']
+            for (const { label, code, description = '' } of snippetsCode) {
+              const newText = `${item.label}>\n${code}\n</script>`
               item.kind = 17 satisfies typeof vscode.CompletionItemKind.File
-              item.detail = '.js'
-            } else if (item.label === 'script type="application/json"') {
-              item.kind = 17 satisfies typeof vscode.CompletionItemKind.File
-              item.detail = '.json'
+              item.insertTextFormat =
+                2 satisfies typeof vscode.InsertTextFormat.Snippet
+              item.detail = isJsonJs ? '.js' : '.json'
+              item.insertTextFormat =
+                2 satisfies typeof vscode.InsertTextFormat.Snippet
+              item.label = `${item.label}${label ? ' | ' + label : ''}`
+              item.textEdit = item.textEdit
+                ? {
+                    ...item.textEdit,
+                    newText,
+                  }
+                : undefined
+              item.documentation = {
+                kind: 'markdown',
+                value: '- ' + description + '\n```ts\n\<' + newText + '\n```',
+              }
             }
-          })
+          }
 
           const styleLangs = getLangs('style')
           const styleItem = result.items.find(item => item.label === 'style')
@@ -318,10 +340,20 @@ export function create(): LanguageServicePlugin {
               result.items.push(
                 getStyleCompletionItem(styleItem, lang),
                 getStyleCompletionItem(styleItem, lang, 'scoped'),
-                getStyleCompletionItem(styleItem, lang, 'module'),
+                // getStyleCompletionItem(styleItem, lang, 'module'),
               )
             }
           }
+
+          result.items = result.items.filter(
+            item =>
+              item.label !== '!DOCTYPE' &&
+              item.label !== 'Custom Blocks' &&
+              item.label !== 'data-' &&
+              item.label !== 'script' &&
+              item.label !== 'script setup' &&
+              item.label !== 'style',
+          )
 
           return result
 
@@ -363,6 +395,7 @@ function getStyleCompletionItem(
 ): vscode.CompletionItem {
   return {
     ...styleItem,
+    insertTextFormat: 2 satisfies typeof vscode.InsertTextFormat.Snippet,
     kind: 17 satisfies typeof vscode.CompletionItemKind.File,
     detail: lang === 'postcss' ? '.css' : `.${lang}`,
     label: styleItem.label + ' lang="' + lang + '"' + (attr ? ` ${attr}` : ''),
@@ -374,7 +407,8 @@ function getStyleCompletionItem(
             ' lang="' +
             lang +
             '"' +
-            (attr ? ` ${attr}` : ''),
+            (attr ? ` ${attr}` : '') +
+            `>\n$1\n</style>`,
         }
       : undefined,
   }
