@@ -315,7 +315,7 @@ export function create(): LanguageServicePlugin {
               item.insertTextFormat =
                 2 satisfies typeof vscode.InsertTextFormat.Snippet
               item.detail = isJsonJs ? '.js' : '.json'
-              item.label = `${item.label}${label ? ' | ' + label : ''}`
+              item.label = `json | ${item.label}${label ? ' | ' + label : ''}`
               item.textEdit = item.textEdit
                 ? {
                     ...item.textEdit,
@@ -345,12 +345,13 @@ export function create(): LanguageServicePlugin {
 
           result.items = result.items.filter(
             item =>
-              item.label !== '!DOCTYPE' &&
-              item.label !== 'Custom Blocks' &&
-              item.label !== 'data-' &&
-              item.label !== 'script' &&
-              item.label !== 'script setup' &&
-              item.label !== 'style',
+              (item.label !== '!DOCTYPE' &&
+                item.label !== 'Custom Blocks' &&
+                item.label !== 'data-' &&
+                item.label !== 'script' &&
+                item.label !== 'script setup' &&
+                item.label !== 'style') ||
+              (item.label === 'script setup' && item.insertTextFormat === 2),
           )
 
           return result
