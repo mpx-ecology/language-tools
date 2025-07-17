@@ -84,8 +84,6 @@ createComponent({
 <script type="application/json">
   {
     "component": true,
-    "usingComponents": {
-      "wxFor": "@/options/components/wxFor.mpx"
-    }
+    "usingComponents": {}
   }
 </script>

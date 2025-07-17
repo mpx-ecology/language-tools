@@ -24,7 +24,9 @@ createPage({})
       "list": "../components/list", // 允许末行尾随逗号，
       "list-alias": "@/script-json/components/list.mpx",
       "list-error-path1": "../components/list-error", // 允许末行尾随逗号，
-      "list-error-path2": "@/script-json/components/list-error.mpx"
+      "list-error-path2": "@/script-json/components/list-error.mpx",
+      "list-from-dir-1": "@/script-json/components",
+      "list-from-dir-2": "../components",
     }
   }
 </script>

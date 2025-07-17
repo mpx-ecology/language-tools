@@ -25,10 +25,13 @@ export async function formatUsingComponentsPath(
 
   let formattedFilePath = ''
 
-  const isRealFile = (filePath: string) => {
+  const isRealFile = (filePath: string, checkDir = false) => {
     try {
       const stats = fs.statSync(filePath, { throwIfNoEntry: false })
-      return stats && stats.isFile()
+      if (checkDir) {
+        return stats?.isDirectory()
+      }
+      return stats?.isFile()
     } catch {
       return false
     }
@@ -38,14 +41,18 @@ export async function formatUsingComponentsPath(
     const basePath = path.join(uriToFileName(uri), '..', componentPath)
 
     if (!componentPath.endsWith('.mpx')) {
-      const filePath = basePath + '.mpx'
+      let filePath = basePath + '.mpx'
+      if (isRealFile(basePath, true)) {
+        // 如果是文件夹，则默认寻找目录下的 /index.mpx
+        filePath = path.join(basePath, 'index.mpx')
+      }
       if (isRealFile(filePath)) {
         formattedFilePath = filePath
       } else {
         return { error: true }
       }
     } else {
-      // double check, eg: './list.mpx' -> './list.mpx.mpx'
+      // double check for edge case. eg: './list.mpx' -> './list.mpx.mpx'
       if (isRealFile(basePath)) {
         formattedFilePath = basePath
       } else if (isRealFile(basePath + '.mpx')) {

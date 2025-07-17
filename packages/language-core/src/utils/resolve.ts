@@ -1,6 +1,7 @@
 import type * as ts from 'typescript'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import * as enhancedResolve from 'enhanced-resolve'
 import { MatchPathAsync, createMatchPathAsync } from 'tsconfig-paths'
 import { withResolvers } from './utils'
 
@@ -143,24 +144,6 @@ export async function tryResolveByTsConfig(
     extensions: ['.mpx'],
   })
 }
-
-export function reolveAbsolutePath(componentPath: string): string {
-  // 按优先级补充完整路径再尝试访问
-  if (componentPath.endsWith('.mpx')) {
-    if (fs.existsSync(componentPath)) {
-      return componentPath
-    }
-  } else {
-    if (fs.existsSync(componentPath + '.mpx')) {
-      return componentPath + '.mpx'
-    } else if (fs.existsSync(componentPath + '/index.mpx')) {
-      return componentPath + '/index.mpx'
-    }
-  }
-  return ''
-}
-
-import * as enhancedResolve from 'enhanced-resolve'
 
 let _resolver: enhancedResolve.ResolveFunctionAsync
 
