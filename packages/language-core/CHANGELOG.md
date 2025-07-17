@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.2](https://github.com/mpx-ecology/language-tools/compare/v1.2.1...v1.2.2) (2025-07-17)
+
+
+### Bug Fixes
+
+* resolve directory path of usingComponents ([66dcc5b](https://github.com/mpx-ecology/language-tools/commit/66dcc5be5e102e8bff336ea634db4953f403c004))
+
+
+
+
+
 ## [1.2.1](https://github.com/mpx-ecology/language-tools/compare/v1.2.0...v1.2.1) (2025-07-17)
 
 **Note:** Version bump only for package @mpxjs/language-core
