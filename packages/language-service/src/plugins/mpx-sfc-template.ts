@@ -163,6 +163,9 @@ export function create(): LanguageServicePlugin {
         !mpxBuiltInTagsSet.has(htmlTag.name) &&
         !extraData.provideTags().some(tag => tag.name === htmlTag.name),
     )
+    // @ts-ignore
+    // 避免 html button type 补全时出现 bt 的 valueSet 冲突
+    delete htmlBuilInData2._valueSetMap?.['bt']
     extraCustomData = [extraData]
     htmlBuilInData = [htmlBuilInData2]
     onDidChangeCustomDataListeners.forEach(l => l())
