@@ -9,6 +9,7 @@ import { create as createHtmlService } from 'volar-service-html'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode } from '@mpxjs/language-core'
 import sfcBlocksData from '../data/sfcBlocks'
+import { scriptSnippets } from '../utils/snippets'
 
 let sfcDataProvider: html.IHTMLDataProvider | undefined
 
@@ -271,21 +272,31 @@ export function create(): LanguageServicePlugin {
           for (const scriptItem of scriptItems) {
             scriptItem.kind = 17 satisfies typeof vscode.CompletionItemKind.File
             scriptItem.detail = '.js'
-            result.items.push({
-              ...scriptItem,
-              detail: '.ts',
-              kind: 17 satisfies typeof vscode.CompletionItemKind.File,
-              label: scriptItem.label + ' lang="ts"',
-              textEdit: scriptItem.textEdit
-                ? {
-                    ...scriptItem.textEdit,
-                    newText:
-                      scriptItem.textEdit.newText +
-                      ' lang="ts"' +
-                      `>\n</script>`,
-                  }
-                : undefined,
-            })
+            scriptItem.textEdit = scriptItem.textEdit
+              ? {
+                  ...scriptItem.textEdit,
+                  newText: scriptItem.textEdit.newText + `>\n</script>`,
+                }
+              : undefined
+
+            for (const { label, code } of scriptSnippets.optionsAPI) {
+              result.items.push({
+                ...scriptItem,
+                detail: '.ts',
+                kind: 17 satisfies typeof vscode.CompletionItemKind.File,
+                label: scriptItem.label + ' lang="ts"' + ` | ${label}`,
+                textEdit: scriptItem.textEdit
+                  ? {
+                      ...scriptItem.textEdit,
+                      newText:
+                        scriptItem.textEdit.newText +
+                        ` lang="ts">\n` +
+                        code +
+                        `\n</script>`,
+                    }
+                  : undefined,
+              })
+            }
           }
 
           result.items.forEach(item => {
