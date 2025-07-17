@@ -197,7 +197,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '下拉刷新默认样式',
           },
-          valueSet: 't',
           values: [
             { name: 'black', description: '黑色' },
             { name: 'white', description: '白色' },
@@ -428,7 +427,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '切换缓动动画类型\n- 默认值："default"',
           },
-          valueSet: 't',
           values: [
             { name: 'default', description: '默认缓动函数' },
             { name: 'linear', description: '线性动画' },
@@ -443,7 +441,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '切换方向\n- 默认值："all"',
           },
-          valueSet: 't',
           values: [
             { name: 'all', description: '默认' },
             {
@@ -554,7 +551,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '移动方向\n- 默认值："none"',
           },
-          valueSet: 't',
           values: [
             { name: 'all', description: '水平垂直方向' },
             { name: 'vertical', description: '垂直方向' },
@@ -745,7 +741,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '图标类型',
           },
-          valueSet: 't',
           values: [
             { name: 'success', description: '成功' },
             { name: 'success_no_circle', description: '成功（无图标）' },
@@ -825,7 +820,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '按钮大小\n- 默认值：default',
           },
-          valueSet: 't',
           values: [
             { name: 'default', description: '默认大小' },
             { name: 'mini', description: '小尺寸' },
@@ -837,7 +831,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '按钮样式类型\n- 默认值：default',
           },
-          valueSet: 't',
           values: [
             { name: 'primary', description: '绿色' },
             { name: 'default', description: '白色' },
@@ -871,7 +864,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '用于form组件，触发submit/reset事件',
           },
-          valueSet: 't',
           values: [
             { name: 'submit', description: '提交' },
             { name: 'reset', description: '重置' },
@@ -884,7 +876,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '微信开放能力',
           },
-          valueSet: 't',
           values: [
             { name: 'contact', description: '客服会话' },
             {
@@ -936,7 +927,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '返回用户信息的语言\n- 默认值：zh_CN',
           },
-          valueSet: 't',
           values: [
             { name: 'zh_CN', description: '中文' },
             { name: 'zh_TW', description: '繁体中文' },
@@ -1322,7 +1312,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '输入框类型\n- 默认值：text',
           },
-          valueSet: 't',
           values: [
             { name: 'text', description: '文本输入键盘' },
             { name: 'number', description: '数字输入键盘' },
@@ -1396,7 +1385,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '键盘右下角按钮文字（仅type="text"时有效）\n- 默认值：done',
           },
-          valueSet: 't',
           values: [
             { name: 'done', description: '完成' },
             { name: 'go', description: '前往' },
@@ -1691,7 +1679,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '键盘右下角按钮文字\n- 默认值：return',
           },
-          valueSet: 't',
           values: [
             { name: 'send', description: '发送' },
             { name: 'search', description: '搜索' },
@@ -1714,7 +1701,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '键盘对齐位置\n- 默认值：cursor',
           },
-          valueSet: 't',
           values: [
             { name: 'cursor', description: '对齐光标' },
             { name: 'bottom', description: '对齐输入框底部' },
@@ -1866,7 +1852,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '选择器类型\n- 默认值：selector',
           },
-          valueSet: 't',
           values: [
             { name: 'selector', description: '选择器-普通' },
             { name: 'multiSelector', description: '选择器-多列' },
@@ -1918,7 +1903,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '图片裁剪/缩放模式\n- 默认值：scaleToFill',
           },
-          valueSet: 't',
           values: [
             { name: 'scaleToFill', description: '缩放模式-拉伸填满' },
             { name: 'aspectFit', description: '缩放模式-长边显示' },
@@ -1993,7 +1977,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '样式类型\n- 默认值：switch',
           },
-          valueSet: 't',
           values: [
             { name: 'switch', description: '默认，开关样式' },
             { name: 'checkbox', description: '复选框样式' },
@@ -2036,7 +2019,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '跳转目标\n- 默认值：self',
           },
-          valueSet: 't',
           values: [
             { name: 'self', description: '当前小程序' },
             { name: 'miniProgram', description: '其他小程序' },
@@ -2055,7 +2037,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '跳转方式\n- 默认值：navigate',
           },
-          valueSet: 't',
           values: [
             { name: 'navigate', description: '保留当前页，wx.navigateTo' },
             { name: 'redirect', description: '关闭当前页，wx.redirectTo' },
@@ -2103,7 +2084,6 @@ const data: html.HTMLDataV1 = {
             value:
               '目标小程序版本（target=miniProgram时有效）\n- 默认值：release',
           },
-          valueSet: 't',
           values: [
             { name: 'release', description: '正式版' },
             { name: 'trial', description: '体验版' },
@@ -2200,7 +2180,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '连续空格显示方式\n- 默认值：nbsp',
           },
-          valueSet: 't',
           values: [
             { name: 'nbsp', description: '&nbsp;' },
             { name: 'emsp', description: '&emsp;' },
@@ -2236,7 +2215,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '渲染上下文类型\n- 默认值：2d',
           },
-          valueSet: 't',
           values: [
             { name: '2d', description: '2D' },
             { name: 'webgl', description: '3D绘图' },
@@ -2396,7 +2374,6 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value: '弹出位置\n- 默认值：bottom',
           },
-          valueSet: 't',
           values: [
             { name: 'bottom', description: '底部' },
             { name: 'top', description: '顶部' },
