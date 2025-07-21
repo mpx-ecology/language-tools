@@ -1,9 +1,9 @@
 import type * as vscode from 'vscode-languageserver-protocol'
 import type { LanguageServicePlugin } from '@volar/language-service'
-import { create as baseCreate } from 'volar-service-json'
-import mpxJsonSchema from '../data/mpxJsonSchema'
 import { URI } from 'vscode-uri'
+import { create as baseCreate } from 'volar-service-json'
 import { MpxVirtualCode } from '@mpxjs/language-core'
+import mpxJsonSchema from '../data/mpxJsonSchema'
 
 export function create(): LanguageServicePlugin {
   const base = baseCreate({
@@ -50,7 +50,7 @@ export function create(): LanguageServicePlugin {
       return {
         ...baseInstance,
 
-        async provideDiagnostics(document) {
+        async provideDiagnostics(document, token) {
           const uri = URI.parse(document.uri)
           const decoded = context.decodeEmbeddedDocumentUri(uri)
           if (!decoded) {
@@ -66,15 +66,17 @@ export function create(): LanguageServicePlugin {
             return
           }
 
-          const jsonErrors: vscode.Diagnostic[] = []
+          const diagnostics =
+            (await baseInstance.provideDiagnostics?.(document, token)) ?? []
 
           const { errors } = (await root.sfc.json.resolveUsingComponents) || {}
           if (!errors?.length) {
-            return jsonErrors
+            return diagnostics
           }
 
+          // 收集路径错误
           for (const { text, offset } of errors) {
-            jsonErrors.push({
+            diagnostics.push({
               range: {
                 start: document.positionAt(offset),
                 end: document.positionAt(offset + text.length),
@@ -86,7 +88,7 @@ export function create(): LanguageServicePlugin {
             })
           }
 
-          return jsonErrors
+          return diagnostics
         },
       }
     },
