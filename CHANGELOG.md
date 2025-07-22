@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.4](https://github.com/mpx-ecology/language-tools/compare/v1.2.3...v1.2.4) (2025-07-22)
+
+
+### Bug Fixes
+
+* enhance `wx:If` processing logic for static string ([65dbfae](https://github.com/mpx-ecology/language-tools/commit/65dbfaef6625a27adb7291b4ddaf8ec50bd70a36))
+* refine `wx:if` handling and improve whitespace management in templates ([216a2ff](https://github.com/mpx-ecology/language-tools/commit/216a2ff3f26809161e736a6fddec0598f9e4930c))
+* review ([95f0bfa](https://github.com/mpx-ecology/language-tools/commit/95f0bfa0b831341aa037e9dd4dd3ce4587fe4978))
+
+
+### Features
+
+* enhance `wx:if` handling and support compiler error diagnostics for templates ([0151bf4](https://github.com/mpx-ecology/language-tools/commit/0151bf43508c696cda3d289fb1a73fd0c2d1126c))
+* resolve node modules by filename ([c3384e8](https://github.com/mpx-ecology/language-tools/commit/c3384e8720d64ad9336c75eb7f579dccc8e4b162))
+
+
+
+
+
 ## [1.2.3](https://github.com/mpx-ecology/language-tools/compare/v1.2.2...v1.2.3) (2025-07-21)
 
 
