@@ -368,9 +368,14 @@ function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
 
     const children = transformMpxTemplateNodes([node], options)
 
+    let isExpression = true
     if (ifBranch.value) {
       stripSourceLocationQuotes(ifBranch.value.loc)
-      stripSourceLocationBrace(ifBranch.value.loc)
+      stripSpaces(ifBranch.value.loc)
+      isExpression = stripListSourceLocationText(
+        ['{{'],
+        ['}}'],
+      )(ifBranch.value.loc)
     }
 
     if (ifBranch.name) stripSourceLocationSource('wx:', '')(ifBranch.nameLoc)
@@ -383,7 +388,7 @@ function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
           : ({
               type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
               content: ifBranch.value?.loc.source ?? '',
-              isStatic: false,
+              isStatic: !isExpression,
               constType: CompilerDOM.ConstantTypes.NOT_CONSTANT,
               loc: ifBranch.value?.loc ?? emptySourceLocation(),
             } satisfies CompilerDOM.ExpressionNode),
