@@ -5,7 +5,13 @@ import type { TemplateCodegenOptions } from './index'
 import * as CompilerDOM from '@vue/compiler-dom'
 import { generateInterpolation } from './interpolation'
 import { generateElementChildren } from './elementChildren'
-import { collectVars, createTsAst, endOfLine, newLine } from '../utils'
+import {
+  collectVars,
+  createTsAst,
+  endOfLine,
+  generateStringLiteralKey,
+  newLine,
+} from '../utils'
 
 export function* generateWxFor(
   options: TemplateCodegenOptions,
@@ -54,17 +60,30 @@ export function* generateWxFor(
   yield `] of `
   if (source.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
     yield `__VLS_getWxForSourceType(`
-    yield* generateInterpolation(
-      options,
-      ctx,
-      'template',
-      ctx.codeFeatures.all,
-      source.content,
-      source.loc.start.offset,
-      source.loc,
-      `(`,
-      `)`,
-    )
+    if (source.isStatic) {
+      yield* [
+        '(',
+        ...generateStringLiteralKey(
+          source.content,
+          source.loc.start.offset,
+          ctx.codeFeatures.all,
+          `"`,
+        ),
+        ')',
+      ]
+    } else {
+      yield* generateInterpolation(
+        options,
+        ctx,
+        'template',
+        ctx.codeFeatures.all,
+        source.content,
+        source.loc.start.offset,
+        source.loc,
+        `(`,
+        `)`,
+      )
+    }
     yield `!)`
   } else {
     yield `{} as any`

@@ -819,14 +819,29 @@
           },
           "patterns": [
             {
-              "begin": "(?<=('|\"|`))",
-              "end": "(?=\\1)",
+              "begin": "(?<=('|\"|`))\\s*(\\{\\{)",
+              "beginCaptures": {
+                "2": {
+                  "name": "punctuation.definition.interpolation.begin.html.mpx"
+                }
+              },
+              "end": "(\\}\\})\\s*(?=\\1)",
+              "endCaptures": {
+                "1": {
+                  "name": "punctuation.definition.interpolation.end.html.mpx"
+                }
+              },
               "name": "source.ts.embedded.html.mpx",
               "patterns": [
                 {
                   "include": "source.ts#expression"
                 }
               ]
+            },
+            {
+              "begin": "(?<=('|\"|`))",
+              "end": "(?=\\1)",
+              "name": "string.quoted.html.mpx"
             }
           ]
         },
