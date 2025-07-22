@@ -65,7 +65,7 @@ export async function formatUsingComponentsPath(
     const result = await findResult(
       [
         () => tryResolveByTsConfig(componentPath, compilerOption),
-        () => tryResolvePackage(componentPath),
+        () => tryResolvePackage(componentPath, uri),
       ],
       fn => fn(),
     )

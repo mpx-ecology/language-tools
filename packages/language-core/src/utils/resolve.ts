@@ -147,15 +147,19 @@ export async function tryResolveByTsConfig(
 
 let _resolver: enhancedResolve.ResolveFunctionAsync
 
-export async function tryResolvePackage(uri: string) {
+export async function tryResolvePackage(uri: string, baseUri: string) {
   const { promise, resolve, reject } = withResolvers<string | undefined>()
 
   const resolver = (_resolver ??= enhancedResolve.create({
     extensions: ['.mpx'],
   }))
 
-  // TODO: recursive resolve parent node_modules?
-  resolver({}, path.join(process.cwd(), 'node_modules'), uri, (err, result) => {
+  const baseDir =
+    fs.existsSync(baseUri) && fs.statSync(baseUri).isDirectory()
+      ? baseUri
+      : path.dirname(baseUri)
+
+  resolver({}, baseDir, uri, (err, result) => {
     if (err) return reject(err)
     resolve(result || undefined)
   })
