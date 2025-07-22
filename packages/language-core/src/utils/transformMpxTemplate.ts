@@ -371,7 +371,6 @@ function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
     let isExpression = true
     if (ifBranch.value) {
       stripSourceLocationQuotes(ifBranch.value.loc)
-      stripSpaces(ifBranch.value.loc)
       isExpression = stripListSourceLocationText(
         ['{{'],
         ['}}'],
