@@ -46,30 +46,6 @@
     <view wx:elif="{{hello}}">
       msg is undefined or status.message is undefined
     </view>
-
-    <!-- Bad Case: 字符串永远为 truthy -->
-    <view wx:if="msg">
-      msg should be string: {{ msg }}
-    </view>
-
-    <!-- Bad Case: 空格会被 mpx 识别为 truthy -->
-    <view wx:if=" ">
-      Should be always truthy
-    </view>
-
-    <!-- Bad Case: 静态变量永远为 truthy -->
-    <view wx:elif="{{ 12 }}">
-      Should be always truthy
-    </view>
-
-    <!-- Bad Case: {{ }} 前后带空格会导致 mpx 编译时错误 -->
-    <view wx:elif=" {{ msg }}">
-      Should be error because of space with {{ }}
-    </view>
-
-    <!-- Bad Case: {{ }} 前后带空格会导致 mpx 编译时错误 -->
-    <view wx:if="  {{status?.message && msg}}">{{ msg }} {{ status.message }}</view>
-
   </view>
 </template>
 

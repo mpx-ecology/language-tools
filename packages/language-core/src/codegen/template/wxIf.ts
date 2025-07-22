@@ -37,6 +37,7 @@ export function* generateWxIf(
             branch.condition.content,
             branch.condition.loc.start.offset,
             ctx.codeFeatures.all,
+            `"`,
           ),
           ')',
         ]
