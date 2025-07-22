@@ -15,7 +15,8 @@
   "categories": [
     "Programming Languages",
     "Linters",
-    "Formatters"
+    "Formatters",
+    "Snippets"
   ],
   "engines": {
     "vscode": "^1.88.0"
