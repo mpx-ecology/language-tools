@@ -9,7 +9,7 @@ export function* generateStringLiteralKey(
   quotes = `'`,
 ): Generator<Code> {
   if (offset === undefined || !info) {
-    yield `'${code}'`
+    yield `${quotes}${code}${quotes}`
   } else {
     yield* wrapWith(
       offset,
