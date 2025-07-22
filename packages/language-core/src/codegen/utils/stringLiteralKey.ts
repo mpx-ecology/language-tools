@@ -6,17 +6,18 @@ export function* generateStringLiteralKey(
   code: string,
   offset?: number,
   info?: MpxCodeInformation,
+  quotes = `'`,
 ): Generator<Code> {
   if (offset === undefined || !info) {
-    yield `'${code}'`
+    yield `${quotes}${code}${quotes}`
   } else {
     yield* wrapWith(
       offset,
       offset + code.length,
       info,
-      `'`,
+      quotes,
       [code, 'template', offset, combineLastMapping],
-      `'`,
+      quotes,
     )
   }
 }

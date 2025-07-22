@@ -13,6 +13,7 @@ import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-servic
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
 import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
 import { create as createMpxTemplatePlugin } from './plugins/mpx-sfc-template'
+import { create as createMpxTemplateCompilerErrorsPlugin } from './plugins/mpx-sfc-template-compiler-errors'
 import { create as createMpxCSSPlugin } from './plugins/mpx-sfc-css'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
 import { create as createMpxTemplateLinksPlugin } from './plugins/mpx-sfc-template-links'
@@ -60,6 +61,7 @@ function getCommonLanguageServicePlugins(
   return [
     createMpxSfcPlugin(),
     createMpxTemplatePlugin(),
+    createMpxTemplateCompilerErrorsPlugin(),
     createMpxCSSPlugin(),
     // createMpxJsonJsPlugin(ts, getTsPluginClient),
     createMpxJsonJsonPlugin(),

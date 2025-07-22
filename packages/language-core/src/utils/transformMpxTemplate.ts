@@ -368,9 +368,14 @@ function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
 
     const children = transformMpxTemplateNodes([node], options)
 
+    let isExpression = true
     if (ifBranch.value) {
       stripSourceLocationQuotes(ifBranch.value.loc)
-      stripSourceLocationBrace(ifBranch.value.loc)
+      checkExpressionBraceError(ifBranch.value.loc)
+      isExpression = stripListSourceLocationText(
+        ['{{'],
+        ['}}'],
+      )(ifBranch.value.loc)
     }
 
     if (ifBranch.name) stripSourceLocationSource('wx:', '')(ifBranch.nameLoc)
@@ -383,7 +388,7 @@ function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
           : ({
               type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
               content: ifBranch.value?.loc.source ?? '',
-              isStatic: false,
+              isStatic: !isExpression,
               constType: CompilerDOM.ConstantTypes.NOT_CONSTANT,
               loc: ifBranch.value?.loc ?? emptySourceLocation(),
             } satisfies CompilerDOM.ExpressionNode),
@@ -392,6 +397,22 @@ function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
       mpxCondition: ifBranch.nameLoc
         .source as CompilerDOM.IfBranchNode['mpxCondition'],
     } satisfies CompilerDOM.IfBranchNode
+
+    function checkExpressionBraceError(loc: CompilerDOM.SourceLocation) {
+      const trimedSource = loc.source.trim()
+      if (trimedSource.startsWith('{{') && trimedSource.endsWith('}}')) {
+        const _loc = transformErrorLocation(loc)
+        if (stripSpaces(loc)) {
+          options.onError?.({
+            code: 'wx:if',
+            name: '',
+            message:
+              'wx:if 双括号表达式前后不应该包含空格，否则会导致编译时错误。',
+            loc: _loc,
+          })
+        }
+      }
+    }
   }
 }
 
@@ -468,4 +489,22 @@ function visitNode<T extends Node>(
   }
 
   return
+}
+
+function transformErrorLocation(
+  loc: CompilerDOM.SourceLocation,
+): CompilerDOM.SourceLocation {
+  return {
+    start: {
+      offset: loc.start.offset,
+      column: -1,
+      line: -1,
+    },
+    end: {
+      offset: loc.end.offset,
+      column: -1,
+      line: -1,
+    },
+    source: '',
+  }
 }
