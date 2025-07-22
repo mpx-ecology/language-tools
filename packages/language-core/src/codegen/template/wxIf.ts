@@ -4,7 +4,7 @@ import type { TemplateCodegenOptions } from './index'
 
 import * as CompilerDOM from '@vue/compiler-dom'
 import { toString } from 'muggle-string'
-import { newLine } from '../utils'
+import { generateStringLiteralKey, newLine } from '../utils'
 import { generateElementChildren } from './elementChildren'
 import { generateInterpolation } from './interpolation'
 
@@ -29,19 +29,33 @@ export function* generateWxIf(
     let addedBlockCondition = false
 
     if (branch.condition?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
-      const codes = [
-        ...generateInterpolation(
-          options,
-          ctx,
-          'template',
-          ctx.codeFeatures.all,
-          branch.condition.content,
-          branch.condition.loc.start.offset,
-          branch.condition.loc,
-          `(`,
-          `)`,
-        ),
-      ]
+      let codes: Code[]
+      if (branch.condition.isStatic) {
+        codes = [
+          '(',
+          ...generateStringLiteralKey(
+            branch.condition.content,
+            branch.condition.loc.start.offset,
+            ctx.codeFeatures.all,
+            `"`,
+          ),
+          ')',
+        ]
+      } else {
+        codes = [
+          ...generateInterpolation(
+            options,
+            ctx,
+            'template',
+            ctx.codeFeatures.all,
+            branch.condition.content,
+            branch.condition.loc.start.offset,
+            branch.condition.loc,
+            `(`,
+            `)`,
+          ),
+        ]
+      }
       yield* codes
       ctx.blockConditions.push(toString(codes))
       addedBlockCondition = true

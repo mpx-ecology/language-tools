@@ -134,9 +134,7 @@ export function create(): LanguageServicePlugin {
             const { startTagEnd = Infinity, endTagStart = -Infinity } =
               template ?? {}
 
-            for (const error of mpxSfc.errors.concat(
-              sfc.template?.errors ?? [],
-            )) {
+            for (const error of mpxSfc.errors) {
               if ('code' in error) {
                 const start = error.loc?.start.offset ?? 0
                 const end = error.loc?.end.offset ?? 0
