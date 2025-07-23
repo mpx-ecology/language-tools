@@ -82,7 +82,7 @@ export function create(): LanguageServicePlugin {
                 end: document.positionAt(offset + text.length),
               },
               severity: 1 satisfies typeof vscode.DiagnosticSeverity.Error,
-              // code: '1001',
+              code: '4001',
               source: 'mpx-json',
               message: `找不到对应路径文件：'${text}'，请检查文件路径是否正确。`,
             })
