@@ -300,8 +300,12 @@ export function computedSfc(
       const errors: CompilerDOM.CompilerError[] = []
       const warnings: CompilerDOM.CompilerError[] = []
       let options: CompilerDOM.CompilerOptions = {
-        onError: (err: CompilerDOM.CompilerError) => errors.push(err),
-        onWarn: (err: CompilerDOM.CompilerError) => warnings.push(err),
+        onError: (err: CompilerDOM.CompilerError) => {
+          filterErrors(err, errors)
+        },
+        onWarn: (err: CompilerDOM.CompilerError) => {
+          filterErrors(err, warnings)
+        },
         expressionPlugins: ['typescript'],
       }
 
@@ -435,4 +439,22 @@ export function computedSfc(
 function mergeObject<T, K>(a: T, b: K): T & K {
   return Object.defineProperties(a, Object.getOwnPropertyDescriptors(b)) as T &
     K
+}
+
+/**
+ * 过滤 Vue compiler-core 编译时检测的 Vue 强相关 Errors
+ * 根据 Vue 错误码（https://github.com/vuejs/core/blob/main/packages/compiler-core/src/errors.ts#L155）
+ * 发现：
+ * - 0 ~ 24 的错误码是比较通用的模板编译错误可以保留，
+ * - > 24 的错误码是 Vue 强相关的错误，需要过滤。
+ * Mpx 模板编译转换的错误码从 1000 开始递增，避免与 Vue 的错误码冲突。
+ */
+function filterErrors(
+  error: CompilerDOM.CompilerError,
+  errors: CompilerDOM.CompilerError[],
+) {
+  if (error.code && +error.code > 24 && +error.code < 1000) {
+    return
+  }
+  errors.push(error)
 }

@@ -2,6 +2,7 @@ import * as CompilerDOM from '@vue/compiler-dom'
 import type { Node } from '../internalTypes'
 import { findResultSync } from '../utils/utils'
 import { CompilerOptions } from '@vue/compiler-dom'
+import { MpxErrorCodes, createMpxCompilerError } from './errors'
 
 function shouldCombineIfBranchNode(
   prevCondition: CompilerDOM.IfBranchNode['mpxCondition'],
@@ -274,7 +275,11 @@ function tryProcessWxFor(node: ElNode, options: CompilerOptions) {
 
       const contentLoc = prop.value!.loc
       stripSourceLocationQuotes(contentLoc)
-      checkExpressionBraceError(contentLoc, options, 'wx:for')
+      checkExpressionBraceError(
+        contentLoc,
+        options,
+        MpxErrorCodes.TEMPLATE_WX_FOR_VALUE_BRACE,
+      )
       const isExpression = stripListSourceLocationText(
         ['{{'],
         ['}}'],
@@ -377,7 +382,11 @@ function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
     let isExpression = true
     if (ifBranch.value) {
       stripSourceLocationQuotes(ifBranch.value.loc)
-      checkExpressionBraceError(ifBranch.value.loc, options, 'wx:if')
+      checkExpressionBraceError(
+        ifBranch.value.loc,
+        options,
+        MpxErrorCodes.TEMPLATE_WX_IF_VALUE_BRACE,
+      )
       isExpression = stripListSourceLocationText(
         ['{{'],
         ['}}'],
@@ -484,18 +493,13 @@ function visitNode<T extends Node>(
 function checkExpressionBraceError(
   loc: CompilerDOM.SourceLocation,
   options: CompilerOptions,
-  name: string,
+  errorCode: MpxErrorCodes,
 ) {
   const trimedSource = loc.source.trim()
   if (trimedSource.startsWith('{{') && trimedSource.endsWith('}}')) {
     const _loc = transformErrorLocation(loc)
     if (stripSpaces(loc)) {
-      options.onError?.({
-        code: name,
-        name: '',
-        message: `${name} 双括号表达式前后不应该包含空格，否则会导致编译时错误。`,
-        loc: _loc,
-      })
+      options.onError?.(createMpxCompilerError(errorCode, _loc))
     }
   }
 }
