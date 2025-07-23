@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.6](https://github.com/mpx-ecology/language-tools/compare/v1.2.4...v1.2.6) (2025-07-23)
+
+
+### Bug Fixes
+
+* review ([90979a8](https://github.com/mpx-ecology/language-tools/commit/90979a83bc7c12d6471b57ad8da7cbf7044142bb))
+
+
+### Features
+
+* implement compiler errors handling for mpx template transformations ([d282594](https://github.com/mpx-ecology/language-tools/commit/d28259420b593ba4ea94eb6b59ffaf0828c68e56))
+
+
+
+
+
 ## [1.2.5](https://github.com/mpx-ecology/language-tools/compare/v1.2.4...v1.2.5) (2025-07-23)
 
 **Note:** Version bump only for package @mpxjs/language-core

@@ -1,7 +1,7 @@
 {
   "name": "mpx-official",
   "private": true,
-  "version": "1.2.5",
+  "version": "1.2.6",
   "icon": "images/icon.png",
   "displayName": "Mpx (Official)",
   "description": "Official Mpx language support for Visual Studio Code",
