@@ -7,7 +7,7 @@ export interface MpxCompilerError extends CompilerError {
 export function createMpxCompilerError(
   code: MpxErrorCodes,
   loc?: SourceLocation,
-  messages?: { [code: number]: string },
+  messages?: string,
 ): MpxCompilerError {
   const msg = messages || mpxErrorMessages[code]
   const error = new SyntaxError(String(msg)) as MpxCompilerError
