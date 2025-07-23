@@ -180,10 +180,10 @@ const stripSourceLocationQuotes = combine(
 /**
  * `{{` `}}`
  */
-const stripSourceLocationBrace = combine(
-  stripSpaces,
-  stripListSourceLocationText(['{{'], ['}}']),
-)
+// const stripSourceLocationBrace = combine(
+//   stripSpaces,
+//   stripListSourceLocationText(['{{'], ['}}']),
+// )
 
 const eventPrefixList = [
   'bind',
@@ -240,6 +240,7 @@ function tryProcessWxFor(node: ElNode, options: CompilerOptions) {
       if (!prop) {
         return
       }
+
       function createVarNode(
         node: CompilerDOM.AttributeNode | undefined,
         defaultText: string,
@@ -273,18 +274,23 @@ function tryProcessWxFor(node: ElNode, options: CompilerOptions) {
 
       const contentLoc = prop.value!.loc
       stripSourceLocationQuotes(contentLoc)
-      stripSourceLocationBrace(contentLoc)
+      checkExpressionBraceError(contentLoc, options, 'wx:for')
+      const isExpression = stripListSourceLocationText(
+        ['{{'],
+        ['}}'],
+      )(contentLoc)
 
       const valueNode = createVarNode(value, 'item')
       const indexNode = createVarNode(index, 'index')
       const source = {
         constType: 0,
         content: contentLoc.source,
-        isStatic: false,
+        isStatic: !isExpression,
         loc: contentLoc,
         type: CompilerDOM.NodeTypes.SIMPLE_EXPRESSION,
       } satisfies CompilerDOM.ExpressionNode
       const children = transformMpxTemplateNodes([node], options)
+
       return {
         type: CompilerDOM.NodeTypes.FOR,
         valueAlias: valueNode,
@@ -371,7 +377,7 @@ function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
     let isExpression = true
     if (ifBranch.value) {
       stripSourceLocationQuotes(ifBranch.value.loc)
-      checkExpressionBraceError(ifBranch.value.loc)
+      checkExpressionBraceError(ifBranch.value.loc, options, 'wx:if')
       isExpression = stripListSourceLocationText(
         ['{{'],
         ['}}'],
@@ -397,22 +403,6 @@ function tryProcessWxIf(node: ElNode, options: CompilerOptions) {
       mpxCondition: ifBranch.nameLoc
         .source as CompilerDOM.IfBranchNode['mpxCondition'],
     } satisfies CompilerDOM.IfBranchNode
-
-    function checkExpressionBraceError(loc: CompilerDOM.SourceLocation) {
-      const trimedSource = loc.source.trim()
-      if (trimedSource.startsWith('{{') && trimedSource.endsWith('}}')) {
-        const _loc = transformErrorLocation(loc)
-        if (stripSpaces(loc)) {
-          options.onError?.({
-            code: 'wx:if',
-            name: '',
-            message:
-              'wx:if 双括号表达式前后不应该包含空格，否则会导致编译时错误。',
-            loc: _loc,
-          })
-        }
-      }
-    }
   }
 }
 
@@ -489,6 +479,25 @@ function visitNode<T extends Node>(
   }
 
   return
+}
+
+function checkExpressionBraceError(
+  loc: CompilerDOM.SourceLocation,
+  options: CompilerOptions,
+  name: string,
+) {
+  const trimedSource = loc.source.trim()
+  if (trimedSource.startsWith('{{') && trimedSource.endsWith('}}')) {
+    const _loc = transformErrorLocation(loc)
+    if (stripSpaces(loc)) {
+      options.onError?.({
+        code: name,
+        name: '',
+        message: `${name} 双括号表达式前后不应该包含空格，否则会导致编译时错误。`,
+        loc: _loc,
+      })
+    }
+  }
 }
 
 function transformErrorLocation(

@@ -1,0 +1,35 @@
+<template>
+  <view class="list">
+    <!-- Bad Case1: 字面量会当作字符串解构，不会导致编译时报错但一般属于错误写法 -->
+    <view wx:for="listData" wx:key="*this">
+      <!-- 这里 item 等于 'l','i','s','t','D','a','t','a'，相当于解构 [..."listData"] -->
+      {{ item }}
+    </view>
+
+    <!-- Bad Case2: 和 wx:if 一样，wx:for 双括号表达式前后不应该包含空格，否则会导致编译时错误。 -->
+    <view wx:for=" {{listData}} " wx:key="*this">
+      {{ item }}
+    </view>
+  </view>
+</template>
+
+<script setup lang="ts">
+const listData = ['手机', '电视', '电脑']
+const listData2 = ['手机', '电视', undefined]
+
+defineExpose({
+  listData,
+  listData2
+ })
+</script>
+
+<style lang="stylus">
+  .list
+    background-color red
+</style>
+
+<script type="application/json">
+  {
+    "component": true
+  }
+</script>
