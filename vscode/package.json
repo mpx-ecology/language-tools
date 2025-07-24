@@ -235,6 +235,11 @@
           "type": "integer",
           "default": 120,
           "markdownDescription": "%template.format.wrapLineLength.desc%"
+        },
+        "mpx.format.style.stylus": {
+          "type": "object",
+          "default": {},
+          "markdownDescription": "%style.stylus.format.desc%"
         }
       }
     },

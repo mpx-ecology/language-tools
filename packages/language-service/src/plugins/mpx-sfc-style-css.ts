@@ -16,7 +16,7 @@ export function create(): LanguageServicePlugin {
   return {
     ...base,
 
-    name: 'mpx-css',
+    name: 'mpx-style-css',
 
     create(context) {
       const baseInstance = base.create(context)

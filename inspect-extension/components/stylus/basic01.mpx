@@ -44,11 +44,13 @@
 
 <style lang="stylus">
 @import './basic01.styl'
+
 .list
-  display: flex
-  flex-direction: column
-  align-items: center
-  justify-content: center
-  height: 100vh
-  background-color: #f0f0f0
+	// 注释
+	display flex // 注释
+	flex-direction column
+	align-items center
+	justify-content center
+	height 100vh
+	background-color #f0f0f0
 </style>

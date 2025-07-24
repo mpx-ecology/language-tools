@@ -25,6 +25,7 @@
     "@volar/language-service": "catalog:",
     "@volar/typescript": "catalog:",
     "@vue/compiler-dom": "catalog:",
+    "stylus-supremacy": "^4.0.0",
     "volar-service-css": "0.0.64",
     "volar-service-emmet": "0.0.63",
     "volar-service-html": "0.0.64",
