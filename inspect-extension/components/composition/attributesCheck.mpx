@@ -17,8 +17,16 @@
               {{ item }}
             </view>
           </swiper-item>
-      </block>
-    </swiper>
+        </block>
+      </swiper>
+      <input
+        bind:blur="inputBlur"
+        bindfocus="inputFocus"
+        type="number"
+        placeholder="11"
+        placeholder-style="color: #ccc;"
+        maxlength="{{11}}"
+      />
     </view>
   </view>
 </template>
@@ -34,6 +42,14 @@ const onSwiperChange = (e: any) => {
 
 const backgroundList = ['bg1', 'bg2', 'bg3'] as const
 
+
+const inputBlur = (e: any) => {
+  console.log('input blur', e.detail.value)
+}
+const inputFocus = (e: any) => {
+  console.log('input focus', e.detail.value)
+}
+
 defineExpose({
   hello,
   onSwiperChange,
@@ -41,6 +57,8 @@ defineExpose({
   autoplay: true,
   interval: 3000,
   duration: 500,
-  backgroundList
+  backgroundList,
+  inputBlur,
+  inputFocus,
 })
 </script>
