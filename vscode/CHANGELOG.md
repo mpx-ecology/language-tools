@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.8](https://github.com/mpx-ecology/language-tools/compare/v1.2.7...v1.2.8) (2025-07-24)
+
+
+### Features
+
+* support stylus formatting with `stylus-supremacy` ([b1a6aaa](https://github.com/mpx-ecology/language-tools/commit/b1a6aaa57b6bc3bf4eabc7bdd4520cdd1a226e67))
+
+
+
+
+
 ## [1.2.7](https://github.com/mpx-ecology/language-tools/compare/v1.2.6...v1.2.7) (2025-07-24)
 
 **Note:** Version bump only for package mpx-official
