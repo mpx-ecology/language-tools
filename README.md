@@ -114,7 +114,7 @@ For details on our planned features and future direction, please refer to our [R
 [vue-language-tools]: https://github.com/vuejs/language-tools
 [mpx-deep-wiki]: https://deepwiki.com/mpx-ecology/language-tools
 [mpx-vscode-wiki]: https://github.com/mpx-ecology/language-tools/wiki
-[roadmap]: https://github.com/mpx-ecology/language-tools/wiki/Roadmap
+[roadmap]: https://github.com/mpx-ecology/language-tools/discussions/4
 [Johnson Chu]: https://github.com/johnsoncodehk
 [pagnkelly]: https://github.com/pagnkelly
 [Soon Wang]: https://github.com/wangshunnn
