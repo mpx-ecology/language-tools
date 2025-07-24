@@ -317,7 +317,7 @@ function tryProcessWxFor(node: ElNode, options: CompilerOptions) {
       } satisfies CompilerDOM.ForNode
     }
   } catch (error) {
-    console.warn('[MPX] Failed to process wx:for:', error)
+    console.warn('[Mpx] Failed to process wx:for:', error)
     return undefined
   }
 }
