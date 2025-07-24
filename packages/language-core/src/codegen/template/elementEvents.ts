@@ -82,18 +82,34 @@ export function* generateEventArg(
     ...ctx.codeFeatures.withoutHighlightAndCompletion,
     ...ctx.codeFeatures.navigationWithoutRename,
   }
-  if (name[0] === ':') {
-    name = name.slice(1)
-    start += 1
+
+  if (name.startsWith('bind:')) {
+    // bind:xx -> 'bindxx'
+    yield* wrapWith(
+      start,
+      start + name.length,
+      features,
+      `'`,
+      ['bind', 'template', start, features],
+      [
+        name.slice('bind:'.length),
+        'template',
+        start + 'bind:'.length,
+        features,
+      ],
+      `'`,
+    )
+  } else {
+    // bindxx -> 'bindxx'
+    yield* wrapWith(
+      start,
+      start + name.length,
+      features,
+      `'`,
+      [name, 'template', start, { __combineOffset: 1 }],
+      `'`,
+    )
   }
-  yield* wrapWith(
-    start,
-    start + name.length,
-    features,
-    `'`,
-    [name, 'template', start, { __combineOffset: 1 }],
-    `'`,
-  )
 }
 
 export function* generateEventExpression(

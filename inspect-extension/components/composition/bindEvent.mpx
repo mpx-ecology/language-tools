@@ -12,6 +12,15 @@
       wx:key="*this"
     >
     </view>
+    <input
+      bind:blur="inputBlur"
+      bindfocus="inputFocus"
+      type="number"
+      class="input"
+      placeholder="11"
+      placeholder-style="color: #ccc;"
+      maxlength="{{11}}"
+    />
   </view>
 </template>
 
@@ -24,9 +33,18 @@ const hello1 = (e?: {detail: {value: string}}) => {
   console.log('hello1', e?.detail.value  )
 }
 
+const inputBlur = (e: any) => {
+  console.log('input blur', e.detail.value)
+}
+const inputFocus = (e: any) => {
+  console.log('input focus', e.detail.value)
+}
+
 defineExpose({
   hello,
-  hello1
+  hello1,
+  inputBlur,
+  inputFocus
 })
 </script>
 

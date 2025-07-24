@@ -194,7 +194,7 @@ const eventPrefixList = [
   'capture-bind:',
   'capture-catch:',
 ]
-const stripBindPrefix = stripListSourceLocationText(eventPrefixList)
+// const stripBindPrefix = stripListSourceLocationText(eventPrefixList)
 
 type ElNode =
   | CompilerDOM.PlainElementNode
@@ -326,10 +326,14 @@ function tryProcessBindEvent(
   prop: CompilerDOM.AttributeNode,
 ): CompilerDOM.DirectiveNode | undefined {
   if (!isEventBind(prop.name)) return
+
   // bind:tap="handleTap"
   // bindtap="handleTap"
   const nameLoc = prop.nameLoc
-  stripBindPrefix(nameLoc)
+  // fix: 去掉 bind 前缀会导致和属性类型冲突，
+  // 比如 <input focus="xx" bindfocus="xx" />
+  // bindfocus 会被当做属性 focus 来检查类型
+  // // stripBindPrefix(nameLoc)
 
   if (prop.value?.loc) stripSourceLocationQuotes(prop.value.loc)
 
