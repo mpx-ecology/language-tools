@@ -40,10 +40,7 @@ export function create(): LanguageServicePlugin {
           return {
             ...options,
             ...formatSettings,
-            wrapAttributes:
-              (await context.env.getConfiguration?.<string>(
-                'mpx.format.wrapAttributes',
-              )) ?? 'auto',
+            wrapAttributes: 'auto',
             unformatted: '',
             contentUnformatted: blockTypes.join(','),
             endWithNewline: options.insertFinalNewline

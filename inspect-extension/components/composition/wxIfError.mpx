@@ -11,17 +11,17 @@
     </view>
 
     <!-- Bad Case: 字面量永远为 truthy -->
-    <view wx:elif="{{ 12 }}">
+    <view wx:elif="{{12}}">
       Should be always truthy
     </view>
 
     <!-- Bad Case: 字符串字面量永远为 truthy -->
-    <view wx:elif="{{ '12' }}">
+    <view wx:elif="{{'12'}}">
       Should be always truthy
     </view>
 
     <!-- Bad Case: {{ }} 前后带空格会导致 mpx 编译时错误 -->
-    <view wx:elif=" {{ msg }} ">
+    <view wx:elif=" {{msg}} ">
       Should be error because of space with {{ }}
     </view>
 

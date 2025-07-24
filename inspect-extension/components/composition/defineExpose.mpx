@@ -16,12 +16,12 @@ const double = computed(() => {
   return count.value * 2
 })
 const obj = {
-	a: 1,
-	b: 2
+  a: 1,
+  b: 2
 }
 
 const onClick = (a?: number) => {
-	console.log('click', a)
+  console.log('click', a)
 }
 
 defineExpose({
@@ -33,4 +33,3 @@ defineExpose({
 })
 
 </script>
-  

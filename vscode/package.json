@@ -154,7 +154,7 @@
         "mpx.splitEditors.icon": {
           "type": "boolean",
           "default": true,
-          "description": "Show split editor icon in title area of editor."
+          "description": "%splitEditors.icon.desc%"
         },
         "mpx.splitEditors.layout.left": {
           "type": "array",
@@ -193,29 +193,22 @@
           "default": true,
           "description": "Enabled code lens."
         },
-        "mpx.complete.defineAssignment": {
-          "type": "boolean",
-          "default": true,
-          "description": "Auto add `const props = ` before `defineProps` when selecting the completion item `props`. (also `emit` and `slots`)"
-        },
-        "mpx.autoInsert.dotValue": {
-          "type": "boolean",
-          "default": false,
-          "description": "Auto-complete Ref value with `.value`."
-        },
         "mpx.format.template.initialIndent": {
           "type": "boolean",
-          "default": true
+          "default": true,
+          "markdownDescription": "%template.format.template.initialIndent%"
         },
         "mpx.format.style.initialIndent": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "markdownDescription": "%template.format.style.initialIndent%"
         },
         "mpx.format.script.initialIndent": {
           "type": "boolean",
-          "default": false
+          "default": false,
+          "markdownDescription": "%template.format.script.initialIndent%"
         },
-        "mpx.format.wrapAttributes": {
+        "mpx.format.template.wrapAttributes": {
           "type": "string",
           "default": "auto",
           "enum": [
@@ -226,7 +219,22 @@
             "aligned-multiple",
             "preserve",
             "preserve-aligned"
-          ]
+          ],
+          "enumDescriptions": [
+            "%template.format.wrapAttributes.auto%",
+            "%template.format.wrapAttributes.force%",
+            "%template.format.wrapAttributes.forcealign%",
+            "%template.format.wrapAttributes.forcemultiline%",
+            "%template.format.wrapAttributes.alignedmultiple%",
+            "%template.format.wrapAttributes.preserve%",
+            "%template.format.wrapAttributes.preservealigned%"
+          ],
+          "markdownDescription": "%template.format.wrapAttributes.desc%"
+        },
+        "mpx.format.template.wrapLineLength": {
+          "type": "integer",
+          "default": 120,
+          "markdownDescription": "%template.format.wrapLineLength.desc%"
         }
       }
     },

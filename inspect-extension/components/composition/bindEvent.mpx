@@ -29,8 +29,8 @@ const hello = (a?: number) => {
   console.log('hello', a)
 }
 
-const hello1 = (e?: {detail: {value: string}}) => {
-  console.log('hello1', e?.detail.value  )
+const hello1 = (e?: { detail: { value: string } }) => {
+  console.log('hello1', e?.detail.value)
 }
 
 const inputBlur = (e: any) => {

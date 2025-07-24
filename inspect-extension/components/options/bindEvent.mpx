@@ -22,7 +22,7 @@ createComponent({
     hello(a?: number) {
       console.log('hello', a)
     },
-    hello1(e?: {detail: {value: string}}) {
+    hello1(e?: { detail: { value: string } }) {
       console.log('hello1', e?.detail.value)
     }
   }

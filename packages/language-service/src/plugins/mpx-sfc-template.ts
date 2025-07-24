@@ -34,6 +34,26 @@ export function create(): LanguageServicePlugin {
       return [...extraCustomData, mpxBuiltInData, ...htmlBuilInData]
     },
     onDidChangeCustomData,
+    async getFormattingOptions(_document, options, context) {
+      const formatSettings: html.FormattingOptions = {
+        ...options,
+        endWithNewline: options.insertFinalNewline
+          ? true
+          : options.trimFinalNewlines
+            ? false
+            : undefined,
+        ...(await context.env.getConfiguration?.('html.format')),
+        ...((await context.env.getConfiguration?.('mpx.format.template')) ??
+          {}),
+      }
+      if (formatSettings.contentUnformatted) {
+        formatSettings.contentUnformatted =
+          formatSettings.contentUnformatted + ',script'
+      } else {
+        formatSettings.contentUnformatted = 'script'
+      }
+      return formatSettings
+    },
   })
 
   return {
@@ -143,6 +163,37 @@ export function create(): LanguageServicePlugin {
           // @ts-ignore
           if (res?.contents?.value?.startsWith('自定义组件')) {
             return
+          }
+          return res
+        },
+
+        async provideDocumentFormattingEdits(
+          document,
+          range,
+          options,
+          embeddedCodeContext,
+          token,
+        ) {
+          if (document.languageId !== 'html') {
+            return
+          }
+          const res =
+            await baseServiceInstance.provideDocumentFormattingEdits?.(
+              document,
+              range,
+              options,
+              embeddedCodeContext,
+              token,
+            )
+          if (res?.[0]?.newText) {
+            /**
+             * 修复 wx:for="{{ listData }}" 这种写法中
+             * "{{" "}}" 和 listData 之间的空格引发的 HTML 格式化异常
+             */
+            res[0].newText = res[0].newText.replace(
+              /="{\s*{\s*(.+?)\s*}\s*}"/g,
+              '="{{$1}}"',
+            )
           }
           return res
         },
