@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.7](https://github.com/mpx-ecology/language-tools/compare/v1.2.6...v1.2.7) (2025-07-24)
+
+
+### Bug Fixes
+
+* **core:** enhance codegen for bind event ([7f93660](https://github.com/mpx-ecology/language-tools/commit/7f936608e61d89845eab7fbf805ee458f7d6843e))
+
+
+
+
+
 ## [1.2.6](https://github.com/mpx-ecology/language-tools/compare/v1.2.4...v1.2.6) (2025-07-23)
 
 
