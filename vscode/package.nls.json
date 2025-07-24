@@ -1,0 +1,15 @@
+{
+  "splitEditors.icon.desc": "在编辑器标题区域显示试图拆分图标。",
+  "template.format.template.initialIndent": "`template` 模块内容向后缩进。",
+  "template.format.style.initialIndent": "`style` 模块内容向后缩进。",
+  "template.format.script.initialIndent": "`script` 模块内容向后缩进。",
+  "template.format.wrapAttributes.desc": "`template` 属性换行方式。",
+  "template.format.wrapAttributes.auto": "仅在超出行长度时换行属性。",
+  "template.format.wrapAttributes.force": "除第一个属性外，每个属性都换行。",
+  "template.format.wrapAttributes.forcealign": "除第一个属性外，每个属性都换行并和第一个属性对齐。",
+  "template.format.wrapAttributes.forcemultiline": "每个属性都换行。",
+  "template.format.wrapAttributes.alignedmultiple": "超出行长度时换行，属性垂直对齐。",
+  "template.format.wrapAttributes.preserve": "保持属性的换行格式。",
+  "template.format.wrapAttributes.preservealigned": "保持属性的换行格式但和第一个属性对齐。",
+  "template.format.wrapLineLength.desc": "`template` 模块属性格式化时的最大行长度，超过此长度的属性会被换行（0 = 不换行）。"
+}

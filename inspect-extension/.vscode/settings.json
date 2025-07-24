@@ -1,4 +1,6 @@
 {
   "unocss.languageIds": ["mpx"],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "mpx.format.template.wrapAttributes": "auto",
+  "mpx.format.template.wrapLineLength": 80
 }

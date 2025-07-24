@@ -5,31 +5,34 @@
     </view>
     <view wx:for="{{listData}}" wx:key="*this">
       Case2: No index.
-      {{item}}
+      {{ item }}
     </view>
     <view wx:for="{{listData}}" wx:key="*this">
       Case3: No item.
-      {{index}}
+      {{ index }}
     </view>
     <view wx:for="{{listData}}" wx:for-item="item1" wx:key="*this">
       Case4: use wx:for-item.
-      {{item1}} {{index}}
+      {{ item1 }} {{ index }}
     </view>
     <view wx:for="{{listData}}" wx:for-index="index1" wx:key="*this">
       Case5: use wx:for-index.
-      {{item}} {{index1}}
+      {{ item }} {{ index1 }}
     </view>
-    <view wx:for="{{listData}}" wx:for-item="item1" wx:for-index="index1" wx:key="*this">
+    <view wx:for="{{listData}}" wx:for-item="item1" wx:for-index="index1"
+      wx:key="*this">
       Case6: use wx:for-item and wx:for-index.
-      {{item1}} {{index1}}
+      {{ item1 }} {{ index1 }}
     </view>
-    <view wx:for="{{[11, 12, 13]}}" wx:for-item="item1" wx:for-index="index1" wx:key="*this">
+    <view wx:for="{{[11, 12, 13]}}" wx:for-item="item1" wx:for-index="index1"
+      wx:key="*this">
       Case7: use directed array value. 'item1' should be number.
-      {{item1}} {{index1}}
+      {{ item1 }} {{ index1 }}
     </view>
-    <view wx:for="{{['a', 'b', 3]}}" wx:for-item="item1" wx:for-index="index1" wx:key="*this">
+    <view wx:for="{{['a', 'b', 3]}}" wx:for-item="item1" wx:for-index="index1"
+      wx:key="*this">
       Case8: use directed array value. 'item1' should be string | number.
-      {{item1}} {{index1}}
+      {{ item1 }} {{ index1 }}
     </view>
   </view>
 </template>

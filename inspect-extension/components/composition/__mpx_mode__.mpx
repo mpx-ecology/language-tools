@@ -1,5 +1,5 @@
 <template>
-  <view content="{{ __mpx_mode__ }}">
+  <view content="{{__mpx_mode__}}">
     {{ __mpx_mode__ }}
   </view>
 </template>

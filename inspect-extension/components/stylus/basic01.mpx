@@ -1,0 +1,54 @@
+<style lang="css">
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+}
+</style>
+
+<style lang="scss">
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+}
+</style>
+
+
+<style lang="postcss">
+.list {
+  display: flex;
+  color: indigo;
+  background-color: #f0f0f0;
+}
+</style>
+
+<style lang="sass">
+.list
+  display: flex
+  color:   red
+  background-color: #f0f0f0
+</style>
+
+<style lang="sass">
+.list
+  display: flex
+  color: #333
+</style>
+
+<style lang="stylus">
+@import './basic01.styl'
+.list
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  height: 100vh
+  background-color: #f0f0f0
+</style>

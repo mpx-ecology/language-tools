@@ -2,16 +2,12 @@
   <view>
     <view class="page-section page-section-spacing swiper">
       <icon />
-      <button plain="{{ true }}" />
+      <button plain="{{true}}" />
       <!-- ^ 缺少必填属性 `type` -->
-      <swiper
-        indicator-dots="{{ indicatorDots }}"
-        autoplay="{{ autoplay }}"
-        interval="{{ interval }}"
-        duration="{{ duration }}"
-        bindchange="{{ onSwiperChange }}"
-      >
-        <block wx:for="{{ backgroundList }}" wx:key="*this">
+      <swiper indicator-dots="{{indicatorDots}}" autoplay="{{autoplay}}"
+        interval="{{interval}}" duration="{{duration}}" bindtap="onSwiperChange"
+        bindtap1="onSwiperChange" a="1">
+        <block wx:for="{{backgroundList}}" wx:key="*this">
           <swiper-item>
             <view class="swiper-item">
               {{ item }}
@@ -19,14 +15,8 @@
           </swiper-item>
         </block>
       </swiper>
-      <input
-        bind:blur="inputBlur"
-        bindfocus="inputFocus"
-        type="number"
-        placeholder="11"
-        placeholder-style="color: #ccc;"
-        maxlength="{{11}}"
-      />
+      <input bind:blur="inputBlur" bindfocus="inputFocus" type="number"
+        placeholder="11" placeholder-style="color: #ccc;" maxlength="{{11}}" />
     </view>
   </view>
 </template>

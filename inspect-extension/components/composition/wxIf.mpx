@@ -7,7 +7,7 @@
     <view wx:elif="{{typeof msg === 'number'}}">
       msg should be number: {{ msg }}
     </view>
-    <view wx:elif="{{ typeof msg === 'boolean' }}">
+    <view wx:elif="{{typeof msg === 'boolean'}}">
       msg should be boolean: {{ msg }}
     </view>
     <view wx:else>
@@ -29,7 +29,7 @@
       <view wx:if="{{msg}}">{{ msg }}</view>
       <view wx:else>{{ msg }}</view>
 
-      <view wx:if="{{ status.message }}">{{status.message}}</view>
+      <view wx:if="{{status.message}}">{{ status.message }}</view>
       <view wx:else>status.message is undefined</view>
     </view>
     <view wx:else>{{ status?.message }}</view>
@@ -38,7 +38,7 @@
     <view wx:if="{{status?.message && msg}}">
     </view>
     <!-- comment -->
-    <view wx:else>{{status?.message}}</view>
+    <view wx:else>{{ status?.message }}</view>
 
     <!-- Case6: 错误 -->
     <view wx:elif="{{msg && status?.message}}">
