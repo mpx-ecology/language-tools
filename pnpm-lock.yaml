@@ -8,7 +8,7 @@ catalogs:
   default:
     '@mpxjs/core':
       specifier: latest
-      version: 2.10.9
+      version: 2.10.12
     '@types/node':
       specifier: ^22.15.32
       version: 22.15.32
@@ -48,6 +48,9 @@ catalogs:
     vscode-uri:
       specifier: ^3.1.0
       version: 3.1.0
+
+overrides:
+  stylus: 0.64.0
 
 importers:
 
@@ -94,13 +97,13 @@ importers:
     devDependencies:
       '@mpxjs/core':
         specifier: 'catalog:'
-        version: 2.10.9(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
+        version: 2.10.12(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
       unocss:
         specifier: ^66.2.3
-        version: 66.2.3(postcss@8.5.3)(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)
+        version: 66.2.3(postcss@8.5.3)(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)
       vue:
         specifier: ^2.7.0
         version: 2.7.16
@@ -219,6 +222,9 @@ importers:
       '@vue/compiler-dom':
         specifier: 'catalog:'
         version: 3.5.13
+      stylus:
+        specifier: 0.64.0
+        version: 0.64.0
       stylus-supremacy:
         specifier: ^4.0.0
         version: 4.0.0
@@ -250,6 +256,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 22.15.32
+      '@types/stylus':
+        specifier: ^0.48.43
+        version: 0.48.43
       vscode-languageserver-protocol:
         specifier: ^3.17.5
         version: 3.17.5
@@ -701,8 +710,8 @@ packages:
       react-native-safe-area-context:
         optional: true
 
-  '@mpxjs/core@2.10.9':
-    resolution: {integrity: sha512-BJjbLpafwxR8+OwWPt/JDgLO8vX6/XYBWIs/d5/ioh3D3f95L3g7PIqrFZQvkVnBM8q3ULu/UqBI5yQC27OJfA==}
+  '@mpxjs/core@2.10.12':
+    resolution: {integrity: sha512-AjnYXyKrLZqskXxqrHUv86Ep2fRJ5cTGIUITS+gacX7EZ1sdTXqV+HOlVW0SuTPQEENnoDRKI5m4yAKYd8FtRA==}
     peerDependencies:
       '@d11/react-native-fast-image': '*'
       '@mpxjs/api-proxy': ^2.9.0
@@ -760,11 +769,6 @@ packages:
     resolution: {integrity: sha512-45fesfCUxVoPQ7zLIWv5VHFA4PI7YzXKBhVKS5jbfOjMZ7NfP6HMEc6W0zgK43BpOnABLULf/irPU7oYYTrlKw==}
     peerDependencies:
       '@mpxjs/core': ^2.9.0
-
-  '@mpxjs/utils@2.10.6':
-    resolution: {integrity: sha512-OmHbzUbWjXzo7FJF15+EXRXJdD3ssvEEa7DVo2qaRXeGveju2TTbv5JOXENh7GApcSUptwyAFnnCdQ1SNu+Ohw==}
-    peerDependencies:
-      '@mpxjs/core': ^2.9.58
 
   '@mpxjs/utils@2.10.8':
     resolution: {integrity: sha512-HQhqAvOB4sylQHN1fqdQKfyewHtylRCNV1FBfyyjMFoWxwWlnlN5KboAKXgWr9JY0yP+X2wQdSONNixC27CLZA==}
@@ -1212,6 +1216,9 @@ packages:
 
   '@types/semver@7.7.0':
     resolution: {integrity: sha512-k107IF4+Xr7UHjwDc7Cfd6PRQfbdkiRabXGRjo07b4WyPahFBZCZ1sE+BNxYIJPPg73UkfOsVOLwqVc/6ETrIA==}
+
+  '@types/stylus@0.48.43':
+    resolution: {integrity: sha512-72dv/zdhuyXWVHUXG2VTPEQdOG+oen95/DNFx2aMFFaY6LoITI6PwEqf5x31JF49kp2w9hvUzkNfTGBIeg61LQ==}
 
   '@types/vscode@1.99.1':
     resolution: {integrity: sha512-cQlqxHZ040ta6ovZXnXRxs3fJiTmlurkIWOfZVcLSZPcm9J4ikFpXuB7gihofGn5ng+kDVma5EmJIclfk0trPQ==}
@@ -3924,9 +3931,6 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  sax@1.3.0:
-    resolution: {integrity: sha512-0s+oAmw9zLl1V1cS9BtZN7JAd0cW5e0QH4W3LWEK6a4LaLEA2OTpGYWDY+6XasBLtz6wkm3u1xRw95mRuJ59WA==}
-
   sax@1.4.1:
     resolution: {integrity: sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==}
 
@@ -4169,8 +4173,9 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  stylus@0.63.0:
-    resolution: {integrity: sha512-OMlgrTCPzE/ibtRMoeLVhOY0RcNuNWh0rhAVqeKnk/QwcuUKQbnqhZ1kg2vzD8VU/6h3FoPTq4RJPHgLBvX6Bw==}
+  stylus@0.64.0:
+    resolution: {integrity: sha512-ZIdT8eUv8tegmqy1tTIdJv9We2DumkNZFdCF5mz/Kpq3OcTaxSuCAYZge6HKK2CmNC02G1eJig2RV7XTw5hQrA==}
+    engines: {node: '>=16'}
     hasBin: true
 
   supports-color@2.0.0:
@@ -4455,7 +4460,7 @@ packages:
       lightningcss: ^1.21.0
       sass: '*'
       sass-embedded: '*'
-      stylus: '*'
+      stylus: 0.64.0
       sugarss: '*'
       terser: ^5.16.0
       tsx: ^4.8.1
@@ -5151,36 +5156,32 @@ snapshots:
       - supports-color
       - typescript
 
-  '@mpxjs/api-proxy@2.10.4(@mpxjs/core@2.10.9)':
+  '@mpxjs/api-proxy@2.10.4(@mpxjs/core@2.10.12)':
     dependencies:
-      '@mpxjs/utils': 2.10.6(@mpxjs/core@2.10.9)
+      '@mpxjs/utils': 2.10.8(@mpxjs/core@2.10.12)
       axios: 1.8.4
     transitivePeerDependencies:
       - '@mpxjs/core'
       - debug
 
-  '@mpxjs/core@2.10.9(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)':
+  '@mpxjs/core@2.10.12(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)':
     dependencies:
-      '@mpxjs/api-proxy': 2.10.4(@mpxjs/core@2.10.9)
-      '@mpxjs/store': 2.10.4(@mpxjs/core@2.10.9)
-      '@mpxjs/utils': 2.10.8(@mpxjs/core@2.10.9)
+      '@mpxjs/api-proxy': 2.10.4(@mpxjs/core@2.10.12)
+      '@mpxjs/store': 2.10.4(@mpxjs/core@2.10.12)
+      '@mpxjs/utils': 2.10.8(@mpxjs/core@2.10.12)
       lodash: 4.17.21
       miniprogram-api-typings: 3.12.3
     optionalDependencies:
       vue: 2.7.16
 
-  '@mpxjs/store@2.10.4(@mpxjs/core@2.10.9)':
+  '@mpxjs/store@2.10.4(@mpxjs/core@2.10.12)':
     dependencies:
-      '@mpxjs/core': 2.10.9(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
-      '@mpxjs/utils': 2.10.6(@mpxjs/core@2.10.9)
+      '@mpxjs/core': 2.10.12(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
+      '@mpxjs/utils': 2.10.8(@mpxjs/core@2.10.12)
 
-  '@mpxjs/utils@2.10.6(@mpxjs/core@2.10.9)':
+  '@mpxjs/utils@2.10.8(@mpxjs/core@2.10.12)':
     dependencies:
-      '@mpxjs/core': 2.10.9(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
-
-  '@mpxjs/utils@2.10.8(@mpxjs/core@2.10.9)':
-    dependencies:
-      '@mpxjs/core': 2.10.9(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
+      '@mpxjs/core': 2.10.12(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
 
   '@napi-rs/wasm-runtime@0.2.4':
     dependencies:
@@ -5684,6 +5685,10 @@ snapshots:
 
   '@types/semver@7.7.0': {}
 
+  '@types/stylus@0.48.43':
+    dependencies:
+      '@types/node': 22.15.32
+
   '@types/vscode@1.99.1': {}
 
   '@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)':
@@ -5782,13 +5787,13 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@unocss/astro@66.2.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)':
+  '@unocss/astro@66.2.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)':
     dependencies:
       '@unocss/core': 66.2.3
       '@unocss/reset': 66.2.3
-      '@unocss/vite': 66.2.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)
+      '@unocss/vite': 66.2.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)
     optionalDependencies:
-      vite: 6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1)
+      vite: 6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1)
     transitivePeerDependencies:
       - vue
 
@@ -5919,7 +5924,7 @@ snapshots:
     dependencies:
       '@unocss/core': 66.2.3
 
-  '@unocss/vite@66.2.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)':
+  '@unocss/vite@66.2.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@unocss/config': 66.2.3
@@ -5930,7 +5935,7 @@ snapshots:
       pathe: 2.0.3
       tinyglobby: 0.2.14
       unplugin-utils: 0.2.4
-      vite: 6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1)
+      vite: 6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1)
     transitivePeerDependencies:
       - vue
 
@@ -8813,8 +8818,6 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sax@1.3.0: {}
-
   sax@1.4.1: {}
 
   secretlint@10.1.1:
@@ -9083,16 +9086,16 @@ snapshots:
       json5: 2.2.3
       lodash: 4.17.21
       stylint: 2.0.0
-      stylus: 0.63.0
+      stylus: 0.64.0
     transitivePeerDependencies:
       - supports-color
 
-  stylus@0.63.0:
+  stylus@0.64.0:
     dependencies:
       '@adobe/css-tools': 4.3.3
       debug: 4.4.1
-      glob: 7.2.3
-      sax: 1.3.0
+      glob: 10.4.5
+      sax: 1.4.1
       source-map: 0.7.6
     transitivePeerDependencies:
       - supports-color
@@ -9296,9 +9299,9 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unocss@66.2.3(postcss@8.5.3)(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16):
+  unocss@66.2.3(postcss@8.5.3)(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16):
     dependencies:
-      '@unocss/astro': 66.2.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)
+      '@unocss/astro': 66.2.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)
       '@unocss/cli': 66.2.3
       '@unocss/core': 66.2.3
       '@unocss/postcss': 66.2.3(postcss@8.5.3)
@@ -9316,9 +9319,9 @@ snapshots:
       '@unocss/transformer-compile-class': 66.2.3
       '@unocss/transformer-directives': 66.2.3
       '@unocss/transformer-variant-group': 66.2.3
-      '@unocss/vite': 66.2.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)
+      '@unocss/vite': 66.2.3(vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1))(vue@2.7.16)
     optionalDependencies:
-      vite: 6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1)
+      vite: 6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1)
     transitivePeerDependencies:
       - postcss
       - supports-color
@@ -9356,7 +9359,7 @@ snapshots:
 
   version-range@4.14.0: {}
 
-  vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.63.0)(tsx@4.19.3)(yaml@2.7.1):
+  vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1):
     dependencies:
       esbuild: 0.25.2
       fdir: 6.4.6(picomatch@4.0.2)
@@ -9368,7 +9371,7 @@ snapshots:
       '@types/node': 22.15.32
       fsevents: 2.3.3
       jiti: 2.4.2
-      stylus: 0.63.0
+      stylus: 0.64.0
       tsx: 4.19.3
       yaml: 2.7.1
 
