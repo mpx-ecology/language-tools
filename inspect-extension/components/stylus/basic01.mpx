@@ -1,56 +1,48 @@
+<!-- 内置 CSS 插件支持 CSS, SCSS, Less -->
 <style lang="css">
 .list {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
   background-color: #f0f0f0;
 }
 </style>
-
 <style lang="scss">
 .list {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
   background-color: #f0f0f0;
 }
 </style>
-
-
+<style lang="less">
+.list {
+  display: flex;
+  background-color: #f0f0f0;
+}
+</style>
+<!-- postcss 我们视作 SCSS 对等处理，高亮交给官方插件 -->
 <style lang="postcss">
 .list {
   display: flex;
-  color: indigo;
   background-color: #f0f0f0;
 }
 </style>
 
+
+<!-- 内置 CSS 插件不支持 Sass，可以换成 SCSS -->
 <style lang="sass">
 .list
   display: flex
-  color:   red
-  background-color: #f0f0f0
+  background-color: #f0f0f0;
 </style>
 
-<style lang="sass">
-.list
-  display: flex
-  color: #333
-</style>
-
+<!-- 内置 CSS 插件不支持 Stylus，由我们自行实现插件来支持
+ 1. 高亮: 交给官方插件
+ 2. formater: Stylus Supremacy
+ 3. TODO: 补全、Linter
+  -->
 <style lang="stylus">
 @import './basic01.styl'
 
 .list
 	// 注释
 	display flex // 注释
-	flex-direction column
-	align-items center
-	justify-content center
-	height 100vh
 	background-color #f0f0f0
 </style>

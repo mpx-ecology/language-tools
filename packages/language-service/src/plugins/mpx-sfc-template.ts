@@ -191,7 +191,7 @@ export function create(): LanguageServicePlugin {
              * "{{" "}}" 和 listData 之间的空格引发的 HTML 格式化异常
              */
             res[0].newText = res[0].newText.replace(
-              /="{\s*{\s*(.+?)\s*}\s*}"/g,
+              /="\s*{\s*{\s*(.+?)\s*}\s*}\s*"/g,
               '="{{$1}}"',
             )
           }

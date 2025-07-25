@@ -1,12 +1,13 @@
 <template>
   <view>
     <view class="page-section page-section-spacing swiper">
+      <!-- @mpx-expect-error -->
       <icon />
-      <button plain="{{true}}" />
       <!-- ^ 缺少必填属性 `type` -->
+      <button plain="{{true}}" />
       <swiper indicator-dots="{{indicatorDots}}" autoplay="{{autoplay}}"
         interval="{{interval}}" duration="{{duration}}" bindtap="onSwiperChange"
-        bindtap1="onSwiperChange" a="1">
+        bindtap1="onSwiperChange">
         <block wx:for="{{backgroundList}}" wx:key="*this">
           <swiper-item>
             <view class="swiper-item">
