@@ -31,8 +31,9 @@ defineExpose({
 </script>
 
 <style lang="stylus">
-  .long
-    color red
-  .short
-    color green
+.long
+	color red
+
+.short
+	color green
 </style>
