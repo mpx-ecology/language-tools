@@ -50,7 +50,9 @@ export function create(): LanguageServicePlugin {
                     componentPathOffset + componentPath.length,
                   ),
                 },
-                target: targetFilePath,
+                target: targetFilePath
+                  ? URI.file(targetFilePath).toString()
+                  : targetFilePath,
                 tooltip: `自定义组件：${componentPath}`,
               })
             }
