@@ -146,11 +146,11 @@ function _variableSymbol(
   text: string[],
 ): vscode.CompletionItem {
   const name = node.name
-  const lineno = Number(node.val!.lineno!) - 1
+  const lineno = Math.max(0, Number(node.val?.lineno ?? 1) - 1)
 
   return {
     label: name,
-    detail: text[lineno].trim(),
+    detail: text[lineno]?.trim() ?? '',
     kind: 6 satisfies typeof vscode.CompletionItemKind.Variable,
   }
 }
@@ -178,7 +178,7 @@ function _selectorSymbol(node: StylusNode): vscode.CompletionItem {
     : firstSegment.nodes!.map(s => s.name).join('')
 
   return {
-    label: name,
+    label: name ?? '',
     kind: 7 satisfies typeof vscode.CompletionItemKind.Class,
   }
 }
