@@ -43,6 +43,9 @@ export function create(): LanguageServicePlugin {
               offset: componentPathOffset,
               realFilename: targetFilePath,
             } of componentsArray) {
+              if (!targetFilePath) {
+                continue
+              }
               result.push({
                 range: {
                   start: document.positionAt(componentPathOffset),
@@ -50,7 +53,8 @@ export function create(): LanguageServicePlugin {
                     componentPathOffset + componentPath.length,
                   ),
                 },
-                target: targetFilePath,
+                // fix: 兼容 Windows 路径协议 eg: file:///d:/{you_path}/list.mpx
+                target: URI.file(targetFilePath).toString(),
                 tooltip: `自定义组件：${componentPath}`,
               })
             }

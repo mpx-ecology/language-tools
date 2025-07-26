@@ -12,7 +12,6 @@ function createTsAliasMatcher(compilerConfig: ts.CompilerOptions) {
   )
 }
 
-const resolvedResultMap = new Map<string, string>()
 let tsMatcher: MatchPathAsync | undefined
 
 interface RequestOptions {
@@ -26,10 +25,6 @@ async function tryRequest(
   options: RequestOptions = {},
 ) {
   const { extensions = [], tryIndices = ['index'] } = options
-
-  if (resolvedResultMap.has(uri)) {
-    return resolvedResultMap.get(uri)
-  }
 
   async function doRequest(uri: string) {
     return new Promise<string | undefined>((resolve, reject) => {
@@ -84,10 +79,6 @@ async function tryRequest(
   }
 
   const { promise, resolve, reject } = withResolvers<string | undefined>()
-
-  promise.then(loadedUrl => {
-    if (loadedUrl) resolvedResultMap.set(uri, loadedUrl)
-  })
 
   async function start() {
     try {
