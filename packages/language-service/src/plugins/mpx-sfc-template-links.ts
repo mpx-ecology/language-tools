@@ -156,9 +156,7 @@ export function create(): LanguageServicePlugin {
                       start: document.positionAt(offset),
                       end: document.positionAt(offset + componentTag.length),
                     },
-                    target: targetFilePath
-                      ? URI.file(targetFilePath).toString()
-                      : targetFilePath,
+                    target: URI.file(targetFilePath).toString(),
                     tooltip:
                       '自定义组件' +
                       (uniqueComponentCount > 1
