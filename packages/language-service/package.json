@@ -25,6 +25,7 @@
     "@volar/language-service": "catalog:",
     "@volar/typescript": "catalog:",
     "@vue/compiler-dom": "catalog:",
+    "stylus": "^0.64.0",
     "stylus-supremacy": "^4.0.0",
     "volar-service-css": "0.0.64",
     "volar-service-emmet": "0.0.63",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/stylus": "^0.48.43",
     "vscode-languageserver-protocol": "^3.17.5",
     "vscode-languageserver-textdocument": "^1.0.12"
   }

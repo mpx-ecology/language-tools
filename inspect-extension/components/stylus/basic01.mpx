@@ -25,7 +25,6 @@
 }
 </style>
 
-
 <!-- 内置 CSS 插件不支持 Sass，可以换成 SCSS -->
 <style lang="sass">
 .list
@@ -36,13 +35,14 @@
 <!-- 内置 CSS 插件不支持 Stylus，由我们自行实现插件来支持
  1. 高亮: 交给官方插件
  2. formater: Stylus Supremacy
- 3. TODO: 补全、Linter
+ 3. 补全: 自行实现
+ 3. TODO: Linter
   -->
 <style lang="stylus">
-@import './basic01.styl'
+@import './main.styl'
 
 .list
-	// 注释
-	display flex // 注释
-	background-color #f0f0f0
+  // 注释
+  display flex // 注释
+  background-color #f0f0f0
 </style>

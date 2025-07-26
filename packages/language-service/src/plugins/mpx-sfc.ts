@@ -1,9 +1,9 @@
+import type * as vscode from 'vscode-languageserver-protocol'
+import type { TextDocument } from 'vscode-languageserver-textdocument'
 import type {
   LanguageServiceContext,
   LanguageServicePlugin,
 } from '@volar/language-service'
-import type * as vscode from 'vscode-languageserver-protocol'
-import type { TextDocument } from 'vscode-languageserver-textdocument'
 import * as html from 'vscode-html-languageservice'
 import { create as createHtmlService } from 'volar-service-html'
 import { URI } from 'vscode-uri'

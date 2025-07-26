@@ -26,6 +26,9 @@ onlyBuiltDependencies:
   - nx
   - simple-git-hooks
 
+overrides:
+  stylus: 0.64.0
+
 peerDependencyRules:
   allowedVersions:
     vue-flow-layout>vue: '2'

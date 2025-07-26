@@ -15,7 +15,7 @@ import { generatePropExp } from './elementProps'
 import { generateInterpolation } from './interpolation'
 import { generateObjectProperty } from './objectProperty'
 
-const builtInDirectives = new Set([
+const builtinDirectives = new Set([
   'cloak',
   'html',
   'memo',
@@ -81,7 +81,7 @@ function* generateIdentifier(
         ...codeFeatures.withoutHighlightAndCompletion,
         verification:
           options.mpxCompilerOptions.checkUnknownDirectives &&
-          !builtInDirectives.has(prop.name),
+          !builtinDirectives.has(prop.name),
       }),
     ),
   )

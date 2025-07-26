@@ -35,7 +35,8 @@ export function* generateElementProps(
   for (const prop of props) {
     if (prop.type === CompilerDOM.NodeTypes.DIRECTIVE && prop.name === 'on') {
       if (prop.arg?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
-        yield `...{ `
+        // ...{} 解构后会丢失 bindxx 属性类型检查报错时的属性定位
+        // yield `...{ `
         yield* generateEventArg(
           ctx,
           prop.arg.loc.source,
@@ -43,7 +44,8 @@ export function* generateElementProps(
         )
         yield `: `
         yield* generateEventExpression(options, ctx, prop)
-        yield `},`
+        yield `,${newLine}`
+        // yield `},`
         yield newLine
       } else if (
         !prop.arg &&
