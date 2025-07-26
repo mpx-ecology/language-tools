@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/mpx-ecology/language-tools/compare/v1.2.8...v1.4.0) (2025-07-26)
+
+
+### Features
+
+* enhance template formatting ([997ed10](https://github.com/mpx-ecology/language-tools/commit/997ed10e21345d1526ce60d5e24f96cca8d65a64))
+* support Stylus formatter with built-in data ([b418f16](https://github.com/mpx-ecology/language-tools/commit/b418f16a19b828541e23160aabffee3290b573e0))
+
+
+
+
+
 ## [1.2.8](https://github.com/mpx-ecology/language-tools/compare/v1.2.7...v1.2.8) (2025-07-24)
 
 

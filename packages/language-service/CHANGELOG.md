@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/mpx-ecology/language-tools/compare/v1.2.8...v1.4.0) (2025-07-26)
+
+
+### Bug Fixes
+
+* compatible with Windows file path protocol ([e07eb3d](https://github.com/mpx-ecology/language-tools/commit/e07eb3d4ad037e47ea76a51d9ff475158f276569))
+* correct custom component redirection on Windows ([acbb740](https://github.com/mpx-ecology/language-tools/commit/acbb74018e493dd2bb2cbabb84ed5cad1ece7f0f))
+* review ([9545078](https://github.com/mpx-ecology/language-tools/commit/9545078e50155596f40c31e502ca498430068236))
+
+
+### Features
+
+* enhance template formatting ([997ed10](https://github.com/mpx-ecology/language-tools/commit/997ed10e21345d1526ce60d5e24f96cca8d65a64))
+* support Stylus formatter with built-in data ([b418f16](https://github.com/mpx-ecology/language-tools/commit/b418f16a19b828541e23160aabffee3290b573e0))
+
+
+
+
+
 ## [1.2.8](https://github.com/mpx-ecology/language-tools/compare/v1.2.7...v1.2.8) (2025-07-24)
 
 

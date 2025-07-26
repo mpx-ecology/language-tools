@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/mpx-ecology/language-tools/compare/v1.2.8...v1.4.0) (2025-07-26)
+
+
+### Bug Fixes
+
+* bind event expression generation ([4b08b3f](https://github.com/mpx-ecology/language-tools/commit/4b08b3f6c527f91acb2e0d4ab6a00da83933b3f5))
+
+
+### Features
+
+* support Stylus formatter with built-in data ([b418f16](https://github.com/mpx-ecology/language-tools/commit/b418f16a19b828541e23160aabffee3290b573e0))
+
+
+
+
+
 ## [1.2.8](https://github.com/mpx-ecology/language-tools/compare/v1.2.7...v1.2.8) (2025-07-24)
 
 
