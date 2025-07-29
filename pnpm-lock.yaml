@@ -98,6 +98,9 @@ importers:
       '@mpxjs/core':
         specifier: 'catalog:'
         version: 2.10.12(@mpxjs/api-proxy@2.10.4)(@mpxjs/store@2.10.4)(vue@2.7.16)
+      '@vant/weapp':
+        specifier: ^1.11.7
+        version: 1.11.7
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -1373,6 +1376,9 @@ packages:
     resolution: {integrity: sha512-uu3smeEW6q36ri6vydRx2GiTGF5O/J80Fr4GLmLiwfpt2YnPHraO7XHVR5/mwG2Oz5Kov0uGvxVsdgxZABKRgw==}
     peerDependencies:
       vite: ^2.9.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0-0 || ^6.0.0-0 || ^7.0.0-0
+
+  '@vant/weapp@1.11.7':
+    resolution: {integrity: sha512-Rwn9BBnb4kHSV4XmvBicwtd42J+amEUfnFDcXJsGNPNX4a9c/DoT6YLsm4X1wB2+sQbdiQsbFBLAvGRBxCkD8g==}
 
   '@volar/language-core@2.4.12':
     resolution: {integrity: sha512-RLrFdXEaQBWfSnYGVxvR2WrO6Bub0unkdHYIdC31HzIEqATIuuhRRzYu76iGPZ6OtA4Au1SnW0ZwIqPP217YhA==}
@@ -5938,6 +5944,8 @@ snapshots:
       vite: 6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.7.1)
     transitivePeerDependencies:
       - vue
+
+  '@vant/weapp@1.11.7': {}
 
   '@volar/language-core@2.4.12':
     dependencies:

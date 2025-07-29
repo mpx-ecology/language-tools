@@ -3,6 +3,17 @@
     <list class="list"></list>
     <list />
     <list-alias />
+
+    <!-- 错误路径没有 link -->
+    <list-error />
+    <list-alias-error />
+
+    <van-cell-group inset>
+      <van-cell title="单元格" value="内容" />
+      <van-cell title="单元格" value="内容" label="描述信息" />
+    </van-cell-group>
+
+    <native-comps />
   </view>
 </template>
 
@@ -13,20 +24,29 @@ createPage({})
 </script>
 
 <style lang="stylus">
-  .list
-    color red
+.list
+  color red
 </style>
 
 <script type="application/json">
   {
     "usingComponents": {
-      // 注释测试
-      "list": "../components/list", // 允许末行尾随逗号，
+      // Mpx 组件 from local
+      "list": "../components/list",
+      "list-error": "../components/list-error", // 预期错误路径
+      // tsconfig.json paths 别名
       "list-alias": "@/script-json/components/list.mpx",
-      "list-error-path1": "../components/list-error", // 允许末行尾随逗号，
-      "list-error-path2": "@/script-json/components/list-error.mpx",
-      "list-from-dir-1": "@/script-json/components",
-      "list-from-dir-2": "../components",
+      "list-alias-error": "@/script-json/components/list-error.mpx", // 预期错误路径
+      // 文件夹路径，自动寻找 index.mpx
+      "list-from-dir": "../components",
+      "list-from-dir-alias": "@/script-json/components",
+      // 原生组件 from local
+      "native-comps": "../components/native/index",
+      "native-comps-2": "../components/native2/index", // .mpx 优先级比原生组件更高
+      // 原生组件 from npm
+      "van-cell": "@vant/weapp/cell/index",
+      "van-cell-group": "@vant/weapp/cell-group/index",
+      "van-button": "@vant/weapp/button/index"
     }
   }
 </script>

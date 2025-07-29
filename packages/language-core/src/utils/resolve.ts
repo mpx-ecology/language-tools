@@ -132,7 +132,7 @@ export async function tryResolveByTsConfig(
   if (!matcher) return
 
   return tryRequest(uri, matcher, {
-    extensions: ['.mpx'],
+    extensions: ['.mpx', '.js'],
   })
 }
 
@@ -142,7 +142,7 @@ export async function tryResolvePackage(uri: string, baseUri: string) {
   const { promise, resolve, reject } = withResolvers<string | undefined>()
 
   const resolver = (_resolver ??= enhancedResolve.create({
-    extensions: ['.mpx'],
+    extensions: ['.mpx', '.js'],
   }))
 
   const baseDir =
