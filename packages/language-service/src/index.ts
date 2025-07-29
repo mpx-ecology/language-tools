@@ -14,6 +14,7 @@ import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-docum
 import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
 import { create as createMpxTemplatePlugin } from './plugins/mpx-sfc-template'
 import { create as createMpxTemplateCompilerErrorsPlugin } from './plugins/mpx-sfc-template-compiler-errors'
+import { create as createMpxTemplateDirectiveCommentsPlugin } from './plugins/mpx-sfc-template-directive-comments'
 import { create as createMpxStyleCSSPlugin } from './plugins/mpx-sfc-style-css'
 import { create as createMpxStyleStylusPlugin } from './plugins/mpx-sfc-style-stylus'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
@@ -63,6 +64,7 @@ function getCommonLanguageServicePlugins(
     createMpxSfcPlugin(),
     createMpxTemplatePlugin(),
     createMpxTemplateCompilerErrorsPlugin(),
+    createMpxTemplateDirectiveCommentsPlugin(),
     createMpxStyleCSSPlugin(),
     createMpxStyleStylusPlugin(),
     // createMpxJsonJsPlugin(ts, getTsPluginClient),
