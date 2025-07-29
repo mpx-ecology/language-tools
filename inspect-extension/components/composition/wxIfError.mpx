@@ -26,7 +26,21 @@
     </view>
 
     <!-- Bad Case: {{ }} 前后带空格会导致 mpx 编译时错误 -->
-    <view wx:if="{{status?.message && msg}} ">{{ msg }} {{ status.message }}</view>
+    <view wx:if="{{status?.message && msg}} ">{{ msg }} {{ status.message }}
+    </view>
+
+
+    <!-- @mpx-expect-error wx:if 下应当忽略所有条件句的属性报错（但不包含子块表达式） -->
+    <view wx:if="{{error_a}}" a="{{ error_a }}">
+      {{ error_a }}
+    </view>
+    <view wx:elif="{{error_a}}" a="{{ error_a }}">
+      {{ error_a }}
+    </view>
+    <view wx:else a="{{ error_b }}">
+      {{ error_a }}
+    </view>
+
 
   </view>
 </template>

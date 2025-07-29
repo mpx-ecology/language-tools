@@ -81,10 +81,6 @@ export function* generateWxIf(
 }
 
 function isFragment(node: CompilerDOM.IfNode) {
-  return (
-    node.codegenNode &&
-    'consequent' in node.codegenNode &&
-    'tag' in node.codegenNode.consequent &&
-    node.codegenNode.consequent.tag === CompilerDOM.FRAGMENT
-  )
+  // @ts-ignore `wx:if` node doesn't have node.codegenNode
+  return node.tag === CompilerDOM.FRAGMENT
 }
