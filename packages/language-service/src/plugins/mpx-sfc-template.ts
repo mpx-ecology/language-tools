@@ -185,15 +185,33 @@ export function create(): LanguageServicePlugin {
               embeddedCodeContext,
               token,
             )
+
+          const bracketSpacing =
+            (await context.env.getConfiguration?.(
+              'mpx.format.template.bracketSpacing',
+            )) ?? 'true'
+
           if (res?.[0]?.newText) {
+            let newText = res[0].newText
+            if (bracketSpacing !== 'preserve') {
+              /**
+               * bracketSpacing = true: xx="{{xxx}}" -> xx="{{ xxx }}"
+               * bracketSpacing = false: xx="{{ xxx }}" -> xx="{{xxx}}"
+               */
+              newText = newText.replace(
+                /="\s*{\s*{\s*(.+?)\s*}\s*}\s*"/g,
+                bracketSpacing === 'true' ? '="{{ $1 }}"' : '="{{$1}}"',
+              )
+            }
             /**
-             * 修复 wx:for="{{ listData }}" 这种写法中
-             * "{{" "}}" 和 listData 之间的空格引发的 HTML 格式化异常
+             * Special Case: wx:for="{{ xxx }}" 空格可能引发的 HTML 格式化异常
+             * wx:for="{{ xxx }}" -> wx:for="{{xxx}}"
              */
-            res[0].newText = res[0].newText.replace(
-              /="\s*{\s*{\s*(.+?)\s*}\s*}\s*"/g,
-              '="{{$1}}"',
+            newText = newText.replace(
+              /wx:for="\s*{\s*{\s*(.+?)\s*}\s*}\s*"/g,
+              'wx:for="{{$1}}"',
             )
+            res[0].newText = newText
           }
           return res
         },
