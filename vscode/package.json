@@ -236,6 +236,21 @@
           "default": 120,
           "markdownDescription": "%template.format.wrapLineLength.desc%"
         },
+        "mpx.format.template.bracketSpacing": {
+          "type": "string",
+          "default": "true",
+          "enum": [
+            "true",
+            "false",
+            "preserve"
+          ],
+          "enumDescriptions": [
+            "%template.format.bracketSpacing.true%",
+            "%template.format.bracketSpacing.false%",
+            "%template.format.bracketSpacing.preserve%"
+          ],
+          "markdownDescription": "%template.format.bracketSpacing.desc%"
+        },
         "mpx.format.style.stylus": {
           "type": "object",
           "default": {},

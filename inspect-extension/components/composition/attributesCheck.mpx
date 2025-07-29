@@ -4,9 +4,9 @@
       <!-- @mpx-expect-error -->
       <icon />
       <!-- ^ 缺少必填属性 `type` -->
-      <button plain="{{true}}" />
-      <swiper indicator-dots="{{indicatorDots}}" autoplay="{{autoplay}}"
-        interval="{{interval}}" duration="{{duration}}" bindtap="onSwiperChange"
+      <button plain="{{ true }}" />
+      <swiper indicator-dots="{{ indicatorDots }}" autoplay="{{ autoplay }}"
+        interval="{{ interval }}" duration="{{ duration }}" bindtap="onSwiperChange"
         bindtap1="onSwiperChange">
         <block wx:for="{{backgroundList}}" wx:key="*this">
           <swiper-item>
@@ -17,7 +17,7 @@
         </block>
       </swiper>
       <input bind:blur="inputBlur" bindfocus="inputFocus" type="number"
-        placeholder="11" placeholder-style="color: #ccc;" maxlength="{{11}}" />
+        placeholder="11" placeholder-style="color: #ccc;" maxlength="{{ 11 }}" />
     </view>
   </view>
 </template>

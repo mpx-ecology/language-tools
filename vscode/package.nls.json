@@ -12,5 +12,9 @@
   "template.format.wrapAttributes.preserve": "保持属性的换行格式。",
   "template.format.wrapAttributes.preservealigned": "保持属性的换行格式但和第一个属性对齐。",
   "template.format.wrapLineLength.desc": "`<template>` 模块属性格式化时的最大行长度，超过此长度的属性会被换行（0 = 不换行）。",
+  "template.format.bracketSpacing.desc": "`<template>` 模板属性值花括号内的表达式前后空格的格式化方式。",
+  "template.format.bracketSpacing.true": "强制添加空格：\nattr=\"{{expr}}\" → attr=\"{{ expr }}\"。",
+  "template.format.bracketSpacing.false": "强制移除空格：\nattr=\"{{ expr }}\" → attr=\"{{expr}}\"。",
+  "template.format.bracketSpacing.preserve": "保持原有格式不变。",
   "style.stylus.format.desc": "`<style lang=\"stylus\">` 模块代码格式化配置，配置选项请参考 Stylus Supremacy 的[格式化选项](https://thisismanta.github.io/stylus-supremacy/#options)。\n\n_比如：_\n```\n\"mpx.format.style.stylus\": {\n  \"insertColons\": true,\n  \"insertSemicolons\": true\n}\n```"
 }
