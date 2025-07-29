@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.4.1](https://github.com/mpx-ecology/language-tools/compare/v1.4.0...v1.4.1) (2025-07-29)
+
+
+### Features
+
+* add template formatter option `bracketSpacing` ([6c3b6d1](https://github.com/mpx-ecology/language-tools/commit/6c3b6d1b07bff8b674d929586d9d7a49a226158d))
+
+
+
+
+
 # [1.4.0](https://github.com/mpx-ecology/language-tools/compare/v1.2.8...v1.4.0) (2025-07-26)
 
 
