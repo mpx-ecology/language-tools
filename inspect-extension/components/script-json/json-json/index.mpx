@@ -29,24 +29,24 @@ createPage({})
 </style>
 
 <script type="application/json">
-  {
-    "usingComponents": {
-      // Mpx 组件 from local
-      "list": "../components/list",
-      "list-error": "../components/list-error", // 预期错误路径
-      // tsconfig.json paths 别名
-      "list-alias": "@/script-json/components/list.mpx",
-      "list-alias-error": "@/script-json/components/list-error.mpx", // 预期错误路径
-      // 文件夹路径，自动寻找 index.mpx
-      "list-from-dir": "../components",
-      "list-from-dir-alias": "@/script-json/components",
-      // 原生组件 from local
-      "native-comps": "../components/native/index",
-      "native-comps-2": "../components/native2/index", // .mpx 优先级比原生组件更高
-      // 原生组件 from npm
-      "van-cell": "@vant/weapp/cell/index",
-      "van-cell-group": "@vant/weapp/cell-group/index",
-      "van-button": "@vant/weapp/button/index"
-    }
+{
+  "usingComponents": {
+    // Mpx 组件 from local
+    "list": "../components/list",
+    "list-error": "../components/list-error", // 预期错误路径
+    // tsconfig.json paths 别名
+    "list-alias": "@/script-json/components/list.mpx",
+    "list-alias-error": "@/script-json/components/list-error.mpx", // 预期错误路径
+    // 文件夹路径，自动寻找 index.mpx
+    "list-from-dir": "../components",
+    "list-from-dir-alias": "@/script-json/components",
+    // 原生组件 from local
+    "native-comps": "../components/native/index",
+    "native-comps-2": "../components/native2/index", // .mpx 优先级比原生组件更高
+    // 原生组件 from npm
+    "van-cell": "@vant/weapp/cell/index",
+    "van-cell-group": "@vant/weapp/cell-group/index",
+    "van-button": "@vant/weapp/button/index"
   }
+}
 </script>

@@ -34,7 +34,7 @@ export function create(): LanguageServicePlugin {
       }
 
       return {
-        async provideDocumentFormattingEdits(document, range) {
+        async provideDocumentFormattingEdits(document, range, options) {
           if (document.languageId !== 'stylus') {
             return
           }
@@ -42,12 +42,20 @@ export function create(): LanguageServicePlugin {
           const stylusContent = document.getText(range)
           // Windows: 使用 \r\n 作为换行符
           const newLineChar = stylusContent.includes('\r\n') ? '\r\n' : '\n'
-          const tabSpace = '  ' // 使用两个空格代替制表符 \t
           // 获取初始缩进配置
           const initialIndent =
             (await context.env.getConfiguration?.(
               'mpx.format.style.initialIndent',
             )) ?? false
+
+          let tabSpace = '  '
+          if (options.insertSpaces) {
+            // 当前文件使用空格符
+            tabSpace = ' '.repeat(options.tabSize || 2)
+          } else {
+            // 当前文件使用制表符 \t
+            tabSpace = '\t'
+          }
 
           /**
            * @see: https://thisismanta.github.io/stylus-supremacy/#options
