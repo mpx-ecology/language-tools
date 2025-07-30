@@ -12,7 +12,7 @@
   "template.format.wrapAttributes.preserve": "保持属性的换行格式。",
   "template.format.wrapAttributes.preservealigned": "保持属性的换行格式但和第一个属性对齐。",
   "template.format.wrapLineLength.desc": "`<template>` 模块属性格式化时的最大行长度，超过此长度的属性会被换行（0 = 不换行）。",
-  "template.format.bracketSpacing.desc": "`<template>` 模板属性值花括号内的表达式前后空格的格式化方式。",
+  "template.format.bracketSpacing.desc": "`<template>` 模板属性值花括号内的表达式前后空格的格式化方式。\n\nTip: 当值为 `true`（默认）时，在 `<template>` 中输入 `{{ }}` 时会自动补全插入空格。",
   "template.format.bracketSpacing.true": "强制添加空格：\nattr=\"{{expr}}\" → attr=\"{{ expr }}\"。",
   "template.format.bracketSpacing.false": "强制移除空格：\nattr=\"{{ expr }}\" → attr=\"{{expr}}\"。",
   "template.format.bracketSpacing.preserve": "保持原有格式不变。",
