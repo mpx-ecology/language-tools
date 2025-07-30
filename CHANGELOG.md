@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.6.0](https://github.com/mpx-ecology/language-tools/compare/v1.4.1...v1.6.0) (2025-07-30)
+
+
+### Bug Fixes
+
+* enhance directive comments for `wx:if` ([40dff73](https://github.com/mpx-ecology/language-tools/commit/40dff73ac7a2b01c527b073514e168fd9e0d943b))
+
+
+### Features
+
+* add autoinsert space plugin for template ([aba84ba](https://github.com/mpx-ecology/language-tools/commit/aba84bae92561da2ba2b6db69fdfbd09d8a6ffcf))
+* add template directive comments completion ([5e92b72](https://github.com/mpx-ecology/language-tools/commit/5e92b72907407ac8069a4bbbeec1ecc0f5976787))
+
+
+
+
+
 ## [1.4.1](https://github.com/mpx-ecology/language-tools/compare/v1.4.0...v1.4.1) (2025-07-29)
 
 
