@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.6.1](https://github.com/mpx-ecology/language-tools/compare/v1.6.0...v1.6.1) (2025-07-31)
+
+
+### Bug Fixes
+
+* enhance tab/space formatting option for stylus ([81970bf](https://github.com/mpx-ecology/language-tools/commit/81970bfd5c5fb38bc9bfc7465065fadc768e0d15))
+
+
+
+
+
 # [1.6.0](https://github.com/mpx-ecology/language-tools/compare/v1.4.1...v1.6.0) (2025-07-30)
 
 
