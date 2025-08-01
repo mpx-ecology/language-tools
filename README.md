@@ -1,10 +1,11 @@
 # Mpx Language Tools
 
-[![vscode-marketplace-version](https://img.shields.io/vscode-marketplace/v/mpxjs.mpx-official.svg?label=vscode%20marketplace&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=mpxjs.mpx-official)
-[![vscode-marketplace-downloads](https://img.shields.io/vscode-marketplace/d/mpxjs.mpx-official.svg?label=vscode%20marketplace%20Downloads&style=flat-square)](https://marketplace.visualstudio.com/items?itemName=mpxjs.mpx-official)
-[![open-vsx-version](https://img.shields.io/open-vsx/v/mpxjs/mpx-official?label=Open%20VSX&style=flat-square)](https://open-vsx.org/extension/mpxjs/mpx-official)
-[![open-vsx-downloads](https://img.shields.io/open-vsx/dt/mpxjs/mpx-official?label=Open%20VSX%20Downloads&style=flat-square)](https://open-vsx.org/extension/mpxjs/mpx-official)
-[![License](https://img.shields.io/github/license/mpx-ecology/language-tools.svg?label=License)](https://github.com/mpx-ecology/language-tools/blob/main/LICENSE)
+[![vscode-market-version-badge]][vscode-market-mpx-official]
+[![vscode-market-downloads-badge]][vscode-market-mpx-official]
+[![open-vsx-version-badge]][open-vsx-mpx-official]
+[![open-vsx-downloads-badge]][open-vsx-mpx-official]
+[![license-badge]][license-url]
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)][mpx-deepwiki]
 
 ## Why new Extension?
 
@@ -40,14 +41,14 @@
 
 ## Core Packages
 
-| Package                                  | Description            |
-| ---------------------------------------- | ---------------------- |
-| [`vscode`][mpx-vscode-readme]            | Mpx VS Code extension  |
-| [`@mpxjs/language-server`][server-pkg]   | LSP server             |
-| [`@mpxjs/language-service`][service-pkg] | Language service layer |
-| [`@mpxjs/language-core`][core-pkg]       | Language core layer    |
-| [`@mpxjs/typescript-plugin`][ts-pkg]     | TypeScript plugin      |
-| [`@mpxjs/language-shared`][shared-pkg]   | Shared utilities       |
+| Package                                      | Version                                                        | Downloads                                                        | Description              | Changelog                        |
+| -------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------ | -------------------------------- |
+| [`vscode`][vscode-repo]                      | [![vscode-market-version-badge-1]][vscode-market-mpx-official] | [![vscode-market-downloads-badge-1]][vscode-market-mpx-official] | Mpx (Official) extension | [Changelog][changelog]           |
+| [`@mpxjs/language-server`][server-repo]      | [![server-npm-version-badge]][server-npm-link]                 | [![server-npm-downloads-badge]][server-npm-link]                 | LSP server               | [Changelog][changelog-server]    |
+| [`@mpxjs/language-service`][service-repo]    | [![service-npm-version-badge]][service-npm-link]               | [![service-npm-downloads-badge]][service-npm-link]               | Language service layer   | [Changelog][changelog-service]   |
+| [`@mpxjs/language-core`][core-repo]          | [![core-npm-version-badge]][core-npm-link]                     | [![core-npm-downloads-badge]][core-npm-link]                     | Language core layer      | [Changelog][changelog-core]      |
+| [`@mpxjs/language-shared`][shared-repo]      | [![shared-npm-version-badge]][shared-npm-link]                 | [![shared-npm-downloads-badge]][shared-npm-link]                 | Shared utilities         | [Changelog][changelog-shared]    |
+| [`@mpxjs/typescript-plugin`][ts-plugin-repo] | [![ts-plugin-npm-version-badge]][ts-plugin-npm-link]           | [![ts-plugin-npm-downloads-badge]][ts-plugin-npm-link]           | TypeScript plugin        | [Changelog][changelog-ts-plugin] |
 
 ## Dependency Flow
 
@@ -112,28 +113,60 @@ For details on our planned features and future direction, please refer to our [R
 [Volar]: https://github.com/volarjs/volar.js
 [vue-official]: https://marketplace.visualstudio.com/items?itemName=Vue.volar
 [vue-language-tools]: https://github.com/vuejs/language-tools
-[mpx-deep-wiki]: https://deepwiki.com/mpx-ecology/language-tools
+[mpx-deepwiki]: https://deepwiki.com/mpx-ecology/language-tools
 [mpx-vscode-wiki]: https://github.com/mpx-ecology/language-tools/wiki
 [roadmap]: https://github.com/mpx-ecology/language-tools/discussions/4
 [Johnson Chu]: https://github.com/johnsoncodehk
 [pagnkelly]: https://github.com/pagnkelly
 [Soon Wang]: https://github.com/wangshunnn
 [contributing-guide]: ./CONTRIBUTING.md
+[license-badge]: https://img.shields.io/badge/license-MIT-blue
+[license-url]: https://github.com/mpx-ecology/language-tools/blob/main/LICENSE
 
 <!-- Package Links -->
 
-[mpx-vscode-readme]: vscode/README.md
-[server-pkg]: packages/language-server
-[service-pkg]: packages/language-service
-[core-pkg]: packages/language-core
-[ts-pkg]: packages/typescript-plugin
-[shared-pkg]: packages/language-shared
+[vscode-repo]: https://github.com/mpx-ecology/language-tools/blob/main/vscode
+[server-repo]: https://github.com/mpx-ecology/language-tools/blob/main/packages/language-server
+[service-repo]: https://github.com/mpx-ecology/language-tools/blob/main/packages/language-service
+[core-repo]: https://github.com/mpx-ecology/language-tools/blob/main/packages/language-core
+[shared-repo]: https://github.com/mpx-ecology/language-tools/blob/main/packages/language-shared
+[ts-plugin-repo]: https://github.com/mpx-ecology/language-tools/blob/main/packages/typescript-plugin
+
+<!-- Extension Links -->
+
+[vscode-market-version-badge]: https://img.shields.io/vscode-marketplace/v/mpxjs.mpx-official?label=VS%20Code&style=flat
+[vscode-market-version-badge-1]: https://img.shields.io/vscode-marketplace/v/mpxjs.mpx-official?label=Mpx%20(Official)&style=flat
+[vscode-market-downloads-badge]: https://img.shields.io/vscode-marketplace/d/mpxjs.mpx-official?label=VS%20Code%20Downloads&style=flat&color=brightgreen
+[vscode-market-downloads-badge-1]: https://img.shields.io/vscode-marketplace/d/mpxjs.mpx-official?color=brightgreen
+[vscode-market-mpx-official]: https://marketplace.visualstudio.com/items?itemName=mpxjs.mpx-official
+[open-vsx-version-badge]: https://img.shields.io/open-vsx/v/mpxjs/mpx-official?label=Open%20VSX&style=flat
+[open-vsx-downloads-badge]: https://img.shields.io/open-vsx/dt/mpxjs/mpx-official?label=Open%20VSX%20Downloads&style=flat&color=brightgreen
+[open-vsx-mpx-official]: https://open-vsx.org/extension/mpxjs/mpx-official
 
 <!-- NPM Badge Links -->
 
-[mpx-vscode-market]: https://img.shields.io/npm/v/@mpxjs/vscode-mpx
-[server-npm]: https://img.shields.io/npm/v/@mpxjs/language-server
-[service-npm]: https://img.shields.io/npm/v/@mpxjs/language-service
-[core-npm]: https://img.shields.io/npm/v/@mpxjs/language-core
-[ts-npm]: https://img.shields.io/npm/v/@mpxjs/typescript-plugin
-[shared-npm]: https://img.shields.io/npm/v/@mpxjs/language-shared
+[server-npm-version-badge]: https://img.shields.io/npm/v/@mpxjs/language-server/latest
+[server-npm-downloads-badge]: https://img.shields.io/npm/dy/@mpxjs/language-server
+[server-npm-link]: https://www.npmjs.com/package/@mpxjs/language-server
+[service-npm-version-badge]: https://img.shields.io/npm/v/@mpxjs/language-service/latest
+[service-npm-downloads-badge]: https://img.shields.io/npm/dy/@mpxjs/language-service
+[service-npm-link]: https://www.npmjs.com/package/@mpxjs/language-service
+[core-npm-version-badge]: https://img.shields.io/npm/v/@mpxjs/language-core/latest
+[core-npm-downloads-badge]: https://img.shields.io/npm/dy/@mpxjs/language-core
+[core-npm-link]: https://www.npmjs.com/package/@mpxjs/language-core
+[shared-npm-version-badge]: https://img.shields.io/npm/v/@mpxjs/language-shared/latest
+[shared-npm-downloads-badge]: https://img.shields.io/npm/dy/@mpxjs/language-shared
+[shared-npm-link]: https://www.npmjs.com/package/@mpxjs/language-shared
+[ts-plugin-npm-version-badge]: https://img.shields.io/npm/v/@mpxjs/typescript-plugin/latest
+[ts-plugin-npm-downloads-badge]: https://img.shields.io/npm/dy/@mpxjs/typescript-plugin
+[ts-plugin-npm-link]: https://www.npmjs.com/package/@mpxjs/typescript-plugin
+
+<!-- Changelog -->
+
+[changelog]: https://github.com/mpx-ecology/language-tools/blob/main/CHANGELOG.md
+[changelog-vscode]: https://github.com/mpx-ecology/language-tools/blob/main/vscode/CHANGELOG.md
+[changelog-server]: https://github.com/mpx-ecology/language-tools/blob/main/packages/language-server/CHANGELOG.md
+[changelog-service]: https://github.com/mpx-ecology/language-tools/blob/main/packages/language-service/CHANGELOG.md
+[changelog-core]: https://github.com/mpx-ecology/language-tools/blob/main/packages/language-core/CHANGELOG.md
+[changelog-shared]: https://github.com/mpx-ecology/language-tools/blob/main/packages/language-shared/CHANGELOG.md
+[changelog-ts-plugin]: https://github.com/mpx-ecology/language-tools/blob/main/packages/typescript-plugin/CHANGELOG.md
