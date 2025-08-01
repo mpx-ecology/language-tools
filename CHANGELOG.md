@@ -3,52 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [1.6.1](https://github.com/mpx-ecology/language-tools/compare/v1.6.0...v1.6.1) (2025-07-31)
+## [1.6.2](https://github.com/mpx-ecology/language-tools/compare/v1.6.1...v1.6.2) (2025-08-01)
 
+**Note:** Version bump only for package mpx-language-tools-core
+
+## [1.6.1](https://github.com/mpx-ecology/language-tools/compare/v1.6.0...v1.6.1) (2025-07-31)
 
 ### Bug Fixes
 
 * enhance tab/space formatting option for stylus ([81970bf](https://github.com/mpx-ecology/language-tools/commit/81970bfd5c5fb38bc9bfc7465065fadc768e0d15))
 
-
-
-
-
 # [1.6.0](https://github.com/mpx-ecology/language-tools/compare/v1.4.1...v1.6.0) (2025-07-30)
-
 
 ### Bug Fixes
 
 * enhance directive comments for `wx:if` ([40dff73](https://github.com/mpx-ecology/language-tools/commit/40dff73ac7a2b01c527b073514e168fd9e0d943b))
-
 
 ### Features
 
 * add autoinsert space plugin for template ([aba84ba](https://github.com/mpx-ecology/language-tools/commit/aba84bae92561da2ba2b6db69fdfbd09d8a6ffcf))
 * add template directive comments completion ([5e92b72](https://github.com/mpx-ecology/language-tools/commit/5e92b72907407ac8069a4bbbeec1ecc0f5976787))
 
-
-
-
-
 ## [1.4.1](https://github.com/mpx-ecology/language-tools/compare/v1.4.0...v1.4.1) (2025-07-29)
-
 
 ### Bug Fixes
 
 * resolve native components path for `usingComponents` ([885fbf5](https://github.com/mpx-ecology/language-tools/commit/885fbf59c15b12a84e50d0f1618e586fbcb4c414))
 
-
 ### Features
 
 * add template formatter option `bracketSpacing` ([6c3b6d1](https://github.com/mpx-ecology/language-tools/commit/6c3b6d1b07bff8b674d929586d9d7a49a226158d))
 
-
-
-
-
 # [1.4.0](https://github.com/mpx-ecology/language-tools/compare/v1.2.8...v1.4.0) (2025-07-26)
-
 
 ### Bug Fixes
 
@@ -57,69 +43,42 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * correct custom component redirection on Windows ([acbb740](https://github.com/mpx-ecology/language-tools/commit/acbb74018e493dd2bb2cbabb84ed5cad1ece7f0f))
 * review ([9545078](https://github.com/mpx-ecology/language-tools/commit/9545078e50155596f40c31e502ca498430068236))
 
-
 ### Features
 
 * enhance template formatting ([997ed10](https://github.com/mpx-ecology/language-tools/commit/997ed10e21345d1526ce60d5e24f96cca8d65a64))
 * support Stylus formatter with built-in data ([b418f16](https://github.com/mpx-ecology/language-tools/commit/b418f16a19b828541e23160aabffee3290b573e0))
 
-
-
-
-
 ## [1.2.8](https://github.com/mpx-ecology/language-tools/compare/v1.2.7...v1.2.8) (2025-07-24)
-
 
 ### Bug Fixes
 
 * remove unused file ([305bc4b](https://github.com/mpx-ecology/language-tools/commit/305bc4b36329ce5e335712c451702f1f24ce18da))
 
-
 ### Features
 
 * support stylus formatting with `stylus-supremacy` ([b1a6aaa](https://github.com/mpx-ecology/language-tools/commit/b1a6aaa57b6bc3bf4eabc7bdd4520cdd1a226e67))
 
-
-
-
-
 ## [1.2.7](https://github.com/mpx-ecology/language-tools/compare/v1.2.6...v1.2.7) (2025-07-24)
-
 
 ### Bug Fixes
 
 * **core:** enhance codegen for bind event ([7f93660](https://github.com/mpx-ecology/language-tools/commit/7f936608e61d89845eab7fbf805ee458f7d6843e))
 
-
-
-
-
 ## [1.2.6](https://github.com/mpx-ecology/language-tools/compare/v1.2.4...v1.2.6) (2025-07-23)
-
 
 ### Bug Fixes
 
 * review ([90979a8](https://github.com/mpx-ecology/language-tools/commit/90979a83bc7c12d6471b57ad8da7cbf7044142bb))
 
-
 ### Features
 
 * implement compiler errors handling for mpx template transformations ([d282594](https://github.com/mpx-ecology/language-tools/commit/d28259420b593ba4ea94eb6b59ffaf0828c68e56))
-
-
-
-
 
 ## [1.2.5](https://github.com/mpx-ecology/language-tools/compare/v1.2.4...v1.2.5) (2025-07-23)
 
 **Note:** Version bump only for package mpx-language-tools-core
 
-
-
-
-
 ## [1.2.4](https://github.com/mpx-ecology/language-tools/compare/v1.2.3...v1.2.4) (2025-07-22)
-
 
 ### Bug Fixes
 
@@ -127,40 +86,24 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * refine `wx:if` handling and improve whitespace management in templates ([216a2ff](https://github.com/mpx-ecology/language-tools/commit/216a2ff3f26809161e736a6fddec0598f9e4930c))
 * review ([95f0bfa](https://github.com/mpx-ecology/language-tools/commit/95f0bfa0b831341aa037e9dd4dd3ce4587fe4978))
 
-
 ### Features
 
 * enhance `wx:if` handling and support compiler error diagnostics for templates ([0151bf4](https://github.com/mpx-ecology/language-tools/commit/0151bf43508c696cda3d289fb1a73fd0c2d1126c))
 * resolve node modules by filename ([c3384e8](https://github.com/mpx-ecology/language-tools/commit/c3384e8720d64ad9336c75eb7f579dccc8e4b162))
 
-
-
-
-
 ## [1.2.3](https://github.com/mpx-ecology/language-tools/compare/v1.2.2...v1.2.3) (2025-07-21)
-
 
 ### Bug Fixes
 
 * enhance provideDiagnostics for mpx json schema ([defac98](https://github.com/mpx-ecology/language-tools/commit/defac989c71730e1e5ecce2574b76e10c66d1f3e))
 
-
-
-
-
 ## [1.2.2](https://github.com/mpx-ecology/language-tools/compare/v1.2.1...v1.2.2) (2025-07-17)
-
 
 ### Bug Fixes
 
 * resolve directory path of usingComponents ([66dcc5b](https://github.com/mpx-ecology/language-tools/commit/66dcc5be5e102e8bff336ea634db4953f403c004))
 
-
-
-
-
 ## [1.2.1](https://github.com/mpx-ecology/language-tools/compare/v1.2.0...v1.2.1) (2025-07-17)
-
 
 ### Bug Fixes
 
@@ -169,24 +112,17 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * update completion provider ([102613a](https://github.com/mpx-ecology/language-tools/commit/102613a16798b028b9ce7fce2c54758e474ca160))
 * update custom component description format to use markdown ([19097d9](https://github.com/mpx-ecology/language-tools/commit/19097d90c17619469a77f0b288a4bc04721a735e))
 
-
 ### Features
 
 * **service:** wip update arribute description message ([51b919b](https://github.com/mpx-ecology/language-tools/commit/51b919b478da44dae44ded6b49833bcd0deb4eb5))
 * **service:** wip update arribute description message ([0bc968d](https://github.com/mpx-ecology/language-tools/commit/0bc968d1d677dd9738f91bd1a0e70d4ab44f85f0))
 
-
-
-
-
 # [1.2.0](https://github.com/mpx-ecology/language-tools/compare/v1.0.4...v1.2.0) (2025-07-16)
-
 
 ### Bug Fixes
 
 * review ([0ea6118](https://github.com/mpx-ecology/language-tools/commit/0ea6118b60eefdf486ad00813ae1287792e56716))
 * review ([dbb7849](https://github.com/mpx-ecology/language-tools/commit/dbb7849a60ce77abb3b44783d7607bba9556be72))
-
 
 ### Features
 
@@ -195,12 +131,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **service:** support usingComponents document link for json-js ([a819598](https://github.com/mpx-ecology/language-tools/commit/a8195986d14b8c43cfd3599b17e99fd7cc2c3fcc))
 * **service:** update json schema ([4479a50](https://github.com/mpx-ecology/language-tools/commit/4479a50316969b6a621deab07d49119ae419c536))
 
-
-
-
-
 ## [1.0.4](https://github.com/mpx-ecology/language-tools/compare/v1.0.3...v1.0.4) (2025-07-15)
-
 
 ### Features
 
@@ -208,43 +139,25 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **service:** wip add the attributes of the tag ([55a9266](https://github.com/mpx-ecology/language-tools/commit/55a9266618dc1983b98f671d8337cf29af00f1aa))
 * **service:** wip add the attributes of the tag ([758f164](https://github.com/mpx-ecology/language-tools/commit/758f164f60544db4aef16994bd6d0802aa8ba509))
 
-
-
-
-
 ## [1.0.3](https://github.com/mpx-ecology/language-tools/compare/v1.0.2...v1.0.3) (2025-07-14)
 
 **Note:** Version bump only for package mpx-language-tools-core
-
-
-
-
 
 ## [1.0.2](https://github.com/mpx-ecology/language-tools/compare/v1.0.1...v1.0.2) (2025-07-14)
 
 **Note:** Version bump only for package mpx-language-tools-core
 
-
-
-
-
 ## [1.0.1](https://github.com/mpx-ecology/language-tools/compare/v1.0.0...v1.0.1) (2025-07-14)
 
 **Note:** Version bump only for package mpx-language-tools-core
 
-
-
-
-
 # [1.0.0](https://github.com/mpx-ecology/language-tools/compare/v0.3.0...v1.0.0) (2025-07-14)
-
 
 ### Bug Fixes
 
 * filter comment when find ifNode prev node ([b52acdb](https://github.com/mpx-ecology/language-tools/commit/b52acdb5cde41d688325178b7d84974a09107afb))
 * rename autofix.ci ([73aa68a](https://github.com/mpx-ecology/language-tools/commit/73aa68a81651760fccf2774d3bf2d8295adeffdd))
 * wx condition ([a9704d8](https://github.com/mpx-ecology/language-tools/commit/a9704d8a81805c1eeed749663a5663f7655566e3))
-
 
 ### Features
 
@@ -267,12 +180,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * support document link for json component ([9a7f9f7](https://github.com/mpx-ecology/language-tools/commit/9a7f9f75da5f372f411b481857a8c385f9dbd5a1))
 * support template global definitions ([a8c5b56](https://github.com/mpx-ecology/language-tools/commit/a8c5b56d3c28714b149062be116fb4c382ce2fc0))
 
-
-
-
-
 # [0.3.0](https://github.com/mpx-ecology/language-tools/compare/v0.2.0...v0.3.0) (2025-07-04)
-
 
 ### Bug Fixes
 
@@ -280,7 +188,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * **core:** handle properties types ([b2023bb](https://github.com/mpx-ecology/language-tools/commit/b2023bbcf2fbc8292be4ac84be565a5679a65c92))
 * **core:** unref setup returned dotValue correctly ([5ae8bec](https://github.com/mpx-ecology/language-tools/commit/5ae8bec75b6a1db0d52294d58f471948d0d36091))
 * **types:** update types ([f48eb13](https://github.com/mpx-ecology/language-tools/commit/f48eb13831d914079f3d4db7f315714bd7ae720a))
-
 
 ### Features
 
@@ -298,30 +205,19 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * update formatting for mpx json ([97f441f](https://github.com/mpx-ecology/language-tools/commit/97f441fa4a02b5f3b5d1374519e023fcce4bae25))
 * **vscode:** update information for extension ([d0efa2d](https://github.com/mpx-ecology/language-tools/commit/d0efa2d0d85c8daa9a3a781244b233eba4f72cfd))
 
-
-
-
-
 # [0.2.0](https://github.com/mpx-ecology/language-tools/compare/v0.1.0...v0.2.0) (2025-06-26)
-
 
 ### Bug Fixes
 
 * **core:** remove unnecessary ts-ignore and update code feature handling ([a62bf31](https://github.com/mpx-ecology/language-tools/commit/a62bf310459804aca9803c7cbb11d3d863f39f78))
 * **vscode:** correct markdown description ([48a606f](https://github.com/mpx-ecology/language-tools/commit/48a606fb365faca92e34a7b1310daf9ccf7024c7))
 
-
 ### Features
 
 * **service:** add template plugin for attrs completion and hover support ([075173e](https://github.com/mpx-ecology/language-tools/commit/075173ed45ef98defcaa1a68804447e73def8977))
 * **service:** enhance template plugin with improved HTML data handling ([1ecef1b](https://github.com/mpx-ecology/language-tools/commit/1ecef1bd60ea03744e631f22386d7590431e1c12))
 
-
-
-
-
 # 0.1.0 (2025-06-24)
-
 
 ### Bug Fixes
 
@@ -336,7 +232,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * update event generate logic ([93a9373](https://github.com/mpx-ecology/language-tools/commit/93a9373321a0c01fdd3eeaf6a7281b6f53b74a22))
 * update permissions in autofix workflow to fix deps install issue ([2f744f7](https://github.com/mpx-ecology/language-tools/commit/2f744f753571bb09b88a61b668160fea7b7a5427))
 * update wx:* syntaxes highlight ([843b111](https://github.com/mpx-ecology/language-tools/commit/843b111198dbc720a94fc4581df3cc40e6519edf))
-
 
 ### Features
 
