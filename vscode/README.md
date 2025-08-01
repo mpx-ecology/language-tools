@@ -1,6 +1,6 @@
 # Mpx for VS Code
 
-🧩 [Mpx VS Code 全新官方插件][mpx-extension] 为 [Mpx 语言](https://mpxjs.cn) 提供丰富的语言支持。
+🧩 [Mpx 全新官方插件][mpx-extension] 为 [Mpx 语言](https://mpxjs.cn) 提供丰富的语言支持。
 
 ## Features
 
@@ -8,7 +8,8 @@
 
 ## Feedback
 
-对于问题反馈和功能请求，请在我们的 GitHub 仓库中 [创建或查看 Issues](https://github.com/mpx-ecology/language-tools/issues)。
+对于问题反馈和功能请求，请在 GitHub 仓库中 [创建或查看 Issues](https://github.com/mpx-ecology/language-tools/issues)。<br />
+如果觉得插件对您有帮助，欢迎在 GitHub 仓库点击 [Star](https://github.com/mpx-ecology/language-tools) 支持我们！
 
 ## Credits
 
