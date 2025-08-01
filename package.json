@@ -1,6 +1,6 @@
 {
   "private": true,
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@10.14.0",
   "scripts": {
     "build": "tsc -b",
     "watch": "pnpm run \"/^watch:.*/\"",
@@ -29,14 +29,15 @@
     ]
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=23"
   },
   "devDependencies": {
+    "@lerna-lite/cli": "^4.6.2",
+    "@lerna-lite/publish": "^4.6.2",
+    "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
-    "@types/node": "catalog:",
     "eslint": "^8.55.0",
-    "lerna": "^8.2.2",
     "lint-staged": "^15.2.0",
     "picocolors": "^1.1.1",
     "prettier": "^3.5.3",
