@@ -41,14 +41,14 @@
 
 ## Core Packages
 
-| Package                                      | Version                                                        | Downloads                                                        | Description              | Changelog                        |
-| -------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------ | -------------------------------- |
-| [`vscode`][vscode-repo]                      | [![vscode-market-version-badge-1]][vscode-market-mpx-official] | [![vscode-market-downloads-badge-1]][vscode-market-mpx-official] | Mpx (Official) extension | [Changelog][changelog]           |
-| [`@mpxjs/language-server`][server-repo]      | [![server-npm-version-badge]][server-npm-link]                 | [![server-npm-downloads-badge]][server-npm-link]                 | LSP server               | [Changelog][changelog-server]    |
-| [`@mpxjs/language-service`][service-repo]    | [![service-npm-version-badge]][service-npm-link]               | [![service-npm-downloads-badge]][service-npm-link]               | Language service layer   | [Changelog][changelog-service]   |
-| [`@mpxjs/language-core`][core-repo]          | [![core-npm-version-badge]][core-npm-link]                     | [![core-npm-downloads-badge]][core-npm-link]                     | Language core layer      | [Changelog][changelog-core]      |
-| [`@mpxjs/language-shared`][shared-repo]      | [![shared-npm-version-badge]][shared-npm-link]                 | [![shared-npm-downloads-badge]][shared-npm-link]                 | Shared utilities         | [Changelog][changelog-shared]    |
-| [`@mpxjs/typescript-plugin`][ts-plugin-repo] | [![ts-plugin-npm-version-badge]][ts-plugin-npm-link]           | [![ts-plugin-npm-downloads-badge]][ts-plugin-npm-link]           | TypeScript plugin        | [Changelog][changelog-ts-plugin] |
+| Package                                    | Version                                                        | Description            | Changelog                        |
+| ------------------------------------------ | -------------------------------------------------------------- | ---------------------- | -------------------------------- |
+| [mpx-official][vscode-repo]                | [![vscode-market-version-badge-1]][vscode-market-mpx-official] | VS Code extension      | [changelog][changelog]           |
+| [@mpxjs/language-server][server-repo]      | [![server-npm-version-badge]][server-npm-link]                 | LSP server             | [changelog][changelog-server]    |
+| [@mpxjs/language-service][service-repo]    | [![service-npm-version-badge]][service-npm-link]               | Language service layer | [changelog][changelog-service]   |
+| [@mpxjs/language-core][core-repo]          | [![core-npm-version-badge]][core-npm-link]                     | Language core layer    | [changelog][changelog-core]      |
+| [@mpxjs/language-shared][shared-repo]      | [![shared-npm-version-badge]][shared-npm-link]                 | Shared utilities       | [changelog][changelog-shared]    |
+| [@mpxjs/typescript-plugin][ts-plugin-repo] | [![ts-plugin-npm-version-badge]][ts-plugin-npm-link]           | TypeScript plugin      | [changelog][changelog-ts-plugin] |
 
 ## Dependency Flow
 
