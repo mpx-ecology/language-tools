@@ -1,0 +1,43 @@
+<template>
+  <view>
+    <ScrollView onScroll="{{ onScroll }}">
+      <View>
+        <Text>{{ count }}</Text>
+      </View>
+    </ScrollView>
+  </view>
+</template>
+
+<script lang="ts">
+import { createComponent, REACTHOOKSEXEC } from '@mpxjs/core'
+import { ScrollView } from 'react-native-gesture-handler'
+import { View, Text } from 'react-native'
+import { useState } from 'react'
+
+createComponent({
+  components: {
+    ScrollView, View, Text
+  },
+  [REACTHOOKSEXEC](prop: any) {
+    // @ts-ignore
+    const {
+      padding = [],
+      disable = false,
+      headerStyle = '',
+      wrapperStyle = '',
+      contentStyle = '',
+      workletChangeY
+    } = prop
+    // 所有使用hooks的部分在此处进行注册与执行
+    const [count, setCount] = useState(0);
+    const onScroll = () => {
+      setCount(count + 1)
+    }
+    // 返回值用于可用于模板上
+    return {
+      count,
+      onScroll
+    }
+  }
+})
+</script>

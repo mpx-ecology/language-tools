@@ -102,3 +102,25 @@ export function generateSfcBlockSection(
 ): Code {
   return [block.content.slice(start, end), block.name, start, features]
 }
+
+export function* generateDefineComponent(
+  block: SfcBlock,
+  start: number,
+  end: number,
+  features: MpxCodeInformation,
+): Generator<Code> {
+  const content = block.content.slice(start, end)
+  const index = content.indexOf('[REACTHOOKSEXEC]')
+  if (index !== -1) {
+    yield [content.slice(0, index), block.name, start, features]
+    yield '__REACTHOOKSEXEC'
+    yield [
+      content.slice(index + '[REACTHOOKSEXEC]'.length),
+      block.name,
+      start + index + '[REACTHOOKSEXEC]'.length,
+      features,
+    ]
+  } else {
+    yield [content, block.name, start, features]
+  }
+}

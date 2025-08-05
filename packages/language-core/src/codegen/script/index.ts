@@ -9,7 +9,12 @@ import { generateSrc } from './src'
 import { generateTemplate } from './template'
 import { codeFeatures } from '../codeFeatures'
 import { generateComponentSelf } from './componentSelf'
-import { endOfLine, generateSfcBlockSection, newLine } from '../utils'
+import {
+  endOfLine,
+  generateDefineComponent,
+  generateSfcBlockSection,
+  newLine,
+} from '../utils'
 import { generateGlobalTypes, getGlobalTypesFileName } from '../globalTypes'
 import { ScriptCodegenContext, createScriptCodegenContext } from './context'
 import { generateScriptSetup, generateScriptSetupImports } from './scriptSetup'
@@ -127,7 +132,7 @@ export function* generateScript(
       )
       // defineComponent
       yield `const __VLS_defineComponent = ${OptionsComponentCtor[createComponentObj.ctor]}(`
-      yield generateSfcBlockSection(
+      yield* generateDefineComponent(
         options.sfc.script,
         createComponentObj.expression.start,
         createComponentObj.expression.end,
