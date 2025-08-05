@@ -6,12 +6,6 @@ declare const __is_dev__: boolean
 // #endregion
 
 declare module 'react' {
-  import * as React from 'react'
-
-  export interface React {
-    [key: string]: any
-  }
-
   // 导出 React 的常用 hooks 和组件
   export const useState: any
   export const useEffect: any
