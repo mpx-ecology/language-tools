@@ -2,12 +2,10 @@ import type { Code } from '../../types'
 import type { ScriptCodegenOptions } from './index'
 import type { ScriptCodegenContext } from './context'
 
-import { codeFeatures } from '../codeFeatures'
 import {
   type TemplateCodegenContext,
   createTemplateCodegenContext,
 } from '../template/context'
-import { generateInterpolation } from '../template/interpolation'
 import { generateStyleScopedClassReferences } from '../template/styleScopedClasses'
 import { generateStyleModules } from '../style/modules'
 import { generateStyleScopedClasses } from '../style/scopedClasses'
@@ -87,7 +85,6 @@ function* generateTemplateBody(
   yield* generateStyleScopedClasses(options, templateCodegenCtx)
   yield* generateStyleScopedClassReferences(templateCodegenCtx, true)
   yield* generateStyleModules(options)
-  yield* generateCssVars(options, templateCodegenCtx)
 
   if (options.templateCodegen) {
     yield* options.templateCodegen.codes
@@ -100,30 +97,6 @@ function* generateTemplateBody(
     yield `type __VLS_TemplateRefs = {}${endOfLine}`
     yield `type __VLS_RootEl = any${endOfLine}`
   }
-}
-
-function* generateCssVars(
-  options: ScriptCodegenOptions,
-  ctx: TemplateCodegenContext,
-): Generator<Code> {
-  if (!options.sfc.styles.length) {
-    return
-  }
-  yield `// CSS variable injection ${newLine}`
-  for (const style of options.sfc.styles) {
-    for (const cssBind of style.cssVars) {
-      yield* generateInterpolation(
-        options,
-        ctx,
-        style.name,
-        codeFeatures.all,
-        cssBind.text,
-        cssBind.offset,
-      )
-      yield endOfLine
-    }
-  }
-  yield `// CSS variable injection end ${newLine}`
 }
 
 export function getTemplateUsageVars(

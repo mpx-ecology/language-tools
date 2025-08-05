@@ -180,10 +180,6 @@ export interface Sfc {
   styles: readonly (SfcBlock & {
     scoped: boolean
     module?: SfcBlockAttr | undefined
-    cssVars: {
-      text: string
-      offset: number
-    }[]
     classNames: {
       text: string
       offset: number

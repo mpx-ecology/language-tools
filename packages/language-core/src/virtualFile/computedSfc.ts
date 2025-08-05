@@ -9,7 +9,6 @@ import type {
 } from '../types'
 import { computed, pauseTracking, resumeTracking } from 'alien-signals'
 import { parseCssClassNames } from '../utils/parseCssClassNames'
-import { parseCssVars } from '../utils/parseCssVars'
 import { computedArray } from '../utils/signals'
 import { parseUsingComponents } from '../utils/parseJsonUsingComponents'
 
@@ -186,7 +185,6 @@ export function computedSfc(
       const base = computedSfcBlock('style_' + i, 'css', getBlock)
       const getModule = computedAttrValue('__module', base, getBlock)
       const getScoped = computed(() => !!getBlock().scoped)
-      const getCssVars = computed(() => [...parseCssVars(base.content)])
       const getClassNames = computed(() => [
         ...parseCssClassNames(base.content),
       ])
@@ -197,9 +195,6 @@ export function computedSfc(
           },
           get scoped() {
             return getScoped()
-          },
-          get cssVars() {
-            return getCssVars()
           },
           get classNames() {
             return getClassNames()
