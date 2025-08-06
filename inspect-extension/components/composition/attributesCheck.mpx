@@ -5,10 +5,18 @@
       <icon />
       <!-- ^ 缺少必填属性 `type` -->
       <button plain="{{ true }}" />
-      <swiper indicator-dots="{{ indicatorDots }}" autoplay="{{ autoplay }}"
-        interval="{{ interval }}" duration="{{ duration }}"
-        bindtap="onSwiperChange" bindtap1="onSwiperChange">
-        <block wx:for="{{backgroundList}}" wx:key="*this">
+      <swiper
+        indicator-dots="{{ indicatorDots }}"
+        autoplay="{{ autoplay }}"
+        interval="{{ interval }}"
+        duration="{{ duration }}"
+        bindtap="onSwiperChange"
+        bindtap1="onSwiperChange"
+      >
+        <block
+          wx:for="{{backgroundList}}"
+          wx:key="*this"
+        >
           <swiper-item>
             <view class="swiper-item">
               {{ item }}
@@ -16,9 +24,14 @@
           </swiper-item>
         </block>
       </swiper>
-      <input bind:blur="inputBlur" bindfocus="inputFocus" type="number"
-        placeholder="11" placeholder-style="color: #ccc;"
-        maxlength="{{ 11 }}" />
+      <input
+        bind:blur="inputBlur"
+        bindfocus="inputFocus"
+        type="number"
+        placeholder="11"
+        placeholder-style="color: #ccc;"
+        maxlength="{{ 11 }}"
+      />
     </view>
   </view>
 </template>
@@ -54,3 +67,14 @@ defineExpose({
   inputFocus,
 })
 </script>
+
+<style lang="stylus">
+.page-section
+  color red
+
+.page-section-spacing
+  color red
+
+.swiper
+  color red
+</style>

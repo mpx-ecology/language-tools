@@ -2,7 +2,7 @@
   "unocss.languageIds": ["mpx"],
   "typescript.tsdk": "node_modules/typescript/lib",
   // template 格式化配置
-  "mpx.format.template.wrapAttributes": "auto",
+  "mpx.format.template.wrapAttributes": "force-expand-multiline",
   "mpx.format.template.wrapLineLength": 80,
   // stylus 格式化配置
   "mpx.format.style.stylus": {},

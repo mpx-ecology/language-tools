@@ -6,9 +6,14 @@ import { camelize } from '@mpxjs/language-shared'
 import { minimatch } from 'minimatch'
 import { toString } from 'muggle-string'
 import { codeFeatures } from '../codeFeatures'
-import { createTsAst, newLine } from '../utils'
-import { wrapWith } from '../utils/wrapWith'
-import { generateUnicode } from '../utils/unicode'
+import {
+  createTsAst,
+  generateUnicode,
+  mustacheRE,
+  mustacheREG,
+  newLine,
+  wrapWith,
+} from '../utils'
 import { hyphenateTag } from '../../utils/shared'
 import { generateInterpolation } from './interpolation'
 import { generateObjectProperty } from './objectProperty'
@@ -275,14 +280,10 @@ function* generateAttrValue(
     start++
     content = content.slice(1, -1)
   }
-  if (isWithDoubleCurly(content)) {
-    yield* generateAttrValueWithDoubleCurly(
-      options,
-      ctx,
-      content,
-      start,
-      attrNode,
-    )
+  if (mustacheRE.test(content)) {
+    yield `(`
+    yield* generateWithMustache(options, ctx, content, start, attrNode)
+    yield `)`
   } else {
     yield quote
     yield* generateUnicode(content, start, ctx.codeFeatures.withoutNavigation)
@@ -290,11 +291,59 @@ function* generateAttrValue(
   }
 }
 
-function isWithDoubleCurly(content: string): boolean {
-  return content.startsWith('{{') && content.endsWith('}}')
+function* generateWithMustache(
+  options: TemplateCodegenOptions,
+  ctx: TemplateCodegenContext,
+  content: string,
+  offset: number,
+  attrNode: CompilerDOM.TextNode,
+): Generator<Code> {
+  let match: RegExpExecArray | null
+  let lastLastIndex = 0
+  let shouldPlusBeforeExp = false
+
+  function* generateSingleStr(content: string): Generator<Code> {
+    if (lastLastIndex !== 0) {
+      yield ` + `
+    }
+    yield `'`
+    yield [content, 'template', offset + lastLastIndex, ctx.codeFeatures.all]
+    yield `'`
+  }
+
+  while ((match = mustacheREG.exec(content))) {
+    const pre = content.substring(lastLastIndex, match.index)
+    // for pre string
+    if (pre.length) {
+      yield* generateSingleStr(pre)
+      shouldPlusBeforeExp = true
+    }
+    // for exp: {{ xxx }}
+    const exp = match[1]
+    if (exp.length) {
+      if (shouldPlusBeforeExp) {
+        yield ` + `
+      }
+      yield* generateSingleMustache(
+        options,
+        ctx,
+        exp,
+        offset + match.index + 2,
+        attrNode,
+      )
+      shouldPlusBeforeExp = true
+    }
+    lastLastIndex = mustacheREG.lastIndex
+  }
+
+  // for tail str
+  const tail = content.substring(lastLastIndex)
+  if (tail.length) {
+    yield* generateSingleStr(tail)
+  }
 }
 
-function* generateAttrValueWithDoubleCurly(
+export function* generateSingleMustache(
   options: TemplateCodegenOptions,
   ctx: TemplateCodegenContext,
   content: string,
@@ -303,8 +352,6 @@ function* generateAttrValueWithDoubleCurly(
 ): Generator<Code> {
   let prefix = '('
   let suffix = ')'
-  content = content.slice(2, -2)
-  offset += 2
 
   const attrNodeAst: CompilerDOM.SourceLocation = {
     start: {
@@ -336,23 +383,6 @@ function* generateAttrValueWithDoubleCurly(
     suffix,
   )
 }
-
-// function getShouldCamelize(
-//   options: TemplateCodegenOptions,
-//   prop: CompilerDOM.AttributeNode | CompilerDOM.DirectiveNode,
-//   propName: string,
-// ) {
-//   return (
-//     (prop.type !== CompilerDOM.NodeTypes.DIRECTIVE ||
-//       !prop.arg ||
-//       (prop.arg?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION &&
-//         prop.arg.isStatic)) &&
-//     hyphenateAttr(propName) === propName &&
-//     !options.mpxCompilerOptions.htmlAttributes.some(pattern =>
-//       minimatch(propName, pattern),
-//     )
-//   )
-// }
 
 function getPropsCodeInfo(
   ctx: TemplateCodegenContext,

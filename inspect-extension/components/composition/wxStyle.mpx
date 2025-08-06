@@ -1,13 +1,21 @@
 <template>
   <view
-    wx:style="color: {{activeColor}}; font-size: {{fontSize}}px; fontWeight: bold">
+    attr1="aa {{ 11 }} bb  -  cc {{ fontSize }}  dd"
+    wx:style="{{  {{ activeColor}} }}"
+  >
     这是一段测试文字
   </view>
-  <view
-    style="color: {{activeColor}}; font-size: {{fontSize}}px; fontWeight: bold">
+
+  <view wx:style="color: {{activeColor}};font-size: {{fontSize}}px;">
     这是一段测试文字
   </view>
-  <view style="color: aliceblue;font-weight: 500;"></view>
+
+  <view style="color: {{activeColor}};font-size: {{fontSize}}px;">
+    这是一段测试文字
+  </view>
+
+  <view style="color: aliceblue;font-weight: 500;">
+  </view>
 </template>
 
 <script setup lang="ts">
