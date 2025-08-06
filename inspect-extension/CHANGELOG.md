@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.8.0](https://github.com/mpx-ecology/language-tools/compare/v1.6.2...v1.8.0) (2025-08-06)
+
+### Features
+
+* **core:** support codegen for `[REACTHOOKSEXEC]` option ([a025239](https://github.com/mpx-ecology/language-tools/commit/a0252399fd04df430e06ee6517af307e0880d66a))
+* enhance template handling with mustache syntax and improve formatting options ([a7ce3ad](https://github.com/mpx-ecology/language-tools/commit/a7ce3ad1e2f5c0686d28a928c95840c2f8b9d3d3))
+* review ([f1c6073](https://github.com/mpx-ecology/language-tools/commit/f1c6073d4d65364f827ecbfd9d80d8125ed3093f))
+
 ## [1.6.2](https://github.com/mpx-ecology/language-tools/compare/v1.6.1...v1.6.2) (2025-08-01)
 
 **Note:** Version bump only for package inspect
