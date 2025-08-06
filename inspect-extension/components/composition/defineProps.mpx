@@ -9,4 +9,5 @@ defineProps<{
   msg: string
   count?: number
 }>()
+defineExpose({})
 </script>

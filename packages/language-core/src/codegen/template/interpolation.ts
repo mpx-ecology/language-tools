@@ -170,8 +170,8 @@ function* forEachInterpolationSegment(
       ]
 
       if (isBracesVar(curVar)) {
-        // eg: "{{ a }} {{ b }}" -> "( a ) + '' + ( b )"
-        yield [curVar.bracesType === 1 ? "+ '' +(" : ')', undefined]
+        // eg: "{{ a }} {{ b }}" -> "( a ) + ' ' + ( b )"
+        yield [curVar.bracesType === 1 ? `+ ' ' +(` : `)`, undefined]
       } else {
         // eg: "{{ { a } }}" -> "{ a: ctx.a }"
         if (curVar.isShorthand) {

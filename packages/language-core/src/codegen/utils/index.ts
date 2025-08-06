@@ -6,6 +6,7 @@ import { getNodeText } from '../../utils/shared'
 
 export * from './camelized'
 export * from './escaped'
+export * from './mustache'
 export * from './stringLiteralKey'
 export * from './unicode'
 export * from './wrapWith'
