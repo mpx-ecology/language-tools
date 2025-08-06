@@ -4,7 +4,10 @@
       title: {{ title }}
       titleRef: {{ titleRef }}
     </view>
-    <view wx:class="list" bindtap="onClick">
+    <view
+      wx:class="list"
+      bindtap="onClick"
+    >
       <view> parentText: {{ parentText }} </view>
       <view> parentObj: {{ parentObj.a.b.c }} </view>
       <view> msg: {{ msg }} </view>
@@ -17,7 +20,7 @@
         {{ $tm('local.driver') }}
       </view>
     </view>
-    <view extraData="{{{ msg, content, content1: content }}}"></view>
+    <view extraData="{{ { msg, content, content1: content } }}"></view>
   </view>
 </template>
 
@@ -75,10 +78,11 @@ createComponent({
 </script>
 
 <style lang="stylus">
-  .title
-    color green
-  .list
-    background-color red
+.title
+  color green
+
+.list
+  background-color red
 </style>
 
 <script type="application/json">
