@@ -273,9 +273,18 @@ function* generateAttrValueForStyleOrClass(
   attrNode: CompilerDOM.DirectiveNode,
   propName: string,
 ) {
-  attrNode.loc.source = attrNode.loc.source.slice(`${propName}=`.length)
-  attrNode.loc.start.offset += `${propName}=`.length
-  yield* generateAttrValue(options, ctx, attrNode)
+  const adjustedNode = {
+    ...attrNode,
+    loc: {
+      ...attrNode.loc,
+      source: attrNode.loc.source.slice(`${propName}=`.length),
+      start: {
+        ...attrNode.loc.start,
+        offset: attrNode.loc.start.offset + `${propName}=`.length,
+      },
+    },
+  }
+  yield* generateAttrValue(options, ctx, adjustedNode)
 }
 
 function* generateAttrValue(
