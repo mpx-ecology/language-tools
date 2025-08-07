@@ -35,9 +35,9 @@
 | \<template\> 自定义组件跳转                  | ❌     | ✅            |
 | \<json\> mpx json 语法 schema 支持           | ❌     | ✅            |
 
-### More
+## Extension Features
 
-更多关于新版本插件的详细功能介绍和使用说明，请参阅 [Wiki 文档][mpx-vscode-wiki]。
+有关插件详细功能介绍和使用说明，请参阅 [Wiki 文档][mpx-vscode-wiki]。
 
 ## Core Packages
 
