@@ -43,6 +43,10 @@ VS Code 插件版本号规范目前仅遵循 `major.minor.patch`，未来可能�
 
 本仓库使用 lerna 进行版本管理，请使用 lerna 进行版本更新。
 
+> [!NOTE]
+>
+> 实际我们安装使用的是 [lerna-lite](https://github.com/lerna-lite/lerna-lite) 而非 lerna，因为 lerna-lite 支持 pnpm `catalog:` 协议，而 lerna 不支持。
+
 ```sh
 # 1. 更新补丁版本直接执行如下命令
 pnpm version:patch
