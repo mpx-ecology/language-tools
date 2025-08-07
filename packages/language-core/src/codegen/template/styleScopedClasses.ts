@@ -8,6 +8,7 @@ import {
   endOfLine,
   generateEscaped,
   normalizeAttributeValue,
+  replaceMustacheWithSpaces,
   wrapWith,
 } from '../utils'
 import { getNodeText } from '../../utils/shared'
@@ -55,36 +56,18 @@ export function collectStyleScopedClassReferences(
       (prop.name === 'class' || prop.name === 'wx:class') &&
       prop.value
     ) {
-      if (options.template.lang === 'pug') {
-        const getClassOffset = Reflect.get(
-          prop.value.loc.start,
-          'getClassOffset',
-        ) as (offset: number) => number
-        const content = prop.value.loc.source.slice(1, -1)
-
-        let startOffset = 1
-        for (const className of content.split(' ')) {
-          if (className) {
-            ctx.scopedClasses.push({
-              source: 'template',
-              className,
-              offset: getClassOffset(startOffset),
-            })
-          }
-          startOffset += className.length + 1
-        }
+      const isWrapped = false
+      const [content, startOffset] = normalizeAttributeValue(prop.value)
+      if (content) {
+        // 刨除表达式部分 class="xx {{ xx }}" -> class="xx         "
+        const replaced = replaceMustacheWithSpaces(content)
+        const classes = collectClasses(
+          replaced,
+          startOffset + (isWrapped ? 1 : 0),
+        )
+        ctx.scopedClasses.push(...classes)
       } else {
-        const isWrapped = false
-        const [content, startOffset] = normalizeAttributeValue(prop.value)
-        if (content) {
-          const classes = collectClasses(
-            content,
-            startOffset + (isWrapped ? 1 : 0),
-          )
-          ctx.scopedClasses.push(...classes)
-        } else {
-          ctx.emptyClassOffsets.push(startOffset)
-        }
+        ctx.emptyClassOffsets.push(startOffset)
       }
     } else if (
       prop.type === CompilerDOM.NodeTypes.DIRECTIVE &&

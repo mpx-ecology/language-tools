@@ -1,7 +1,10 @@
 <template>
   <view>
     <view class="title"> title: {{ title }} </view>
-    <view wx:class="list" bindtap="onClick">
+    <view
+      wx:class="list"
+      bindtap="onClick"
+    >
       <view> msg: {{ msg }} </view>
       <view> obj: {{ obj.a + obj.b }} </view>
       <view> content: {{ content }} </view>
@@ -48,8 +51,9 @@ defineExpose({
 </script>
 
 <style lang="stylus">
-  .title
-    color green
-  .list
-    background-color red
+.title
+  color green
+
+.list
+  background-color red
 </style>

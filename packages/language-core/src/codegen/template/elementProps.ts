@@ -128,18 +128,20 @@ export function* generateElementProps(
                 propName,
               )),
           `: `,
-          ...wrapWith(
-            prop.arg?.loc.start.offset ?? prop.loc.start.offset,
-            prop.arg?.loc.end.offset ?? prop.loc.end.offset,
-            ctx.codeFeatures.verification,
-            ...generatePropExp(
-              options,
-              ctx,
-              prop.exp,
-              ctx.codeFeatures.all,
-              enableCodeFeatures,
-            ),
-          ),
+          ...(shouldSpread
+            ? generateAttrValueForStyleOrClass(options, ctx, prop, propName)
+            : wrapWith(
+                prop.arg?.loc.start.offset ?? prop.loc.start.offset,
+                prop.arg?.loc.end.offset ?? prop.loc.end.offset,
+                ctx.codeFeatures.verification,
+                ...generatePropExp(
+                  options,
+                  ctx,
+                  prop.exp,
+                  ctx.codeFeatures.all,
+                  enableCodeFeatures,
+                ),
+              )),
         ),
       ]
       if (enableCodeFeatures) {
@@ -265,10 +267,30 @@ export function* generatePropExp(
   }
 }
 
+function* generateAttrValueForStyleOrClass(
+  options: TemplateCodegenOptions,
+  ctx: TemplateCodegenContext,
+  attrNode: CompilerDOM.DirectiveNode,
+  propName: string,
+) {
+  const adjustedNode = {
+    ...attrNode,
+    loc: {
+      ...attrNode.loc,
+      source: attrNode.loc.source.slice(`${propName}=`.length),
+      start: {
+        ...attrNode.loc.start,
+        offset: attrNode.loc.start.offset + `${propName}=`.length,
+      },
+    },
+  }
+  yield* generateAttrValue(options, ctx, adjustedNode)
+}
+
 function* generateAttrValue(
   options: TemplateCodegenOptions,
   ctx: TemplateCodegenContext,
-  attrNode: CompilerDOM.TextNode,
+  attrNode: CompilerDOM.TextNode | CompilerDOM.DirectiveNode,
 ): Generator<Code> {
   const quote = attrNode.loc.source.startsWith("'") ? "'" : '"'
   let start = attrNode.loc.start.offset
@@ -296,7 +318,7 @@ function* generateWithMustache(
   ctx: TemplateCodegenContext,
   content: string,
   offset: number,
-  attrNode: CompilerDOM.TextNode,
+  attrNode: CompilerDOM.TextNode | CompilerDOM.DirectiveNode,
 ): Generator<Code> {
   let match: RegExpExecArray | null
   let lastLastIndex = 0
@@ -348,7 +370,7 @@ export function* generateSingleMustache(
   ctx: TemplateCodegenContext,
   content: string,
   offset: number,
-  attrNode: CompilerDOM.TextNode,
+  attrNode: CompilerDOM.TextNode | CompilerDOM.DirectiveNode,
 ): Generator<Code> {
   let prefix = '('
   let suffix = ')'
