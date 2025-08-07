@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.1](https://github.com/mpx-ecology/language-tools/compare/v1.8.0...v1.8.1) (2025-08-07)
+
+### Features
+
+* enhance musatche handler for `style` and `class` ([ecd2d8c](https://github.com/mpx-ecology/language-tools/commit/ecd2d8cf02d74b8d5c5624f5f47918076c873152))
+
 # [1.8.0](https://github.com/mpx-ecology/language-tools/compare/v1.6.2...v1.8.0) (2025-08-06)
 
 ### Features
