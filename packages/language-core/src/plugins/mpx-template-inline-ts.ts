@@ -5,7 +5,11 @@ import * as CompilerDOM from '@vue/compiler-dom'
 import { isCompoundExpression } from '../codegen/template/elementEvents'
 import { parseInterpolationNode } from '../codegen/template/templateChild'
 import { parseWxForNode } from '../codegen/template/wxFor'
-import { createTsAst } from '../codegen/utils'
+import {
+  createTsAst,
+  extractMustacheContentAndPosition,
+  extractSpacingContentAndPosition,
+} from '../codegen/utils'
 
 const codeFeatures: CodeInformation = {
   format: true,
@@ -106,11 +110,22 @@ const plugin: MpxLanguagePlugin = ctx => {
                 prop.exp.content,
               )
               if (isCompoundExpression(ctx.modules.typescript, ast)) {
-                addFormatCodes(
+                const mustacheContent = extractMustacheContentAndPosition(
                   prop.exp.loc.source,
-                  prop.exp.loc.start.offset,
-                  formatBrackets.event,
                 )
+                if (mustacheContent) {
+                  addFormatCodes(
+                    mustacheContent.content,
+                    prop.exp.loc.start.offset + mustacheContent.start,
+                    formatBrackets.event,
+                  )
+                } else {
+                  addFormatCodes(
+                    prop.exp.loc.source,
+                    prop.exp.loc.start.offset,
+                    formatBrackets.event,
+                  )
+                }
               } else {
                 const lines = prop.exp.content.split('\n')
                 const firstLineEmpty = lines[0].trim() === ''
@@ -157,6 +172,7 @@ const plugin: MpxLanguagePlugin = ctx => {
               branch.condition.loc.source,
               branch.condition.loc.start.offset,
               formatBrackets.if,
+              true,
             )
           }
 
@@ -194,19 +210,14 @@ const plugin: MpxLanguagePlugin = ctx => {
               formatBrackets.for,
             )
           } else {
-            // addFormatCodes(
-            //   value!.loc.source,
-            //   value!.loc.start.offset,
-            // )
-            // addFormatCodes(
-            //   index!.loc.source,
-            //   index!.loc.start.offset,
-            //   [',', ')' + formatBrackets.for[1]],
-            // )
             addFormatCodes(
-              `(${leftExpressionText}) in ${node.parseResult.source.loc.source}`,
+              node.parseResult.source.loc.source,
               leftExpressionRange.start,
-              formatBrackets.for,
+              [
+                formatBrackets.for[0] + `(${leftExpressionText}) in `,
+                formatBrackets.for[1],
+              ],
+              true,
             )
           }
         }
@@ -254,13 +265,28 @@ const plugin: MpxLanguagePlugin = ctx => {
       code: string,
       offset: number,
       wrapper: [string, string],
+      extractSpacing = false,
     ) {
       const id = 'template_inline_ts_' + i++
-      data.set(id, [
-        wrapper[0],
-        [code, 'template', offset, codeFeatures],
-        wrapper[1],
-      ])
+      if (extractSpacing) {
+        const extracted = extractSpacingContentAndPosition(code)!
+        data.set(id, [
+          wrapper[0],
+          [
+            extracted.content,
+            'template',
+            offset + extracted.start,
+            codeFeatures,
+          ],
+          wrapper[1],
+        ])
+      } else {
+        data.set(id, [
+          wrapper[0],
+          [code, 'template', offset, codeFeatures],
+          wrapper[1],
+        ])
+      }
     }
   }
 }

@@ -203,14 +203,6 @@ export function create(): LanguageServicePlugin {
                 bracketSpacing === 'true' ? '="{{ $1 }}"' : '="{{$1}}"',
               )
             }
-            /**
-             * Special Case: wx:for="{{ xxx }}" 空格可能引发的 HTML 格式化异常
-             * wx:for="{{ xxx }}" -> wx:for="{{xxx}}"
-             */
-            newText = newText.replace(
-              /wx:for="\s*{\s*{\s*(.+?)\s*}\s*}\s*"/g,
-              'wx:for="{{$1}}"',
-            )
             res[0].newText = newText
           }
           return res
