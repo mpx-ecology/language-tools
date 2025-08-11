@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.2](https://github.com/mpx-ecology/language-tools/compare/v1.8.1...v1.8.2) (2025-08-11)
+
+### Bug Fixes
+
+* enhance codegen for `capture:` and `capture` ([b814923](https://github.com/mpx-ecology/language-tools/commit/b814923edb31b67d45590dc90fe8f8eb9e00ba3f))
+
+### Features
+
+* enhance component paths resolve for spread assignments ([c67a0bb](https://github.com/mpx-ecology/language-tools/commit/c67a0bbc85440ed806f8c5cb58538d5ecfda8243))
+* format test cases ([d85a5a3](https://github.com/mpx-ecology/language-tools/commit/d85a5a32532483977a1eeb6fff79a1bf1d9b2aba))
+
 ## [1.8.1](https://github.com/mpx-ecology/language-tools/compare/v1.8.0...v1.8.1) (2025-08-07)
 
 ### Features

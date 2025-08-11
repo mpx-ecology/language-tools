@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.2](https://github.com/mpx-ecology/language-tools/compare/v1.8.1...v1.8.2) (2025-08-11)
+
+### Bug Fixes
+
+* enhance codegen for `capture:` and `capture` ([b814923](https://github.com/mpx-ecology/language-tools/commit/b814923edb31b67d45590dc90fe8f8eb9e00ba3f))
+* enhance formatter for mustache props ([7d550d2](https://github.com/mpx-ecology/language-tools/commit/7d550d218b682a1ece12e1b8b01acfbb2e82c873))
+
 ## [1.8.1](https://github.com/mpx-ecology/language-tools/compare/v1.8.0...v1.8.1) (2025-08-07)
 
 **Note:** Version bump only for package @mpxjs/language-service
