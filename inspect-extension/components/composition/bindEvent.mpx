@@ -4,12 +4,17 @@
     <view
       bindclick='hello'
       bindtap="hello(1)"
-      bind:tap="hello1"
       catchtap="hello1"
-      catch:tap="hello1"
       capture-bind:tap="hello1"
       capture-catch:tap="hello1"
       wx:key="*this"
+    >
+    </view>
+    <view
+      bind:tap="hello1"
+      catch:tap="hello1"
+      bindaa="{{ hello }}"
+      catchdaa="{{ hello }}"
     >
     </view>
     <input
@@ -19,7 +24,7 @@
       class="input"
       placeholder="11"
       placeholder-style="color: #ccc;"
-      maxlength="{{11}}"
+      maxlength="{{ 11 }}"
     />
   </view>
 </template>
@@ -49,8 +54,8 @@ defineExpose({
 </script>
 
 <style lang="stylus">
-  .list
-    background-color red
+.list
+  background-color red
 </style>
 
 <script type="application/json">

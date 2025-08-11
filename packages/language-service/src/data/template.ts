@@ -8,6 +8,7 @@ import {
 } from './utils'
 
 const MpxRNCompUrl = `${MpxGuideUrl}/platform/rn.html#`
+const MpxRNEventUrl = `${MpxGuideUrl}/basic/event.html`
 const WxCompUrl = `${WxDocsUrl}/component`
 const RNBasicComp = '跨端输出 RN'
 
@@ -2614,7 +2615,7 @@ const data: html.HTMLDataV1 = {
         value: '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸动作开始。',
       },
       references: [
-        { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
+        { name: MpxDocs, url: MpxRNEventUrl },
         {
           name: WxDocs,
           url: `${WxDocsUrl}/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E8%AF%A6%E8%A7%A3`,
@@ -2628,7 +2629,7 @@ const data: html.HTMLDataV1 = {
         value: '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸后移动。',
       },
       references: [
-        { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
+        { name: MpxDocs, url: MpxRNEventUrl },
         {
           name: WxDocs,
           url: `${WxDocsUrl}/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E8%AF%A6%E8%A7%A3`,
@@ -2643,7 +2644,7 @@ const data: html.HTMLDataV1 = {
           '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸动作被打断，如来电提醒，弹窗。',
       },
       references: [
-        { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
+        { name: MpxDocs, url: MpxRNEventUrl },
         {
           name: WxDocs,
           url: `${WxDocsUrl}/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E8%AF%A6%E8%A7%A3`,
@@ -2657,7 +2658,7 @@ const data: html.HTMLDataV1 = {
         value: '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸动作结束。',
       },
       references: [
-        { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
+        { name: MpxDocs, url: MpxRNEventUrl },
         {
           name: WxDocs,
           url: `${WxDocsUrl}/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E8%AF%A6%E8%A7%A3`,
@@ -2671,7 +2672,7 @@ const data: html.HTMLDataV1 = {
         value: '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸后马上离开。',
       },
       references: [
-        { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
+        { name: MpxDocs, url: MpxRNEventUrl },
         {
           name: WxDocs,
           url: `${WxDocsUrl}/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E8%AF%A6%E8%A7%A3`,
@@ -2686,7 +2687,7 @@ const data: html.HTMLDataV1 = {
           '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸后，超过 350ms 再离开，推荐使用 `longpress` 代替 `longtap`。',
       },
       references: [
-        { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
+        { name: MpxDocs, url: MpxRNEventUrl },
         {
           name: WxDocs,
           url: `${WxDocsUrl}/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E8%AF%A6%E8%A7%A3`,
@@ -2701,7 +2702,7 @@ const data: html.HTMLDataV1 = {
           '事件绑定 - 常用事件。\n\n- 触发条件：手指触摸后，超过 350ms 再离开，推荐使用 `longpress` 代替 `longtap`。',
       },
       references: [
-        { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
+        { name: MpxDocs, url: MpxRNEventUrl },
         {
           name: WxDocs,
           url: `${WxDocsUrl}/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E8%AF%A6%E8%A7%A3`,
@@ -2716,7 +2717,7 @@ const data: html.HTMLDataV1 = {
           '事件绑定的基础绑定方式 - **阻止冒泡**。\n\n- 事件绑定的写法同组件的属性，以 key、value 的形式。\n\n  ```html\n  <view catchtap="handleTap">阻止冒泡的点击事件</view>\n  <!-- 也可以写成 -->\n  <view catch:tap="handleTap">阻止冒泡的点击事件</view>\n  ```\n\n)',
       },
       references: [
-        { name: MpxDocs, url: '${MpxGuideUrl}/basic/event.html' },
+        { name: MpxDocs, url: MpxRNEventUrl },
         {
           name: WxDocs,
           url: `${WxDocsUrl}/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E8%AF%A6%E8%A7%A3`,
