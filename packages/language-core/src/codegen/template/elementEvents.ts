@@ -83,18 +83,20 @@ export function* generateEventArg(
     ...ctx.codeFeatures.navigationWithoutRename,
   }
 
-  if (name.startsWith('bind:')) {
-    // bind:xx -> 'bindxx'
+  const prefixMatch = name.match(/^(bind|catch):(.+)$/)
+  if (prefixMatch) {
+    const [, prefix, eventName] = prefixMatch
+    // bind:xx -> 'bindxx' or catch:xx -> 'catchxx'
     yield* wrapWith(
       start,
       start + name.length,
       features,
       `'`,
-      ['bind', 'template', start, features],
+      [prefix, 'template', start, features],
       [
-        name.slice('bind:'.length),
+        eventName,
         'template',
-        start + 'bind:'.length,
+        start + prefix.length + 1, // +1 for the ':'
         features,
       ],
       `'`,
