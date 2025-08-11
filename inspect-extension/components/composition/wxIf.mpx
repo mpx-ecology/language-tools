@@ -1,13 +1,13 @@
 <template>
   <view>
     <!-- Case1: Type Narrowing 类型收窄 -->
-    <view wx:if="{{typeof msg === 'string'}}">
+    <view wx:if="{{ typeof msg === 'string' }}">
       msg should be string: {{ msg }}
     </view>
-    <view wx:elif="{{typeof msg === 'number'}}">
+    <view wx:elif="{{ typeof msg === 'number' }}">
       msg should be number: {{ msg }}
     </view>
-    <view wx:elif="{{typeof msg === 'boolean'}}">
+    <view wx:elif="{{ typeof msg === 'boolean' }}">
       msg should be boolean: {{ msg }}
     </view>
     <view wx:else>
@@ -15,35 +15,34 @@
     </view>
 
     <!-- Case2: Type Narrowing for undefined -->
-    <view wx:if="{{status}}">
+    <view wx:if="{{ status }}">
       {{ status.message }}
     </view>
 
     <!-- Case3: Type Narrowing -->
-    <view wx:if="{{typeof foo === 'string'}}">
+    <view wx:if="{{ typeof foo === 'string' }}">
       {{ foo }}
     </view>
 
     <!-- Case4: 嵌套 -->
-    <view wx:if="{{status?.message}}">
-      <view wx:if="{{msg}}">{{ msg }}</view>
+    <view wx:if="{{ status?.message }}">
+      <view wx:if="{{ msg }}">{{ msg }}</view>
       <view wx:else>{{ msg }}</view>
 
-      <view wx:if="{{status.message}}">{{ status.message }}</view>
+      <view wx:if="{{ status.message }}">{{ status.message }}</view>
       <view wx:else>status.message is undefined</view>
     </view>
     <view wx:else>{{ status?.message }}</view>
 
     <!-- Case5: skip comment -->
-    <view wx:if="{{status?.message && msg}}">
+    <view wx:if="{{ status?.message && msg }}">
     </view>
     <!-- comment -->
     <view wx:else>{{ status?.message }}</view>
 
-    <!-- Case6: 错误 -->
-    <view wx:elif="{{msg && status?.message}}">
+    <view wx:elif="{{ msg && status?.message }}">
     </view>
-    <view wx:elif="{{hello}}">
+    <view wx:elif="{{ hello }}">
       msg is undefined or status.message is undefined
     </view>
   </view>

@@ -2,31 +2,50 @@
   <Comp bindclick="hello" />
   <view class="list">
     <view
-      bindclick='hello'
-      bindtap="hello(1)"
-      catchtap="hello1"
-      capture-bind:tap="hello1"
-      capture-catch:tap="hello1"
+      wx:if="{{ hello + '1' }}"
       wx:key="*this"
-    >
-    </view>
-    <view
-      bind:tap="hello1"
-      catch:tap="hello1"
-      bindaa="{{ hello }}"
-      catchdaa="{{ hello }}"
-    >
-    </view>
-    <input
-      bind:blur="inputBlur"
-      bindfocus="inputFocus"
-      type="number"
-      class="input"
-      placeholder="11"
-      placeholder-style="color: #ccc;"
-      maxlength="{{ 11 }}"
     />
   </view>
+  <view
+    wx:for="{{ [1, 2, 3] }}"
+    wx:for-item="item1"
+    wx:key="*this"
+  >
+    Case4: use wx:for-item.
+    {{ item1 }} {{ index }}
+  </view>
+  <view
+    bindclick='hello'
+    bindtap="hello(1)"
+    catchtap="hello1"
+    capture-bind:tap="hello1"
+    capture-catch:tap="hello1"
+    wx:key="*this"
+  >
+  </view>
+  <view
+    bind:tap="hello1"
+    catch:tap="hello1"
+    bindaa="{{ hello }}"
+    catchdaa="{{ hello }}"
+  />
+  <view
+    a1="{{ hello }}"
+    binda1="{{ hello }}"
+    binda2="hello"
+    binda3="() => hello"
+    binda4="{{ () => hello }}"
+    binda5="{{ hello2.hello1 }}"
+  />
+  <input
+    bind:blur="inputBlur"
+    bindfocus="inputFocus"
+    type="number"
+    class="input"
+    placeholder="11"
+    placeholder-style="color: #ccc;"
+    maxlength="{{ 11 }}"
+  />
 </template>
 
 <script setup lang="ts">
@@ -48,6 +67,9 @@ const inputFocus = (e: any) => {
 defineExpose({
   hello,
   hello1,
+  hello2: {
+    hello1
+  },
   inputBlur,
   inputFocus
 })

@@ -14,7 +14,7 @@
         bindtap1="onSwiperChange"
       >
         <block
-          wx:for="{{backgroundList}}"
+          wx:for="{{ backgroundList }}"
           wx:key="*this"
         >
           <swiper-item>
