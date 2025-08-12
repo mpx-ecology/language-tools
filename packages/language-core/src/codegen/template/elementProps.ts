@@ -304,7 +304,7 @@ function* generateAttrValue(
   }
   if (mustacheRE.test(content)) {
     yield `(`
-    yield* generateWithMustache(options, ctx, content, start, attrNode)
+    yield* generateWithMustache(options, ctx, content, start, attrNode, quote)
     yield `)`
   } else {
     yield quote
@@ -319,6 +319,7 @@ function* generateWithMustache(
   content: string,
   offset: number,
   attrNode: CompilerDOM.TextNode | CompilerDOM.DirectiveNode,
+  quote: `'` | `"`,
 ): Generator<Code> {
   let match: RegExpExecArray | null
   let lastLastIndex = 0
@@ -328,9 +329,9 @@ function* generateWithMustache(
     if (lastLastIndex !== 0) {
       yield ` + `
     }
-    yield `'`
+    yield quote
     yield [content, 'template', offset + lastLastIndex, ctx.codeFeatures.all]
-    yield `'`
+    yield quote
   }
 
   while ((match = mustacheREG.exec(content))) {
