@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.3](https://github.com/mpx-ecology/language-tools/compare/v1.8.2...v1.8.3) (2025-08-12)
+
+### Bug Fixes
+
+* **core:** enhance codegen for style url value ([0e3f7e0](https://github.com/mpx-ecology/language-tools/commit/0e3f7e0435e2c3c1277b8077082850b83244284f))
+* **core:** prevent duplicate error reporting in options component ([9f18ccd](https://github.com/mpx-ecology/language-tools/commit/9f18ccd5a474aa92e650155d05f33f927524f708))
+
 ## [1.8.2](https://github.com/mpx-ecology/language-tools/compare/v1.8.1...v1.8.2) (2025-08-11)
 
 ### Bug Fixes
