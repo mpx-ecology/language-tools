@@ -1,0 +1,91 @@
+<template>
+  <view>
+    <view class="title">
+      title: {{ title }}
+      titleRef: {{ titleRef }}
+    </view>
+    <view
+      wx:class="list"
+      bindtap="onClick"
+    >
+      <view> parentText: {{ parentText }} </view>
+      <view> parentObj: {{ parentObj.a.b.c }} </view>
+      <view> msg: {{ msg }} </view>
+      <view> obj: {{ obj.a + obj.b }} </view>
+      <view> content: {{ content }} </view>
+    </view>
+    <view class="title">
+      {{ $t('local.title') }}
+      <view>
+        {{ $tm('local.driver') }}
+      </view>
+    </view>
+    <view extraData="{{ { msg, content, content1: content } }}"></view>
+  </view>
+</template>
+
+<script lang="ts">
+import { createComponent, ref } from '@mpxjs/core'
+
+const a: string = false
+
+createComponent({
+  properties: {
+    parentText: {
+      type: String,
+      value: 'parent text',
+    },
+    parentObj: {
+      type: Object,
+      value: {},
+    }
+  },
+  data() {
+    return {}
+  },
+  setup(props, context) {
+    const a: string = false
+    console.log('setup', props.parentText)
+    context.triggerEvent('requestSuccess', {})
+    return {
+      title: 'Mpx component',
+      titleRef: ref('Mpx component'),
+    }
+  },
+  computed: {
+    content() {
+      return this.msg
+    },
+    countLength() {
+      return this.content.length
+    },
+  },
+  methods: {
+    onClick() {
+      console.log('click', this.titleRef, this.content, this.$forceUpdate)
+      console.log('---> debug', this.parentObj)
+      this.count++
+    }
+  },
+  lifetimes: {
+    detached() {
+      console.log('detached')
+    }
+  }
+})
+</script>
+
+<style lang="stylus">
+.title
+  color green
+
+.list
+  background-color red
+</style>
+
+<script type="application/json">
+  {
+    "component": true,
+    "usingComponents": {}
+  }
+</script>

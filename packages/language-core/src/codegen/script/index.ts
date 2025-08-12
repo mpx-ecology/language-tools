@@ -136,7 +136,10 @@ export function* generateScript(
         options.sfc.script,
         createComponentObj.expression.start,
         createComponentObj.expression.end,
-        codeFeatures.all,
+        {
+          ...codeFeatures.all,
+          verification: false, // 避免重复报错
+        },
       )
       yield ')'
       yield endOfLine
