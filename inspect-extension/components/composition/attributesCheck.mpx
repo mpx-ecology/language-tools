@@ -32,8 +32,8 @@
         placeholder-style="color: #ccc;"
         maxlength="{{ 11 }}"
       />
-      <image style="background-image: url('{{ tagUrl }}')" />
-      <image style="background-image: url({{ tagUrl }})" />
+      <view style="background-image: url('{{ tagUrl }}')" />
+      <view style="background-image: url({{ tagUrl }})" />
     </view>
   </view>
 </template>
