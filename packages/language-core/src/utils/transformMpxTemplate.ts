@@ -288,7 +288,7 @@ function tryProcessWxFor(node: ElNode, options: CompilerOptions) {
       const valueNode = createVarNode(value, 'item')
       const indexNode = createVarNode(index, 'index')
       const source = {
-        constType: 0,
+        constType: CompilerDOM.ConstantTypes.NOT_CONSTANT,
         content: contentLoc.source,
         isStatic: !isExpression,
         loc: {
