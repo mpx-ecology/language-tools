@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.4](https://github.com/mpx-ecology/language-tools/compare/v1.8.3...v1.8.4) (2025-08-14)
+
+### Bug Fixes
+
+* **core:** enhance `parseResult.source.loc` for `wx:for` in `updateSFCTemplate` ([115d499](https://github.com/mpx-ecology/language-tools/commit/115d49917ebcb8c9317a3f83f467883e6285af88))
+
+### Features
+
+* review ([1bde9e2](https://github.com/mpx-ecology/language-tools/commit/1bde9e25d25a546f1c17c67fa95563215c1d70a5))
+
 ## [1.8.3](https://github.com/mpx-ecology/language-tools/compare/v1.8.2...v1.8.3) (2025-08-12)
 
 ### Bug Fixes
