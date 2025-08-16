@@ -1,0 +1,35 @@
+<template>
+  <view class="list">
+    {{ msg }} - {{ content }}
+  </view>
+</template>
+
+<script lang="ts" setup>
+defineOptions({
+  data: {
+    // defineOptions 和 defineExpose 的导出重复时会触发运行时 console.error 日志
+    // 优先级：defineOptions > defineExpose
+    msg: 'hello'
+  },
+  computed: {
+    content() {
+      return this.msg
+    },
+  },
+})
+
+defineExpose({
+  msg: 'hi'
+})
+</script>
+
+<style lang="stylus">
+.list
+  background-color red
+</style>
+
+<script type="application/json">
+  {
+    "component": true
+  }
+</script>
