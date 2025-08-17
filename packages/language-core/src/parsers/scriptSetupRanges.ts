@@ -49,6 +49,8 @@ type DefineExpose = CallExpressionRange
 
 type DefineOptions = CallExpressionRange
 
+type OnReactHooksExec = CallExpressionRange
+
 type UseTemplateRef = CallExpressionRange & {
   name?: string
 }
@@ -67,6 +69,7 @@ export function parseScriptSetupRanges(
   let defineSlots: DefineSlots | undefined
   let defineExpose: DefineExpose | undefined
   let defineOptions: DefineOptions | undefined
+  let onReactHooksExec: OnReactHooksExec | undefined
   const useTemplateRef: UseTemplateRef[] = []
   const text = ast.text
 
@@ -120,6 +123,7 @@ export function parseScriptSetupRanges(
     defineSlots,
     defineExpose,
     defineOptions,
+    onReactHooksExec,
     useTemplateRef,
   }
 
@@ -261,6 +265,15 @@ export function parseScriptSetupRanges(
         !node.typeArguments?.length
       ) {
         useTemplateRef.push(parseCallExpressionAssignment(node, parent))
+      } else if (
+        mpxCompilerOptions.reactHooks.includes(callText) &&
+        node.arguments.length &&
+        ts.isArrowFunction(node.arguments[0])
+      ) {
+        const res = parseCallExpression(node)
+        if (res.arg) {
+          onReactHooksExec = res
+        }
       }
     }
 

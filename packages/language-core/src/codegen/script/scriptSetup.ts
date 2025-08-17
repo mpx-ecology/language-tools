@@ -86,6 +86,49 @@ function* generateSetupFunction(
       ),
     )
   }
+  if (scriptSetupRanges.defineOptions) {
+    const { callExp, arg } = scriptSetupRanges.defineOptions
+    if (arg) {
+      setupCodeModifies.push([
+        [
+          `const __VLS_defineOptions = DefineComponent(`,
+          generateSfcBlockSection(scriptSetup, arg.start, arg.end, {
+            ...codeFeatures.all,
+            verification: false, // 避免重复报错
+          }),
+          `)${endOfLine}`,
+        ],
+        callExp.start,
+        callExp.start,
+      ])
+    } else {
+      setupCodeModifies.push([
+        [`const __VLS_defineOptions = {}${endOfLine}`],
+        callExp.start,
+        callExp.start,
+      ])
+    }
+  }
+  if (scriptSetupRanges.onReactHooksExec) {
+    const { callExp, arg } = scriptSetupRanges.onReactHooksExec
+    if (arg) {
+      setupCodeModifies.push(
+        [
+          [
+            `const __VLS_onReactHooksExec = `,
+            generateSfcBlockSection(scriptSetup, arg.start, arg.end, {
+              ...codeFeatures.all,
+              verification: false, // 避免重复报错
+            }),
+            `)${endOfLine}`,
+          ],
+          callExp.start,
+          callExp.start,
+        ],
+        [[`__VLS_onReactHooksExec`], arg.start, arg.end],
+      )
+    }
+  }
   if (scriptSetupRanges.defineExpose) {
     const { callExp, arg, typeArg } = scriptSetupRanges.defineExpose
     if (typeArg) {
@@ -127,29 +170,6 @@ function* generateSetupFunction(
     } else {
       setupCodeModifies.push([
         [`const __VLS_defineExpose = {}${endOfLine}`],
-        callExp.start,
-        callExp.start,
-      ])
-    }
-  }
-  if (scriptSetupRanges.defineOptions) {
-    const { callExp, arg } = scriptSetupRanges.defineOptions
-    if (arg) {
-      setupCodeModifies.push([
-        [
-          `const __VLS_defineOptions = DefineComponent(`,
-          generateSfcBlockSection(scriptSetup, arg.start, arg.end, {
-            ...codeFeatures.all,
-            verification: false, // 避免重复报错
-          }),
-          `)${endOfLine}`,
-        ],
-        callExp.start,
-        callExp.start,
-      ])
-    } else {
-      setupCodeModifies.push([
-        [`const __VLS_defineOptions = {}${endOfLine}`],
         callExp.start,
         callExp.start,
       ])
