@@ -47,9 +47,7 @@ type DefineSlots = CallExpressionRange & {
 
 type DefineExpose = CallExpressionRange
 
-type DefineOptions = {
-  name?: string
-}
+type DefineOptions = CallExpressionRange
 
 type UseTemplateRef = CallExpressionRange & {
   name?: string
@@ -257,16 +255,7 @@ export function parseScriptSetupRanges(
         node.arguments.length &&
         ts.isObjectLiteralExpression(node.arguments[0])
       ) {
-        defineOptions = {}
-        const obj = node.arguments[0]
-        for (const prop of obj.properties) {
-          if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
-            const name = _getNodeText(prop.name)
-            if (name === 'name' && ts.isStringLiteral(prop.initializer)) {
-              defineOptions.name = prop.initializer.text
-            }
-          }
-        }
+        defineOptions = parseCallExpression(node)
       } else if (
         mpxCompilerOptions.composables.useTemplateRef.includes(callText) &&
         !node.typeArguments?.length

@@ -141,8 +141,7 @@ export function* generateScript(
           verification: false, // 避免重复报错
         },
       )
-      yield ')'
-      yield endOfLine
+      yield `)${endOfLine}`
     } else {
       yield generateSfcBlockSection(
         options.sfc.script,

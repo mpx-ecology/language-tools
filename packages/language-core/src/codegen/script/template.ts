@@ -31,16 +31,20 @@ export function* generateTemplate(
 
 function* generateTemplateCtx(options: ScriptCodegenOptions): Generator<Code> {
   if (options.sfc.scriptSetup) {
-    const { defineProps, defineExpose } = options.scriptSetupRanges || {}
+    const { defineOptions, defineProps, defineExpose } =
+      options.scriptSetupRanges || {}
     if (!defineProps) {
       yield `const __VLS_defineProps = {}${endOfLine}`
+    }
+    if (!defineOptions) {
+      yield `const __VLS_defineOptions = {}${endOfLine}`
     }
     if (!defineExpose) {
       yield `const __VLS_defineExposeUnrefs = {}${endOfLine}`
     } else {
       yield `const __VLS_defineExposeUnrefs = __VLS_defineExpose as any as UnwrapRefs<typeof __VLS_defineExpose>${newLine}`
     }
-    yield `const __MPX_ctx = { ...__VLS_defineProps, ...__VLS_defineExposeUnrefs }${endOfLine}`
+    yield `const __MPX_ctx = { ...__VLS_defineProps, ...__VLS_defineExposeUnrefs, ...__VLS_defineOptions }${endOfLine}`
   } else {
     yield `const __MPX_ctx = __VLS_defineComponent${endOfLine}`
   }

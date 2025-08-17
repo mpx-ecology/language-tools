@@ -132,6 +132,29 @@ function* generateSetupFunction(
       ])
     }
   }
+  if (scriptSetupRanges.defineOptions) {
+    const { callExp, arg } = scriptSetupRanges.defineOptions
+    if (arg) {
+      setupCodeModifies.push([
+        [
+          `const __VLS_defineOptions = DefineComponent(`,
+          generateSfcBlockSection(scriptSetup, arg.start, arg.end, {
+            ...codeFeatures.all,
+            verification: false, // 避免重复报错
+          }),
+          `)${endOfLine}`,
+        ],
+        callExp.start,
+        callExp.start,
+      ])
+    } else {
+      setupCodeModifies.push([
+        [`const __VLS_defineOptions = {}${endOfLine}`],
+        callExp.start,
+        callExp.start,
+      ])
+    }
+  }
   const isTs = options.lang !== 'js'
   for (const { callExp, exp, arg } of scriptSetupRanges.useTemplateRef) {
     const templateRefType = arg
