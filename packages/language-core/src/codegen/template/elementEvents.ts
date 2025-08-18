@@ -2,7 +2,7 @@ import type * as ts from 'typescript'
 import type { Code } from '../../types'
 import * as CompilerDOM from '@vue/compiler-dom'
 import { camelize } from '@mpxjs/language-shared'
-import { endOfLine, newLine } from '../utils'
+import { createTsAst, endOfLine, newLine } from '../utils'
 import { wrapWith } from '../utils/wrapWith'
 import type { TemplateCodegenContext } from './context'
 import type { TemplateCodegenOptions } from './index'
@@ -124,8 +124,8 @@ export function* generateEventExpression(
     let suffix = `)`
     let isFirstMapping = true
 
-    // const ast = createTsAst(options.ts, prop.exp, prop.exp.content)
-    const _isCompoundExpression = false // isCompoundExpression(options.ts, ast)
+    const ast = createTsAst(options.ts, prop.exp, prop.exp.content)
+    const _isCompoundExpression = isCompoundExpression(options.ts, ast)
     if (_isCompoundExpression) {
       yield `(...[$event]) => {${newLine}`
       ctx.addLocalVariable('$event')

@@ -46,6 +46,11 @@
     placeholder-style="color: #ccc;"
     maxlength="{{ 11 }}"
   />
+  <image
+    bindclick='hello'
+    binderror="handleImageError('imgError', $event)"
+    wx:key="*this"
+  />
 </template>
 
 <script setup lang="ts">
@@ -64,6 +69,13 @@ const inputFocus = (e: any) => {
   console.log('input focus', e.detail.value)
 }
 
+const handleImageError = (msg: string, e?: any) => {
+  console.log('Error', {
+    msg,
+    error: e?.detail?.errMsg
+  })
+}
+
 defineExpose({
   hello,
   hello1,
@@ -71,7 +83,8 @@ defineExpose({
     hello1
   },
   inputBlur,
-  inputFocus
+  inputFocus,
+  handleImageError
 })
 </script>
 
