@@ -326,16 +326,17 @@ export function* generateElement(
       ? node.loc.start.offset + node.loc.source.lastIndexOf(node.tag)
       : undefined
   const failedPropExps: FailedPropExpression[] = []
+  const isExternalNodeTag = options.usingComponents?.has(node.tag) ?? false
 
-  ctx.currentComponent?.childTypes.push(`__VLS_NativeElements['${node.tag}']`)
+  ctx.currentComponent?.childTypes.push(
+    `__VLS_NativeElements['${isExternalNodeTag ? 'external-' : ''}${node.tag}']`,
+  )
 
   ctx.templateNodeTags.push({
     name: node.tag,
     startTagOffset: startTagOffset,
     endTagOffset: endTagOffset,
   })
-
-  const isExternalNodeTag = options.usingComponents?.has(node.tag) ?? false
 
   yield `__VLS_asFunctionalElement(__VLS_elements`
   yield* generateElementNodeTag(
@@ -381,14 +382,16 @@ export function* generateElement(
 
   const [refName, offset] = yield* generateElementReference(options, ctx, node)
   if (refName && offset) {
-    let typeExp = `__VLS_NativeElements['${node.tag}']`
+    let typeExp = `__VLS_NativeElements['${isExternalNodeTag ? 'external-' : ''}${node.tag}']`
     if (ctx.inWxFor) {
       typeExp += `[]`
     }
     ctx.addTemplateRef(refName, typeExp, offset)
   }
   if (ctx.singleRootNodes.has(node)) {
-    ctx.singleRootElTypes.push(`__VLS_NativeElements['${node.tag}']`)
+    ctx.singleRootElTypes.push(
+      `__VLS_NativeElements['${isExternalNodeTag ? 'external-' : ''}${node.tag}']`,
+    )
   }
 
   collectStyleScopedClassReferences(options, ctx, node)
