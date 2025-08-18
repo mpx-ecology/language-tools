@@ -335,22 +335,26 @@ export function* generateElement(
     endTagOffset: endTagOffset,
   })
 
+  const isExternalNodeTag = options.usingComponents?.has(node.tag) ?? false
+
   yield `__VLS_asFunctionalElement(__VLS_elements`
-  yield* generatePropertyAccess(
+  yield* generateElementNodeTag(
     options,
     ctx,
     node.tag,
     startTagOffset,
     ctx.codeFeatures.withoutHighlightAndCompletion,
+    isExternalNodeTag,
   )
   if (endTagOffset !== undefined) {
     yield `, __VLS_elements`
-    yield* generatePropertyAccess(
+    yield* generateElementNodeTag(
       options,
       ctx,
       node.tag,
       endTagOffset,
       ctx.codeFeatures.withoutHighlightAndCompletion,
+      isExternalNodeTag,
     )
   }
   yield `)(`
@@ -393,6 +397,26 @@ export function* generateElement(
   ctx.currentComponent = undefined
   yield* generateElementChildren(options, ctx, node.children)
   ctx.currentComponent = currentComponent
+}
+
+function* generateElementNodeTag(
+  options: TemplateCodegenOptions,
+  ctx: TemplateCodegenContext,
+  code: string,
+  offset: number,
+  features: MpxCodeInformation,
+  isExternalNodeTag = false,
+): Generator<Code> {
+  if (isExternalNodeTag) {
+    // 外部引用组件，可能会覆盖同名原生组件
+    // eg: <map> -> __VLS_elements['external-map']
+    yield `['external-`
+    yield [code, 'template', offset, features]
+    yield `']`
+  } else {
+    // 内置原生组件 eg: <map> -> __VLS_elements.map
+    yield* generatePropertyAccess(options, ctx, code, offset, features)
+  }
 }
 
 function* generateFailedPropExps(
