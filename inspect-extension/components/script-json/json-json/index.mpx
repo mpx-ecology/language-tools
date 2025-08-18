@@ -9,11 +9,21 @@
     <list-alias-error />
 
     <van-cell-group inset>
-      <van-cell title="单元格" value="内容" />
-      <van-cell title="单元格" value="内容" label="描述信息" />
+      <van-cell
+        title="单元格"
+        value="内容"
+      />
+      <van-cell
+        title="单元格"
+        value="内容"
+        label="描述信息"
+      />
     </van-cell-group>
 
     <native-comps />
+
+    <!-- usingComponents 优先级 > 原生组件 -->
+    <map />
   </view>
 </template>
 
@@ -46,7 +56,8 @@ createPage({})
     // 原生组件 from npm
     "van-cell": "@vant/weapp/cell/index",
     "van-cell-group": "@vant/weapp/cell-group/index",
-    "van-button": "@vant/weapp/button/index"
+    "van-button": "@vant/weapp/button/index",
+    "map": "../components/list",
   }
 }
 </script>

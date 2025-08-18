@@ -326,8 +326,11 @@ export function* generateElement(
       ? node.loc.start.offset + node.loc.source.lastIndexOf(node.tag)
       : undefined
   const failedPropExps: FailedPropExpression[] = []
+  const isExternalNodeTag = options.usingComponents?.has(node.tag) ?? false
 
-  ctx.currentComponent?.childTypes.push(`__VLS_NativeElements['${node.tag}']`)
+  ctx.currentComponent?.childTypes.push(
+    `__VLS_NativeElements['${isExternalNodeTag ? 'external-' : ''}${node.tag}']`,
+  )
 
   ctx.templateNodeTags.push({
     name: node.tag,
@@ -336,21 +339,23 @@ export function* generateElement(
   })
 
   yield `__VLS_asFunctionalElement(__VLS_elements`
-  yield* generatePropertyAccess(
+  yield* generateElementNodeTag(
     options,
     ctx,
     node.tag,
     startTagOffset,
     ctx.codeFeatures.withoutHighlightAndCompletion,
+    isExternalNodeTag,
   )
   if (endTagOffset !== undefined) {
     yield `, __VLS_elements`
-    yield* generatePropertyAccess(
+    yield* generateElementNodeTag(
       options,
       ctx,
       node.tag,
       endTagOffset,
       ctx.codeFeatures.withoutHighlightAndCompletion,
+      isExternalNodeTag,
     )
   }
   yield `)(`
@@ -377,14 +382,16 @@ export function* generateElement(
 
   const [refName, offset] = yield* generateElementReference(options, ctx, node)
   if (refName && offset) {
-    let typeExp = `__VLS_NativeElements['${node.tag}']`
+    let typeExp = `__VLS_NativeElements['${isExternalNodeTag ? 'external-' : ''}${node.tag}']`
     if (ctx.inWxFor) {
       typeExp += `[]`
     }
     ctx.addTemplateRef(refName, typeExp, offset)
   }
   if (ctx.singleRootNodes.has(node)) {
-    ctx.singleRootElTypes.push(`__VLS_NativeElements['${node.tag}']`)
+    ctx.singleRootElTypes.push(
+      `__VLS_NativeElements['${isExternalNodeTag ? 'external-' : ''}${node.tag}']`,
+    )
   }
 
   collectStyleScopedClassReferences(options, ctx, node)
@@ -393,6 +400,26 @@ export function* generateElement(
   ctx.currentComponent = undefined
   yield* generateElementChildren(options, ctx, node.children)
   ctx.currentComponent = currentComponent
+}
+
+function* generateElementNodeTag(
+  options: TemplateCodegenOptions,
+  ctx: TemplateCodegenContext,
+  code: string,
+  offset: number,
+  features: MpxCodeInformation,
+  isExternalNodeTag = false,
+): Generator<Code> {
+  if (isExternalNodeTag) {
+    // 外部引用组件，可能会覆盖同名原生组件
+    // eg: <map> -> __VLS_elements['external-map']
+    yield `['external-`
+    yield [code, 'template', offset, features]
+    yield `']`
+  } else {
+    // 内置原生组件 eg: <map> -> __VLS_elements.map
+    yield* generatePropertyAccess(options, ctx, code, offset, features)
+  }
 }
 
 function* generateFailedPropExps(

@@ -15,6 +15,7 @@ export interface TemplateCodegenOptions {
   compilerOptions: ts.CompilerOptions
   mpxCompilerOptions: MpxCompilerOptions
   template: NonNullable<Sfc['template']>
+  usingComponents: NonNullable<Sfc['json']>['usingComponents'] | undefined
   scriptSetupBindingNames: Set<string>
   scriptSetupImportComponentNames: Set<string>
   destructuredPropNames: Set<string>
