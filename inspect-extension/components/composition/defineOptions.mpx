@@ -6,6 +6,10 @@
 
 <script lang="ts" setup>
 defineOptions({
+  options: {
+    multipleSlots: true,
+    virtualHost: true
+  },
   data: {
     // defineOptions 和 defineExpose 的导出重复时会触发运行时 console.error 日志
     // 优先级：defineOptions > defineExpose
