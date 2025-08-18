@@ -31,7 +31,7 @@ const globalTypes = () => `
   // #endregion
 
   type ExtractMpxOnReactHooksExec<O> = O extends (...args: any[]) => any
-    ? ReturnType<O> extends object
+    ? ReturnType<O> extends Record<any, any>
       ? ReturnType<O>
       : {}
     : {}

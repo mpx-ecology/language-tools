@@ -256,8 +256,8 @@ export function parseScriptSetupRanges(
         defineExpose = parseCallExpression(node)
       } else if (
         mpxCompilerOptions.macros.defineOptions.includes(callText) &&
-        node.arguments.length &&
-        ts.isObjectLiteralExpression(node.arguments[0])
+        node.arguments.length
+        // ts.isObjectLiteralExpression(node.arguments[0])
       ) {
         defineOptions = parseCallExpression(node)
       } else if (
@@ -267,8 +267,8 @@ export function parseScriptSetupRanges(
         useTemplateRef.push(parseCallExpressionAssignment(node, parent))
       } else if (
         mpxCompilerOptions.reactHooks.includes(callText) &&
-        node.arguments.length &&
-        ts.isArrowFunction(node.arguments[0])
+        node.arguments.length
+        // ts.isArrowFunction(node.arguments[0])
       ) {
         const res = parseCallExpression(node)
         if (res.arg) {

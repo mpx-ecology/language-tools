@@ -120,7 +120,7 @@ function* generateSetupFunction(
               ...codeFeatures.all,
               verification: false, // 避免重复报错
             }),
-            `)${endOfLine}`,
+            endOfLine,
           ],
           callExp.start,
           callExp.start,
@@ -142,7 +142,7 @@ function* generateSetupFunction(
               typeArg.end,
               codeFeatures.all,
             ),
-            `${endOfLine}`,
+            endOfLine,
           ],
           callExp.start,
           callExp.start,
