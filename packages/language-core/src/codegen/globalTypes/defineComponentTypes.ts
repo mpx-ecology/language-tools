@@ -13,7 +13,7 @@ const globalTypes = () => `
   >(
     opt: ThisTypedComponentOpt<D, P, C, M, Mi, S, O>,
     config?: { customCtor: any }
-  ): ComponentIns<D, P, C, M, Mi, S, O> & MpxExtractReactHooksExecReturnType<O>
+  ): ComponentIns<D, P, C, M, Mi, S, O> &ExtractMpxOnReactHooksExec<O['__REACTHOOKSEXEC']>
   // #endregion
 
   // #region DefinePage - global types
@@ -29,6 +29,12 @@ const globalTypes = () => `
     config?: { customCtor: any }
   ): ComponentIns<D, P, C, M, Mi, O>
   // #endregion
+
+  type ExtractMpxOnReactHooksExec<O> = O extends (...args: any[]) => any
+    ? ReturnType<O> extends Record<any, any>
+      ? ReturnType<O>
+      : {}
+    : {}
 `
 
 const localTypes = (lib: MpxCompilerOptions['lib']) => `
@@ -178,9 +184,6 @@ interface ReplaceWxComponentIns {
   selectComponent(selector: string): ComponentIns<{}, {}, {}, {}, []>
   selectAllComponents(selector: string): Array<ComponentIns<{}, {}, {}, {}, []>>
 }
-type MpxExtractReactHooksExecReturnType<O> = O['__REACTHOOKSEXEC'] extends (...args: any[]) => any
-	? ReturnType<O['__REACTHOOKSEXEC']>
-	: {}
 // #endregion
 `
 

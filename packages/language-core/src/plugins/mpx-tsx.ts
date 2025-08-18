@@ -1,8 +1,6 @@
 import type { Code, MpxLanguagePlugin, Sfc } from '../types'
 import * as path from 'path-browserify'
 import { computed } from 'alien-signals'
-import { camelize, capitalize } from '@mpxjs/language-shared'
-
 import { generateScript } from '../codegen/script'
 import { generateTemplate } from '../codegen/template'
 import { parseScriptRanges } from '../parsers/scriptRanges'
@@ -188,15 +186,6 @@ function createTsx(
     () => getScriptSetupRanges()?.defineProps?.name,
   )
 
-  const getComponentSelfName = computed(() => {
-    const { defineOptions } = getScriptSetupRanges() ?? {}
-    if (sfc.scriptSetup && defineOptions?.name) {
-      return defineOptions.name
-    }
-    const baseName = path.basename(fileName)
-    return capitalize(camelize(baseName.slice(0, baseName.lastIndexOf('.'))))
-  })
-
   const getGeneratedTemplate = computed(() => {
     if (getResolvedOptions().skipTemplateCheck || !sfc.template) {
       return
@@ -215,7 +204,7 @@ function createTsx(
       hasDefineSlots: setupHasDefineSlots(),
       slotsAssignName: getSetupSlotsAssignName(),
       propsAssignName: getSetupPropsAssignName(),
-      selfComponentName: getComponentSelfName(),
+      selfComponentName: undefined,
     })
 
     let current = codegen.next()

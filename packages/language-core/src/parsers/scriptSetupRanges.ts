@@ -47,9 +47,9 @@ type DefineSlots = CallExpressionRange & {
 
 type DefineExpose = CallExpressionRange
 
-type DefineOptions = {
-  name?: string
-}
+type DefineOptions = CallExpressionRange
+
+type OnReactHooksExec = CallExpressionRange
 
 type UseTemplateRef = CallExpressionRange & {
   name?: string
@@ -69,6 +69,7 @@ export function parseScriptSetupRanges(
   let defineSlots: DefineSlots | undefined
   let defineExpose: DefineExpose | undefined
   let defineOptions: DefineOptions | undefined
+  let onReactHooksExec: OnReactHooksExec | undefined
   const useTemplateRef: UseTemplateRef[] = []
   const text = ast.text
 
@@ -122,6 +123,7 @@ export function parseScriptSetupRanges(
     defineSlots,
     defineExpose,
     defineOptions,
+    onReactHooksExec,
     useTemplateRef,
   }
 
@@ -254,24 +256,24 @@ export function parseScriptSetupRanges(
         defineExpose = parseCallExpression(node)
       } else if (
         mpxCompilerOptions.macros.defineOptions.includes(callText) &&
-        node.arguments.length &&
-        ts.isObjectLiteralExpression(node.arguments[0])
+        node.arguments.length
+        // ts.isObjectLiteralExpression(node.arguments[0])
       ) {
-        defineOptions = {}
-        const obj = node.arguments[0]
-        for (const prop of obj.properties) {
-          if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
-            const name = _getNodeText(prop.name)
-            if (name === 'name' && ts.isStringLiteral(prop.initializer)) {
-              defineOptions.name = prop.initializer.text
-            }
-          }
-        }
+        defineOptions = parseCallExpression(node)
       } else if (
         mpxCompilerOptions.composables.useTemplateRef.includes(callText) &&
         !node.typeArguments?.length
       ) {
         useTemplateRef.push(parseCallExpressionAssignment(node, parent))
+      } else if (
+        mpxCompilerOptions.reactHooks.includes(callText) &&
+        node.arguments.length
+        // ts.isArrowFunction(node.arguments[0])
+      ) {
+        const res = parseCallExpression(node)
+        if (res.arg) {
+          onReactHooksExec = res
+        }
       }
     }
 
