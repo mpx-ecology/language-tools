@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.5](https://github.com/mpx-ecology/language-tools/compare/v1.8.4...v1.8.5) (2025-08-18)
+
+### Bug Fixes
+
+* **core:** support event param `$event` codegen for compound expression ([b5707e2](https://github.com/mpx-ecology/language-tools/commit/b5707e2b73bba49d77a711f7209e05e3df0e0031))
+
+### Features
+
+* **core:** implement `defineOptions` handling in script setup and template generation ([c55cb63](https://github.com/mpx-ecology/language-tools/commit/c55cb63c50621398a9f28ee938f2f775bdc76db7))
+* **core:** implement `onReactHooksExec` codegen in script setup ([d57b836](https://github.com/mpx-ecology/language-tools/commit/d57b8365d1c2c050bda3f99088645769084cc23f))
+* review ([96b9b29](https://github.com/mpx-ecology/language-tools/commit/96b9b295885bcbeb01e2f775639dbcdc4ea4a9a6))
+
 ## [1.8.4](https://github.com/mpx-ecology/language-tools/compare/v1.8.3...v1.8.4) (2025-08-14)
 
 ### Bug Fixes
