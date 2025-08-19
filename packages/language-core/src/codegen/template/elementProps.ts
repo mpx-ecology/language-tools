@@ -8,6 +8,7 @@ import { toString } from 'muggle-string'
 import { codeFeatures } from '../codeFeatures'
 import {
   createTsAst,
+  extractSpacingContentAndPosition,
   generateUnicode,
   mustacheRE,
   mustacheREG,
@@ -176,6 +177,30 @@ export function* generateElementProps(
         )
       ) {
         continue
+      }
+
+      if (
+        node.tag === 'component' &&
+        prop.name === 'range' &&
+        prop.value?.content.trim()
+      ) {
+        const content = prop.value.content
+        const quotes =
+          prop.value.loc.source.startsWith('"') ||
+          prop.value.loc.source.startsWith("'")
+        const contentArr = content.split(',')
+        let offset = prop.value.loc.start.offset + (quotes ? 1 : 0) // +1 for the quote
+
+        for (const tag of contentArr) {
+          const extracted = extractSpacingContentAndPosition(tag)
+          if (extracted?.content.trim()) {
+            ctx.templateNodeTags.push({
+              name: extracted.content,
+              startTagOffset: offset + extracted.start,
+            })
+          }
+          offset += tag.length + 1 // +1 for the comma
+        }
       }
 
       const shouldSpread = prop.name === 'style' || prop.name === 'class'
