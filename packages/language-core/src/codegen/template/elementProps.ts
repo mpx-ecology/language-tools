@@ -182,11 +182,14 @@ export function* generateElementProps(
       if (
         node.tag === 'component' &&
         prop.name === 'range' &&
-        prop.value?.content
+        prop.value?.content.trim()
       ) {
         const content = prop.value.content
+        const quotes =
+          prop.value.loc.source.startsWith('"') ||
+          prop.value.loc.source.startsWith("'")
         const contentArr = content.split(',')
-        let offset = prop.value.loc.start.offset + 1 // +1 for the quote
+        let offset = prop.value.loc.start.offset + (quotes ? 1 : 0) // +1 for the quote
 
         for (const tag of contentArr) {
           const extracted = extractSpacingContentAndPosition(tag)
