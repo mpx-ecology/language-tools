@@ -166,7 +166,9 @@ export function create(): LanguageServicePlugin {
                   })
                 }
                 addLink(startTagOffset)
-                endTagOffset && addLink(endTagOffset)
+                if (endTagOffset) {
+                  addLink(endTagOffset)
+                }
               }
             }
           }
