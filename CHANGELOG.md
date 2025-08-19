@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/mpx-ecology/language-tools/compare/v1.8.5...v1.10.0) (2025-08-19)
+
+### Bug Fixes
+
+* **core:** enhance component handling and support for external components in code generation ([b389d9f](https://github.com/mpx-ecology/language-tools/commit/b389d9f9f05152256726ce5da526ab51f8e4976a))
+
+### Features
+
+* **core:** support document link for dynamic component range ([ff422c6](https://github.com/mpx-ecology/language-tools/commit/ff422c6dcef51984013da5a5771ce7d5e2f9fe1c))
+* review ([b3f51cc](https://github.com/mpx-ecology/language-tools/commit/b3f51cc59bfa87816207ba5e10997b1ef3f36c6a))
+* review ([c835370](https://github.com/mpx-ecology/language-tools/commit/c835370ce01e095f36bf097ff49aaadf482e84af))
+
 ## [1.8.5](https://github.com/mpx-ecology/language-tools/compare/v1.8.4...v1.8.5) (2025-08-18)
 
 ### Bug Fixes
