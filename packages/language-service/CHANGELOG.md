@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.10.1](https://github.com/mpx-ecology/language-tools/compare/v1.10.0...v1.10.1) (2025-08-27)
+
+### Features
+
+* **service:** enhance completion items for Mpx built-in components ([4eaeaf2](https://github.com/mpx-ecology/language-tools/commit/4eaeaf2a8ba8e169d23c83c27dc31ef294dffe9d))
+
 # [1.10.0](https://github.com/mpx-ecology/language-tools/compare/v1.8.5...v1.10.0) (2025-08-19)
 
 **Note:** Version bump only for package @mpxjs/language-service
