@@ -1,3 +1,4 @@
+import type * as vscode from 'vscode-languageserver-protocol'
 import type { Disposable } from '@volar/language-service'
 import * as html from 'vscode-html-languageservice'
 import { create as createHtmlService } from 'volar-service-html'
@@ -13,6 +14,17 @@ export function create(): LanguageServicePlugin {
   const mpxBuiltinTagsSet = new Set(
     templateBuiltinData?.tags?.map(tag => tag.name),
   )
+
+  const mpxBuiltinTagsCompleteItems = Array.from(mpxBuiltinTagsSet).map(tag => {
+    return {
+      label: tag,
+      detail: 'Mpx 内置组件',
+      documentation: `<${tag}>|</${tag}>`,
+      insertText: `<${tag}>\$1</${tag}>`,
+      insertTextFormat: 2 satisfies typeof vscode.InsertTextFormat.Snippet,
+      kind: 14 satisfies typeof vscode.CompletionItemKind.Keyword,
+    } satisfies vscode.CompletionItem
+  })
 
   let htmlBuiltinData = [html.getDefaultHTMLDataProvider()]
   let extraCustomData: html.IHTMLDataProvider[] = []
@@ -125,15 +137,17 @@ export function create(): LanguageServicePlugin {
           const helper = templateCodegenHelper(context, document.uri)
           const usingComponents = helper?.sfc.json?.usingComponents
           runUpdateExtraCustomData(usingComponents)
-          const htmlComplete =
-            await baseServiceInstance.provideCompletionItems?.(
-              document,
-              position,
-              completionContext,
-              token,
-            )
-          if (!htmlComplete) {
-            return
+          let htmlComplete = await baseServiceInstance.provideCompletionItems?.(
+            document,
+            position,
+            completionContext,
+            token,
+          )
+          if (!htmlComplete?.items.length) {
+            htmlComplete = {
+              isIncomplete: false,
+              items: mpxBuiltinTagsCompleteItems ?? [],
+            }
           }
           htmlComplete.items.forEach(item => {
             if (usingComponents?.has(item.label)) {
