@@ -13,13 +13,14 @@ import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-servic
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
 import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
 import { create as createMpxTemplatePlugin } from './plugins/mpx-sfc-template'
+import { create as createMpxTemplateAutoinsertSpacePlugin } from './plugins/mpx-sfc-template-autoinsert-space'
 import { create as createMpxTemplateCompilerErrorsPlugin } from './plugins/mpx-sfc-template-compiler-errors'
 import { create as createMpxTemplateDirectiveCommentsPlugin } from './plugins/mpx-sfc-template-directive-comments'
-import { create as createMpxTemplateAutoinsertSpacePlugin } from './plugins/mpx-sfc-template-autoinsert-space'
+import { create as createMpxTemplateLinksPlugin } from './plugins/mpx-sfc-template-links'
+import { create as createMpxScriptPrettierPlugin } from './plugins/mpx-sfc-script-prettier'
 import { create as createMpxStyleCSSPlugin } from './plugins/mpx-sfc-style-css'
 import { create as createMpxStyleStylusPlugin } from './plugins/mpx-sfc-style-stylus'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
-import { create as createMpxTemplateLinksPlugin } from './plugins/mpx-sfc-template-links'
 import { create as createMpxJsonLinksPlugin } from './plugins/mpx-sfc-json-links'
 import { Commands } from './types'
 
@@ -39,6 +40,7 @@ export function createMpxLanguageServicePlugins(
     | undefined,
 ) {
   const plugins = [
+    // TODO 根据选项禁用 script 部分格式化
     createTypeScriptSyntacticPlugin(ts),
     createTypeScriptDocCommentTemplatePlugin(ts),
     ...getCommonLanguageServicePlugins(ts, () => tsPluginClient),
@@ -67,6 +69,7 @@ function getCommonLanguageServicePlugins(
     createMpxTemplateCompilerErrorsPlugin(),
     createMpxTemplateDirectiveCommentsPlugin(),
     createMpxTemplateAutoinsertSpacePlugin(),
+    createMpxScriptPrettierPlugin(),
     createMpxStyleCSSPlugin(),
     createMpxStyleStylusPlugin(),
     // createMpxJsonJsPlugin(ts, getTsPluginClient),

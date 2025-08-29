@@ -29,41 +29,44 @@ defineProps<{
 </style>
 
 <script name="json">
-  const listPath = "../components/list.mpx"
-  const wxConfig: any = {
-    component: true,
-    usingComponents: {
-      list: "../components/list.mpx",
-      "list-var": listPath,
-      "list-from-dir": "../components",
-      ...__mpx_mode__ === "web" && ({
-        "list-deep-1": "../components/list1.mpx",
-        "list-deep-2": "@/script-json/components",
-        "list-deep-error": "@/script-json/component",
-      }),
-      ...__mpx_mode__ === "web" ? ({
-        "list-deep-3": "../components/list1.mpx",
-        "list-deep-4": "@/script-json/components",
-      }) : {},
-      ...({
-        "list-deep-5": "../components/list1.mpx",
-        "list-deep-6": "@/script-json/components",
-      })
-    };
-    const aliConfig = {
-      component: true,
-      usingComponents: {
-        "list": "../components/list1.mpx",
-        "list-error-path": "../components/list-error.mpx",
-        "list-alias": "@/script-json/components/list.mpx",
-        "list-from-dir": "@/script-json/components",
+const listPath = '../components/list.mpx'
+const wxConfig = {
+  component: true,
+  usingComponents: {
+    list: '../components/list.mpx',
+    'list-var': listPath,
+    'list-from-dir': '../components',
+    ...(__mpx_mode__ === 'web' && {
+      'list-deep-1': '../components/list1.mpx',
+      'list-deep-2': '@/script-json/components',
+      'list-deep-error': '@/script-json/component',
+    }),
+    ...(__mpx_mode__ === 'web'
+      ? {
+        'list-deep-3': '../components/list1.mpx',
+        'list-deep-4': '@/script-json/components',
       }
-    };
-    let finalConfig = null;
-    if(__mpx_mode__ === "ali") {
-      finalConfig = aliConfig;
-  } else {
-    finalConfig = wxConfig;
-  }
-  module.exports = finalConfig;
+      : {}),
+    ...{
+      'list-deep-5': '../components/list1.mpx',
+      'list-deep-6': '@/script-json/components',
+    },
+  },
+}
+const aliConfig = {
+  component: true,
+  usingComponents: {
+    list: '../components/list1.mpx',
+    'list-error-path': '../components/list-error.mpx',
+    'list-alias': '@/script-json/components/list.mpx',
+    'list-from-dir': '@/script-json/components',
+  },
+}
+let finalConfig = null
+if (__mpx_mode__ === 'ali') {
+  finalConfig = aliConfig
+} else {
+  finalConfig = wxConfig
+}
+module.exports = finalConfig
 </script>

@@ -246,6 +246,9 @@ importers:
       volar-service-json:
         specifier: 0.0.64
         version: 0.0.64(@volar/language-service@2.4.12)
+      volar-service-prettier:
+        specifier: 0.0.64
+        version: 0.0.64(@volar/language-service@2.4.12)(prettier@3.5.3)
       volar-service-typescript:
         specifier: 0.0.64
         version: 0.0.64(@volar/language-service@2.4.12)
@@ -4059,6 +4062,17 @@ packages:
       '@volar/language-service': ~2.4.0
     peerDependenciesMeta:
       '@volar/language-service':
+        optional: true
+
+  volar-service-prettier@0.0.64:
+    resolution: {integrity: sha512-Wq8XGHLYDC+jy2GGUTfcK5MGyPUr2afCIWGPgzQ7uRR12melAoeHoH1Bc1YSx870paqQIUU/8EkoiW0oSxXEkg==}
+    peerDependencies:
+      '@volar/language-service': ~2.4.0
+      prettier: ^2.2 || ^3.0
+    peerDependenciesMeta:
+      '@volar/language-service':
+        optional: true
+      prettier:
         optional: true
 
   volar-service-typescript@0.0.64:
@@ -8395,6 +8409,13 @@ snapshots:
       vscode-uri: 3.1.0
     optionalDependencies:
       '@volar/language-service': 2.4.12
+
+  volar-service-prettier@0.0.64(@volar/language-service@2.4.12)(prettier@3.5.3):
+    dependencies:
+      vscode-uri: 3.1.0
+    optionalDependencies:
+      '@volar/language-service': 2.4.12
+      prettier: 3.5.3
 
   volar-service-typescript@0.0.64(@volar/language-service@2.4.12):
     dependencies:
