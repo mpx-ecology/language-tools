@@ -16,5 +16,6 @@
   "template.format.bracketSpacing.true": "强制添加空格：\nattr=\"{{expr}}\" → attr=\"{{ expr }}\"。",
   "template.format.bracketSpacing.false": "强制移除空格：\nattr=\"{{ expr }}\" → attr=\"{{expr}}\"。",
   "template.format.bracketSpacing.preserve": "保持原有格式不变。",
-  "style.stylus.format.desc": "`<style lang=\"stylus\">` 模块代码格式化配置，配置选项请参考 Stylus Supremacy 的[格式化选项](https://thisismanta.github.io/stylus-supremacy/#options)。\n\n_比如：_\n```\n\"mpx.format.style.stylus\": {\n  \"insertColons\": true,\n  \"insertSemicolons\": true\n}\n```"
+  "template.format.style.stylus.format.desc": "`<style lang=\"stylus\">` 模块代码格式化配置，配置选项请参考 Stylus Supremacy 的[格式化选项](https://thisismanta.github.io/stylus-supremacy/#options)。\n\n_比如：_\n```\n\"mpx.format.style.stylus\": {\n  \"insertColons\": true,\n  \"insertSemicolons\": true\n}\n```",
+  "template.format.script.prettier": "`<script>` 模块使用 Prettier 格式化（取代默认使用的内置 JS/TS 格式化）\n\nTip: 项目依赖中需安装 Prettier。"
 }

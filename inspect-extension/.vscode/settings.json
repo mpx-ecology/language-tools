@@ -6,5 +6,6 @@
   "mpx.format.template.wrapLineLength": 80,
   // stylus 格式化配置
   "mpx.format.style.stylus": {},
-  "mpx.format.template.bracketSpacing": "true"
+  "mpx.format.template.bracketSpacing": "true",
+  "mpx.format.script.prettier": true
 }

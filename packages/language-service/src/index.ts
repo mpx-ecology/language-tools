@@ -8,8 +8,8 @@ import type {
 } from '@volar/language-service'
 import { parse } from '@mpxjs/language-core'
 import { create as createEmmetPlugin } from 'volar-service-emmet'
-import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic'
 import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-service-typescript/lib/plugins/docCommentTemplate'
+import { create as createTypeScriptSyntacticPlugin } from './plugins/typescript-syntactic'
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
 import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
 import { create as createMpxTemplatePlugin } from './plugins/mpx-sfc-template'
@@ -39,12 +39,8 @@ export function createMpxLanguageServicePlugins(
       })
     | undefined,
 ) {
-  const plugins = [
-    // TODO 根据选项禁用 script 部分格式化
-    createTypeScriptSyntacticPlugin(ts),
-    createTypeScriptDocCommentTemplatePlugin(ts),
-    ...getCommonLanguageServicePlugins(ts, () => tsPluginClient),
-  ]
+  const plugins = getCommonLanguageServicePlugins(ts, () => tsPluginClient)
+
   if (tsPluginClient) {
     plugins.push(
       creatempxDocumentHighlightsPlugin(tsPluginClient.getDocumentHighlights),
@@ -54,16 +50,19 @@ export function createMpxLanguageServicePlugins(
     // avoid affecting TS plugin
     delete plugin.capabilities.semanticTokensProvider
   }
+
   return plugins
 }
 
 function getCommonLanguageServicePlugins(
-  _ts: typeof import('typescript'),
+  ts: typeof import('typescript'),
   _getTsPluginClient: (
     context: LanguageServiceContext,
   ) => IRequests | undefined,
 ): LanguageServicePlugin[] {
   return [
+    createTypeScriptSyntacticPlugin(ts),
+    createTypeScriptDocCommentTemplatePlugin(ts),
     createMpxSfcPlugin(),
     createMpxTemplatePlugin(),
     createMpxTemplateCompilerErrorsPlugin(),
