@@ -251,10 +251,15 @@
           ],
           "markdownDescription": "%template.format.bracketSpacing.desc%"
         },
+        "mpx.format.script.prettier": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%template.format.script.prettier%"
+        },
         "mpx.format.style.stylus": {
           "type": "object",
           "default": {},
-          "markdownDescription": "%style.stylus.format.desc%"
+          "markdownDescription": "%template.format.style.stylus.format.desc%"
         }
       }
     },

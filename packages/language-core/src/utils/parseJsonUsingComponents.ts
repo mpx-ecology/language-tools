@@ -141,7 +141,7 @@ export function parseUsingComponentsWithJs(
   function handleSpreadAssignment(spreadProp: ts.SpreadAssignment) {
     let expression = spreadProp.expression
 
-    // 处理条件表达式 __mpx_mode__ === "web" && ({ ... })
+    // 处理条件表达式 __mpx_mode__ === 'web' && ({ ... })
     if (
       ts.isBinaryExpression(expression) &&
       expression.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
@@ -150,7 +150,7 @@ export function parseUsingComponentsWithJs(
       expression = expression.right
     }
 
-    // 处理三目运算符 __mpx_mode__ === "web" ? ({ ... }) : ({ ... })
+    // 处理三目运算符 __mpx_mode__ === 'web' ? ({ ... }) : ({ ... })
     if (ts.isConditionalExpression(expression)) {
       parseObjectFromExpression(expression.whenTrue)
       parseObjectFromExpression(expression.whenFalse)
@@ -165,6 +165,22 @@ export function parseUsingComponentsWithJs(
     // 处理括号包裹的表达式 ({ ... })
     if (ts.isParenthesizedExpression(expression)) {
       expression = expression.expression
+    }
+
+    // 处理形如 (__mpx_mode__ === 'web' && { ... }) 的逻辑与表达式
+    if (
+      ts.isBinaryExpression(expression) &&
+      expression.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+    ) {
+      // 只关心右侧对象部分
+      return parseObjectFromExpression(expression.right)
+    }
+
+    // 处理形如 (__mpx_mode__ === 'web' ? { ... } : { ... }) 的三元表达式
+    if (ts.isConditionalExpression(expression)) {
+      parseObjectFromExpression(expression.whenTrue)
+      parseObjectFromExpression(expression.whenFalse)
+      return
     }
 
     // 如果是对象字面量，解析其中的属性

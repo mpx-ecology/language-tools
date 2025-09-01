@@ -8,18 +8,19 @@ import type {
 } from '@volar/language-service'
 import { parse } from '@mpxjs/language-core'
 import { create as createEmmetPlugin } from 'volar-service-emmet'
-import { create as createTypeScriptSyntacticPlugin } from 'volar-service-typescript/lib/plugins/syntactic'
 import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-service-typescript/lib/plugins/docCommentTemplate'
+import { create as createTypeScriptSyntacticPlugin } from './plugins/typescript-syntactic'
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
 import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
 import { create as createMpxTemplatePlugin } from './plugins/mpx-sfc-template'
+import { create as createMpxTemplateAutoinsertSpacePlugin } from './plugins/mpx-sfc-template-autoinsert-space'
 import { create as createMpxTemplateCompilerErrorsPlugin } from './plugins/mpx-sfc-template-compiler-errors'
 import { create as createMpxTemplateDirectiveCommentsPlugin } from './plugins/mpx-sfc-template-directive-comments'
-import { create as createMpxTemplateAutoinsertSpacePlugin } from './plugins/mpx-sfc-template-autoinsert-space'
+import { create as createMpxTemplateLinksPlugin } from './plugins/mpx-sfc-template-links'
+import { create as createMpxScriptPrettierPlugin } from './plugins/mpx-sfc-script-prettier'
 import { create as createMpxStyleCSSPlugin } from './plugins/mpx-sfc-style-css'
 import { create as createMpxStyleStylusPlugin } from './plugins/mpx-sfc-style-stylus'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
-import { create as createMpxTemplateLinksPlugin } from './plugins/mpx-sfc-template-links'
 import { create as createMpxJsonLinksPlugin } from './plugins/mpx-sfc-json-links'
 import { Commands } from './types'
 
@@ -38,11 +39,8 @@ export function createMpxLanguageServicePlugins(
       })
     | undefined,
 ) {
-  const plugins = [
-    createTypeScriptSyntacticPlugin(ts),
-    createTypeScriptDocCommentTemplatePlugin(ts),
-    ...getCommonLanguageServicePlugins(ts, () => tsPluginClient),
-  ]
+  const plugins = getCommonLanguageServicePlugins(ts, () => tsPluginClient)
+
   if (tsPluginClient) {
     plugins.push(
       creatempxDocumentHighlightsPlugin(tsPluginClient.getDocumentHighlights),
@@ -52,21 +50,25 @@ export function createMpxLanguageServicePlugins(
     // avoid affecting TS plugin
     delete plugin.capabilities.semanticTokensProvider
   }
+
   return plugins
 }
 
 function getCommonLanguageServicePlugins(
-  _ts: typeof import('typescript'),
+  ts: typeof import('typescript'),
   _getTsPluginClient: (
     context: LanguageServiceContext,
   ) => IRequests | undefined,
 ): LanguageServicePlugin[] {
   return [
+    createTypeScriptSyntacticPlugin(ts),
+    createTypeScriptDocCommentTemplatePlugin(ts),
     createMpxSfcPlugin(),
     createMpxTemplatePlugin(),
     createMpxTemplateCompilerErrorsPlugin(),
     createMpxTemplateDirectiveCommentsPlugin(),
     createMpxTemplateAutoinsertSpacePlugin(),
+    createMpxScriptPrettierPlugin(),
     createMpxStyleCSSPlugin(),
     createMpxStyleStylusPlugin(),
     // createMpxJsonJsPlugin(ts, getTsPluginClient),

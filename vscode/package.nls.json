@@ -2,7 +2,7 @@
   "splitEditors.icon.desc": "在编辑器标题区域显示试图拆分图标。",
   "template.format.template.initialIndent": "`<template>` 模块内容向后缩进。",
   "template.format.style.initialIndent": "`<style>` 模块内容向后缩进。",
-  "template.format.script.initialIndent": "`<script>` 模块内容向后缩进。",
+  "template.format.script.initialIndent": "`<script>` 模块（包括 `<script name=\"json\">` 模块）内容向后缩进。",
   "template.format.wrapAttributes.desc": "`<template>` 属性换行方式。",
   "template.format.wrapAttributes.auto": "仅在超出行长度时换行属性。",
   "template.format.wrapAttributes.force": "除第一个属性外，每个属性都换行。",
@@ -16,5 +16,6 @@
   "template.format.bracketSpacing.true": "强制添加空格：\nattr=\"{{expr}}\" → attr=\"{{ expr }}\"。",
   "template.format.bracketSpacing.false": "强制移除空格：\nattr=\"{{ expr }}\" → attr=\"{{expr}}\"。",
   "template.format.bracketSpacing.preserve": "保持原有格式不变。",
-  "style.stylus.format.desc": "`<style lang=\"stylus\">` 模块代码格式化配置，配置选项请参考 Stylus Supremacy 的[格式化选项](https://thisismanta.github.io/stylus-supremacy/#options)。\n\n_比如：_\n```\n\"mpx.format.style.stylus\": {\n  \"insertColons\": true,\n  \"insertSemicolons\": true\n}\n```"
+  "template.format.style.stylus.format.desc": "`<style lang=\"stylus\">` 模块代码格式化配置，配置选项请参考 Stylus Supremacy 的[格式化选项](https://thisismanta.github.io/stylus-supremacy/#options)。\n\n_比如：_\n```\n\"mpx.format.style.stylus\": {\n  \"insertColons\": true,\n  \"insertSemicolons\": true\n}\n```",
+  "template.format.script.prettier": "`<script>` 模块（包括 `<script name=\"json\">` 模块）使用 Prettier 格式化（取代默认内置的 JS/TS 格式化）。\n\nTip: 项目依赖中需安装 Prettier。"
 }
