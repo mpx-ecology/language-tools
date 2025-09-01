@@ -93,6 +93,17 @@ export function create(): LanguageServicePlugin {
               ) {
                 options.initialIndentLevel++
               }
+            } else if (virtualCode.id === 'json_js') {
+              if (
+                (await context.env.getConfiguration?.(
+                  'mpx.format.script.initialIndent',
+                )) ??
+                false
+              ) {
+                options.initialIndentLevel = 1
+              } else {
+                options.initialIndentLevel = 0
+              }
             } else if (virtualCode.id.startsWith('style_')) {
               if (
                 (await context.env.getConfiguration?.(

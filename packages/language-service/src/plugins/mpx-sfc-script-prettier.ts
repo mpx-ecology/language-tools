@@ -1,8 +1,12 @@
 import type { LanguageServicePlugin } from '@volar/language-service'
+import type { Options } from 'prettier'
 import { URI } from 'vscode-uri'
 import { create as baseCreate } from 'volar-service-prettier'
+import { prettierEnabled } from '../utils/prettier'
 
 export function create(): LanguageServicePlugin {
+  // <script> 缩进大小
+  let baseIndentSpaces = '  '
   // 记录当前触发格式化的源文件绝对路径（用于就近解析项目内的 prettier）
   let lastFormatFilePath: string | undefined
 
@@ -28,13 +32,6 @@ export function create(): LanguageServicePlugin {
   const base = baseCreate(prettierInstanceOrGetter, {
     documentSelector: ['typescript', 'javascript'],
     isFormattingEnabled: async (prettier, document, context) => {
-      const enablePrettier =
-        (await context.env.getConfiguration?.('mpx.format.script.prettier')) ??
-        false
-      if (!enablePrettier) {
-        // 默认关闭 prettier 格式化
-        return false
-      }
       if (!prettier) {
         console.error('[Mpx] prettier is not available')
         return false
@@ -66,7 +63,7 @@ export function create(): LanguageServicePlugin {
           : null
       const editorOptions: Record<string, any> =
         (await context.env.getConfiguration?.('prettier', uri.toString())) ?? {}
-      return {
+      const res: Options = {
         filepath: uri.scheme === 'file' ? uri.fsPath : undefined,
         tabWidth: formatOptions.tabSize,
         useTabs: !formatOptions.insertSpaces,
@@ -74,6 +71,9 @@ export function create(): LanguageServicePlugin {
         ...configOptions,
         parser: 'typescript',
       }
+      const tabWidth = res.tabWidth ?? 2
+      baseIndentSpaces = res.useTabs ? '\t' : ' '.repeat(tabWidth)
+      return res
     },
   })
 
@@ -99,10 +99,7 @@ export function create(): LanguageServicePlugin {
           embeddedCodeContext,
           token,
         ) {
-          if (
-            document.languageId !== 'typescript' &&
-            document.languageId !== 'javascript'
-          ) {
+          if (!prettierEnabled(document, context)) {
             return
           }
 
@@ -112,11 +109,6 @@ export function create(): LanguageServicePlugin {
             return
           }
           const [documentUri, embeddedCodeId] = decoded
-          // 暂时仅针对 script 部分允许 prettier 格式化（json-js 部分是否需要可以看后续用户反馈）
-          if (!/script(setup)?_raw/.test(embeddedCodeId)) {
-            return
-          }
-
           // 在真正调用底层 prettier 前，记录当前源文件路径，供就近解析 prettier 使用
           lastFormatFilePath = documentUri.fsPath
 
@@ -128,9 +120,27 @@ export function create(): LanguageServicePlugin {
             token,
           )
 
-          // TODO 根据 'mpx.format.script.initialIndent' 整体缩进
           if (res?.[0]?.newText) {
-            res[0].newText = '\n' + res[0].newText
+            let newText = res?.[0]?.newText
+            if (
+              embeddedCodeId === 'script_raw' ||
+              embeddedCodeId === 'scriptsetup_raw'
+            ) {
+              newText = '\n' + newText
+            }
+            // 获取 <script> 初始缩进配置
+            const initialIndent =
+              (await context.env.getConfiguration?.(
+                'mpx.format.script.initialIndent',
+              )) ?? false
+
+            if (initialIndent) {
+              newText = newText
+                .split(/\n/)
+                .map(line => (line.length > 0 ? baseIndentSpaces + line : ''))
+                .join('\n')
+            }
+            res[0].newText = newText
           }
 
           return res
