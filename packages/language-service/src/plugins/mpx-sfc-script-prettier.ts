@@ -68,7 +68,7 @@ export function create(): LanguageServicePlugin {
         tabWidth: formatOptions.tabSize,
         useTabs: !formatOptions.insertSpaces,
         ...editorOptions,
-        ...configOptions,
+        ...(configOptions ?? {}),
         parser: 'typescript',
       }
       const tabWidth = res.tabWidth ?? 2
@@ -99,7 +99,7 @@ export function create(): LanguageServicePlugin {
           embeddedCodeContext,
           token,
         ) {
-          if (!prettierEnabled(document, context)) {
+          if (!(await prettierEnabled(document, context))) {
             return
           }
 
