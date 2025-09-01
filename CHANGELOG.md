@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/mpx-ecology/language-tools/compare/v1.10.1...v1.12.0) (2025-09-01)
+
+### Features
+
+* add Prettier formatting configuration options ([ea8fcf9](https://github.com/mpx-ecology/language-tools/commit/ea8fcf9165813b662ee52c859c9f1e2a5fdb6b44))
+* **core:** enhance `parseUsingComponentsWithJs` ([83fd54a](https://github.com/mpx-ecology/language-tools/commit/83fd54a520b47602352ad7c6ac028b877dcd6589))
+* prettier formatting support script initial indent formatting config and json_js module ([9aa6bd6](https://github.com/mpx-ecology/language-tools/commit/9aa6bd6ef2be89edde09c7270704543905b9fabe))
+* review ([230e449](https://github.com/mpx-ecology/language-tools/commit/230e449ab2d8739ddfdd9384a985c441299cc351))
+* **service:** introduce prettier formatter for script js/ts ([d0061ce](https://github.com/mpx-ecology/language-tools/commit/d0061ceab349ae00558b0a79f8c75fcd0d87507b))
+* **service:** resolve prettier dynamically ([80b9222](https://github.com/mpx-ecology/language-tools/commit/80b9222ff091d2d0c88573b0078d64e0d02dfb65))
+* **vscode:** enhance Prettier integration tips ([37741db](https://github.com/mpx-ecology/language-tools/commit/37741dbc3f1c61a92821312c1a659468a1a0b502))
+
 ## [1.10.1](https://github.com/mpx-ecology/language-tools/compare/v1.10.0...v1.10.1) (2025-08-27)
 
 ### Features

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/mpx-ecology/language-tools/compare/v1.10.1...v1.12.0) (2025-09-01)
+
+### Features
+
+* add Prettier formatting configuration options ([ea8fcf9](https://github.com/mpx-ecology/language-tools/commit/ea8fcf9165813b662ee52c859c9f1e2a5fdb6b44))
+* prettier formatting support script initial indent formatting config and json_js module ([9aa6bd6](https://github.com/mpx-ecology/language-tools/commit/9aa6bd6ef2be89edde09c7270704543905b9fabe))
+* **vscode:** enhance Prettier integration tips ([37741db](https://github.com/mpx-ecology/language-tools/commit/37741dbc3f1c61a92821312c1a659468a1a0b502))
+
 ## [1.10.1](https://github.com/mpx-ecology/language-tools/compare/v1.10.0...v1.10.1) (2025-08-27)
 
 **Note:** Version bump only for package mpx-official

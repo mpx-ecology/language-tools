@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/mpx-ecology/language-tools/compare/v1.10.1...v1.12.0) (2025-09-01)
+
+### Features
+
+* **core:** enhance `parseUsingComponentsWithJs` ([83fd54a](https://github.com/mpx-ecology/language-tools/commit/83fd54a520b47602352ad7c6ac028b877dcd6589))
+
 ## [1.10.1](https://github.com/mpx-ecology/language-tools/compare/v1.10.0...v1.10.1) (2025-08-27)
 
 **Note:** Version bump only for package @mpxjs/language-core
