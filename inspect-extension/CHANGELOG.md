@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.12.1](https://github.com/mpx-ecology/language-tools/compare/v1.12.0...v1.12.1) (2025-09-02)
+
+### Bug Fixes
+
+* **core:** enhance usingComponents parsing ([f8c061a](https://github.com/mpx-ecology/language-tools/commit/f8c061a1ffe18d5281a198e290e299ad266e8eda))
+
 # [1.12.0](https://github.com/mpx-ecology/language-tools/compare/v1.10.1...v1.12.0) (2025-09-01)
 
 ### Features
