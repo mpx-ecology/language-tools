@@ -32,7 +32,7 @@ console.log('---> debug')
 <script name="json">
 const listPath = '../components/list.mpx'
 
-const wxConfigL = {
+const wxConfig = {
   component: true,
   usingComponents: {
     list: '../components/list.mpx',
@@ -56,14 +56,16 @@ const wxConfigL = {
   },
 }
 
+const comps = {
+  list: '../components/list1.mpx',
+  'list-error-path': '../components/list-error.mpx',
+  'list-alias': '@/script-json/components/list.mpx',
+  'list-from-dir': '@/script-json/components',
+}
+
 const aliConfig = {
   component: true,
-  usingComponents: {
-    list: '../components/list1.mpx',
-    'list-error-path': '../components/list-error.mpx',
-    'list-alias': '@/script-json/components/list.mpx',
-    'list-from-dir': '@/script-json/components',
-  },
+  usingComponents: comps,
 }
 
 let finalConfig = null

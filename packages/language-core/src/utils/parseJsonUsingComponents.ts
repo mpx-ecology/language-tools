@@ -75,9 +75,8 @@ export function parseUsingComponentsWithJs(
       (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) &&
       node.name.text === 'usingComponents'
     ) {
-      if (ts.isObjectLiteralExpression(node.initializer)) {
-        parseObjectLiteralProperties(node.initializer.properties)
-      }
+      // 支持 usingComponents 为对象字面量或变量等表达式
+      parseObjectFromExpression(node.initializer)
     }
 
     ts.forEachChild(node, visit)
@@ -167,6 +166,19 @@ export function parseUsingComponentsWithJs(
       expression = expression.expression
     }
 
+    // 处理标识符：const components = { ... }; usingComponents: components
+    if (ts.isIdentifier(expression)) {
+      const resolved = findVariableInitializerExpression(
+        ts,
+        sourceFile,
+        expression.text,
+      )
+      if (resolved) {
+        return parseObjectFromExpression(resolved)
+      }
+      return
+    }
+
     // 处理形如 (__mpx_mode__ === 'web' && { ... }) 的逻辑与表达式
     if (
       ts.isBinaryExpression(expression) &&
@@ -194,6 +206,9 @@ export function parseUsingComponentsWithJs(
   return usingComponents
 }
 
+/**
+ * 查找变量的初始值（用于解析字符串路径变量）
+ */
 function findVariableValue(
   ts: typeof import('typescript'),
   sourceFile: ts.SourceFile,
@@ -220,4 +235,32 @@ function findVariableValue(
 
   findDeclaration(sourceFile)
   return { variableValue, variableOffset }
+}
+
+/**
+ * 查找对象变量的初始表达式（用于解析赋值给 usingComponents 的对象变量）
+ */
+function findVariableInitializerExpression(
+  ts: typeof import('typescript'),
+  sourceFile: ts.SourceFile,
+  identifierName: string,
+) {
+  let initExp: ts.Expression | undefined
+
+  function findDeclaration(node: ts.Node): boolean | undefined {
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === identifierName &&
+      !!node.initializer
+    ) {
+      initExp = node.initializer
+      return true
+    }
+
+    return ts.forEachChild(node, findDeclaration)
+  }
+
+  findDeclaration(sourceFile)
+  return initExp
 }
