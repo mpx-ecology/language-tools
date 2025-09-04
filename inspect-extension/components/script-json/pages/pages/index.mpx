@@ -1,0 +1,5 @@
+<script name="json">
+module.exports = {
+  pages: ['./page1', './page2', './page-error.mpx'],
+}
+</script>

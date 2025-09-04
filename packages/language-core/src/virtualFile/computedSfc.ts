@@ -11,6 +11,7 @@ import { computed, pauseTracking, resumeTracking } from 'alien-signals'
 import { parseCssClassNames } from '../utils/parseCssClassNames'
 import { computedArray } from '../utils/signals'
 import { parseUsingComponents } from '../utils/parseJsonUsingComponents'
+import { parsePages } from '../utils/parseJsonPages'
 
 export function computedSfc(
   ts: typeof import('typescript'),
@@ -139,6 +140,14 @@ export function computedSfc(
           }
         }
       })
+      const getPages = computed(() => parsePages(ts, getAst(), base.lang))
+      const getResolvedPages = computed(() => {
+        for (const plugin of plugins) {
+          if (typeof plugin.resolvePagesPath === 'function') {
+            return plugin.resolvePagesPath(getPages(), fileName)
+          }
+        }
+      })
       return mergeObject(base, {
         get ast() {
           return getAst()
@@ -146,8 +155,14 @@ export function computedSfc(
         get usingComponents() {
           return getUsingComponents()
         },
-        get resolveUsingComponents() {
+        get resolvedUsingComponents() {
           return getResolvedUsingComponents()
+        },
+        get pages() {
+          return getPages()
+        },
+        get resolvedPages() {
+          return getResolvedPages()
         },
       } satisfies Partial<Sfc['json']>)
     },

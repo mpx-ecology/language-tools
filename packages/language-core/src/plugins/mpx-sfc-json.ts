@@ -1,8 +1,10 @@
+import { SfcJsonBlockPages } from './../types'
 import type * as ts from 'typescript'
 import type {
   MpxLanguagePlugin,
+  SfcJsonBlockResolvedPages,
+  SfcJsonBlockResolvedUsingComponents,
   SfcJsonBlockUsingComponents,
-  SfcJsonResolvedBlockUsingComponents,
 } from '../types'
 import { allCodeFeatures } from './shared'
 import { withResolvers } from '../utils/utils'
@@ -56,9 +58,9 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
       uri: string,
     ) {
       const { promise, resolve } =
-        withResolvers<SfcJsonResolvedBlockUsingComponents>()
-      const result: SfcJsonResolvedBlockUsingComponents['result'] = new Map()
-      const errors: SfcJsonResolvedBlockUsingComponents['errors'] = []
+        withResolvers<SfcJsonBlockResolvedUsingComponents>()
+      const result: SfcJsonBlockResolvedUsingComponents['result'] = new Map()
+      const errors: SfcJsonBlockResolvedUsingComponents['errors'] = []
 
       Promise.allSettled(
         [...usingComponents.entries()].map(async ([name, info]) => {
@@ -90,6 +92,39 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
               }
             }),
           )
+        }),
+      ).then(() => resolve({ result, errors }))
+
+      return promise
+    },
+
+    resolvePagesPath(pages: SfcJsonBlockPages, uri: string) {
+      const { promise, resolve } = withResolvers<SfcJsonBlockResolvedPages>()
+      const result: SfcJsonBlockResolvedPages['result'] = []
+      const errors: SfcJsonBlockResolvedPages['errors'] = []
+
+      Promise.allSettled(
+        pages.map(async info => {
+          if (!info.text) {
+            return
+          }
+
+          const { result: resolvedFilename, error } =
+            (await formatUsingComponentsPath(
+              info.text,
+              uri,
+              compilerOptions,
+            )) || {}
+
+          if (error) {
+            errors.push(info)
+            return
+          } else if (resolvedFilename) {
+            result.push({
+              ...info,
+              realFilename: resolvedFilename,
+            })
+          }
         }),
       ).then(() => resolve({ result, errors }))
 

@@ -112,7 +112,11 @@ export type MpxLanguagePluginReturn = {
   resolveUsingComponentsPath?(
     usingComponentsPath: SfcJsonBlockUsingComponents,
     uri: string,
-  ): Promise<SfcJsonResolvedBlockUsingComponents>
+  ): Promise<SfcJsonBlockResolvedUsingComponents>
+  resolvePagesPath?(
+    pagesPath: SfcJsonBlockPages,
+    uri: string,
+  ): Promise<SfcJsonBlockResolvedPages>
 }
 
 export type MpxLanguagePlugin = (ctx: {
@@ -152,8 +156,14 @@ export interface ResolvedUsingComponentInfo extends UsingComponentInfo {
   realFilename?: string
 }
 export type SfcJsonBlockUsingComponents = Map<string, UsingComponentInfo[]>
-export type SfcJsonResolvedBlockUsingComponents = {
+export type SfcJsonBlockResolvedUsingComponents = {
   result: Map<string, ResolvedUsingComponentInfo[]>
+  errors: UsingComponentInfo[]
+}
+
+export type SfcJsonBlockPages = UsingComponentInfo[]
+export type SfcJsonBlockResolvedPages = {
+  result: ResolvedUsingComponentInfo[]
   errors: UsingComponentInfo[]
 }
 
@@ -190,9 +200,11 @@ export interface Sfc {
     | (SfcBlock & {
         ast: ts.SourceFile
         usingComponents: SfcJsonBlockUsingComponents | undefined
-        resolveUsingComponents:
-          | Promise<SfcJsonResolvedBlockUsingComponents>
+        resolvedUsingComponents:
+          | Promise<SfcJsonBlockResolvedUsingComponents>
           | undefined
+        pages: SfcJsonBlockPages | undefined
+        resolvedPages: Promise<SfcJsonBlockResolvedPages> | undefined
       })
     | undefined
   customBlocks: readonly (SfcBlock & {
