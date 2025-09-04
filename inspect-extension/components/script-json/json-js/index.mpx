@@ -13,6 +13,8 @@
     <list-deep-6></list-deep-6>
     <list-deep-error></list-deep-error>
     <list-error-path></list-error-path>
+    <list-assign />
+    <list-assign-error />
   </view>
 </template>
 
@@ -61,6 +63,19 @@ const comps = {
   'list-error-path': '../components/list-error.mpx',
   'list-alias': '@/script-json/components/list.mpx',
   'list-from-dir': '@/script-json/components',
+}
+
+if (!__ISRN__) {
+  __ISRN__ &&
+    Object.assign(
+      comps,
+      {
+        'list-assign': '@/script-json/components',
+      },
+      {
+        'list-assign-error': '@/script-json/components1',
+      }
+    )
 }
 
 const aliConfig = {

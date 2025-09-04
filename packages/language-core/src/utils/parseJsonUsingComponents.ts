@@ -68,6 +68,9 @@ export function parseUsingComponentsWithJs(
   sourceFile: ts.SourceFile,
 ): SfcJsonBlockUsingComponents {
   const usingComponents: SfcJsonBlockUsingComponents = new Map()
+  // 记录对对象变量的补充：例如 const comps = ...;
+  // Object.assign(comps, { classify: './classify' }); { usingComponents: comps }
+  const objectAssignAugments: Map<string, ts.Expression[]> = new Map()
 
   function visit(node: ts.Node) {
     if (
@@ -80,6 +83,29 @@ export function parseUsingComponentsWithJs(
     }
 
     ts.forEachChild(node, visit)
+  }
+
+  function collectAugments(node: ts.Node) {
+    // 收集 Object.assign(target, ...) 对象补充
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      ts.isIdentifier(node.expression.expression) &&
+      node.expression.expression.text === 'Object' &&
+      node.expression.name.text === 'assign' &&
+      node.arguments.length >= 2
+    ) {
+      const target = node.arguments[0]
+      if (ts.isIdentifier(target)) {
+        const targetName = target.text
+        const list = objectAssignAugments.get(targetName) ?? []
+        for (let i = 1; i < node.arguments.length; i++) {
+          list.push(node.arguments[i])
+        }
+        objectAssignAugments.set(targetName, list)
+      }
+    }
+    ts.forEachChild(node, collectAugments)
   }
 
   function parseObjectLiteralProperties(
@@ -168,13 +194,21 @@ export function parseUsingComponentsWithJs(
 
     // 处理标识符：const components = { ... }; usingComponents: components
     if (ts.isIdentifier(expression)) {
+      const varName = expression.text
       const resolved = findVariableInitializerExpression(
         ts,
         sourceFile,
-        expression.text,
+        varName,
       )
       if (resolved) {
-        return parseObjectFromExpression(resolved)
+        parseObjectFromExpression(resolved)
+      }
+      // 合并通过 Object.assign 收集到的补充
+      const augments = objectAssignAugments.get(varName)
+      if (augments && augments.length) {
+        for (const augmentExp of augments) {
+          parseObjectFromExpression(augmentExp)
+        }
       }
       return
     }
@@ -198,9 +232,28 @@ export function parseUsingComponentsWithJs(
     // 如果是对象字面量，解析其中的属性
     if (ts.isObjectLiteralExpression(expression)) {
       parseObjectLiteralProperties(expression.properties)
+      return
+    }
+
+    // 处理 Object.assign({}, {...}) 作为一个表达式传入的情况（例如解构或直接传入）
+    if (
+      ts.isCallExpression(expression) &&
+      ts.isPropertyAccessExpression(expression.expression) &&
+      ts.isIdentifier(expression.expression.expression) &&
+      expression.expression.expression.text === 'Object' &&
+      expression.expression.name.text === 'assign' &&
+      expression.arguments.length >= 2
+    ) {
+      // 合并除第一个 target 之外的参数
+      for (let i = 1; i < expression.arguments.length; i++) {
+        parseObjectFromExpression(expression.arguments[i])
+      }
+      return
     }
   }
 
+  // 先收集所有 augment，再解析 usingComponents，保证顺序无关
+  collectAugments(sourceFile)
   visit(sourceFile)
 
   return usingComponents
