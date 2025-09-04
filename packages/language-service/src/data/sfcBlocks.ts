@@ -1,6 +1,9 @@
 import type * as html from 'vscode-html-languageservice'
 import { MpxDocs, MpxGuideUrl } from './utils'
 
+const jsonDescription =
+  '\n\n- json 区块完全支持小程序原生的 [app.json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html)，还额外支持了 packages 多人合作等增强特性。\n  - [使用分包](https://mpxjs.cn/guide/advance/subpackage.html)\n  - [分包异步化](https://mpxjs.cn/guide/advance/async-subpackage.html)\n- 同样支持原生的 [页面 json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html)，此外，我们能够直接在 `usingComponents` 中填写 npm 地址引用 npm 包中的组件，mpx 组件和原生小程序组件均可引用，无需调用开发者工具 npm 编译，且能够通过依赖收集按需进行打包。\n\n'
+
 const data: html.HTMLDataV1 = {
   version: 1.0,
   tags: [
@@ -81,7 +84,8 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '\n`<script type="application/json">` 区块对应小程序的 json 配置（使用 **json** 语法）。\n\n- json 区块完全支持小程序原生的 [app.json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html)，还额外支持了 packages 多人合作等增强特性。\n  - [使用分包](https://mpxjs.cn/guide/advance/subpackage.html)\n  - [分包异步化](https://mpxjs.cn/guide/advance/async-subpackage.html)\n- 同样支持原生的 [页面 json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html)，此外，我们能够直接在 `usingComponents` 中填写 npm 地址引用 npm 包中的组件，mpx 组件和原生小程序组件均可引用，无需调用开发者工具 npm 编译，且能够通过依赖收集按需进行打包。\n\n',
+              '\n`<script type="application/json">` 区块对应小程序的 json 配置（使用 **js** 语法）。' +
+              jsonDescription,
           },
           references: [
             {
@@ -95,7 +99,8 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              '\n`<script type="application/json">` 区块对应小程序的 json 配置（使用 **json** 语法）。\n\n- json 区块完全支持小程序原生的 [app.json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html)，还额外支持了 packages 多人合作等增强特性。\n  - [使用分包](https://mpxjs.cn/guide/advance/subpackage.html)\n  - [分包异步化](https://mpxjs.cn/guide/advance/async-subpackage.html)\n- 同样支持原生的 [页面 json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html)，此外，我们能够直接在 `usingComponents` 中填写 npm 地址引用 npm 包中的组件，mpx 组件和原生小程序组件均可引用，无需调用开发者工具 npm 编译，且能够通过依赖收集按需进行打包。\n\n',
+              '\n`<script type="application/json">` 区块对应小程序的 json 配置（使用 **json** 语法）。' +
+              jsonDescription,
           },
           valueSet: 't',
           values: [
@@ -237,7 +242,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '\n`<script name="json">` 区块对应小程序的 json 配置（使用 **js** 语法）。\n\n- json 区块完全支持小程序原生的 [app.json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html)，还额外支持了 packages 多人合作等增强特性。\n  - [使用分包](https://mpxjs.cn/guide/advance/subpackage.html)\n  - [分包异步化](https://mpxjs.cn/guide/advance/async-subpackage.html)\n- 同样支持原生的 [页面 json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html)，此外，我们能够直接在 `usingComponents` 中填写 npm 地址引用 npm 包中的组件，mpx 组件和原生小程序组件均可引用，无需调用开发者工具 npm 编译，且能够通过依赖收集按需进行打包。\n\n',
+          '\n`<script name="json">` 区块对应小程序的 json 配置（使用 **js** 语法）。',
       },
       references: [
         {
@@ -252,7 +257,7 @@ const data: html.HTMLDataV1 = {
       description: {
         kind: 'markdown',
         value:
-          '\n`<script type="application/json">` 区块对应小程序的 json 配置（使用 **json** 语法）。\n\n- json 区块完全支持小程序原生的 [app.json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/app.html)，还额外支持了 packages 多人合作等增强特性。\n  - [使用分包](https://mpxjs.cn/guide/advance/subpackage.html)\n  - [分包异步化](https://mpxjs.cn/guide/advance/async-subpackage.html)\n- 同样支持原生的 [页面 json 配置](https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html)，此外，我们能够直接在 `usingComponents` 中填写 npm 地址引用 npm 包中的组件，mpx 组件和原生小程序组件均可引用，无需调用开发者工具 npm 编译，且能够通过依赖收集按需进行打包。\n\n',
+          '\n`<script type="application/json">` 区块对应小程序的 json 配置（使用 **js** 语法）。',
       },
       references: [
         {

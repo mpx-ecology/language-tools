@@ -1,0 +1,17 @@
+<script type="application/json">
+  {
+    "pages": [
+      "./pages/index",
+      "./pages/page1.mpx",
+      "./pages/page2.mpx",
+      "@/script-json/pages/pages",
+      "@/script-json/pages/pages/page1",
+      "@/script-json/pages/pages/page2",
+      "./pages/page-error.mpx"
+    ],
+    "window": {
+      "navigationBarTextStyle": "black",
+      "navigationBarBackgroundColor": "white",
+    }
+  }
+</script>

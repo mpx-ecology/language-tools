@@ -110,7 +110,7 @@ export function create(): LanguageServicePlugin {
           const templateNodeTags =
             codegen?.getGeneratedTemplate()?.templateNodeTags ?? []
           const { result: usingComponents } =
-            (await sfc.json?.resolveUsingComponents) || {}
+            (await sfc.json?.resolvedUsingComponents) || {}
           if (usingComponents?.size) {
             for (const nodeTag of templateNodeTags) {
               const {

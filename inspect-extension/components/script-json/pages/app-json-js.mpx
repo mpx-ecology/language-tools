@@ -1,0 +1,21 @@
+<script name="json">
+const webPages = [
+  './pages/index',
+  '@/script-json/pages/pages/page1',
+  '@/script-json/pages/pages/page2',
+  './pages/page-error.mpx',
+]
+
+const commonPages = __simple_version__
+  ? webPages
+  : [
+      './pages/index',
+      './pages/page1',
+      './pages/page2',
+      './pages/page-error.mpx',
+    ]
+
+module.exports = {
+  pages: commonPages,
+}
+</script>
