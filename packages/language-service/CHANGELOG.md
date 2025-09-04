@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.12.2](https://github.com/mpx-ecology/language-tools/compare/v1.12.1...v1.12.2) (2025-09-04)
+
+### Features
+
+* **core:** support link and diagnostics for pages ([85c683d](https://github.com/mpx-ecology/language-tools/commit/85c683df601d8cf278e22e580ea5edf92117eaeb))
+
 ## [1.12.1](https://github.com/mpx-ecology/language-tools/compare/v1.12.0...v1.12.1) (2025-09-02)
 
 **Note:** Version bump only for package @mpxjs/language-service

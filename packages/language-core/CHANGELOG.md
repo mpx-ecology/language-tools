@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.12.2](https://github.com/mpx-ecology/language-tools/compare/v1.12.1...v1.12.2) (2025-09-04)
+
+### Features
+
+* **core:** enhance Object.assign parsing for `usingComponents` ([f2f52fc](https://github.com/mpx-ecology/language-tools/commit/f2f52fc1687f1432025a70d6e9c75191f1e78b4b))
+* **core:** support link and diagnostics for pages ([85c683d](https://github.com/mpx-ecology/language-tools/commit/85c683df601d8cf278e22e580ea5edf92117eaeb))
+
 ## [1.12.1](https://github.com/mpx-ecology/language-tools/compare/v1.12.0...v1.12.1) (2025-09-02)
 
 ### Bug Fixes
