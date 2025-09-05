@@ -5,6 +5,7 @@ import { create as createHtmlService } from 'volar-service-html'
 import { LanguageServicePlugin, SfcJsonBlockUsingComponents } from '../types'
 import templateBuiltinData from '../data/template'
 import { templateCodegenHelper } from '../utils/templateCodegenHelper'
+import { prettierEnabled } from '../utils/prettier'
 
 export function create(): LanguageServicePlugin {
   const mpxBuiltinData = html.newHTMLDataProvider(
@@ -191,6 +192,11 @@ export function create(): LanguageServicePlugin {
           if (document.languageId !== 'html') {
             return
           }
+
+          if (await prettierEnabled(document, context)) {
+            return
+          }
+
           const res =
             await baseServiceInstance.provideDocumentFormattingEdits?.(
               document,

@@ -7,5 +7,6 @@
   // stylus 格式化配置
   "mpx.format.style.stylus": {},
   "mpx.format.template.bracketSpacing": "true",
-  "mpx.format.script.prettier": true
+  "mpx.format.script.prettier": true,
+  "mpx.format.template.prettier": true
 }
