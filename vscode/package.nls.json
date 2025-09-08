@@ -3,7 +3,7 @@
   "template.format.template.initialIndent": "`<template>` 模块内容向后缩进。",
   "template.format.style.initialIndent": "`<style>` 模块内容向后缩进。",
   "template.format.script.initialIndent": "`<script>` 模块（包括 `<script name=\"json\">` 模块）内容向后缩进。",
-  "template.format.wrapAttributes.desc": "`<template>` 属性换行方式。",
+  "template.format.wrapAttributes.desc": "`<template>` 属性换行方式。\n\nTip: 该配置项仅在关闭 `mpx.format.template.prettier` 时生效。",
   "template.format.wrapAttributes.auto": "仅在超出行长度时换行属性。",
   "template.format.wrapAttributes.force": "除第一个属性外，每个属性都换行。",
   "template.format.wrapAttributes.forcealign": "除第一个属性外，每个属性都换行并和第一个属性对齐。",

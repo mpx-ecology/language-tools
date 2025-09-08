@@ -18,9 +18,7 @@
           wx:key="*this"
         >
           <swiper-item>
-            <view class="swiper-item">
-              {{ item }}
-            </view>
+            <view class="swiper-item"> {{ item }} </view>
           </swiper-item>
         </block>
       </swiper>
@@ -49,7 +47,6 @@ const onSwiperChange = (e: any) => {
 
 const backgroundList = ['bg1', 'bg2', 'bg3'] as const
 
-
 const inputBlur = (e: any) => {
   console.log('input blur', e.detail.value)
 }
@@ -67,7 +64,7 @@ defineExpose({
   backgroundList,
   inputBlur,
   inputFocus,
-  tagUrl: ''
+  tagUrl: '',
 })
 </script>
 

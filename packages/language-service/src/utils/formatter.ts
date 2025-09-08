@@ -46,3 +46,24 @@ export async function prettierEnabled(
 
   return false
 }
+
+export async function formatWithBracketSpacing(
+  context: LanguageServiceContext,
+  text: string,
+) {
+  const bracketSpacing =
+    (await context.env.getConfiguration?.(
+      'mpx.format.template.bracketSpacing',
+    )) ?? 'true'
+  if (bracketSpacing !== 'preserve') {
+    /**
+     * bracketSpacing = true: xx="{{xxx}}" -> xx="{{ xxx }}"
+     * bracketSpacing = false: xx="{{ xxx }}" -> xx="{{xxx}}"
+     */
+    text = text.replace(
+      /="\s*{\s*{\s*(.+?)\s*}\s*}\s*"/g,
+      bracketSpacing === 'true' ? '="{{ $1 }}"' : '="{{$1}}"',
+    )
+  }
+  return text
+}

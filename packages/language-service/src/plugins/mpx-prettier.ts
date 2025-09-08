@@ -3,7 +3,7 @@ import type { Options } from 'prettier'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
 import { create as baseCreate } from 'volar-service-prettier'
-import { prettierEnabled } from '../utils/prettier'
+import { formatWithBracketSpacing, prettierEnabled } from '../utils/formatter'
 
 export function create(): LanguageServicePlugin {
   // <script> 缩进大小
@@ -130,7 +130,7 @@ export function create(): LanguageServicePlugin {
               newText = '\n' + newText
             }
 
-            // 获取 <script> 初始缩进配置
+            // 获取 <script>/<template> 初始缩进配置
             const initialIndent =
               (isScriptBlock(embeddedCodeId) &&
                 ((await context.env.getConfiguration?.(
@@ -149,6 +149,10 @@ export function create(): LanguageServicePlugin {
                 .map(line => (line.length > 0 ? baseIndentSpaces + line : ''))
                 .join('\n')
             }
+
+            // format with `bracket spacing`
+            newText = await formatWithBracketSpacing(context, newText)
+
             res[0].newText = newText
           }
 
