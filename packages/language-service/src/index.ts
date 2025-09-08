@@ -17,11 +17,11 @@ import { create as createMpxTemplateAutoinsertSpacePlugin } from './plugins/mpx-
 import { create as createMpxTemplateCompilerErrorsPlugin } from './plugins/mpx-sfc-template-compiler-errors'
 import { create as createMpxTemplateDirectiveCommentsPlugin } from './plugins/mpx-sfc-template-directive-comments'
 import { create as createMpxTemplateLinksPlugin } from './plugins/mpx-sfc-template-links'
-import { create as createMpxScriptPrettierPlugin } from './plugins/mpx-sfc-script-prettier'
 import { create as createMpxStyleCSSPlugin } from './plugins/mpx-sfc-style-css'
 import { create as createMpxStyleStylusPlugin } from './plugins/mpx-sfc-style-stylus'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
 import { create as createMpxJsonLinksPlugin } from './plugins/mpx-sfc-json-links'
+import { create as createMpxPrettierPlugin } from './plugins/mpx-prettier'
 import { Commands } from './types'
 
 export * from '@volar/language-service'
@@ -68,13 +68,13 @@ function getCommonLanguageServicePlugins(
     createMpxTemplateCompilerErrorsPlugin(),
     createMpxTemplateDirectiveCommentsPlugin(),
     createMpxTemplateAutoinsertSpacePlugin(),
-    createMpxScriptPrettierPlugin(),
     createMpxStyleCSSPlugin(),
     createMpxStyleStylusPlugin(),
     // createMpxJsonJsPlugin(ts, getTsPluginClient),
     createMpxJsonJsonPlugin(),
     createMpxTemplateLinksPlugin(),
     createMpxJsonLinksPlugin(),
+    createMpxPrettierPlugin(),
     createEmmetPlugin({
       mappedLanguages: {
         'mpx-root-tags': 'html',

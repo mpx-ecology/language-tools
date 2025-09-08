@@ -1,8 +1,9 @@
-import type { LanguageServicePlugin } from '@volar/language-service'
+import type { TextDocument } from 'vscode-languageserver-textdocument'
 import type { Options } from 'prettier'
+import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
 import { create as baseCreate } from 'volar-service-prettier'
-import { prettierEnabled } from '../utils/prettier'
+import { formatWithBracketSpacing, prettierEnabled } from '../utils/formatter'
 
 export function create(): LanguageServicePlugin {
   // <script> 缩进大小
@@ -30,7 +31,6 @@ export function create(): LanguageServicePlugin {
   }
 
   const base = baseCreate(prettierInstanceOrGetter, {
-    documentSelector: ['typescript', 'javascript'],
     isFormattingEnabled: async (prettier, document, context) => {
       if (!prettier) {
         console.error('[Mpx] prettier is not available')
@@ -69,7 +69,7 @@ export function create(): LanguageServicePlugin {
         useTabs: !formatOptions.insertSpaces,
         ...editorOptions,
         ...(configOptions ?? {}),
-        parser: 'typescript',
+        parser: getPrettierParser(document),
       }
       const tabWidth = res.tabWidth ?? 2
       baseIndentSpaces = res.useTabs ? '\t' : ' '.repeat(tabWidth)
@@ -78,7 +78,7 @@ export function create(): LanguageServicePlugin {
   })
 
   return {
-    name: 'mpx-script-prettier',
+    name: 'mpx-prettier',
 
     capabilities: base.capabilities,
 
@@ -122,17 +122,26 @@ export function create(): LanguageServicePlugin {
 
           if (res?.[0]?.newText) {
             let newText = res?.[0]?.newText
+
             if (
-              embeddedCodeId === 'script_raw' ||
-              embeddedCodeId === 'scriptsetup_raw'
+              isScriptBlock(embeddedCodeId) ||
+              isTemplateBlock(embeddedCodeId)
             ) {
               newText = '\n' + newText
             }
-            // 获取 <script> 初始缩进配置
+
+            // 获取 <script>/<template> 初始缩进配置
             const initialIndent =
-              (await context.env.getConfiguration?.(
-                'mpx.format.script.initialIndent',
-              )) ?? false
+              (isScriptBlock(embeddedCodeId) &&
+                ((await context.env.getConfiguration?.(
+                  'mpx.format.script.initialIndent',
+                )) ??
+                  false)) ||
+              (isTemplateBlock(embeddedCodeId) &&
+                ((await context.env.getConfiguration?.(
+                  'mpx.format.template.initialIndent',
+                )) ??
+                  false))
 
             if (initialIndent) {
               newText = newText
@@ -140,6 +149,10 @@ export function create(): LanguageServicePlugin {
                 .map(line => (line.length > 0 ? baseIndentSpaces + line : ''))
                 .join('\n')
             }
+
+            // format with `bracket spacing`
+            newText = await formatWithBracketSpacing(context, newText)
+
             res[0].newText = newText
           }
 
@@ -147,5 +160,24 @@ export function create(): LanguageServicePlugin {
         },
       }
     },
+  }
+}
+
+function isScriptBlock(embeddedCodeId: string) {
+  return embeddedCodeId === 'script_raw' || embeddedCodeId === 'scriptsetup_raw'
+}
+
+function isTemplateBlock(embeddedCodeId: string) {
+  return embeddedCodeId === 'template'
+}
+
+function getPrettierParser(document: TextDocument) {
+  switch (document.languageId) {
+    case 'html':
+      return 'html'
+    case 'javascript':
+    case 'typescript':
+    default:
+      return 'typescript'
   }
 }

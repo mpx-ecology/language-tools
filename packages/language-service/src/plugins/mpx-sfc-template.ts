@@ -5,6 +5,7 @@ import { create as createHtmlService } from 'volar-service-html'
 import { LanguageServicePlugin, SfcJsonBlockUsingComponents } from '../types'
 import templateBuiltinData from '../data/template'
 import { templateCodegenHelper } from '../utils/templateCodegenHelper'
+import { formatWithBracketSpacing, prettierEnabled } from '../utils/formatter'
 
 export function create(): LanguageServicePlugin {
   const mpxBuiltinData = html.newHTMLDataProvider(
@@ -191,6 +192,11 @@ export function create(): LanguageServicePlugin {
           if (document.languageId !== 'html') {
             return
           }
+
+          if (await prettierEnabled(document, context)) {
+            return
+          }
+
           const res =
             await baseServiceInstance.provideDocumentFormattingEdits?.(
               document,
@@ -200,24 +206,11 @@ export function create(): LanguageServicePlugin {
               token,
             )
 
-          const bracketSpacing =
-            (await context.env.getConfiguration?.(
-              'mpx.format.template.bracketSpacing',
-            )) ?? 'true'
-
           if (res?.[0]?.newText) {
-            let newText = res[0].newText
-            if (bracketSpacing !== 'preserve') {
-              /**
-               * bracketSpacing = true: xx="{{xxx}}" -> xx="{{ xxx }}"
-               * bracketSpacing = false: xx="{{ xxx }}" -> xx="{{xxx}}"
-               */
-              newText = newText.replace(
-                /="\s*{\s*{\s*(.+?)\s*}\s*}\s*"/g,
-                bracketSpacing === 'true' ? '="{{ $1 }}"' : '="{{$1}}"',
-              )
-            }
-            res[0].newText = newText
+            res[0].newText = await formatWithBracketSpacing(
+              context,
+              res[0].newText,
+            )
           }
           return res
         },

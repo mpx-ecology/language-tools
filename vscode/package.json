@@ -251,15 +251,20 @@
           ],
           "markdownDescription": "%template.format.bracketSpacing.desc%"
         },
-        "mpx.format.script.prettier": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "%template.format.script.prettier%"
-        },
         "mpx.format.style.stylus": {
           "type": "object",
           "default": {},
           "markdownDescription": "%template.format.style.stylus.format.desc%"
+        },
+        "mpx.format.template.prettier": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%template.format.template.prettier%"
+        },
+        "mpx.format.script.prettier": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%template.format.script.prettier%"
         }
       }
     },
