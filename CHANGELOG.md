@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.12.3](https://github.com/mpx-ecology/language-tools/compare/v1.12.2...v1.12.3) (2025-09-08)
+
+### Features
+
+* refactor prettier integration and add bracket spacing formatting ([b564e66](https://github.com/mpx-ecology/language-tools/commit/b564e6688df97be4328d43a6af390efaf2ac05b2))
+* support prettier formatter for template ([215e0a2](https://github.com/mpx-ecology/language-tools/commit/215e0a2bc0c452fe3e6a702632f1cc3e2856e19f))
+* **vscode:** update formatting config tips ([0a721c5](https://github.com/mpx-ecology/language-tools/commit/0a721c5c1fa66bb08f584d631dfcac1c5aa6373c))
+
 ## [1.12.2](https://github.com/mpx-ecology/language-tools/compare/v1.12.1...v1.12.2) (2025-09-04)
 
 ### Features
