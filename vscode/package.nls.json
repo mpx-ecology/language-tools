@@ -3,7 +3,7 @@
   "template.format.template.initialIndent": "`<template>` 模块内容向后缩进。",
   "template.format.style.initialIndent": "`<style>` 模块内容向后缩进。",
   "template.format.script.initialIndent": "`<script>` 模块（包括 `<script name=\"json\">` 模块）内容向后缩进。",
-  "template.format.wrapAttributes.desc": "`<template>` 属性换行方式。\n\nTip: 该配置项仅在关闭 `mpx.format.template.prettier` 时生效。",
+  "template.format.wrapAttributes.desc": "`<template>` 属性换行方式。\n\n_Tip: 该配置项仅在未勾选 `mpx.format.template.prettier` 时生效。_",
   "template.format.wrapAttributes.auto": "仅在超出行长度时换行属性。",
   "template.format.wrapAttributes.force": "除第一个属性外，每个属性都换行。",
   "template.format.wrapAttributes.forcealign": "除第一个属性外，每个属性都换行并和第一个属性对齐。",
@@ -12,11 +12,11 @@
   "template.format.wrapAttributes.preserve": "保持属性的换行格式。",
   "template.format.wrapAttributes.preservealigned": "保持属性的换行格式但和第一个属性对齐。",
   "template.format.wrapLineLength.desc": "`<template>` 模块属性格式化时的最大行长度，超过此长度的属性会被换行（0 = 不换行）。",
-  "template.format.bracketSpacing.desc": "`<template>` 模板属性值花括号内的表达式前后空格的格式化方式。\n\nTip: 当值为 `true`（默认）时，在 `<template>` 中输入 `{{ }}` 时会自动补全插入空格。",
+  "template.format.bracketSpacing.desc": "`<template>` 模板属性值花括号内的表达式前后空格的格式化方式。\n\n_Tip: 当值为 `true`（默认）时，在 `<template>` 中输入 `{{ }}` 时会自动补全插入空格。_",
   "template.format.bracketSpacing.true": "强制添加空格：\nattr=\"{{expr}}\" → attr=\"{{ expr }}\"。",
   "template.format.bracketSpacing.false": "强制移除空格：\nattr=\"{{ expr }}\" → attr=\"{{expr}}\"。",
   "template.format.bracketSpacing.preserve": "保持原有格式不变。",
   "template.format.style.stylus.format.desc": "`<style lang=\"stylus\">` 模块代码格式化配置，配置选项请参考 Stylus Supremacy 的[格式化选项](https://thisismanta.github.io/stylus-supremacy/#options)。\n\n_比如：_\n```\n\"mpx.format.style.stylus\": {\n  \"insertColons\": true,\n  \"insertSemicolons\": true\n}\n```",
-  "template.format.template.prettier": "`<template>` 模块使用 Prettier 格式化（取代默认内置的 HTML 格式化）。\n\nTip1: 开启后，项目中需提前安装 `prettier` 依赖包才会生效。\n\nTip2: 开启后，会自动关联项目中的 Prettier [配置文件](https://prettier.io/docs/configuration)（如 `.prettierrc`）。",
-  "template.format.script.prettier": "`<script>` 模块（包括 `<script name=\"json\">` 模块）使用 Prettier 格式化（取代默认内置的 JS/TS 格式化）。\n\nTip1: 开启后，项目中需提前安装 `prettier` 依赖包才会生效。\n\nTip2: 开启后，会自动关联项目中的 Prettier [配置文件](https://prettier.io/docs/configuration)（如 `.prettierrc`）。"
+  "template.format.template.prettier": "`<template>` 模块使用 Prettier 格式化（取代默认内置的 HTML 格式化）。\n\n_Tip1: 开启后，项目中需提前安装 `prettier` 依赖包才会生效。_\n\n_Tip2: 开启后，会自动关联项目中的 Prettier [配置文件](https://prettier.io/docs/configuration)（如 `.prettierrc`）。_",
+  "template.format.script.prettier": "`<script>` 模块（包括 `<script name=\"json\">` 模块）使用 Prettier 格式化（取代默认内置的 JS/TS 格式化）。\n\n_Tip1: 开启后，项目中需提前安装 `prettier` 依赖包才会生效。_\n\n_Tip2: 开启后，会自动关联项目中的 Prettier [配置文件](https://prettier.io/docs/configuration)（如 `.prettierrc`）。_"
 }
