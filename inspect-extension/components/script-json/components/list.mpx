@@ -16,7 +16,7 @@ createComponent({
 
 <style lang="stylus">
   .list
-    background-color red
+    background-color #ccc
 </style>
 
 <script type="application/json">

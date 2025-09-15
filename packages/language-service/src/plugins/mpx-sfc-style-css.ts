@@ -1,12 +1,65 @@
 import type * as CSS from 'vscode-css-languageservice'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
-import type {
-  LanguageServicePlugin,
-  VirtualCode,
+import {
+  type Color,
+  type LanguageServicePlugin,
+  TextEdit,
+  type VirtualCode,
 } from '@volar/language-service'
 import { type Provide, create as baseCreate } from 'volar-service-css'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode } from '@mpxjs/language-core'
+
+function parseStylusColors(document: TextDocument): CSS.ColorInformation[] {
+  const colors: CSS.ColorInformation[] = []
+  const text = document.getText()
+
+  const regex = /#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b/g
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(text))) {
+    const start = document.positionAt(match.index)
+    const end = document.positionAt(match.index + match[0].length)
+    const hex = match[1]
+    let r = 0,
+      g = 0,
+      b = 0
+    if (hex.length === 3) {
+      r = parseInt(hex[0] + hex[0], 16)
+      g = parseInt(hex[1] + hex[1], 16)
+      b = parseInt(hex[2] + hex[2], 16)
+    } else {
+      r = parseInt(hex.slice(0, 2), 16)
+      g = parseInt(hex.slice(2, 4), 16)
+      b = parseInt(hex.slice(4, 6), 16)
+    }
+    const color: Color = {
+      red: r / 255,
+      green: g / 255,
+      blue: b / 255,
+      alpha: 1,
+    }
+    colors.push({ range: { start, end }, color })
+  }
+
+  return colors
+}
+
+function parseStylusColorPresentation(
+  range: CSS.Range,
+  color: CSS.Color,
+): CSS.ColorPresentation[] {
+  const colors: CSS.ColorPresentation[] = []
+  const r = Math.round(color.red * 255)
+  const g = Math.round(color.green * 255)
+  const b = Math.round(color.blue * 255)
+  const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+
+  colors.push({
+    label: hex,
+    textEdit: TextEdit.replace(range, hex),
+  })
+  return colors
+}
 
 export function create(): LanguageServicePlugin {
   const base = baseCreate({
@@ -110,6 +163,31 @@ export function create(): LanguageServicePlugin {
 
           return worker(document, (stylesheet, cssLs) => {
             return cssLs.prepareRename(document, position, stylesheet)
+          })
+        },
+
+        /**
+         * support colorDecorators and colorPresentation
+         */
+        provideDocumentColors(document: TextDocument) {
+          if (document.languageId === 'stylus') {
+            return parseStylusColors(document)
+          }
+          return worker(document, (stylesheet, cssLs) => {
+            return cssLs.findDocumentColors(document, stylesheet)
+          })
+        },
+        provideColorPresentations(document, color, range) {
+          if (document.languageId === 'stylus') {
+            return parseStylusColorPresentation(range, color)
+          }
+          return worker(document, (stylesheet, cssLs) => {
+            return cssLs.getColorPresentations(
+              document,
+              stylesheet,
+              color,
+              range,
+            )
           })
         },
       }

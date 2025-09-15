@@ -14,9 +14,10 @@ createComponent({
 })
 </script>
 
-<style lang="stylus">
-  .list
-    background-color red
+<style lang="scss">
+.list {
+  background-color: #ddcaca;
+}
 </style>
 
 <script type="application/json">
