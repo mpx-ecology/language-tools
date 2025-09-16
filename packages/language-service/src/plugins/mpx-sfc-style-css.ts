@@ -1,4 +1,4 @@
-import * as CSS from 'vscode-css-languageservice'
+import type * as CSS from 'vscode-css-languageservice'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
 import type {
   LanguageServicePlugin,

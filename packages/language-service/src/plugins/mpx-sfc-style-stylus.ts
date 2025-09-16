@@ -157,7 +157,6 @@ export function create(): LanguageServicePlugin {
           if (document.languageId !== 'stylus') {
             return
           }
-
           return parseStylusColors(document)
         },
 
@@ -165,7 +164,6 @@ export function create(): LanguageServicePlugin {
           if (document.languageId !== 'stylus') {
             return
           }
-
           return parseStylusColorPresentation(range, color)
         },
       }
@@ -215,7 +213,6 @@ function parseStylusColorPresentation(
   const g = Math.round(color.green * 255)
   const b = Math.round(color.blue * 255)
   const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
-
   colors.push({
     label: hex,
     textEdit: {
@@ -223,6 +220,5 @@ function parseStylusColorPresentation(
       newText: hex,
     },
   })
-
   return colors
 }
