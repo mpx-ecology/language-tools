@@ -3,18 +3,21 @@
 .list {
   display: flex;
   background-color: #f0f0f0;
+  color: red;
 }
 </style>
 <style lang="scss">
 .list {
   display: flex;
   background-color: #f0f0f0;
+  color: red;
 }
 </style>
 <style lang="less">
 .list {
   display: flex;
   background-color: #f0f0f0;
+  color: red;
 }
 </style>
 <!-- postcss 我们视作 SCSS 对等处理，高亮交给官方插件 -->
@@ -22,6 +25,7 @@
 .list {
   display: flex;
   background-color: #f0f0f0;
+  color: red;
 }
 </style>
 
@@ -30,13 +34,15 @@
 .list
   display: flex
   background-color: #f0f0f0;
+  color: red;
 </style>
 
 <!-- 内置 CSS 插件不支持 Stylus，由我们自行实现插件来支持
  1. 高亮: 交给官方插件
  2. formater: Stylus Supremacy
  3. 补全: 自行实现
- 3. TODO: Linter
+ 4. 颜色板
+ 5. TODO: Linter
   -->
 <style lang="stylus">
 @import './main.styl'
@@ -45,4 +51,21 @@
   // 注释
   display flex // 注释
   background-color #f0f0f0
+  color: #ecc721;
+  color red
+
+  #fff
+    background #1673d7
+    background#1673d7
+
+  #bbb #ccc
+    border 1px solid #c72121
+    background #a9ea4f
+
+#fff
+  background #2efdd0
+
+#bbb #ccc
+  border 1px solid #402deb
+  background #e217e5
 </style>
