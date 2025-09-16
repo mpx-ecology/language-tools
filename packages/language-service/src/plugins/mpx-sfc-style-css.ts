@@ -1,70 +1,12 @@
 import * as CSS from 'vscode-css-languageservice'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
-import {
-  type LanguageServicePlugin,
-  type VirtualCode,
+import type {
+  LanguageServicePlugin,
+  VirtualCode,
 } from '@volar/language-service'
 import { type Provide, create as baseCreate } from 'volar-service-css'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode } from '@mpxjs/language-core'
-
-function parseStylusColors(document: TextDocument): CSS.ColorInformation[] {
-  const colors: CSS.ColorInformation[] = []
-  const text = document.getText()
-  const regex = /(?:^|[\s:,(])#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})(?![\w-])/g
-  let match: RegExpExecArray | null
-
-  while ((match = regex.exec(text))) {
-    const hex = match[1]
-
-    // 精确 range：找到 #hex 的起始位置
-    const colorStartIndex = match.index + match[0].lastIndexOf(hex)
-    const start = document.positionAt(colorStartIndex - 1) // 包含 #
-    const end = document.positionAt(colorStartIndex - 1 + hex.length + 1)
-
-    // 获取当前行，排除 ID 选择器
-    const lineStart = text.lastIndexOf('\n', match.index) + 1
-    const line = text.slice(lineStart, text.indexOf('\n', match.index))
-    if (/^\s*#\w/.test(line)) continue
-
-    // 转换颜色
-    let r = 0,
-      g = 0,
-      b = 0
-    if (hex.length === 3) {
-      r = parseInt(hex[0] + hex[0], 16)
-      g = parseInt(hex[1] + hex[1], 16)
-      b = parseInt(hex[2] + hex[2], 16)
-    } else {
-      r = parseInt(hex.slice(0, 2), 16)
-      g = parseInt(hex.slice(2, 4), 16)
-      b = parseInt(hex.slice(4, 6), 16)
-    }
-
-    colors.push({
-      range: { start, end },
-      color: { red: r / 255, green: g / 255, blue: b / 255, alpha: 1 },
-    })
-  }
-
-  return colors
-}
-
-function parseStylusColorPresentation(
-  range: CSS.Range,
-  color: CSS.Color,
-): CSS.ColorPresentation[] {
-  const colors: CSS.ColorPresentation[] = []
-  const r = Math.round(color.red * 255)
-  const g = Math.round(color.green * 255)
-  const b = Math.round(color.blue * 255)
-  const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
-  colors.push({
-    label: hex,
-    textEdit: CSS.TextEdit.replace(range, hex),
-  })
-  return colors
-}
 
 export function create(): LanguageServicePlugin {
   const base = baseCreate({
@@ -168,31 +110,6 @@ export function create(): LanguageServicePlugin {
 
           return worker(document, (stylesheet, cssLs) => {
             return cssLs.prepareRename(document, position, stylesheet)
-          })
-        },
-
-        /**
-         * support colorDecorators and colorPresentation
-         */
-        provideDocumentColors(document: TextDocument) {
-          if (document.languageId === 'stylus') {
-            return parseStylusColors(document)
-          }
-          return worker(document, (stylesheet, cssLs) => {
-            return cssLs.findDocumentColors(document, stylesheet)
-          })
-        },
-        provideColorPresentations(document, color, range) {
-          if (document.languageId === 'stylus') {
-            return parseStylusColorPresentation(range, color)
-          }
-          return worker(document, (stylesheet, cssLs) => {
-            return cssLs.getColorPresentations(
-              document,
-              stylesheet,
-              color,
-              range,
-            )
           })
         },
       }

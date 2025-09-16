@@ -1,4 +1,5 @@
 import type * as vscode from 'vscode-languageserver-protocol'
+import type { TextDocument } from 'vscode-languageserver-textdocument'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import * as stylusSupremacy from 'stylus-supremacy'
 import * as CSS from 'vscode-css-languageservice'
@@ -10,6 +11,11 @@ import {
   getValues,
   isValue,
 } from '../utils/stylus'
+
+// Examples matched: "color #fff", "color: #fff;", "color:#fff", "    background #aaa"
+// Examples not matched: "#fff" at line start, "#id", selectors like "a #abc", "#bbb #ccc" (second #)
+const stylusColorRegex =
+  /(?<!^)(?<!^\s*)(?<!#[0-9a-fA-F]{0,6}\s)(?<=:| )#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})(?![0-9a-fA-F])/gm
 
 export function create(): LanguageServicePlugin {
   const cssBuiltinData = CSS.getDefaultCSSDataProvider()
@@ -143,7 +149,80 @@ export function create(): LanguageServicePlugin {
             return
           }
         },
+
+        /**
+         * support colorDecorators and colorPresentation
+         */
+        provideDocumentColors(document: TextDocument) {
+          if (document.languageId !== 'stylus') {
+            return
+          }
+
+          return parseStylusColors(document)
+        },
+
+        provideColorPresentations(document, color, range) {
+          if (document.languageId !== 'stylus') {
+            return
+          }
+
+          return parseStylusColorPresentation(range, color)
+        },
       }
     },
   }
+}
+
+function parseStylusColors(document: TextDocument): CSS.ColorInformation[] {
+  const colors: CSS.ColorInformation[] = []
+  const text = document.getText()
+  let match: RegExpExecArray | null
+  while ((match = stylusColorRegex.exec(text))) {
+    const start = document.positionAt(match.index)
+    const end = document.positionAt(match.index + match[0].length)
+    const hex = match[1]
+    let r = 0,
+      g = 0,
+      b = 0
+    if (hex.length === 3) {
+      r = parseInt(hex[0] + hex[0], 16)
+      g = parseInt(hex[1] + hex[1], 16)
+      b = parseInt(hex[2] + hex[2], 16)
+    } else {
+      r = parseInt(hex.slice(0, 2), 16)
+      g = parseInt(hex.slice(2, 4), 16)
+      b = parseInt(hex.slice(4, 6), 16)
+    }
+    colors.push({
+      range: { start, end },
+      color: {
+        red: r / 255,
+        green: g / 255,
+        blue: b / 255,
+        alpha: 1,
+      },
+    })
+  }
+  return colors
+}
+
+function parseStylusColorPresentation(
+  range: CSS.Range,
+  color: CSS.Color,
+): CSS.ColorPresentation[] {
+  const colors: CSS.ColorPresentation[] = []
+  const r = Math.round(color.red * 255)
+  const g = Math.round(color.green * 255)
+  const b = Math.round(color.blue * 255)
+  const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+
+  colors.push({
+    label: hex,
+    textEdit: {
+      range,
+      newText: hex,
+    },
+  })
+
+  return colors
 }
