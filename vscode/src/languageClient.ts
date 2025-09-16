@@ -1,6 +1,7 @@
 import * as lsp from '@volar/vscode'
 import {
   executeCommand,
+  extensionContext,
   nextTick,
   useActiveTextEditor,
   useCommand,
@@ -12,6 +13,7 @@ import {
 import * as vscode from 'vscode'
 import { config } from './config'
 import { activate as activateSplitEditors } from './features/splitEditors'
+import { activate as activeInterpolationDecorators } from './features/interpolationDecorators'
 
 let client: lsp.BaseLanguageClient
 
@@ -74,7 +76,10 @@ async function activateLc(createLc: CreateLanguageClient) {
     await client?.start()
   })
 
+  const context = extensionContext.value!
+
   activateSplitEditors(client)
+  activeInterpolationDecorators(context, selectors)
 
   lsp.activateAutoInsertion(selectors, client)
   lsp.activateDocumentDropEdit(selectors, client)
