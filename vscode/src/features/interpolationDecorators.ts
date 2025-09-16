@@ -20,6 +20,7 @@ export function activate(
   }
 
   context.subscriptions.push(
+    decorationType,
     vscode.window.onDidChangeActiveTextEditor(editor => {
       if (editor) {
         updateDecorations(editor)
