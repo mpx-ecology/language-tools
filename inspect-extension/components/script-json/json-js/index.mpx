@@ -23,12 +23,11 @@ defineProps<{
   msg: string
   count?: number
 }>()
-console.log('---> debug')
 </script>
 
 <style lang="stylus">
 .list
-  color red
+  color #faf
 </style>
 
 <script name="json">
@@ -82,6 +81,14 @@ const aliConfig = {
   component: true,
   usingComponents: comps,
 }
+
+aliConfig.usingComponents = {
+  list: '../components/list1.mpx',
+  'list-error-path': '../components/list-error.mpx',
+}
+
+aliConfig.usingComponents.list = '../components/list1.mpx'
+result.usingComponents['list-error-path'] = '../components/list-error.mpx'
 
 let finalConfig = null
 if (__mpx_mode__ === 'ali') {
