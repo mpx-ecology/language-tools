@@ -176,43 +176,51 @@ function parseStylusColors(document: TextDocument): CSS.ColorInformation[] {
   const colors: CSS.ColorInformation[] = []
   const text = document.getText()
   let match: RegExpExecArray | null
-  while ((match = stylusColorRegex.exec(text))) {
-    const fullMatch = match[0]
-    const valueWithColor = match[3] // The part containing the hex color
-    const hex = match[4] // The captured hex digits
 
-    // Find the position of the # in the value part
-    const colorIndex = valueWithColor.indexOf('#')
-    if (colorIndex === -1) continue
+  try {
+    while ((match = stylusColorRegex.exec(text))) {
+      const fullMatch = match[0]
+      const valueWithColor = match[3] // The part containing the hex color
+      const hex = match[4] // The captured hex digits
 
-    // Calculate the absolute position in the document
-    const lineStartIndex = match.index
-    const colorStartIndex =
-      lineStartIndex + fullMatch.indexOf(valueWithColor) + colorIndex
-    const colorEndIndex = colorStartIndex + 1 + hex.length // +1 for the #
-    const start = document.positionAt(colorStartIndex)
-    const end = document.positionAt(colorEndIndex)
-    let [r, g, b] = [0, 0, 0]
+      // Find the position of the # in the value part
+      const colorIndex = valueWithColor.indexOf('#')
+      if (colorIndex === -1) continue
 
-    if (hex.length === 3) {
-      r = parseInt(hex[0] + hex[0], 16)
-      g = parseInt(hex[1] + hex[1], 16)
-      b = parseInt(hex[2] + hex[2], 16)
-    } else {
-      r = parseInt(hex.slice(0, 2), 16)
-      g = parseInt(hex.slice(2, 4), 16)
-      b = parseInt(hex.slice(4, 6), 16)
+      // Calculate the absolute position in the document
+      const lineStartIndex = match.index
+      const colorStartIndex =
+        lineStartIndex + fullMatch.indexOf(valueWithColor) + colorIndex
+      const colorEndIndex = colorStartIndex + 1 + hex.length // +1 for the #
+      const start = document.positionAt(colorStartIndex)
+      const end = document.positionAt(colorEndIndex)
+      let [r, g, b] = [0, 0, 0]
+
+      if (hex.length === 3) {
+        r = parseInt(hex[0] + hex[0], 16)
+        g = parseInt(hex[1] + hex[1], 16)
+        b = parseInt(hex[2] + hex[2], 16)
+      } else {
+        r = parseInt(hex.slice(0, 2), 16)
+        g = parseInt(hex.slice(2, 4), 16)
+        b = parseInt(hex.slice(4, 6), 16)
+      }
+      colors.push({
+        range: { start, end },
+        color: {
+          red: r / 255,
+          green: g / 255,
+          blue: b / 255,
+          alpha: 1,
+        },
+      })
     }
-    colors.push({
-      range: { start, end },
-      color: {
-        red: r / 255,
-        green: g / 255,
-        blue: b / 255,
-        alpha: 1,
-      },
-    })
+  } catch (error) {
+    console.error(
+      `[Mpx] Stylus Color Parsing Error: ${error instanceof Error ? error.message : String(error)}`,
+    )
   }
+
   return colors
 }
 
