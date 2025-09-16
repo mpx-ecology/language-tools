@@ -51,11 +51,12 @@
   // 注释
   display flex // 注释
   background-color #f0f0f0
-  color #ecc721
+  color: #ecc721;
   color red
 
   #fff
     background #1673d7
+    background#1673d7
 
   #bbb #ccc
     border 1px solid #c72121

@@ -12,10 +12,11 @@ import {
   isValue,
 } from '../utils/stylus'
 
-// Examples matched: "color #fff", "color: #fff;", "color:#fff", "    background #aaa"
-// Examples not matched: "#fff" at line start, "#id", selectors like "a #abc", "#bbb #ccc" (second #)
+// Match Stylus property values containing hex colors
+// Examples matched: "color #fff", "color: #fff", "background #aaa", "border-color:#333"
+// Examples not matched: "#fff" at line start, selectors like "a #abc", "#bbb #ccc"
 const stylusColorRegex =
-  /(?<!^)(?<!^\s*)(?<!#[0-9a-fA-F]{0,6}\s)(?<=:| )#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})(?![0-9a-fA-F])/gm
+  /^(\s*)([a-zA-Z][\w-]*)\s*:?\s+(.*?#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})(?![0-9a-fA-F]).*?)$/gm
 
 export function create(): LanguageServicePlugin {
   const cssBuiltinData = CSS.getDefaultCSSDataProvider()
@@ -176,12 +177,23 @@ function parseStylusColors(document: TextDocument): CSS.ColorInformation[] {
   const text = document.getText()
   let match: RegExpExecArray | null
   while ((match = stylusColorRegex.exec(text))) {
-    const start = document.positionAt(match.index)
-    const end = document.positionAt(match.index + match[0].length)
-    const hex = match[1]
-    let r = 0,
-      g = 0,
-      b = 0
+    const fullMatch = match[0]
+    const valueWithColor = match[3] // The part containing the hex color
+    const hex = match[4] // The captured hex digits
+
+    // Find the position of the # in the value part
+    const colorIndex = valueWithColor.indexOf('#')
+    if (colorIndex === -1) continue
+
+    // Calculate the absolute position in the document
+    const lineStartIndex = match.index
+    const colorStartIndex =
+      lineStartIndex + fullMatch.indexOf(valueWithColor) + colorIndex
+    const colorEndIndex = colorStartIndex + 1 + hex.length // +1 for the #
+    const start = document.positionAt(colorStartIndex)
+    const end = document.positionAt(colorEndIndex)
+    let [r, g, b] = [0, 0, 0]
+
     if (hex.length === 3) {
       r = parseInt(hex[0] + hex[0], 16)
       g = parseInt(hex[1] + hex[1], 16)
