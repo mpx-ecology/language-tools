@@ -1,9 +1,7 @@
-import type * as CSS from 'vscode-css-languageservice'
+import * as CSS from 'vscode-css-languageservice'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
 import {
-  type Color,
   type LanguageServicePlugin,
-  TextEdit,
   type VirtualCode,
 } from '@volar/language-service'
 import { type Provide, create as baseCreate } from 'volar-service-css'
@@ -13,13 +11,23 @@ import { MpxVirtualCode } from '@mpxjs/language-core'
 function parseStylusColors(document: TextDocument): CSS.ColorInformation[] {
   const colors: CSS.ColorInformation[] = []
   const text = document.getText()
-
-  const regex = /#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b/g
+  const regex = /(?:^|[\s:,(])#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})(?![\w-])/g
   let match: RegExpExecArray | null
+
   while ((match = regex.exec(text))) {
-    const start = document.positionAt(match.index)
-    const end = document.positionAt(match.index + match[0].length)
     const hex = match[1]
+
+    // 精确 range：找到 #hex 的起始位置
+    const colorStartIndex = match.index + match[0].lastIndexOf(hex)
+    const start = document.positionAt(colorStartIndex - 1) // 包含 #
+    const end = document.positionAt(colorStartIndex - 1 + hex.length + 1)
+
+    // 获取当前行，排除 ID 选择器
+    const lineStart = text.lastIndexOf('\n', match.index) + 1
+    const line = text.slice(lineStart, text.indexOf('\n', match.index))
+    if (/^\s*#\w/.test(line)) continue
+
+    // 转换颜色
     let r = 0,
       g = 0,
       b = 0
@@ -32,13 +40,11 @@ function parseStylusColors(document: TextDocument): CSS.ColorInformation[] {
       g = parseInt(hex.slice(2, 4), 16)
       b = parseInt(hex.slice(4, 6), 16)
     }
-    const color: Color = {
-      red: r / 255,
-      green: g / 255,
-      blue: b / 255,
-      alpha: 1,
-    }
-    colors.push({ range: { start, end }, color })
+
+    colors.push({
+      range: { start, end },
+      color: { red: r / 255, green: g / 255, blue: b / 255, alpha: 1 },
+    })
   }
 
   return colors
@@ -53,10 +59,9 @@ function parseStylusColorPresentation(
   const g = Math.round(color.green * 255)
   const b = Math.round(color.blue * 255)
   const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
-
   colors.push({
     label: hex,
-    textEdit: TextEdit.replace(range, hex),
+    textEdit: CSS.TextEdit.replace(range, hex),
   })
   return colors
 }

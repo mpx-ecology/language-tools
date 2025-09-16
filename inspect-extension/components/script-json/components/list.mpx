@@ -15,8 +15,11 @@ createComponent({
 </script>
 
 <style lang="stylus">
-  .list
-    background-color #ccc
+  #fff 
+    background #aaa
+  #bbb #ccc
+    border 1px solid #683434
+    background  #333
 </style>
 
 <script type="application/json">
