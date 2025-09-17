@@ -3,8 +3,9 @@
     <view
       wx:for="{{ listData }}"
       wx:key="*this"
-      >{{ item }}</view
     >
+      {{ item }}
+    </view>
   </view>
 </template>
 
