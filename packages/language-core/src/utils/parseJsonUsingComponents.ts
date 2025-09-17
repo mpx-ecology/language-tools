@@ -82,6 +82,17 @@ export function parseUsingComponentsWithJs(
       parseObjectFromExpression(node.initializer)
     }
 
+    // 处理赋值语句：result.usingComponents.list = './list' 或 result.usingComponents['list'] = './list'
+    if (
+      ts.isExpressionStatement(node) &&
+      ts.isBinaryExpression(node.expression)
+    ) {
+      const assignment = node.expression
+      if (assignment.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+        parseAssignmentExpression(assignment)
+      }
+    }
+
     ts.forEachChild(node, visit)
   }
 
@@ -106,6 +117,72 @@ export function parseUsingComponentsWithJs(
       }
     }
     ts.forEachChild(node, collectAugments)
+  }
+
+  function parseAssignmentExpression(assignment: ts.BinaryExpression) {
+    const left = assignment.left
+    const right = assignment.right
+
+    // 处理 aliConfig.usingComponents = { list: './list' } 这种语法
+    if (
+      ts.isPropertyAccessExpression(left) &&
+      ts.isIdentifier(left.name) &&
+      left.name.text === 'usingComponents'
+    ) {
+      // 直接解析右侧的对象表达式
+      parseObjectFromExpression(right)
+      return
+    }
+
+    // 检查赋值的右侧是否为字符串字面量（用于属性级别的赋值）
+    if (!ts.isStringLiteral(right)) {
+      return
+    }
+
+    let componentName: string | undefined
+    let isUsingComponentsAssignment = false
+
+    // 处理点语法：result.usingComponents.list = './list'
+    if (ts.isPropertyAccessExpression(left)) {
+      const propertyAccess = left
+      if (
+        ts.isPropertyAccessExpression(propertyAccess.expression) &&
+        ts.isIdentifier(propertyAccess.expression.name) &&
+        propertyAccess.expression.name.text === 'usingComponents' &&
+        ts.isIdentifier(propertyAccess.name)
+      ) {
+        componentName = propertyAccess.name.text
+        isUsingComponentsAssignment = true
+      }
+    }
+
+    // 处理方括号语法：result.usingComponents['list'] = './list'
+    if (ts.isElementAccessExpression(left)) {
+      const elementAccess = left
+      if (
+        ts.isPropertyAccessExpression(elementAccess.expression) &&
+        ts.isIdentifier(elementAccess.expression.name) &&
+        elementAccess.expression.name.text === 'usingComponents' &&
+        elementAccess.argumentExpression &&
+        ts.isStringLiteral(elementAccess.argumentExpression)
+      ) {
+        componentName = elementAccess.argumentExpression.text
+        isUsingComponentsAssignment = true
+      }
+    }
+
+    // 如果识别到 usingComponents 相关的赋值，添加到结果中
+    if (isUsingComponentsAssignment && componentName) {
+      const text = right.text
+      if (!usingComponents.has(componentName)) {
+        usingComponents.set(componentName, [])
+      }
+      usingComponents.get(componentName)!.push({
+        text,
+        offset: right.getStart(sourceFile),
+        nameOffset: left.getStart(sourceFile),
+      })
+    }
   }
 
   function parseObjectLiteralProperties(
