@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.14.0](https://github.com/mpx-ecology/language-tools/compare/v1.12.3...v1.14.0) (2025-09-17)
+
+### Features
+
+* update ([3658f42](https://github.com/mpx-ecology/language-tools/commit/3658f42ef2ab335958626ddbc44c8cadd0655566))
+* **vscode:** support interpolation decorators like Vue ([6c89d68](https://github.com/mpx-ecology/language-tools/commit/6c89d68668a7e3dcab1e0a926a85b470b4efbb27))
+
 ## [1.12.3](https://github.com/mpx-ecology/language-tools/compare/v1.12.2...v1.12.3) (2025-09-08)
 
 ### Features

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.14.0](https://github.com/mpx-ecology/language-tools/compare/v1.12.3...v1.14.0) (2025-09-17)
+
+### Features
+
+* review ([0800ec0](https://github.com/mpx-ecology/language-tools/commit/0800ec0eb9dde130a3c6a1e9418795bda7129965))
+* review ([df04309](https://github.com/mpx-ecology/language-tools/commit/df043093fd2032db0a4941f91b5120de9d7433d2))
+* **service:** enhance error handling in stylus color parsing ([82cadca](https://github.com/mpx-ecology/language-tools/commit/82cadcada528302d0ab4df9357dc66f89b13ab9e))
+* **service:** refactor stylus colors parsing ([04d088f](https://github.com/mpx-ecology/language-tools/commit/04d088fb027e025cdad4c1dfa53d7bf8d6abf12e))
+* 增强正则逻辑，处理命中id选择器情况 ([7a16220](https://github.com/mpx-ecology/language-tools/commit/7a1622068f0f917491d6c9be810d7d239ab95b2c))
+* 支持mpx文件css样式颜色调色板显示和更改颜色 ([4809101](https://github.com/mpx-ecology/language-tools/commit/4809101fc41f33375a50be32052a47751b7a601c))
+
 ## [1.12.3](https://github.com/mpx-ecology/language-tools/compare/v1.12.2...v1.12.3) (2025-09-08)
 
 ### Features
