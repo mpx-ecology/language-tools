@@ -33,6 +33,7 @@
 | \<template\> style 属性支持原生 CSS 补全提示 | ❌     | ✅            |
 | \<template\> 原生组件属性检查                | ❌     | ✅            |
 | \<template\> 自定义组件跳转                  | ❌     | ✅            |
+| \<template\> `{{}}` 内插值代码高亮显示       | ❌     | ✅            |
 | \<json\> mpx json 语法 schema 支持           | ❌     | ✅            |
 
 ## Extension Features

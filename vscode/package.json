@@ -178,20 +178,10 @@
             "customBlocks"
           ]
         },
-        "mpx.codeActions.enabled": {
+        "mpx.editor.templateInterpolationDecorators": {
           "type": "boolean",
           "default": true,
-          "description": "Enabled code actions."
-        },
-        "mpx.codeActions.askNewComponentName": {
-          "type": "boolean",
-          "default": true,
-          "description": "Ask for new component name when extract component."
-        },
-        "mpx.codeLens.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enabled code lens."
+          "markdownDescription": "%template.editor.templateInterpolationDecorators%"
         },
         "mpx.format.template.initialIndent": {
           "type": "boolean",

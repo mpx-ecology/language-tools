@@ -11,9 +11,7 @@
     </view>
     <view class="title">
       {{ $t('local.title') }}
-      <view>
-        {{ $tm('local.driver') }}
-      </view>
+      <view> {{ $tm('local.driver') }} </view>
     </view>
   </view>
 </template>
@@ -22,7 +20,7 @@
 import { toRefs, computed } from '@mpxjs/core'
 
 const props = defineProps<{
-  msg: string,
+  msg: string
   propA: number
 }>()
 
@@ -34,7 +32,7 @@ const content = computed(() => {
 })
 const obj = {
   a: 1,
-  b: 2
+  b: 2,
 }
 
 const onClick = (a?: number) => {
@@ -45,9 +43,8 @@ defineExpose({
   title,
   content,
   obj,
-  onClick
+  onClick,
 })
-
 </script>
 
 <style lang="stylus">
