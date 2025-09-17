@@ -2,6 +2,7 @@
 
 [![vscode-market-version-badge]][vscode-market-mpx-official]
 [![vscode-market-downloads-badge]][vscode-market-mpx-official]
+[![vscode-market-installs-badge]][vscode-market-mpx-official]
 [![open-vsx-version-badge]][open-vsx-mpx-official]
 [![open-vsx-downloads-badge]][open-vsx-mpx-official]
 [![license-badge]][license-url]
@@ -138,7 +139,7 @@ For details on our planned features and future direction, please refer to our [R
 [vscode-market-version-badge]: https://img.shields.io/vscode-marketplace/v/mpxjs.mpx-official?label=VS%20Code&style=flat
 [vscode-market-version-badge-1]: https://img.shields.io/vscode-marketplace/v/mpxjs.mpx-official?label=Mpx%20(Official)&style=flat
 [vscode-market-downloads-badge]: https://img.shields.io/vscode-marketplace/d/mpxjs.mpx-official?label=VS%20Code%20Downloads&style=flat&color=brightgreen
-[vscode-market-downloads-badge-1]: https://img.shields.io/vscode-marketplace/d/mpxjs.mpx-official?color=brightgreen
+[vscode-market-installs-badge]: https://img.shields.io/vscode-marketplace/i/mpxjs.mpx-official?label=VS%20Code%20Installs&style=flat&color=brightgreen
 [vscode-market-mpx-official]: https://marketplace.visualstudio.com/items?itemName=mpxjs.mpx-official
 [open-vsx-version-badge]: https://img.shields.io/open-vsx/v/mpxjs/mpx-official?label=Open%20VSX&style=flat
 [open-vsx-downloads-badge]: https://img.shields.io/open-vsx/dt/mpxjs/mpx-official?label=Open%20VSX%20Downloads&style=flat&color=brightgreen
