@@ -31,6 +31,9 @@ export function create(): LanguageServicePlugin {
   }
 
   const base = baseCreate(prettierInstanceOrGetter, {
+    html: {
+      breakContentsFromTags: true,
+    },
     isFormattingEnabled: async (prettier, document, context) => {
       if (!prettier) {
         console.error('[Mpx] prettier is not available')
