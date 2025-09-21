@@ -1,6 +1,16 @@
 {
   "tabWidth": 2,
   "semi": false,
+  "printWidth": 80,
   "singleQuote": true,
-  "singleAttributePerLine": true
+  "overrides": [
+    {
+      "files": "*.mpx",
+      "options": {
+        "parser": "vue",
+        "printWidth": 80,
+        "vueIndentScriptAndStyle": true
+      }
+    }
+  ]
 }

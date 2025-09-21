@@ -115,51 +115,66 @@ export function create(): LanguageServicePlugin {
           // 在真正调用底层 prettier 前，记录当前源文件路径，供就近解析 prettier 使用
           lastFormatFilePath = documentUri.fsPath
 
-          const res = await baseInstance.provideDocumentFormattingEdits?.(
-            document,
-            range,
-            options,
-            embeddedCodeContext,
-            token,
-          )
-
-          if (res?.[0]?.newText) {
-            let newText = res?.[0]?.newText
-
-            if (
-              isScriptBlock(embeddedCodeId) ||
-              isTemplateBlock(embeddedCodeId)
-            ) {
-              newText = '\n' + newText
+          const originalGetText = document.getText
+          document.getText = (range?: any) => {
+            const originalText = originalGetText.call(document, range)
+            if (document.languageId === 'html') {
+              return `<template>${originalText}</template>`
             }
-
-            // 获取 <script>/<template> 初始缩进配置
-            const initialIndent =
-              (isScriptBlock(embeddedCodeId) &&
-                ((await context.env.getConfiguration?.(
-                  'mpx.format.script.initialIndent',
-                )) ??
-                  false)) ||
-              (isTemplateBlock(embeddedCodeId) &&
-                ((await context.env.getConfiguration?.(
-                  'mpx.format.template.initialIndent',
-                )) ??
-                  false))
-
-            if (initialIndent) {
-              newText = newText
-                .split(/\n/)
-                .map(line => (line.length > 0 ? baseIndentSpaces + line : ''))
-                .join('\n')
-            }
-
-            // format with `bracket spacing`
-            newText = await formatWithBracketSpacing(context, newText)
-
-            res[0].newText = newText
+            return originalText
           }
 
-          return res
+          try {
+            const res = await baseInstance.provideDocumentFormattingEdits?.(
+              document,
+              range,
+              options,
+              embeddedCodeContext,
+              token,
+            )
+
+            if (res?.[0]?.newText) {
+              let newText = res?.[0]?.newText
+
+              if (isScriptBlock(embeddedCodeId)) {
+                newText = '\n' + newText
+              } else if (isTemplateBlock(embeddedCodeId)) {
+                // 去掉首 `<template>` 和尾 `</template>/n`
+                // TODO 根据 tabWidth 还原缩进
+                const len = '<template>'.length
+                newText = newText.slice(len, -len - 2)
+              }
+
+              // 获取 <script>/<template> 初始缩进配置
+              const initialIndent =
+                (isScriptBlock(embeddedCodeId) &&
+                  ((await context.env.getConfiguration?.(
+                    'mpx.format.script.initialIndent',
+                  )) ??
+                    false)) ||
+                (isTemplateBlock(embeddedCodeId) &&
+                  ((await context.env.getConfiguration?.(
+                    'mpx.format.template.initialIndent',
+                  )) ??
+                    false))
+
+              if (initialIndent) {
+                newText = newText
+                  .split(/\n/)
+                  .map(line => (line.length > 0 ? baseIndentSpaces + line : ''))
+                  .join('\n')
+              }
+
+              // format with `bracket spacing`
+              newText = await formatWithBracketSpacing(context, newText)
+
+              res[0].newText = newText
+            }
+
+            return res
+          } finally {
+            document.getText = originalGetText
+          }
         },
       }
     },
@@ -177,7 +192,7 @@ function isTemplateBlock(embeddedCodeId: string) {
 function getPrettierParser(document: TextDocument) {
   switch (document.languageId) {
     case 'html':
-      return 'html'
+      return 'vue'
     case 'javascript':
     case 'typescript':
     default:
