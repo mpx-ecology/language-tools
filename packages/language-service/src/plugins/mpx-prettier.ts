@@ -1,5 +1,5 @@
 import type { TextDocument } from 'vscode-languageserver-textdocument'
-import type { Options } from 'prettier'
+import type { Options as PrettierOptions } from 'prettier'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
 import { create as baseCreate } from 'volar-service-prettier'
@@ -66,14 +66,14 @@ export function create(): LanguageServicePlugin {
           : null
       const editorOptions: Record<string, any> =
         (await context.env.getConfiguration?.('prettier', uri.toString())) ?? {}
-      const res: Options = {
+      const res: PrettierOptions = {
         filepath: uri.scheme === 'file' ? uri.fsPath : undefined,
         tabWidth: formatOptions.tabSize,
         useTabs: !formatOptions.insertSpaces,
         ...editorOptions,
         ...(configOptions ?? {}),
-        parser: getPrettierParser(document),
       }
+      res.parser = getPrettierParser(document, res.parser)
       const tabWidth = res.tabWidth ?? 2
       baseIndentSpaces = res.useTabs ? '\t' : ' '.repeat(tabWidth)
       return res
@@ -136,38 +136,43 @@ export function create(): LanguageServicePlugin {
             if (res?.[0]?.newText) {
               let newText = res?.[0]?.newText
 
-              if (isScriptBlock(embeddedCodeId)) {
-                newText = '\n' + newText
-              } else if (isTemplateBlock(embeddedCodeId)) {
+              if (isTemplateBlock(embeddedCodeId)) {
                 // 去掉首 `<template>` 和尾 `</template>/n`
-                // TODO 根据 tabWidth 还原缩进
                 const len = '<template>'.length
                 newText = newText.slice(len, -len - 2)
-              }
-
-              // 获取 <script>/<template> 初始缩进配置
-              const initialIndent =
-                (isScriptBlock(embeddedCodeId) &&
-                  ((await context.env.getConfiguration?.(
-                    'mpx.format.script.initialIndent',
-                  )) ??
-                    false)) ||
-                (isTemplateBlock(embeddedCodeId) &&
-                  ((await context.env.getConfiguration?.(
+                const initialIndent =
+                  (await context.env.getConfiguration?.(
                     'mpx.format.template.initialIndent',
-                  )) ??
-                    false))
-
-              if (initialIndent) {
-                newText = newText
-                  .split(/\n/)
-                  .map(line => (line.length > 0 ? baseIndentSpaces + line : ''))
-                  .join('\n')
+                  )) ?? false
+                if (!initialIndent) {
+                  // newText 本身已经缩进了
+                  newText = newText
+                    .split(/\n/)
+                    .map(line =>
+                      line.length > 0
+                        ? line.slice(baseIndentSpaces.length)
+                        : '',
+                    )
+                    .join('\n')
+                }
+              } else if (isScriptBlock(embeddedCodeId)) {
+                newText = '\n' + newText
+                const initialIndent =
+                  (await context.env.getConfiguration?.(
+                    'mpx.format.script.initialIndent',
+                  )) ?? false
+                if (initialIndent) {
+                  newText = newText
+                    .split(/\n/)
+                    .map(line =>
+                      line.length > 0 ? baseIndentSpaces + line : '',
+                    )
+                    .join('\n')
+                }
               }
 
               // format with `bracket spacing`
               newText = await formatWithBracketSpacing(context, newText)
-
               res[0].newText = newText
             }
 
@@ -189,10 +194,18 @@ function isTemplateBlock(embeddedCodeId: string) {
   return embeddedCodeId === 'template'
 }
 
-function getPrettierParser(document: TextDocument) {
+function getPrettierParser(
+  document: TextDocument,
+  defaultParser: PrettierOptions['parser'],
+): string {
   switch (document.languageId) {
-    case 'html':
+    case 'html': {
+      // template 模块可以使用 html、vue parser，默认使用 vue
+      if (defaultParser === 'html') {
+        return 'html'
+      }
       return 'vue'
+    }
     case 'javascript':
     case 'typescript':
     default:
