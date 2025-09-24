@@ -7,9 +7,7 @@
     {
       "files": "*.mpx",
       "options": {
-        "parser": "vue",
-        "printWidth": 80,
-        "vueIndentScriptAndStyle": true
+        "parser": "vue"
       }
     }
   ]
