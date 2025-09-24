@@ -1,10 +1,10 @@
 <template>
   <view class="list">
+    <view wx:for="{{ listData }}" wx:key="*this"> {{ item }} </view>
     <view
-      wx:for="{{ listData }}"
-      wx:key="*this"
+      wx:if="{{ detailLoding }}"
+      class="skeletons d-flex justify-center wrap"
     >
-      {{ item }}
     </view>
   </view>
 </template>

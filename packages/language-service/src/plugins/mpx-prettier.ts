@@ -1,5 +1,5 @@
 import type { TextDocument } from 'vscode-languageserver-textdocument'
-import type { Options } from 'prettier'
+import type { Options as PrettierOptions } from 'prettier'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
 import { create as baseCreate } from 'volar-service-prettier'
@@ -66,14 +66,14 @@ export function create(): LanguageServicePlugin {
           : null
       const editorOptions: Record<string, any> =
         (await context.env.getConfiguration?.('prettier', uri.toString())) ?? {}
-      const res: Options = {
+      const res: PrettierOptions = {
         filepath: uri.scheme === 'file' ? uri.fsPath : undefined,
         tabWidth: formatOptions.tabSize,
         useTabs: !formatOptions.insertSpaces,
         ...editorOptions,
         ...(configOptions ?? {}),
-        parser: getPrettierParser(document),
       }
+      res.parser = getPrettierParser(document, res.parser)
       const tabWidth = res.tabWidth ?? 2
       baseIndentSpaces = res.useTabs ? '\t' : ' '.repeat(tabWidth)
       return res
@@ -115,51 +115,71 @@ export function create(): LanguageServicePlugin {
           // 在真正调用底层 prettier 前，记录当前源文件路径，供就近解析 prettier 使用
           lastFormatFilePath = documentUri.fsPath
 
-          const res = await baseInstance.provideDocumentFormattingEdits?.(
-            document,
-            range,
-            options,
-            embeddedCodeContext,
-            token,
-          )
-
-          if (res?.[0]?.newText) {
-            let newText = res?.[0]?.newText
-
-            if (
-              isScriptBlock(embeddedCodeId) ||
-              isTemplateBlock(embeddedCodeId)
-            ) {
-              newText = '\n' + newText
+          const originalGetText = document.getText
+          document.getText = (range?: any) => {
+            const originalText = originalGetText.call(document, range)
+            if (document.languageId === 'html') {
+              return `<template>${originalText}</template>`
             }
-
-            // 获取 <script>/<template> 初始缩进配置
-            const initialIndent =
-              (isScriptBlock(embeddedCodeId) &&
-                ((await context.env.getConfiguration?.(
-                  'mpx.format.script.initialIndent',
-                )) ??
-                  false)) ||
-              (isTemplateBlock(embeddedCodeId) &&
-                ((await context.env.getConfiguration?.(
-                  'mpx.format.template.initialIndent',
-                )) ??
-                  false))
-
-            if (initialIndent) {
-              newText = newText
-                .split(/\n/)
-                .map(line => (line.length > 0 ? baseIndentSpaces + line : ''))
-                .join('\n')
-            }
-
-            // format with `bracket spacing`
-            newText = await formatWithBracketSpacing(context, newText)
-
-            res[0].newText = newText
+            return originalText
           }
 
-          return res
+          try {
+            const res = await baseInstance.provideDocumentFormattingEdits?.(
+              document,
+              range,
+              options,
+              embeddedCodeContext,
+              token,
+            )
+
+            if (res?.[0]?.newText) {
+              let newText = res?.[0]?.newText
+
+              if (isTemplateBlock(embeddedCodeId)) {
+                // 去掉首 `<template>` 和尾 `</template>/n`
+                const len = '<template>'.length
+                newText = newText.slice(len, -len - 2)
+                const initialIndent =
+                  (await context.env.getConfiguration?.(
+                    'mpx.format.template.initialIndent',
+                  )) ?? false
+                if (!initialIndent) {
+                  // newText 本身已经缩进了
+                  newText = newText
+                    .split(/\n/)
+                    .map(line =>
+                      line.length > 0
+                        ? line.slice(baseIndentSpaces.length)
+                        : '',
+                    )
+                    .join('\n')
+                }
+              } else if (isScriptBlock(embeddedCodeId)) {
+                newText = '\n' + newText
+                const initialIndent =
+                  (await context.env.getConfiguration?.(
+                    'mpx.format.script.initialIndent',
+                  )) ?? false
+                if (initialIndent) {
+                  newText = newText
+                    .split(/\n/)
+                    .map(line =>
+                      line.length > 0 ? baseIndentSpaces + line : '',
+                    )
+                    .join('\n')
+                }
+              }
+
+              // format with `bracket spacing`
+              newText = await formatWithBracketSpacing(context, newText)
+              res[0].newText = newText
+            }
+
+            return res
+          } finally {
+            document.getText = originalGetText
+          }
         },
       }
     },
@@ -174,10 +194,18 @@ function isTemplateBlock(embeddedCodeId: string) {
   return embeddedCodeId === 'template'
 }
 
-function getPrettierParser(document: TextDocument) {
+function getPrettierParser(
+  document: TextDocument,
+  defaultParser: PrettierOptions['parser'],
+): string {
   switch (document.languageId) {
-    case 'html':
-      return 'html'
+    case 'html': {
+      // template 模块可以使用 html、vue parser，默认使用 vue
+      if (defaultParser === 'html') {
+        return 'html'
+      }
+      return 'vue'
+    }
     case 'javascript':
     case 'typescript':
     default:
