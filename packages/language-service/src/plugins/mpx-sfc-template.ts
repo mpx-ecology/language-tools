@@ -214,6 +214,34 @@ export function create(): LanguageServicePlugin {
           }
           return res
         },
+
+        /**
+         * 去除 HTML 内置标签 src、href 等属性的跳转功能，避免与插值代码 {{ xxx }} 内的变量跳转冲突
+         * 比如 <image src="{{ imgsrc }}">、<a href="{{ link }}"> 等等
+         */
+        async provideDocumentLinks(document, token) {
+          if (document.languageId !== 'html') {
+            return
+          }
+
+          const baseLinks = await baseServiceInstance.provideDocumentLinks?.(
+            document,
+            token,
+          )
+
+          if (!baseLinks?.length) {
+            return baseLinks
+          }
+
+          return baseLinks.filter(link => {
+            const linkText = document.getText(link.range)
+            if (/\{\s*\{.*?\}\s*\}/.test(linkText)) {
+              // 如果包含 {{}}，禁用跳转，包括有空格的情况，eg: " { { xx }} "
+              return false
+            }
+            return true
+          })
+        },
       }
     },
   }
