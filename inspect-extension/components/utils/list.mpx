@@ -1,7 +1,10 @@
 <template>
-  <view class="list">
-    <view wx:for="{{listData}}" wx:key="*this">{{item}}</view>
-  </view>
+  <image src="{{ imgsrc }}" class="{{ listData }}"></image>
+  <img src="https://mpxjs.cn/assets/logo.png" class="{{ listData }}"></img>
+  <a href="{{ imgsrc }}"></a>
+  <a href="https://mpxjs.cn/assets/logo.png"></a>
+  <a href="/CHANGELOG.md"></a>
+  <view>{{ listData }}</view>
 </template>
 
 <script lang="ts">
@@ -10,6 +13,11 @@ import { createComponent } from '@mpxjs/core'
 createComponent({
   data: {
     listData: ['手机', '电视', '电脑']
+  },
+  computed: {
+    imgsrc() {
+      return 'https://mpxjs.cn/assets/logo.png'
+    }
   }
 })
 </script>
