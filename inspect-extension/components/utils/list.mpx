@@ -1,10 +1,14 @@
 <template>
-  <image src="{{ imgsrc }}" class="{{ listData }}"></image>
-  <img src="https://mpxjs.cn/assets/logo.png" class="{{ listData }}"></img>
-  <a href="{{ imgsrc }}"></a>
-  <a href="https://mpxjs.cn/assets/logo.png"></a>
-  <a href="/CHANGELOG.md"></a>
-  <view>{{ listData }}</view>
+  <image src="{{ imgsrc }}" class="{{ listData[0] }}"> </image>
+
+  <img src="https://mpxjs.cn/logo.png" class="{{ listData[1] }}" />
+
+  <a href="{{ imgsrc }}"> </a>
+  <a href="{{ 'https://mpxjs.cn/logo.png' }}"> </a>
+  <a href="{{ imgsrc ? imgsrc : 'https://mpxjs.cn/logo.png' }}"> </a>
+  <a href="/CHANGELOG.md"> </a>
+
+  <view> {{ listData }} </view>
 </template>
 
 <script lang="ts">
@@ -12,19 +16,19 @@ import { createComponent } from '@mpxjs/core'
 
 createComponent({
   data: {
-    listData: ['手机', '电视', '电脑']
+    listData: ['class-a', 'class-b', 'class-c'],
   },
   computed: {
     imgsrc() {
       return 'https://mpxjs.cn/assets/logo.png'
-    }
-  }
+    },
+  },
 })
 </script>
 
 <style lang="stylus">
-  .list
-    background-color red
+.list
+  background-color red
 </style>
 
 <script type="application/json">

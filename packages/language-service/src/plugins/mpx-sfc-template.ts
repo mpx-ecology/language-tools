@@ -216,16 +216,14 @@ export function create(): LanguageServicePlugin {
         },
 
         /**
-         * 去除 HTML 内置标签src、href等属性的跳转功能，避免与{{ xxx }}内的路径冲突
+         * 去除 HTML 内置标签 src、href 等属性的跳转功能，避免与插值代码 {{ xxx }} 内的变量跳转冲突
          * 比如 <image src="{{ imgsrc }}">、<a href="{{ link }}"> 等等
-         * 这些路径保证跳转至正确变量定义位置即可
          */
         async provideDocumentLinks(document, token) {
           if (document.languageId !== 'html') {
             return
           }
 
-          // 调用原本的 html 插件能力
           const baseLinks = await baseServiceInstance.provideDocumentLinks?.(
             document,
             token,
@@ -235,16 +233,10 @@ export function create(): LanguageServicePlugin {
             return baseLinks
           }
 
-          const text = document.getText()
-
           return baseLinks.filter(link => {
-            const linkText = text.slice(
-              document.offsetAt(link.range.start),
-              document.offsetAt(link.range.end),
-            )
-
-            // 如果包含 {{}}，禁用跳转
-            if (/\{\{.*?\}\}/.test(linkText)) {
+            const linkText = document.getText(link.range)
+            if (/\{\s*\{.*?\}\s*\}/.test(linkText)) {
+              // 如果包含 {{}}，禁用跳转，包括有空格的情况，eg: " { { xx }} "
               return false
             }
             return true
