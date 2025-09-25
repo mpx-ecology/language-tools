@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.14.1](https://github.com/mpx-ecology/language-tools/compare/v1.14.0...v1.14.1) (2025-09-25)
+
+### Bug Fixes
+
+* template view break-wrap ([dc1094f](https://github.com/mpx-ecology/language-tools/commit/dc1094f35f68c63dc7ed663face94f704d572fac))
+
+### Features
+
+* **service:** align prettier formatter with `vue` parser ([c3cd31b](https://github.com/mpx-ecology/language-tools/commit/c3cd31bc9c982d6d406ee73aead65af69784626c))
+* **service:** enhance prettier formatter ([801a49e](https://github.com/mpx-ecology/language-tools/commit/801a49e68ca3ecac8f1673d2b747cb30bb2e1495))
+* **service:** little refactor ([62437de](https://github.com/mpx-ecology/language-tools/commit/62437decd7f327753a46db99c494cade3492f1ab))
+* 去除 HTML 内置标签src、href等属性的跳转功能，避免与{{ xxx }}内的路径冲突 ([c59caa6](https://github.com/mpx-ecology/language-tools/commit/c59caa6f5f91668b52b6a24271a8d268134b3c35))
+
 # [1.14.0](https://github.com/mpx-ecology/language-tools/compare/v1.12.3...v1.14.0) (2025-09-17)
 
 ### Features
