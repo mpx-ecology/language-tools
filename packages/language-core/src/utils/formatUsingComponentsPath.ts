@@ -27,6 +27,11 @@ export async function formatUsingComponentsPath(
     componentPath = path.resolve(uriToFileName(uri), '..', componentPath)
   }
 
+  // Fix #70
+  if (componentPath.startsWith('plugin://')) {
+    return { result: componentPath }
+  }
+
   const result = await findResult(
     [
       () => tryResolveByTsConfig(componentPath, compilerOption),

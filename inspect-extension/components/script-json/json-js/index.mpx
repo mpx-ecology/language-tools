@@ -2,19 +2,20 @@
   <view>
     {{ msg }} - {{ count }}
     <list />
-    <list-var></list-var>
+    <list-var> </list-var>
     <list-alias />
-    <list-from-dir></list-from-dir>
-    <list-deep-1></list-deep-1>
-    <list-deep-2></list-deep-2>
-    <list-deep-3></list-deep-3>
-    <list-deep-4></list-deep-4>
-    <list-deep-5></list-deep-5>
-    <list-deep-6></list-deep-6>
-    <list-deep-error></list-deep-error>
-    <list-error-path></list-error-path>
+    <list-from-dir> </list-from-dir>
+    <list-deep-1> </list-deep-1>
+    <list-deep-2> </list-deep-2>
+    <list-deep-3> </list-deep-3>
+    <list-deep-4> </list-deep-4>
+    <list-deep-5> </list-deep-5>
+    <list-deep-6> </list-deep-6>
+    <list-deep-error> </list-deep-error>
+    <list-error-path> </list-error-path>
     <list-assign />
     <list-assign-error />
+    <plugin-comp />
   </view>
 </template>
 
@@ -85,6 +86,7 @@ const aliConfig = {
 aliConfig.usingComponents = {
   list: '../components/list1.mpx',
   'list-error-path': '../components/list-error.mpx',
+  'plugin-comp': 'plugin://my-plugin/my-component', // Fix #70
 }
 
 aliConfig.usingComponents.list = '../components/list1.mpx'
