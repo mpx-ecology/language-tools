@@ -2,6 +2,7 @@ import type * as vscode from 'vscode-languageserver-protocol'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode, Sfc, tsCodegen } from '@mpxjs/language-core'
+import { isMpPluginComponentPath } from '../utils'
 
 export function create(): LanguageServicePlugin {
   return {
@@ -150,6 +151,10 @@ export function create(): LanguageServicePlugin {
                 componentPath,
                 { targetFilePath, id },
               ] of uniqueComponentMap.entries()) {
+                if (isMpPluginComponentPath(componentPath)) {
+                  // Fix #70 plugin 组件路径不处理
+                  continue
+                }
                 const addLink = (offset: number) => {
                   result.push({
                     range: {

@@ -1,6 +1,6 @@
 <template>
   <view>
-    <list class="list"></list>
+    <list class="list"> </list>
     <list />
     <list-alias />
 
@@ -24,6 +24,8 @@
 
     <!-- usingComponents 优先级 > 原生组件 -->
     <map />
+
+    <plugin-comp />
   </view>
 </template>
 
@@ -58,6 +60,7 @@ createPage({})
     "van-cell-group": "@vant/weapp/cell-group/index",
     "van-button": "@vant/weapp/button/index",
     "map": "../components/list",
+    "plugin-comp": "plugin://my-plugin/my-component" // Fix #70
   }
 }
 </script>

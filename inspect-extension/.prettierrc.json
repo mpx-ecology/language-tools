@@ -3,6 +3,7 @@
   "semi": false,
   "printWidth": 80,
   "singleQuote": true,
+  "singleAttributePerLine": true,
   "overrides": [
     {
       "files": "*.mpx",

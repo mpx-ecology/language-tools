@@ -2,6 +2,7 @@ import type * as vscode from 'vscode-languageserver-protocol'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode } from '@mpxjs/language-core'
+import { isMpPluginComponentPath } from '../utils'
 
 export function create(): LanguageServicePlugin {
   return {
@@ -47,6 +48,10 @@ export function create(): LanguageServicePlugin {
                 realFilename: targetFilePath,
               } of componentsArray) {
                 if (!targetFilePath) {
+                  continue
+                }
+                if (isMpPluginComponentPath(componentPath)) {
+                  // Fix #70 plugin 组件路径不处理
                   continue
                 }
                 result.push({
