@@ -73,6 +73,38 @@ export function parseUsingComponentsWithJs(
   const objectAssignAugments: Map<string, ts.Expression[]> = new Map()
 
   function visit(node: ts.Node) {
+    /**
+     * usingComponents 会是两种情况
+     * 情况1{
+     *   usingComponents,
+     * }
+     * 和
+     * {
+     *   usingComponents: foo,
+     * }
+     */
+    // 情况1
+    if (ts.isShorthandPropertyAssignment(node) && ts.isIdentifier(node.name)) {
+      const varName = node.name.text
+      const resolved = findVariableInitializerExpression(
+        ts,
+        sourceFile,
+        varName,
+      )
+      if (resolved) {
+        parseObjectFromExpression(resolved)
+      }
+      // 合并通过 Object.assign 收集到的补充
+      const augments = objectAssignAugments.get(varName)
+      if (augments && augments.length) {
+        for (const augmentExp of augments) {
+          parseObjectFromExpression(augmentExp)
+        }
+      }
+      return
+    }
+
+    // 情况2
     if (
       ts.isPropertyAssignment(node) &&
       (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) &&

@@ -1,0 +1,16 @@
+
+<script name="json">
+const usingComponents = {
+  list1: '../components/list1.mpx',
+}
+
+__mpx_mode__ === 'wx' && Object.assign(usingComponents, {
+  list2: '../components/list.mpx',
+})
+
+const config1 = {
+  component: true,
+  usingComponents,
+}
+module.exports = config1
+</script>
