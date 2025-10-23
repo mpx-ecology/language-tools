@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "preserveSymlinks": true,
     "lib": ["esnext", "dom"],
     "strict": true,
     "noUncheckedIndexedAccess": true,
