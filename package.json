@@ -1,6 +1,6 @@
 {
   "private": true,
-  "packageManager": "pnpm@10.18.2",
+  "packageManager": "pnpm@10.21.0",
   "scripts": {
     "build": "tsc -b",
     "watch": "pnpm run \"/^watch:.*/\"",
@@ -17,7 +17,7 @@
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged",
-    "commit-msg": "tsx scripts/verify-commit.ts"
+    "commit-msg": "npx tsx scripts/verify-commit.ts"
   },
   "lint-staged": {
     "*.{js,json,md}": [
