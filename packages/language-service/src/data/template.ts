@@ -7,7 +7,7 @@ import {
   WxDocsUrl,
 } from './utils'
 
-const MpxRNCompUrl = `${MpxGuideUrl}/platform/rn.html#`
+const MpxRNCompUrl = `${MpxGuideUrl}/rn/component.html#`
 const MpxRNEventUrl = `${MpxGuideUrl}/basic/event.html`
 const WxCompUrl = `${WxDocsUrl}/component`
 const RNBasicComp = '跨端输出 RN'
@@ -726,6 +726,29 @@ const data: html.HTMLDataV1 = {
         {
           name: RNBasicComp,
           url: `${MpxRNCompUrl}cover-view`,
+        },
+      ],
+    },
+    {
+      name: 'cover-image',
+      description: {
+        kind: 'markdown',
+        value: '视图容器，功能同 image 组件。',
+      },
+      attributes: [
+        {
+          name: 'src',
+          description: {
+            kind: 'markdown',
+            value: '图片资源地址',
+          },
+        },
+      ],
+      references: [
+        { name: WxDocs, url: `${WxCompUrl}/cover-image.html` },
+        {
+          name: RNBasicComp,
+          url: `${MpxRNCompUrl}cover-image`,
         },
       ],
     },
@@ -2413,6 +2436,83 @@ const data: html.HTMLDataV1 = {
         },
       ],
       references: [{ name: WxDocs, url: `${WxCompUrl}/page-container.html` }],
+    },
+    {
+      name: 'sticky-header',
+      description: {
+        kind: 'markdown',
+        value: '吸顶容器。',
+      },
+      attributes: [
+        {
+          name: 'offset-top',
+          description: {
+            kind: 'markdown',
+            value: '吸顶偏移距离（单位px）\n- 默认值：0',
+          },
+        },
+        {
+          name: 'padding',
+          description: {
+            kind: 'markdown',
+            value:
+              '长度为 4 的数组，按 top、right、bottom、left 顺序指定内边距',
+          },
+        },
+        {
+          name: 'allow-overlapping',
+          description: {
+            kind: 'markdown',
+            value: '是否允许与前一个 sticky-header 重叠\n- 默认值：false',
+          },
+        },
+        {
+          name: 'bind:stickontopchange',
+          description: {
+            kind: 'markdown',
+            value:
+              '吸顶状态变化事件。`event.detail = { isStickOnTop }`，当 sticky-header 吸顶时为 true，否则为 false。',
+          },
+        },
+      ],
+      references: [
+        { name: WxDocs, url: `${WxCompUrl}/sticky-header.html` },
+        {
+          name: RNBasicComp,
+          url: `${MpxRNCompUrl}sticky-header`,
+        },
+      ],
+    },
+    {
+      name: 'sticky-section',
+      description: {
+        kind: 'markdown',
+        value: '吸顶布局容器，仅支持作为 `<scroll-view>` 的直接子节点。',
+      },
+      attributes: [
+        {
+          name: 'push-pinned-header',
+          description: {
+            kind: 'markdown',
+            value: '吸顶元素重叠时是否继续上推\n- 默认值：true',
+          },
+        },
+        {
+          name: 'padding',
+          description: {
+            kind: 'markdown',
+            value:
+              '长度为 4 的数组，按 top、right、bottom、left 顺序指定内边距',
+          },
+        },
+      ],
+      references: [
+        { name: WxDocs, url: `${WxCompUrl}/sticky-section.html` },
+        {
+          name: RNBasicComp,
+          url: `${MpxRNCompUrl}sticky-section`,
+        },
+      ],
     },
   ],
   globalAttributes: [
