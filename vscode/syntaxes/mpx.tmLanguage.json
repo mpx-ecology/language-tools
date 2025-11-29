@@ -841,7 +841,12 @@
             {
               "begin": "(?<=('|\"|`))",
               "end": "(?=\\1)",
-              "name": "string.quoted.html.mpx"
+              "name": "source.ts.embedded.html.mpx",
+              "patterns": [
+                {
+                  "include": "source.ts#expression"
+                }
+              ]
             }
           ]
         },
