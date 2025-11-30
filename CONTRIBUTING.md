@@ -31,9 +31,9 @@ pnpm i
 
 VS Code 插件版本号规范目前仅遵循 `major.minor.patch`，未来可能会支持完整的 [Semver] 规范。根据 VS Code [官方建议][参考]，Mpx 插件的版本号应遵循以下规则：
 
-- **正式版本（Release）**：`major.EVEN_NUMBER.patch`（`minor` 偶数版本），例如：`1.2.x`。
+- **正式版本（Release）**：`major.EVEN_NUMBER.patch`（`minor` 偶数版本），例如：`1.2.x`、`1.16.0`。
 
-- **预发布版本（Pre-Release）**：`major.ODD_NUMBER.patch`（`minor` 奇数版本），例如：`1.3.x`。
+- **预发布版本（Pre-Release）**：`major.ODD_NUMBER.patch`（`minor` 奇数版本），例如：`1.3.x`、`1.15.0`。
 
 > [!NOTE]
 >
@@ -58,6 +58,9 @@ npx lerna version [x.x.0|major|minor]
 # 3. 推送 tag 触发插件发版的 GitHub Actions CI
 git push origin main
 git push origin --tags
+
+# 4. 同步发布 npm 包（注意需要 @mpxjs npm scope 管理员权限）
+pnpm publish:npm
 ```
 
 ## 插件发版 CI/CD
