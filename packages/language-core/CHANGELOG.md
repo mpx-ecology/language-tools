@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.16.0](https://github.com/mpx-ecology/language-tools/compare/v1.14.3...v1.16.0) (2025-11-30)
+
+### Bug Fixes
+
+* **core:** avoid duplicate prompts when autocompleting setup template variables ([8a7304e](https://github.com/mpx-ecology/language-tools/commit/8a7304eb6b5fa0180d9a467cddce6df7f6ac6f39))
+
 ## [1.14.3](https://github.com/mpx-ecology/language-tools/compare/v1.14.2...v1.14.3) (2025-11-12)
 
 ### Bug Fixes

@@ -1,6 +1,6 @@
 {
   "name": "@mpxjs/language-service",
-  "version": "1.14.3",
+  "version": "1.16.0",
   "license": "MIT",
   "files": [
     "**/*.js",
