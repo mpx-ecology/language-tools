@@ -1,6 +1,6 @@
 {
   "private": true,
-  "packageManager": "pnpm@10.21.0",
+  "packageManager": "pnpm@10.24.0",
   "scripts": {
     "build": "tsc -b",
     "watch": "pnpm run \"/^watch:.*/\"",
@@ -29,7 +29,7 @@
     ]
   },
   "engines": {
-    "node": ">=23"
+    "node": ">=24"
   },
   "devDependencies": {
     "@lerna-lite/cli": "^4.6.2",
