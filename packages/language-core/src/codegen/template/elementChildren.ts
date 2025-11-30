@@ -14,14 +14,14 @@ export function* generateElementChildren(
   )[],
   enterNode = true,
 ): Generator<Code> {
-  yield* ctx.generateAutoImportCompletion()
+  // yield* ctx.generateAutoImportCompletion()
   for (const childNode of children) {
     if (isTemplateImport(childNode)) {
       continue
     }
     yield* generateTemplateChild(options, ctx, childNode, enterNode)
   }
-  yield* ctx.generateAutoImportCompletion()
+  // yield* ctx.generateAutoImportCompletion()
 }
 
 function isTemplateImport(
