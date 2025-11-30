@@ -17,32 +17,32 @@ createPage({
     parentText: {
       type: String,
       value: 'parent text',
-    }
+    },
   },
   data: {
     msg: 'Hello Mpx',
     count: 0,
     obj: {
       a: 1,
-      b: 2
-    }
+      b: 2,
+    },
   },
   setup() {
     console.log('setup')
     return {
-      title: 'Mpx component'
+      title: 'Mpx component',
     }
   },
   computed: {
     content() {
       return this.msg
-    }
+    },
   },
   methods: {
     onClick() {
       console.log('click', this.count, this.content)
       this.count++
-    }
+    },
   },
   onLoad() {
     //
@@ -56,7 +56,7 @@ createPage({
 <script type="application/json">
   {
     "usingComponents": {
-      "list": "../components/list"
+      "list": "../composition/basic01.mpx"
     }
   }
 </script>

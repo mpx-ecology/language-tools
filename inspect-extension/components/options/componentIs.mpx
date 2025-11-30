@@ -21,8 +21,8 @@ createComponent({
 <script type="application/json">
   {
     "usingComponents": {
-      "list": "../components/list",
-      "test": "../components/test"
+      "list": "../script-json/components/list.mpx",
+      "test": "../script-json/components/list1.mpx"
     }
   }
 </script>

@@ -16,7 +16,9 @@ import { useState } from 'react'
 
 createComponent({
   components: {
-    ScrollView, View, Text
+    ScrollView,
+    View,
+    Text,
   },
   [REACTHOOKSEXEC](prop: any) {
     // @ts-ignore
@@ -26,18 +28,18 @@ createComponent({
       headerStyle = '',
       wrapperStyle = '',
       contentStyle = '',
-      workletChangeY
+      workletChangeY,
     } = prop
     // 所有使用hooks的部分在此处进行注册与执行
-    const [count, setCount] = useState(0);
+    const [count, setCount] = useState(0)
     const onScroll = () => {
       setCount(count + 1)
     }
     // 返回值用于可用于模板上
     return {
       count,
-      onScroll
+      onScroll,
     }
-  }
+  },
 })
 </script>

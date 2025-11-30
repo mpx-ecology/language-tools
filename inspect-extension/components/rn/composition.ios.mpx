@@ -1,11 +1,9 @@
 <template>
-  <view>
-    {{ msg }} - {{ content }}
-  </view>
+  <view> {{ msg }} - {{ content }} </view>
 </template>
 
 <script lang="ts" setup>
-import { onReactHooksExec } from "@mpxjs/core";
+import { onReactHooksExec } from '@mpxjs/core'
 
 onReactHooksExec(() => {
   const msg = 'hello'
@@ -13,9 +11,9 @@ onReactHooksExec(() => {
   // 优先级 > defineExpose
   return {
     msg,
-    content: msg
+    content: msg,
   }
-});
+})
 
 defineExpose({
   msg: 'hi',
