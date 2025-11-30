@@ -95,7 +95,7 @@ For details on how to contribute to this project, please refer to our [Contribut
 
 ## Dive In
 
-For architecture details and source code documentation, please refer to our [Deepwiki][mpx-deep-wiki].
+For architecture details and source code documentation, please refer to our [Deepwiki][mpx-deepwiki].
 
 ## RoadMap
 
