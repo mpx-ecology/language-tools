@@ -15,7 +15,7 @@
     {{ item1 }} {{ index }}
   </view>
   <view
-    bindclick='hello'
+    bindclick="hello"
     bindtap="hello(1)"
     catchtap="hello1"
     capture-bind:tap="hello1"
@@ -47,7 +47,7 @@
     maxlength="{{ 11 }}"
   />
   <image
-    bindclick='hello'
+    bindclick="hello"
     binderror="handleImageError('imgError', $event)"
     wx:key="*this"
   />
@@ -72,7 +72,7 @@ const inputFocus = (e: any) => {
 const handleImageError = (msg: string, e?: any) => {
   console.log('Error', {
     msg,
-    error: e?.detail?.errMsg
+    error: e?.detail?.errMsg,
   })
 }
 
@@ -80,11 +80,11 @@ defineExpose({
   hello,
   hello1,
   hello2: {
-    hello1
+    hello1,
   },
   inputBlur,
   inputFocus,
-  handleImageError
+  handleImageError,
 })
 </script>
 

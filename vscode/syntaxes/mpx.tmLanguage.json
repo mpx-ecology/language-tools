@@ -722,6 +722,9 @@
         },
         {
           "include": "#mpx-directives-original"
+        },
+        {
+          "include": "#mpx-interpolation-attr"
         }
       ]
     },
@@ -954,6 +957,21 @@
               "name": "punctuation.terminator.rule.css"
             }
           ]
+        }
+      ]
+    },
+    "mpx-interpolation-attr": {
+      "begin": "\\b([a-zA-Z_:][a-zA-Z0-9:._-]*)",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.other.attribute-name.html.mpx"
+        }
+      },
+      "end": "(?=\\s*+[^=\\s])",
+      "name": "meta.attribute.interpolation.mpx",
+      "patterns": [
+        {
+          "include": "#mpx-directives-expression"
         }
       ]
     },

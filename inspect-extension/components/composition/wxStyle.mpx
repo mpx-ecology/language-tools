@@ -1,19 +1,17 @@
 <template>
-
   <view
-    wx:style="color: {{activeColor}};font-size: {{fontSize}}px;"
+    wx:style="color: {{ activeColor }};font-size: {{ fontSize }}px;"
     wx:class="list {{ classA ? 'red' : 'blue' }} text {{ classB }} class-b"
   >
   </view>
 
   <view
-    style="color: {{activeColor}};font-size: {{fontSize}}px;"
+    style="color: {{activeColor}};font-size: {{ fontSize }}px;"
     class="list {{ classA ? 'red' : 'blue' }} text {{ classB }} class-b"
   >
   </view>
 
-  <view style="color: aliceblue;font-weight: 500;">
-  </view>
+  <view style="color: aliceblue; font-weight: 500"> </view>
 </template>
 
 <script setup lang="ts">
@@ -22,7 +20,7 @@ defineExpose({
   fontSize: 16,
   themeColor: 'blue',
   classA: 'class-a',
-  classB: 'class-b'
+  classB: 'class-b',
 })
 </script>
 
