@@ -2,20 +2,34 @@
   <template name="loopMessage">
     <swiper
       class="swiper-container"
-      vertical="{{true}}"
-      autoplay="{{true}}"
-      interval="{{loop_speed * 1000}}"
-      circular="true">
-      <block wx:for="{{loop_message}}" wx:key="_">
+      vertical="{{ true }}"
+      autoplay="{{ true }}"
+      interval="{{ loop_speed * 1000 }}"
+      circular="true"
+    >
+      <block
+        wx:for="{{ loop_message }}"
+        wx:key="_"
+      >
         <swiper-item class="swiper-item">
-          <special-text text="{{item}}" rules="{{rules}}"/>
-          <image class="expected-subtitle-icon" wx:if="{{action_icon}}" src="{{action_icon}}" />
+          <special-text
+            text="{{ item }}"
+            rules="{{ rules }}"
+          />
+          <image
+            class="expected-subtitle-icon"
+            wx:if="{{ action_icon }}"
+            src="{{ action_icon }}"
+          />
         </swiper-item>
       </block>
     </swiper>
   </template>
   <view>
-    <template is="loopMessage" data="{{ ...{{msg, ...data}} }}" />
+    <template
+      is="loopMessage"
+      data="{{ ...{{msg, ...data}} }}"
+    />
     {{ msg }} - {{ count }}
   </view>
 </template>
@@ -25,10 +39,13 @@ type Props = {
   msg?: string
   count?: number
 }
+
 withDefaults(defineProps<Props>(), {
   msg: 'default message',
-  count: 123
+  count: 123,
 })
 
+defineExpose({
+  action_icon: '',
+})
 </script>
-  
