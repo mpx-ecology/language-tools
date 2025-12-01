@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.16.1](https://github.com/mpx-ecology/language-tools/compare/v1.16.0...v1.16.1) (2025-12-01)
+
+**Note:** Version bump only for package @mpxjs/language-compiler
+
 ## [1.14.3](https://github.com/mpx-ecology/language-tools/compare/v1.14.2...v1.14.3) (2025-11-12)
 
 **Note:** Version bump only for package @mpxjs/language-compiler

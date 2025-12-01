@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.16.1](https://github.com/mpx-ecology/language-tools/compare/v1.16.0...v1.16.1) (2025-12-01)
+
+### Bug Fixes
+
+* **vscode:** improve mpx-interpolation-attr tm syntaxes ([0b1194a](https://github.com/mpx-ecology/language-tools/commit/0b1194ae91f78104f707b5aeb62eaa2b918a9a60))
+
 # [1.16.0](https://github.com/mpx-ecology/language-tools/compare/v1.14.3...v1.16.0) (2025-11-30)
 
 ### Bug Fixes
