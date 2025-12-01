@@ -8,5 +8,7 @@
   "mpx.format.style.stylus": {},
   "mpx.format.template.bracketSpacing": "true",
   "mpx.format.script.prettier": true,
-  "mpx.format.template.prettier": true
+  "mpx.format.template.prettier": true,
+  // 方便调试 TM，设置默认现代主题
+  "workbench.colorTheme": "Default Dark Modern"
 }
