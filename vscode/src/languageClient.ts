@@ -14,6 +14,7 @@ import * as vscode from 'vscode'
 import { config } from './config'
 import { activate as activateSplitEditors } from './features/splitEditors'
 import { activate as activeInterpolationDecorators } from './features/interpolationDecorators'
+import { activate as activeFlattenStyles } from './features/flattenStyles'
 
 let client: lsp.BaseLanguageClient
 
@@ -78,6 +79,7 @@ async function activateLc(createLc: CreateLanguageClient) {
 
   const context = extensionContext.value!
 
+  activeFlattenStyles(client)
   activateSplitEditors(client)
   activeInterpolationDecorators(context, selectors)
 

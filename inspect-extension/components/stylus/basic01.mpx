@@ -56,7 +56,7 @@
 
   #fff
     background #1673d7
-    background#1673d7
+    background #1673d7
 
   #bbb #ccc
     border 1px solid #c72121

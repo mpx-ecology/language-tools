@@ -269,6 +269,11 @@
         "title": "Split <script>, <template>, <style>, <json> Editors",
         "category": "Mpx",
         "icon": "images/icon.png"
+      },
+      {
+        "command": "mpx.action.flattenStyles",
+        "title": "Flatten Styles for Mpx2RN (Experiment)",
+        "category": "Mpx2RN"
       }
     ],
     "menus": {
@@ -334,11 +339,13 @@
     "@types/semver": "catalog:",
     "@types/vscode": "^1.88.0",
     "@volar/vscode": "catalog:",
-    "@vscode/vsce": "^3.6.0",
+    "@vscode/vsce": "^3.7.1",
     "esbuild": "^0.25.1",
     "esbuild-visualizer": "^0.7.0",
+    "postcss-styl": "^0.12.3",
     "reactive-vscode": "catalog:",
     "semver": "^7.7.1",
+    "stylus": "catalog:",
     "vscode-ext-gen": "^1.0.2",
     "vscode-tmlanguage-snapshot": "^0.1.3"
   }
