@@ -801,11 +801,11 @@ export function formatConflicts(
 
 export function formatErrors(errors: ErrorInfo[], filePath?: string): string {
   if (errors.length === 0) {
-    return '[2/2] ✅ 没有检测到不支持的样式语法'
+    return '[2/2] ✅ 没有检测到不支持的选择器语法'
   }
 
   const lines: string[] = [
-    `[2/2] ❌ 检测到 ${errors.length} 个 Mpx2Rn 不支持语法\n`,
+    `[2/2] ❌ 检测到 ${errors.length} 个不支持的选择器语法\n`,
   ]
 
   for (let i = 0; i < errors.length; i++) {

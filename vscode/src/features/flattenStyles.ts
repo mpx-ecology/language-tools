@@ -91,6 +91,9 @@ export function activate(client: BaseLanguageClient) {
       )
       outputChannel.appendLine(formatConflicts(conflictsAll, doc.uri.fsPath))
       outputChannel.appendLine(formatErrors(errorsAll, doc.uri.fsPath))
+      outputChannel.appendLine(
+        '📖 更多 Mpx2RN 样式规范请参考: https://mpxjs.cn/guide/rn/style.html',
+      )
       outputChannel.hide()
       outputChannel.show()
     } catch (error) {
