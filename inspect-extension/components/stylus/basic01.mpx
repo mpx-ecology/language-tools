@@ -47,25 +47,13 @@
 <style lang="stylus">
 @import './main.styl'
 
-.list
-  // 注释
-  display flex // 注释
-  background-color #f0f0f0
-  color: #ecc721;
-  color red
+.container1
+  .item1
+    color red
+    &:hover
+      color blue
 
-  #fff
-    background #1673d7
-    background #1673d7
-
-  #bbb #ccc
-    border 1px solid #c72121
-    background #a9ea4f
-
-#fff
-  background #2efdd0
-
-#bbb #ccc
-  border 1px solid #402deb
-  background #e217e5
+.container2
+  .item1
+    color green
 </style>

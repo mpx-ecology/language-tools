@@ -273,7 +273,7 @@
       {
         "command": "mpx.action.flattenStyles",
         "title": "Flatten Styles for Mpx2RN (Experiment)",
-        "category": "Mpx2RN"
+        "category": "Mpx"
       }
     ],
     "menus": {

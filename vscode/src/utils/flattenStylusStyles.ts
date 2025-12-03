@@ -766,3 +766,63 @@ export function flattenStylusRules(stylusCode: string): TransformResult {
 
   return { code, conflicts, errors }
 }
+
+export function formatConflicts(
+  conflicts: ConflictInfo[],
+  filePath?: string,
+): string {
+  if (conflicts.length === 0) {
+    return '[1/2] ✅ 没有检测到选择器冲突'
+  }
+
+  const lines: string[] = [
+    `[1/2] ⚠️ 检测到 ${conflicts.length} 个选择器冲突，需要手动检查处理\n`,
+  ]
+
+  for (let i = 0; i < conflicts.length; i++) {
+    const conflict = conflicts[i]
+    lines.push(
+      `\t- [${i + 1}/${conflicts.length}] 选择器冲突: ${conflict.selector}`,
+    )
+    for (const loc of conflict.locations) {
+      const outputPos = loc.outputLine
+        ? `(行列号: ${loc.outputLine}:${loc.outputColumn})`
+        : ''
+      lines.push(`\t\t- ${loc.fullPath} ${outputPos}`)
+      if (loc.outputLine && filePath) {
+        lines.push(`\t\t\t- ${filePath}:${loc.outputLine}:${loc.outputColumn}`)
+      }
+    }
+    lines.push('')
+  }
+
+  return lines.join('\n')
+}
+
+export function formatErrors(errors: ErrorInfo[], filePath?: string): string {
+  if (errors.length === 0) {
+    return '[2/2] ✅ 没有检测到不支持的样式语法'
+  }
+
+  const lines: string[] = [
+    `[2/2] ❌ 检测到 ${errors.length} 个 Mpx2Rn 不支持语法\n`,
+  ]
+
+  for (let i = 0; i < errors.length; i++) {
+    const error = errors[i]
+    const outputPos = error.outputLine
+      ? `(行列号: ${error.outputLine}:${error.outputColumn})`
+      : ''
+    lines.push(
+      `\t- [${i + 1}/${errors.length}] 错误: ${error.selector} ${outputPos}`,
+    )
+    if (error.outputLine && filePath) {
+      lines.push(
+        `\t\t\t- ${filePath}:${error.outputLine}:${error.outputColumn}`,
+      )
+    }
+    lines.push('')
+  }
+
+  return lines.join('\n')
+}
