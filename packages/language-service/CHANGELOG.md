@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.18.0](https://github.com/mpx-ecology/language-tools/compare/v1.16.1...v1.18.0) (2025-12-04)
+
+### Features
+
+* add flatten styles command for mpx2rn (experiment) ([ab38f41](https://github.com/mpx-ecology/language-tools/commit/ab38f41c4b9f6094c81952642a8fc92b871233ef))
+
 ## [1.16.1](https://github.com/mpx-ecology/language-tools/compare/v1.16.0...v1.16.1) (2025-12-01)
 
 **Note:** Version bump only for package @mpxjs/language-service
