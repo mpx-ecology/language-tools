@@ -389,11 +389,12 @@ export function computedSfc(
     const getContent = computed(() => getBlock().content)
     const getStartTagEnd = computed(() => getBlock().loc.start.offset)
     const getEndTagStart = computed(() => getBlock().loc.end.offset)
-    const getStart = computed(() =>
-      getUntrackedSnapshot()
+    const getStart = computed(() => {
+      const type = getBlock().type
+      return getUntrackedSnapshot()
         .getText(0, getStartTagEnd())
-        .lastIndexOf('<' + getBlock().type),
-    )
+        .lastIndexOf('<' + (getBlock().type === 'json' ? 'script' : type))
+    })
     const getEnd = computed(
       () =>
         getEndTagStart() +
