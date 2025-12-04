@@ -272,7 +272,7 @@
       },
       {
         "command": "mpx.action.flattenStyles",
-        "title": "Flatten Styles for Mpx2RN (Experiment)",
+        "title": "Flatten Stylus Styles for Mpx2RN (Experiment)",
         "category": "Mpx"
       }
     ],
