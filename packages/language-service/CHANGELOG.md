@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.18.1](https://github.com/mpx-ecology/language-tools/compare/v1.18.0...v1.18.1) (2025-12-05)
+
+### Bug Fixes
+
+* enhance computedSfc and mpx-sfc for improved symbol handling ([87e9a39](https://github.com/mpx-ecology/language-tools/commit/87e9a39c8e0f693b6e02679e261ea4b8dc5aec5c))
+
 # [1.18.0](https://github.com/mpx-ecology/language-tools/compare/v1.16.1...v1.18.0) (2025-12-04)
 
 ### Features
