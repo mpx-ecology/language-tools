@@ -200,16 +200,32 @@ export function create(): LanguageServicePlugin {
               })
             }
             if (sfc.scriptSetup) {
+              if (sfc.scriptSetup.start !== sfc.scriptSetup.end) {
+                result.push({
+                  name: 'script setup',
+                  kind: 2 satisfies typeof vscode.SymbolKind.Module,
+                  range: {
+                    start: document.positionAt(sfc.scriptSetup.start),
+                    end: document.positionAt(sfc.scriptSetup.end),
+                  },
+                  selectionRange: {
+                    start: document.positionAt(sfc.scriptSetup.start),
+                    end: document.positionAt(sfc.scriptSetup.startTagEnd),
+                  },
+                })
+              }
+            }
+            if (sfc.json) {
               result.push({
-                name: 'script setup',
+                name: 'script json',
                 kind: 2 satisfies typeof vscode.SymbolKind.Module,
                 range: {
-                  start: document.positionAt(sfc.scriptSetup.start),
-                  end: document.positionAt(sfc.scriptSetup.end),
+                  start: document.positionAt(sfc.json.start),
+                  end: document.positionAt(sfc.json.end),
                 },
                 selectionRange: {
-                  start: document.positionAt(sfc.scriptSetup.start),
-                  end: document.positionAt(sfc.scriptSetup.startTagEnd),
+                  start: document.positionAt(sfc.json.start),
+                  end: document.positionAt(sfc.json.startTagEnd),
                 },
               })
             }
