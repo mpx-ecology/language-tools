@@ -721,66 +721,10 @@
           "include": "#mpx-directives-style-attr"
         },
         {
-          "include": "#mpx-directives-original"
+          "include": "#mpx-directives-bind"
         },
         {
           "include": "#mpx-interpolation-attr"
-        }
-      ]
-    },
-    "mpx-directives-original": {
-      "begin": "(?:(wx:(?!(?:for|if|elif|else)(?=\\s|=|$))[\\w-]+)|((bind|catch|capture-bind|capture-catch)(:)([\\w-]+))|((bind|catch)([\\w-]+))|(#))([\\w-]+)?",
-      "beginCaptures": {
-        "1": {
-          "name": "entity.other.attribute-name.html.mpx"
-        },
-        "2": {
-          "name": "entity.other.attribute-name.html.mpx"
-        },
-        "3": {
-          "name": "entity.other.attribute-name.html.mpx"
-        },
-        "4": {
-          "name": "entity.other.attribute-name.html.mpx"
-        },
-        "5": {
-          "name": "punctuation.separator.key-value.html.mpx"
-        },
-        "6": {
-          "name": "entity.other.attribute-name.html.mpx"
-        },
-        "7": {
-          "name": "entity.other.attribute-name.html.mpx"
-        },
-        "8": {
-          "name": "punctuation.separator.key-value.html.mpx"
-        },
-        "9": {
-          "name": "punctuation.attribute-shorthand.slot.html.mpx"
-        },
-        "10": {
-          "name": "entity.other.attribute-name.html.mpx"
-        }
-      },
-      "end": "(?=\\s*[^=\\s])",
-      "endCaptures": {
-        "1": {
-          "name": "punctuation.definition.string.end.html.mpx"
-        }
-      },
-      "name": "meta.attribute.directive.mpx",
-      "patterns": [
-        {
-          "match": "(\\.)([\\w-]*)",
-          "1": {
-            "name": "punctuation.separator.key-value.html.mpx"
-          },
-          "2": {
-            "name": "entity.other.attribute-name.html.mpx"
-          }
-        },
-        {
-          "include": "#mpx-directives-expression"
         }
       ]
     },
@@ -799,80 +743,6 @@
       "patterns": [
         {
           "include": "#mpx-directives-expression"
-        }
-      ]
-    },
-    "mpx-directives-expression": {
-      "patterns": [
-        {
-          "begin": "(=)\\s*('|\"|`)",
-          "beginCaptures": {
-            "1": {
-              "name": "punctuation.separator.key-value.html.mpx"
-            },
-            "2": {
-              "name": "punctuation.definition.string.begin.html.mpx"
-            }
-          },
-          "end": "(\\2)",
-          "endCaptures": {
-            "1": {
-              "name": "punctuation.definition.string.end.html.mpx"
-            }
-          },
-          "patterns": [
-            {
-              "begin": "(?<=('|\"|`))\\s*(\\{\\{)",
-              "beginCaptures": {
-                "2": {
-                  "name": "punctuation.definition.interpolation.begin.html.mpx"
-                }
-              },
-              "end": "(\\}\\})\\s*(?=\\1)",
-              "endCaptures": {
-                "1": {
-                  "name": "punctuation.definition.interpolation.end.html.mpx"
-                }
-              },
-              "name": "source.ts.embedded.html.mpx",
-              "patterns": [
-                {
-                  "include": "source.ts#expression"
-                }
-              ]
-            },
-            {
-              "begin": "(?<=('|\"|`))",
-              "end": "(?=\\1)",
-              "name": "source.ts.embedded.html.mpx",
-              "patterns": [
-                {
-                  "include": "source.ts#expression"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "begin": "(=)\\s*(?=[^'\"`])",
-          "beginCaptures": {
-            "1": {
-              "name": "punctuation.separator.key-value.html.mpx"
-            }
-          },
-          "end": "(?=(\\s|>|\\/>))",
-          "patterns": [
-            {
-              "begin": "(?=[^'\"`])",
-              "end": "(?=(\\s|>|\\/>))",
-              "name": "source.ts.embedded.html.mpx",
-              "patterns": [
-                {
-                  "include": "source.ts#expression"
-                }
-              ]
-            }
-          ]
         }
       ]
     },
@@ -960,6 +830,53 @@
         }
       ]
     },
+    "mpx-directives-bind": {
+      "begin": "(?:((bind|catch|capture-bind|capture-catch)(:))|((bind|catch))|(#))([\\w-]+)?",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.other.attribute-name.html.mpx"
+        },
+        "2": {
+          "name": "entity.other.attribute-name.html.mpx"
+        },
+        "3": {
+          "name": "punctuation.separator.bind-event.html.mpx"
+        },
+        "4": {
+          "name": "entity.other.attribute-name.html.mpx"
+        },
+        "5": {
+          "name": "entity.other.attribute-name.html.mpx"
+        },
+        "6": {
+          "name": "punctuation.attribute-shorthand.slot.html.mpx"
+        },
+        "7": {
+          "name": "entity.other.attribute-name.html.mpx"
+        }
+      },
+      "end": "(?=\\s*[^=\\s])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.end.html.mpx"
+        }
+      },
+      "name": "meta.attribute.directive.bind.mpx",
+      "patterns": [
+        {
+          "match": "(\\.)([\\w-]*)",
+          "1": {
+            "name": "punctuation.separator.key-value.html.mpx"
+          },
+          "2": {
+            "name": "entity.other.attribute-name.html.mpx"
+          }
+        },
+        {
+          "include": "#mpx-directives-expression-bind"
+        }
+      ]
+    },
     "mpx-interpolation-attr": {
       "begin": "\\b([a-zA-Z_:][a-zA-Z0-9:._-]*)(?=\\s*=\\s*['\"]\\s*\\{\\{)",
       "beginCaptures": {
@@ -972,6 +889,157 @@
       "patterns": [
         {
           "include": "#mpx-directives-expression"
+        }
+      ]
+    },
+    "mpx-directives-expression": {
+      "patterns": [
+        {
+          "begin": "(=)\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.separator.key-value.html.mpx"
+            }
+          },
+          "end": "(?=\\s|>|\\/?>)",
+          "patterns": [
+            {
+              "begin": "('|\"|`)\\s*(\\{\\{)",
+              "beginCaptures": {
+                "1": {
+                  "name": "punctuation.definition.string.begin.html.mpx"
+                },
+                "2": {
+                  "name": "punctuation.definition.interpolation.begin.html.mpx"
+                }
+              },
+              "end": "(\\}\\})\\s*(\\1)",
+              "endCaptures": {
+                "1": {
+                  "name": "punctuation.definition.interpolation.end.html.mpx"
+                },
+                "2": {
+                  "name": "punctuation.definition.string.end.html.mpx"
+                }
+              },
+              "name": "source.ts.embedded.html.mpx",
+              "patterns": [
+                {
+                  "include": "source.ts#expression"
+                }
+              ]
+            },
+            {
+              "begin": "('|\"|`)",
+              "beginCaptures": {
+                "1": {
+                  "name": "punctuation.definition.string.begin.html"
+                }
+              },
+              "end": "(\\1)",
+              "endCaptures": {
+                "1": {
+                  "name": "punctuation.definition.string.end.html"
+                }
+              },
+              "name": "string.quoted.double.html"
+            }
+          ]
+        },
+        {
+          "begin": "(=)\\s*(?=[^'\"`])",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.separator.key-value.html.mpx"
+            }
+          },
+          "end": "(?=(\\s|>|\\/>))",
+          "patterns": [
+            {
+              "begin": "(?=[^'\"`])",
+              "end": "(?=(\\s|>|\\/>))",
+              "name": "source.ts.embedded.html.mpx",
+              "patterns": [
+                {
+                  "include": "source.ts#expression"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "mpx-directives-expression-bind": {
+      "patterns": [
+        {
+          "begin": "(=)\\s*('|\"|`)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.separator.key-value.html.mpx"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.html.mpx"
+            }
+          },
+          "end": "(\\2)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.html.mpx"
+            }
+          },
+          "patterns": [
+            {
+              "begin": "(?<=('|\"|`))\\s*(\\{\\{)",
+              "beginCaptures": {
+                "2": {
+                  "name": "punctuation.definition.interpolation.begin.html.mpx"
+                }
+              },
+              "end": "(\\}\\})\\s*(?=\\1)",
+              "endCaptures": {
+                "1": {
+                  "name": "punctuation.definition.interpolation.end.html.mpx"
+                }
+              },
+              "name": "source.ts.embedded.html.mpx",
+              "patterns": [
+                {
+                  "include": "source.ts#expression"
+                }
+              ]
+            },
+            {
+              "begin": "(?<=('|\"|`))",
+              "end": "(?=\\1)",
+              "name": "source.ts.embedded.html.mpx",
+              "patterns": [
+                {
+                  "include": "source.ts#expression"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "(=)\\s*(?=[^'\"`])",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.separator.key-value.html.mpx"
+            }
+          },
+          "end": "(?=(\\s|>|\\/>))",
+          "patterns": [
+            {
+              "begin": "(?=[^'\"`])",
+              "end": "(?=(\\s|>|\\/>))",
+              "name": "source.ts.embedded.html.mpx",
+              "patterns": [
+                {
+                  "include": "source.ts#expression"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
