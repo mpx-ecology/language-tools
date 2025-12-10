@@ -321,7 +321,7 @@
     }
   },
   "scripts": {
-    "prebuild": "pnpm run postinstall && pnpm -w run build",
+    "prebuild": "pnpm run postinstall",
     "build": "node scripts/build",
     "build:minify": "pnpm run build --minify",
     "watch": "pnpm run build --watch",
