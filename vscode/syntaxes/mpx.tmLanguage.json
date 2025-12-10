@@ -922,7 +922,8 @@
                   "name": "punctuation.definition.string.end.html.mpx"
                 }
               },
-              "name": "source.ts.embedded.html.mpx",
+              "name": "expression.embedded.mpx",
+              "contentName": "source.ts.embedded.html.mpx",
               "patterns": [
                 {
                   "include": "source.ts#expression"
