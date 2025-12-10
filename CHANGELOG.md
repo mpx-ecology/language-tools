@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.18.2](https://github.com/mpx-ecology/language-tools/compare/v1.18.1...v1.18.2) (2025-12-10)
+
+### Bug Fixes
+
+* **vscode:** enhance textmate grammars for mpx directives syntax highlighting ([67d1f35](https://github.com/mpx-ecology/language-tools/commit/67d1f354af8010e74395b9dd801525093c919b4b))
+* **vscode:** update embedded expressions syntax ([024a94c](https://github.com/mpx-ecology/language-tools/commit/024a94c857c9f1b19f3541c113c8e26f83d8b61f))
+
 ## [1.18.1](https://github.com/mpx-ecology/language-tools/compare/v1.18.0...v1.18.1) (2025-12-05)
 
 ### Bug Fixes
