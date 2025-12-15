@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.18.3](https://github.com/mpx-ecology/language-tools/compare/v1.18.2...v1.18.3) (2025-12-15)
+
+### Bug Fixes
+
+* **vscode:** improve interpolation attribute syntax highlighting ([891a3dd](https://github.com/mpx-ecology/language-tools/commit/891a3ddec51c6e78a067ae994d0f147152a71dfa))
+
 ## [1.18.2](https://github.com/mpx-ecology/language-tools/compare/v1.18.1...v1.18.2) (2025-12-10)
 
 ### Bug Fixes
