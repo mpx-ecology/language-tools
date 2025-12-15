@@ -878,17 +878,51 @@
       ]
     },
     "mpx-interpolation-attr": {
-      "begin": "\\b([a-zA-Z_:][a-zA-Z0-9:._-]*)(?=\\s*=\\s*['\"]\\s*\\{\\{)",
+      "begin": "\\b([a-zA-Z_:][a-zA-Z0-9:._-]*)\\s*(=)\\s*(['\"])(?=\\s*\\{\\{(?:[^}]|\\}(?!\\}))*\\}\\}\\s*\\3)",
       "beginCaptures": {
         "1": {
           "name": "entity.other.attribute-name.html.mpx"
+        },
+        "2": {
+          "name": "punctuation.separator.key-value.html.mpx"
+        },
+        "3": {
+          "name": "punctuation.definition.string.begin.html.mpx"
         }
       },
-      "end": "(?=\\s*+[^=\\s])",
+      "end": "\\3",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.html.mpx"
+        }
+      },
       "name": "meta.attribute.interpolation.mpx",
       "patterns": [
         {
-          "include": "#mpx-directives-expression"
+          "begin": "\\G\\s*",
+          "end": "(?=\\3)",
+          "patterns": [
+            {
+              "begin": "(\\{\\{)",
+              "beginCaptures": {
+                "1": {
+                  "name": "punctuation.definition.interpolation.begin.html.mpx"
+                }
+              },
+              "end": "(\\}\\})",
+              "endCaptures": {
+                "1": {
+                  "name": "punctuation.definition.interpolation.end.html.mpx"
+                }
+              },
+              "contentName": "source.ts.embedded.html.mpx",
+              "patterns": [
+                {
+                  "include": "source.ts#expression"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
