@@ -1,0 +1,32 @@
+<template>
+  <view @wx></view>
+  <view @ali></view>
+  <view @web></view>
+  <view @ios></view>
+
+  <view @wx|web></view>
+
+  <view @_wx></view>
+  <view @_ali></view>
+  <view @_ios></view>
+  <view @_web></view>
+
+  <view @_ios|_android></view>
+
+  <view enable-background@ios|android|harmony="{{ true }}" />
+
+  <text
+    class="text"
+    numberOfLines@ios|android|harmony="{{ 1 }}"
+    max-lines@wx="{{ 1 }}"
+    is-simple@ios|android|harmony
+  >
+    test
+  </text>
+</template>
+
+<script setup>
+defineProps({})
+
+defineExpose({})
+</script>
