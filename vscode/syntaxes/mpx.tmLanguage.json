@@ -878,7 +878,7 @@
       ]
     },
     "mpx-interpolation-attr": {
-      "begin": "\\b([a-zA-Z_:][a-zA-Z0-9:._-]*)\\s*(=)\\s*(['\"])(?=\\s*\\{\\{(?:[^}]|\\}(?!\\}))*\\}\\}\\s*\\3)",
+      "begin": "\\b([a-zA-Z_:][a-zA-Z0-9:._@|\\-]*)\\s*(=)\\s*(['\"])(?=\\s*\\{\\{(?:[^}]|\\}(?!\\}))*\\}\\}\\s*\\3)",
       "beginCaptures": {
         "1": {
           "name": "entity.other.attribute-name.html.mpx"
