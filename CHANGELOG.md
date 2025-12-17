@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.18.4](https://github.com/mpx-ecology/language-tools/compare/v1.18.3...v1.18.4) (2025-12-17)
+
+### Bug Fixes
+
+* **package:** update package manager version to pnpm@10.26.0 ([0795058](https://github.com/mpx-ecology/language-tools/commit/079505887cb3c4502cf31f9d490f9b0f2e3c87df))
+* **vscode:** update attribute syntax highlighting for at platforms ([8b22e2e](https://github.com/mpx-ecology/language-tools/commit/8b22e2e6ceb52864de9d6b1bb4ae2c9f7253c14f))
+
 ## [1.18.3](https://github.com/mpx-ecology/language-tools/compare/v1.18.2...v1.18.3) (2025-12-15)
 
 ### Bug Fixes

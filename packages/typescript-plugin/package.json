@@ -1,6 +1,6 @@
 {
   "name": "@mpxjs/typescript-plugin",
-  "version": "1.18.3",
+  "version": "1.18.4",
   "license": "MIT",
   "files": [
     "**/*.js",
