@@ -201,7 +201,10 @@ connection.onInitialize(params => {
       createLanguageServiceEnvironment(server, [
         ...server.workspaceFolders.all,
       ]),
-      { mpx: { compilerOptions: commonLine.mpxOptions } },
+      {
+        mpx: { compilerOptions: commonLine.mpxOptions },
+        ts: { compilerOptions: commonLine.options },
+      },
     )
   }
 })

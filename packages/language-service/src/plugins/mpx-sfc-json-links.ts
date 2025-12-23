@@ -1,8 +1,15 @@
-import type * as vscode from 'vscode-languageserver-protocol'
-import type { LanguageServicePlugin } from '@volar/language-service'
-import { URI } from 'vscode-uri'
 import { MpxVirtualCode } from '@mpxjs/language-core'
 import { isMpPluginComponentPath } from '../utils'
+import type {
+  CompletionItem,
+  CompletionList,
+  LanguageServicePlugin,
+} from '@volar/language-service'
+import * as vscode from 'vscode-languageserver-protocol'
+import { URI } from 'vscode-uri'
+import * as path from 'path'
+import * as fs from 'fs'
+import { createMatchPath } from 'tsconfig-paths'
 
 export function create(): LanguageServicePlugin {
   return {
@@ -14,9 +21,17 @@ export function create(): LanguageServicePlugin {
         interFileDependencies: false,
         workspaceDiagnostics: false,
       },
+      completionProvider: {
+        triggerCharacters: ['/', '.', '"', "'", '@'],
+      },
     },
 
     create(context) {
+      const compilerConfig = context.project.ts?.compilerOptions || {}
+      const matcher = createMatchPath(
+        compilerConfig.baseUrl ?? path.join(process.cwd(), './'),
+        compilerConfig.paths ?? {},
+      )
       return {
         async provideDocumentLinks(document) {
           const uri = URI.parse(document.uri)
@@ -141,6 +156,101 @@ export function create(): LanguageServicePlugin {
           }
 
           return diagnostics
+        },
+
+        async provideCompletionItems(
+          document,
+          position,
+          _completionContext,
+          _token,
+        ) {
+          // 检查是否在正确的文档类型中
+          const uri = URI.parse(document.uri)
+          const decoded = context.decodeEmbeddedDocumentUri(uri)
+
+          if (!decoded) return
+
+          const [documentUri, embeddedCodeId] = decoded
+          // 只在 json_js 类型中提供补全
+          if (embeddedCodeId !== 'json_js') return
+
+          // 获取当前行文本
+          const line = document.getText({
+            start: { line: position.line, character: 0 },
+            end: position,
+          })
+
+          // 检查是否在字符串中（简单判断是否有未闭合的引号）
+          console.log(line.match(/['"]/g))
+          const quoteCount = (line.match(/['"]/g) || []).length
+          if (quoteCount % 2 === 0) {
+            // 不在字符串中，不提供路径补全
+            return
+          }
+
+          // 获取触发补全的路径前缀
+          const prefixMatch = line.match(/(['"])([^'"]*)$/)
+          const prefix = prefixMatch?.[2] || ''
+
+          // 获取当前文件的目录作为基础路径
+          const currentFilePath = documentUri.fsPath
+          const basePath = path.dirname(currentFilePath)
+          // 生成补全项
+          const completions: CompletionItem[] = []
+
+          // 如果是相对路径或别名路径
+          if (
+            prefix.startsWith('./') ||
+            prefix.startsWith('../') ||
+            prefix.startsWith('@')
+          ) {
+            // 需要的相关路径
+            let findPath = path.resolve(basePath, prefix)
+            if (prefix.startsWith('@')) {
+              // 处理别名路径，这里简化处理，实际项目中可能需要读取 tsconfig.json 中的 paths 配置
+              // 这里假设 @ 指向项目根目录
+              // basePath = context.env.rootUri?.fsPath || currentDir
+              // relativePath = prefix.substring(1) // 去掉 @ 符号
+              findPath =
+                matcher(prefix, () => Promise.resolve(''), undefined, [
+                  '.ts',
+                  '.js',
+                ]) || ''
+            }
+
+            // 读取目录内容
+            if (fs.statSync(findPath).isDirectory()) {
+              try {
+                const entries = fs.readdirSync(findPath)
+
+                for (const entry of entries) {
+                  const entryPath = path.join(findPath, entry)
+                  if (entryPath === currentFilePath) continue
+                  const stat = fs.statSync(entryPath)
+
+                  const isDirectory = stat.isDirectory()
+                  const completionLabel = entry
+                  const completionInsertText = entry
+
+                  completions.push({
+                    label: completionLabel,
+                    insertText: completionInsertText,
+                    kind: isDirectory
+                      ? vscode.CompletionItemKind.Folder
+                      : vscode.CompletionItemKind.File,
+                  })
+                }
+              } catch (err) {
+                // 读取目录失败，忽略错误
+                console.error('Failed to read directory:', err)
+              }
+            }
+          }
+
+          return {
+            isIncomplete: false,
+            items: completions,
+          } satisfies CompletionList
         },
       }
     },
