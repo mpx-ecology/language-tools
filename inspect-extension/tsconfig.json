@@ -13,7 +13,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["components/*"],
-      "@vant/weapp/*": ["./node_modules/@vant/weapp/dist/*"]
+      "@vant/weapp/*": ["./node_modules/@vant/weapp/dist/*"],
+      "*": ["components/*"],
+      "foo/*": ["components/composition/*"],
+      "foo/bar": ["components/global.d.ts"]
     }
   },
   "mpxCompilerOptions": {

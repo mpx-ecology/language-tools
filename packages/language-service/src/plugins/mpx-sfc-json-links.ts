@@ -1,5 +1,5 @@
 import { MpxVirtualCode } from '@mpxjs/language-core'
-import { isMpPluginComponentPath } from '../utils'
+import { hitAnyAlias, isMpPluginComponentPath } from '../utils'
 import type {
   CompletionItem,
   CompletionList,
@@ -9,7 +9,6 @@ import * as vscode from 'vscode-languageserver-protocol'
 import { URI } from 'vscode-uri'
 import * as path from 'path'
 import * as fs from 'fs'
-import { createMatchPath } from 'tsconfig-paths'
 
 export function create(): LanguageServicePlugin {
   return {
@@ -28,10 +27,6 @@ export function create(): LanguageServicePlugin {
 
     create(context) {
       const compilerConfig = context.project.ts?.compilerOptions || {}
-      const matcher = createMatchPath(
-        compilerConfig.baseUrl ?? path.join(process.cwd(), './'),
-        compilerConfig.paths ?? {},
-      )
       return {
         async provideDocumentLinks(document) {
           const uri = URI.parse(document.uri)
@@ -198,28 +193,23 @@ export function create(): LanguageServicePlugin {
           // 生成补全项
           const completions: CompletionItem[] = []
 
+          const { alias } =
+            hitAnyAlias(prefix, compilerConfig.paths || {}) || {}
           // 如果是相对路径或别名路径
-          if (
-            prefix.startsWith('./') ||
-            prefix.startsWith('../') ||
-            prefix.startsWith('@')
-          ) {
+          if (prefix.startsWith('./') || prefix.startsWith('../') || alias) {
             // 需要的相关路径
             let findPath = path.resolve(basePath, prefix)
-            if (prefix.startsWith('@')) {
+            if (alias) {
               // 处理别名路径，这里简化处理，实际项目中可能需要读取 tsconfig.json 中的 paths 配置
-              // 这里假设 @ 指向项目根目录
-              // basePath = context.env.rootUri?.fsPath || currentDir
-              // relativePath = prefix.substring(1) // 去掉 @ 符号
               findPath =
-                matcher(prefix, () => Promise.resolve(''), undefined, [
-                  '.ts',
-                  '.js',
-                ]) || ''
+                compilerConfig.paths?.[alias]?.[0]?.replace('*', '') || ''
             }
 
             // 读取目录内容
-            if (fs.statSync(findPath).isDirectory()) {
+            if (
+              fs.existsSync(findPath) &&
+              fs.statSync(findPath)?.isDirectory()
+            ) {
               try {
                 const entries = fs.readdirSync(findPath)
 
