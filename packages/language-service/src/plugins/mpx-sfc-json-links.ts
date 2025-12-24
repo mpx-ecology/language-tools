@@ -167,7 +167,7 @@ export function create(): LanguageServicePlugin {
 
           const [documentUri, embeddedCodeId] = decoded
           // 只在 json_js 类型中提供补全
-          if (embeddedCodeId !== 'json_js') return
+          if (!['json_js', 'json_json'].includes(embeddedCodeId)) return
 
           // 获取当前行文本
           const line = document.getText({
@@ -195,45 +195,43 @@ export function create(): LanguageServicePlugin {
 
           const { alias } =
             hitAnyAlias(prefix, compilerConfig.paths || {}) || {}
-          // 如果是相对路径或别名路径
-          if (prefix.startsWith('./') || prefix.startsWith('../') || alias) {
-            // 需要的相关路径
-            let findPath = path.resolve(basePath, prefix)
-            if (alias) {
-              // 处理别名路径，这里简化处理，实际项目中可能需要读取 tsconfig.json 中的 paths 配置
-              findPath =
-                compilerConfig.paths?.[alias]?.[0]?.replace('*', '') || ''
-            }
 
-            // 读取目录内容
-            if (
-              fs.existsSync(findPath) &&
-              fs.statSync(findPath)?.isDirectory()
-            ) {
-              try {
-                const entries = fs.readdirSync(findPath)
+          /**
+           * 处理相对路径、路径别名的情况
+           */
+          let findPath = '' // 基础查找路径
+          if (prefix.startsWith('./') || prefix.startsWith('../')) {
+            findPath = path.resolve(basePath, prefix)
+          } else if (alias) {
+            findPath =
+              compilerConfig.paths?.[alias]?.[0]?.replace('*', '') || ''
+          }
 
-                for (const entry of entries) {
-                  const entryPath = path.join(findPath, entry)
-                  if (entryPath === currentFilePath) continue
-                  const stat = fs.statSync(entryPath)
+          // 读取目录内容
+          if (fs.existsSync(findPath) && fs.statSync(findPath)?.isDirectory()) {
+            try {
+              const entries = fs.readdirSync(findPath)
 
-                  const isDirectory = stat.isDirectory()
-                  const completionLabel = entry
-                  const completionInsertText = entry
+              for (const entry of entries) {
+                const entryPath = path.join(findPath, entry)
+                if (entryPath === currentFilePath) continue
+                const stat = fs.statSync(entryPath)
 
-                  completions.push({
-                    label: completionLabel,
-                    insertText: completionInsertText,
-                    kind: isDirectory
-                      ? vscode.CompletionItemKind.Folder
-                      : vscode.CompletionItemKind.File,
-                  })
-                }
-              } catch (err) {
-                // 读取目录失败，忽略错误
-                console.error('Failed to read directory:', err)
+                const isDirectory = stat.isDirectory()
+                const completionLabel = entry
+                const completionInsertText = entry
+
+                completions.push({
+                  label: completionLabel,
+                  insertText: completionInsertText,
+                  kind: isDirectory
+                    ? vscode.CompletionItemKind.Folder
+                    : vscode.CompletionItemKind.File,
+                })
               }
+            } catch (err) {
+              // 读取目录失败，忽略错误
+              console.error('Failed to read directory:', err)
             }
           }
 

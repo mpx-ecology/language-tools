@@ -4,7 +4,7 @@
 
 <script name="json">
 const usingComponents = {
-  'list': './pages/pages/index.mpx',
+  'list': './index.mpx',
   'list2': 'foo/__mpx_mode__.mpx'
 }
 module.exports = {
