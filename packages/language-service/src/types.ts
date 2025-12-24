@@ -1,4 +1,5 @@
 import { MpxCompilerOptions } from '@mpxjs/language-core'
+import type * as ts from 'typescript/lib/tsserverlibrary'
 
 export enum Commands {
   ParseSfc = 'mpx.parseSfc',
@@ -12,6 +13,9 @@ declare module '@volar/language-service' {
   export interface ProjectContext {
     mpx?: {
       compilerOptions: MpxCompilerOptions
+    }
+    ts?: {
+      compilerOptions: ts.CompilerOptions
     }
   }
 }
