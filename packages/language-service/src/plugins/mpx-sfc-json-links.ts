@@ -203,8 +203,11 @@ export function create(): LanguageServicePlugin {
           if (prefix.startsWith('./') || prefix.startsWith('../')) {
             findPath = path.resolve(basePath, prefix)
           } else if (alias) {
-            findPath =
-              compilerConfig.paths?.[alias]?.[0]?.replace('*', '') || ''
+            const replacedPath = prefix.replace(alias.replace('*', ''), '')
+            const aliasPath =
+              compilerConfig.paths?.[alias]?.[0]?.replace('*', '') +
+              replacedPath
+            findPath = path.resolve(compilerConfig.baseUrl || '', aliasPath)
           }
 
           // 读取目录内容
