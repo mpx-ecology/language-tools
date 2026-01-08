@@ -1,0 +1,19 @@
+<template>
+  <view>Test Page</view>
+</template>
+
+<script name="json">
+const usingComponents = {
+  'list': '@/composition/__mpx_mode__.mpx',
+  'list2': 'foo/__mpx_mode__.mpx'
+}
+module.exports = {
+  usingComponents
+}
+</script>
+
+<style>
+.test {
+  color: red;
+}
+</style>
