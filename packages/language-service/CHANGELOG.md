@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.18.5](https://github.com/mpx-ecology/language-tools/compare/v1.18.4...v1.18.5) (2026-01-08)
+
+### Features
+
+* **language-service:** add mpx style directive comments completion plugin ([1f30870](https://github.com/mpx-ecology/language-tools/commit/1f308700ef9021681155a9f6eb36d6fa9d8e9256))
+
 ## [1.18.4](https://github.com/mpx-ecology/language-tools/compare/v1.18.3...v1.18.4) (2025-12-17)
 
 **Note:** Version bump only for package @mpxjs/language-service

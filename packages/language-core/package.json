@@ -1,6 +1,6 @@
 {
   "name": "@mpxjs/language-core",
-  "version": "1.18.4",
+  "version": "1.18.5",
   "license": "MIT",
   "files": [
     "**/*.js",
