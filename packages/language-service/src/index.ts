@@ -19,6 +19,7 @@ import { create as createMpxTemplateDirectiveCommentsPlugin } from './plugins/mp
 import { create as createMpxTemplateLinksPlugin } from './plugins/mpx-sfc-template-links'
 import { create as createMpxStyleCSSPlugin } from './plugins/mpx-sfc-style-css'
 import { create as createMpxStyleStylusPlugin } from './plugins/mpx-sfc-style-stylus'
+import { create as createMpxStyleDirectiveCommentsPlugin } from './plugins/mpx-sfc-style-directive-comments'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
 import { create as createMpxJsonLinksPlugin } from './plugins/mpx-sfc-json-links'
 import { create as createMpxPrettierPlugin } from './plugins/mpx-prettier'
@@ -70,6 +71,7 @@ function getCommonLanguageServicePlugins(
     createMpxTemplateAutoinsertSpacePlugin(),
     createMpxStyleCSSPlugin(),
     createMpxStyleStylusPlugin(),
+    createMpxStyleDirectiveCommentsPlugin(),
     // createMpxJsonJsPlugin(ts, getTsPluginClient),
     createMpxJsonJsonPlugin(),
     createMpxTemplateLinksPlugin(),
