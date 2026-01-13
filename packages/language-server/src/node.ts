@@ -118,6 +118,9 @@ connection.onInitialize(params => {
       getImportPathForFile(...args: any[]) {
         return sendTsRequest('_mpx:getImportPathForFile', args)
       },
+      getCompletion(...args: any[]) {
+        return sendTsRequest('_mpx:getCompletion', args)
+      },
       getPropertiesAtLocation(...args: any[]) {
         return sendTsRequest('_mpx:getPropertiesAtLocation', args)
       },
