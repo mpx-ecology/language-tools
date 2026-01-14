@@ -9,7 +9,7 @@ export function create(getTsClient: any): LanguageServicePlugin {
 
     capabilities: {
       completionProvider: {
-        triggerCharacters: ['/', '.', '@'],
+        triggerCharacters: ['/', '@'],
       },
     },
 
@@ -26,8 +26,6 @@ export function create(getTsClient: any): LanguageServicePlugin {
           if (!embeddedCodeId.startsWith('json_')) {
             return
           }
-
-          // 限制非路径形式的提示触发
 
           // 获取当前光标位置的偏移量
           const offset = document.offsetAt(position)
