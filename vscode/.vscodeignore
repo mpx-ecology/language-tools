@@ -5,3 +5,4 @@ src
 stats.html
 tests
 tsconfig.*
+node_modules/**/*.js.map

@@ -8,23 +8,31 @@ const watch = process.argv.includes('--watch')
 
 const resolve = (file = '') => path.join(__dirname, '..', file)
 
+const entryPointsDev = {
+  'node_modules/mpx-language-core-pack/index':
+    './node_modules/@mpxjs/language-core/out/index.js',
+  'node_modules/mpx-typescript-plugin-pack/index':
+    './node_modules/@mpxjs/typescript-plugin/out/index.js',
+}
+
+const entryPointsProd = {
+  'dist/client': './out/client.js',
+  'dist/server':
+    './node_modules/@mpxjs/language-server/bin/mpx-language-server.js',
+}
+
 async function main() {
   const ctx = await esbuild.context({
     entryPoints: {
-      'dist/client': './out/client.js',
-      'dist/server':
-        './node_modules/@mpxjs/language-server/bin/mpx-language-server.js',
-      'node_modules/mpx-language-core-pack/index':
-        './node_modules/@mpxjs/language-core/out/index.js',
-      'node_modules/mpx-typescript-plugin-pack/index':
-        './node_modules/@mpxjs/typescript-plugin/out/index.js',
+      ...entryPointsDev,
+      ...(minify ? entryPointsProd : {}),
     },
     outdir: '.',
     bundle: true,
     format: 'cjs',
     platform: 'node',
     external: ['vscode'],
-    sourcemap: false,
+    sourcemap: watch,
     sourcesContent: false,
     logLevel: 'warning',
     tsconfig: './tsconfig.json',
