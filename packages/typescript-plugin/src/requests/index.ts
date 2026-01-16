@@ -7,6 +7,7 @@ import { getComponentEvents } from './getComponentEvents'
 import { getComponentDirectives } from './getComponentDirectives'
 import { getElementAttrs } from './getElementAttrs'
 import { getElementNames } from './getElementNames'
+import { getCompletionAtPostion as getCompletion } from './getCompletion'
 
 type ToRequest<T extends (...args: any) => any> = (
   ...args: Parameters<T>
@@ -22,6 +23,7 @@ export interface IRequests {
   getComponentDirectives: ToRequest<typeof getComponentDirectives>
   getElementAttrs: ToRequest<typeof getElementAttrs>
   getElementNames: ToRequest<typeof getElementNames>
+  getCompletion: ToRequest<typeof getCompletion>
   getQuickInfoAtPosition: ToRequest<
     (fileName: string, position: { line: number; character: number }) => string
   >
@@ -37,4 +39,5 @@ export {
   getComponentDirectives,
   getElementAttrs,
   getElementNames,
+  getCompletion,
 }

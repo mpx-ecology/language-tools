@@ -9,6 +9,7 @@ import { generateSrc } from './src'
 import { generateTemplate } from './template'
 import { codeFeatures } from '../codeFeatures'
 import { generateComponentSelf } from './componentSelf'
+import { generateJsonPathCompletionImports } from './jsonUsingComponents'
 import {
   endOfLine,
   generateDefineComponent,
@@ -178,6 +179,9 @@ export function* generateScript(
     yield* generateComponentSelf(options)
     // yield* generateJsonUsingComponents(options, ctx)
   }
+
+  // 添加虚拟路径补全导入代码
+  yield* generateJsonPathCompletionImports(options, ctx)
 
   yield* ctx.localTypes.generate([...ctx.localTypes.getUsedNames()])
   if (options.appendGlobalTypes) {
