@@ -9,7 +9,7 @@ export function create(getTsClient: any): LanguageServicePlugin {
 
     capabilities: {
       completionProvider: {
-        triggerCharacters: ['/', '@'],
+        triggerCharacters: ['/'],
       },
     },
 
@@ -23,20 +23,28 @@ export function create(getTsClient: any): LanguageServicePlugin {
           if (!decoded) return
 
           const [documentUri, embeddedCodeId] = decoded
+
           if (!embeddedCodeId.startsWith('json_')) {
             return
           }
-
+          const sourceScript = context.language.scripts.get(documentUri)
+          const virtualCode =
+            sourceScript?.generated?.embeddedCodes.get(embeddedCodeId)
+          const jsonStart = virtualCode?.mappings[0].sourceOffsets[0] || 0
           // 获取当前光标位置的偏移量
           const offset = document.offsetAt(position)
-
+          const absoluteOffset = offset + jsonStart
           const tsClient = getTsClient()
           // 在映射到的虚拟 import 位置获取补全
           const tsCompletions = await tsClient.getCompletion(
             documentUri.fsPath,
-            offset,
+            absoluteOffset,
           )
 
+          /**
+           * todo: 出现重复。具体原因待排查.
+           * 但是打印completions 为没有重复的
+           */
           const completions = tsCompletions.map((item: ts.CompletionEntry) => {
             return {
               label: item.name,
@@ -48,8 +56,8 @@ export function create(getTsClient: any): LanguageServicePlugin {
           })
 
           return {
-            isIncomplete: false,
-            items: completions,
+            isIncomplete: true,
+            items: new Set(completions) as unknown as vscode.CompletionItem[],
           }
         },
       }

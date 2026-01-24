@@ -44,6 +44,7 @@ export function* generateJsonPathCompletionImports(
   _ctx: ScriptCodegenContext,
 ): Generator<Code> {
   const usingComponents = options.sfc.json?.usingComponents
+  const jsonStart = (options.sfc.json?.startTagEnd || 0) + 1
   const pages = options.sfc.json?.pages
 
   // 生成虚拟的 import 语句用于路径补全
@@ -64,7 +65,7 @@ export function* generateJsonPathCompletionImports(
         yield [
           componentPath,
           'json_import',
-          componentPathOffset,
+          jsonStart + componentPathOffset,
           {
             // 仅启用补全功能，不参与语义分析等
             completion: true,
