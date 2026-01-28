@@ -1,0 +1,51 @@
+<template>
+  <view>Child Component (Composition API)</view>
+  <view bindtap="handleInternalTap">内部点击</view>
+</template>
+
+<script setup lang="ts">
+// defineProps 泛型写法
+const props = defineProps<{
+  message: string
+  visible: boolean
+  items: string[]
+  // 可选属性
+  optional?: string
+  // 复杂类型
+  config?: {
+    theme: string
+    size: number
+  }
+}>()
+
+// 组件内部方法
+const handleInternalTap = () => {
+  console.log('internal tap', props.message)
+}
+
+// 事件处理方法
+const onUpdate = (value: string) => {
+  console.log('update:', value)
+}
+
+const onClick = () => {
+  console.log('click')
+}
+
+const onCustomEvent = (data: { msg: string }) => {
+  console.log('custom event:', data.msg)
+}
+
+defineExpose({
+  handleInternalTap,
+  onUpdate,
+  onClick,
+  onCustomEvent
+})
+</script>
+
+<script type="application/json">
+{
+  "component": true
+}
+</script>
