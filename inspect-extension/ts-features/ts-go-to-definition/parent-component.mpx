@@ -1,0 +1,83 @@
+<template>
+  <!-- 
+    ============================================
+    测试场景 1: Options API 子组件属性跳转
+    点击属性名应跳转到子组件的 properties 定义
+    ============================================
+  -->
+  <child-component
+    title="Hello"
+    count="{{ pageCount }}"
+    show-header="{{ showHeader }}"
+    list-data="{{ listData }}"
+    config="{{ config }}"
+    name="test"
+    age="{{ 18 }}"
+    visible="{{ true }}"
+  />
+
+  <!-- 
+    ============================================
+    测试场景 2: Composition API 子组件属性跳转 (泛型写法)
+    点击属性名应跳转到子组件的 defineProps 类型定义
+    ============================================
+  -->
+  <child-component-setup
+    message="World"
+    visible="{{ isVisible }}"
+    items="{{ itemList }}"
+    optional="optional value"
+    config="{{ { theme: 'dark', size: 16 } }}"
+  />
+
+  <!-- 
+    ============================================
+    测试场景 3: Composition API 子组件属性跳转 (对象写法)
+    ============================================
+  -->
+  <child-component-setup-object
+    msg="Hello"
+    count="{{ 10 }}"
+    enabled="{{ true }}"
+    data="{{ [1, 2, 3] }}"
+    options="{{ { key: 'value' } }}"
+  />
+
+  <!-- 
+    ============================================
+    测试场景 4: withDefaults 子组件属性跳转
+    ============================================
+  -->
+  <child-component-with-defaults
+    title="Custom Title"
+    count="{{ 100 }}"
+    theme="dark"
+  />
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  data: {
+    pageCount: 10,
+    showHeader: true,
+    isVisible: false,
+    itemList: ['a', 'b', 'c'],
+    listData: [1, 2, 3],
+    config: { key: 'value' }
+  }
+})
+</script>
+
+<script type="application/json">
+{
+  "component": true,
+  "usingComponents": {
+    "child-component": "./child-component",
+    "child-component-setup": "./child-component-setup",
+    "child-component-setup-object": "./child-component-setup-object",
+    "child-component-with-defaults": "./child-component-with-defaults"
+  }
+}
+</script>

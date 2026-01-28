@@ -1,0 +1,32 @@
+<template>
+  <view>Child Component (withDefaults)</view>
+</template>
+
+<script setup lang="ts">
+// withDefaults 写法
+type Props = {
+  title?: string
+  count?: number
+  theme?: 'light' | 'dark'
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  title: 'default title',
+  count: 0,
+  theme: 'light'
+})
+
+const handleAction = () => {
+  console.log('action', props.title)
+}
+
+defineExpose({
+  handleAction
+})
+</script>
+
+<script type="application/json">
+{
+  "component": true
+}
+</script>

@@ -1,0 +1,44 @@
+<template>
+  <view>Child Component (Options API)</view>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  properties: {
+    // 基础类型属性 - 完整写法
+    title: {
+      type: String,
+      value: 'default title'
+    },
+    count: {
+      type: Number,
+      value: 0
+    },
+    showHeader: {
+      type: Boolean,
+      value: true
+    },
+    // 复杂类型属性
+    listData: {
+      type: Array,
+      value: [] as string[]
+    },
+    config: {
+      type: Object,
+      value: {} as Record<string, any>
+    },
+    // 简写形式
+    name: String,
+    age: Number,
+    visible: Boolean
+  }
+})
+</script>
+
+<script type="application/json">
+{
+  "component": true
+}
+</script>
