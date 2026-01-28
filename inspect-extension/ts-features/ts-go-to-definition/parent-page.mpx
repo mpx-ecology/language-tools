@@ -1,0 +1,153 @@
+<template>
+  <!-- 
+    ============================================
+    页面（Page）测试场景
+    使用 createPage 创建的页面
+    ============================================
+  -->
+
+  <!-- 子组件属性跳转 -->
+  <child-component
+    title="Page Test"
+    count="{{ pageCount }}"
+    show-header="{{ showHeader }}"
+  />
+
+  <!-- 子组件事件绑定 -->
+  <child-component
+    title="Event Test"
+    bind:change="onChildChange"
+    bindtap="onChildTap"
+  />
+
+  <!-- 原生组件事件 -->
+  <view
+    bindtap="handleViewTap"
+    bind:longpress="handleLongPress"
+    catchtap="handleCatchTap"
+  >
+    点击测试
+  </view>
+
+  <!-- 页面生命周期中定义的方法（顶层方法） -->
+  <view bindtap="onPageMethod">
+    页面顶层方法
+  </view>
+
+  <!-- setup 返回的方法 -->
+  <view bindtap="setupHandler">
+    setup 中的方法
+  </view>
+
+  <!-- methods 中的方法 -->
+  <view bindtap="methodsHandler">
+    methods 中的方法
+  </view>
+
+  <!-- input 事件 -->
+  <input
+    bind:blur="inputBlur"
+    bindfocus="inputFocus"
+    type="text"
+  />
+</template>
+
+<script lang="ts">
+import { createPage } from '@mpxjs/core'
+
+createPage({
+  // 页面可以接收参数作为 properties
+  properties: {
+    pageId: {
+      type: String,
+      value: ''
+    }
+  },
+  data: {
+    pageCount: 10,
+    showHeader: true
+  },
+  setup() {
+    const setupHandler = () => {
+      console.log('handler in setup')
+    }
+    return {
+      setupHandler
+    }
+  },
+  computed: {
+    computedValue() {
+      return this.pageCount * 2
+    }
+  },
+  // 页面生命周期方法（直接定义在顶层）
+  onLoad(options: any) {
+    console.log('page load', options)
+  },
+  onShow() {
+    console.log('page show')
+  },
+  onHide() {
+    console.log('page hide')
+  },
+  onUnload() {
+    console.log('page unload')
+  },
+  onPullDownRefresh() {
+    console.log('pull down refresh')
+  },
+  onReachBottom() {
+    console.log('reach bottom')
+  },
+  onShareAppMessage() {
+    return {
+      title: 'Share Title'
+    }
+  },
+  // 自定义的顶层方法（和生命周期同级）
+  onPageMethod() {
+    console.log('page method at top level')
+  },
+  onCustomTopLevelHandler(arg: string) {
+    console.log('custom top level handler:', arg)
+  },
+  methods: {
+    // 子组件事件处理
+    onChildChange(e: any) {
+      console.log('child change:', e.detail)
+    },
+    onChildTap() {
+      console.log('child tap')
+    },
+    // 原生组件事件处理
+    handleViewTap() {
+      console.log('view tap')
+    },
+    handleLongPress() {
+      console.log('long press')
+    },
+    handleCatchTap() {
+      console.log('catch tap')
+    },
+    // methods 中的方法
+    methodsHandler() {
+      console.log('handler in methods')
+    },
+    // input 事件处理
+    inputBlur(e: any) {
+      console.log('input blur', e.detail.value)
+    },
+    inputFocus(e: any) {
+      console.log('input focus', e.detail.value)
+    }
+  }
+})
+</script>
+
+<script type="application/json">
+{
+  "usingComponents": {
+    "child-component": "./child-component"
+  }
+}
+</script>

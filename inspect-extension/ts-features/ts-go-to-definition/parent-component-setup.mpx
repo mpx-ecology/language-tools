@@ -1,0 +1,135 @@
+<template>
+  <!-- 
+    Composition API 父组件测试
+    测试 script setup 中定义的方法跳转
+  -->
+
+  <!-- Options API 子组件 -->
+  <child-component
+    title="{{ title }}"
+    count="{{ count }}"
+    show-header="{{ showHeader }}"
+    bind:change="onChildChange"
+    bindtap="onChildTap"
+  />
+
+  <!-- Composition API 子组件 -->
+  <child-component-setup
+    message="{{ message }}"
+    visible="{{ visible }}"
+    items="{{ items }}"
+    bind:update="onChildUpdate"
+    bindclick="onChildClick"
+  />
+
+  <!-- 原生组件事件 -->
+  <view
+    bindtap="handleViewTap"
+    bind:longpress="handleLongPress"
+    catchtap="handleCatchTap"
+    catch:touchstart="handleTouchStart"
+  >
+    点击测试
+  </view>
+
+  <!-- 带参数的事件 -->
+  <view bindtap="handleTapWithArgs('test')">
+    带参数
+  </view>
+
+  <!-- input 事件 -->
+  <input
+    bind:blur="inputBlur"
+    bindfocus="inputFocus"
+    type="text"
+  />
+</template>
+
+<script setup lang="ts">
+// 响应式数据
+const title = 'Hello'
+const count = 10
+const showHeader = true
+const message = 'World'
+const visible = false
+const items = ['a', 'b', 'c']
+
+// 子组件事件处理方法
+const onChildChange = (e: any) => {
+  console.log('child change:', e.detail)
+}
+
+const onChildTap = () => {
+  console.log('child tap')
+}
+
+const onChildUpdate = (value: string) => {
+  console.log('child update:', value)
+}
+
+const onChildClick = () => {
+  console.log('child click')
+}
+
+// 原生组件事件处理方法
+const handleViewTap = () => {
+  console.log('view tap')
+}
+
+const handleLongPress = () => {
+  console.log('long press')
+}
+
+const handleCatchTap = () => {
+  console.log('catch tap')
+}
+
+const handleTouchStart = () => {
+  console.log('touch start')
+}
+
+// 带参数的事件处理
+const handleTapWithArgs = (arg: string) => {
+  console.log('tap with args:', arg)
+}
+
+// input 事件处理
+const inputBlur = (e: any) => {
+  console.log('input blur', e.detail.value)
+}
+
+const inputFocus = (e: any) => {
+  console.log('input focus', e.detail.value)
+}
+
+// 暴露方法给模板使用
+defineExpose({
+  title,
+  count,
+  showHeader,
+  message,
+  visible,
+  items,
+  onChildChange,
+  onChildTap,
+  onChildUpdate,
+  onChildClick,
+  handleViewTap,
+  handleLongPress,
+  handleCatchTap,
+  handleTouchStart,
+  handleTapWithArgs,
+  inputBlur,
+  inputFocus
+})
+</script>
+
+<script type="application/json">
+{
+  "component": true,
+  "usingComponents": {
+    "child-component": "./child-component",
+    "child-component-setup": "./child-component-setup"
+  }
+}
+</script>
