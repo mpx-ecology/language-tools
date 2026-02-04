@@ -10,6 +10,54 @@ import { allCodeFeatures } from './shared'
 import { withResolvers } from '../utils/utils'
 import { formatUsingComponentsPath } from '../utils/formatUsingComponentsPath'
 
+// 原生组件标签列表 - 这些组件是平台内置的，不需要解析路径
+const nativeComponentTags: string[] = [
+  'cover-image',
+  'cover-view',
+  'match-media',
+  'movable-area',
+  'movable-view',
+  'page-container',
+  'root-portal',
+  'scroll-view',
+  'swiper',
+  'swiper-item',
+  'view',
+  'icon',
+  'progress',
+  'rich-text',
+  'selection',
+  'text',
+  'button',
+  'checkbox',
+  'checkbox-group',
+  'editor',
+  'editor-portal',
+  'form',
+  'input',
+  'label',
+  'picker',
+  'picker-view',
+  'radio',
+  'radio-group',
+  'slider',
+  'switch',
+  'textarea',
+  'functional-page-navigator',
+  'navigator',
+  'audio',
+  'camera',
+  'channel-live',
+  'channel-video',
+  'image',
+  'live-player',
+  'live-pusher',
+  'video',
+  'video-room',
+  'map',
+  'canvas',
+]
+
 const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
   return {
     name: 'mpx-sfc-json',
@@ -66,7 +114,8 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
         [...usingComponents.entries()].map(async ([name, info]) => {
           await Promise.allSettled(
             info.map(async info => {
-              if (!info.text) {
+              // 跳过原生组件 - 原生组件不需要解析路径
+              if (!info.text || nativeComponentTags.includes(info.text)) {
                 return
               }
 
