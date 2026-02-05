@@ -22,6 +22,7 @@ import { create as createMpxStyleStylusPlugin } from './plugins/mpx-sfc-style-st
 import { create as createMpxStyleDirectiveCommentsPlugin } from './plugins/mpx-sfc-style-directive-comments'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
 import { create as createMpxJsonLinksPlugin } from './plugins/mpx-sfc-json-links'
+import { create as createMpxJsonImportCompletionPlugin } from './plugins/mpx-sfc-json-import-completion'
 import { create as createMpxPrettierPlugin } from './plugins/mpx-prettier'
 import { Commands } from './types'
 
@@ -57,9 +58,7 @@ export function createMpxLanguageServicePlugins(
 
 function getCommonLanguageServicePlugins(
   ts: typeof import('typescript'),
-  _getTsPluginClient: (
-    context: LanguageServiceContext,
-  ) => IRequests | undefined,
+  getTsPluginClient: (context: LanguageServiceContext) => IRequests | undefined,
 ): LanguageServicePlugin[] {
   return [
     createTypeScriptSyntacticPlugin(ts),
@@ -76,6 +75,7 @@ function getCommonLanguageServicePlugins(
     createMpxJsonJsonPlugin(),
     createMpxTemplateLinksPlugin(),
     createMpxJsonLinksPlugin(),
+    createMpxJsonImportCompletionPlugin(getTsPluginClient),
     createMpxPrettierPlugin(),
     createEmmetPlugin({
       mappedLanguages: {
