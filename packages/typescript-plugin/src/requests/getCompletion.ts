@@ -12,5 +12,5 @@ export function getCompletionAtPostion(
     {},
   )
 
-  return completion?.entries
+  return completion?.entries ?? []
 }

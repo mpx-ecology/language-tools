@@ -53,7 +53,7 @@ export function* generateJsonPathCompletionImports(
   // 为 usingComponents 生成虚拟 import
   if (usingComponents?.size) {
     let index = 0
-    for (const [componentName, componentPaths] of usingComponents) {
+    for (const [, componentPaths] of usingComponents) {
       for (const {
         text: componentPath,
         offset: componentPathOffset,

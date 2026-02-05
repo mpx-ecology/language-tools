@@ -1,9 +1,15 @@
-import type { LanguageServicePlugin } from '@volar/language-service'
+import type * as ts from 'typescript'
+import type {
+  LanguageServiceContext,
+  LanguageServicePlugin,
+} from '@volar/language-service'
+import type { IRequests } from '@mpxjs/typescript-plugin/src/requests'
 import { URI } from 'vscode-uri'
 import * as vscode from 'vscode-languageserver-protocol'
-import type * as ts from 'typescript'
 
-export function create(getTsClient: any): LanguageServicePlugin {
+export function create(
+  getTsClient: (context: LanguageServiceContext) => IRequests | undefined,
+): LanguageServicePlugin {
   return {
     name: 'mpx-json-import-completion',
 
@@ -34,9 +40,9 @@ export function create(getTsClient: any): LanguageServicePlugin {
           // 获取当前光标位置的偏移量
           const offset = document.offsetAt(position)
           const absoluteOffset = offset + jsonStart
-          const tsClient = getTsClient()
+          const tsClient = getTsClient(context)
           // 在映射到的虚拟 import 位置获取补全
-          const tsCompletions = await tsClient.getCompletion(
+          const tsCompletions = await tsClient?.getCompletion(
             documentUri.fsPath,
             absoluteOffset,
           )
@@ -45,7 +51,7 @@ export function create(getTsClient: any): LanguageServicePlugin {
            * todo: 出现重复。具体原因待排查.
            * 但是打印completions 为没有重复的
            */
-          const completions = tsCompletions.map((item: ts.CompletionEntry) => {
+          const completions = tsCompletions?.map((item: ts.CompletionEntry) => {
             return {
               label: item.name,
               kind:

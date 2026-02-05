@@ -58,9 +58,7 @@ export function createMpxLanguageServicePlugins(
 
 function getCommonLanguageServicePlugins(
   ts: typeof import('typescript'),
-  _getTsPluginClient: (
-    context: LanguageServiceContext,
-  ) => IRequests | undefined,
+  getTsPluginClient: (context: LanguageServiceContext) => IRequests | undefined,
 ): LanguageServicePlugin[] {
   return [
     createTypeScriptSyntacticPlugin(ts),
@@ -77,7 +75,7 @@ function getCommonLanguageServicePlugins(
     createMpxJsonJsonPlugin(),
     createMpxTemplateLinksPlugin(),
     createMpxJsonLinksPlugin(),
-    createMpxJsonImportCompletionPlugin(_getTsPluginClient),
+    createMpxJsonImportCompletionPlugin(getTsPluginClient),
     createMpxPrettierPlugin(),
     createEmmetPlugin({
       mappedLanguages: {
