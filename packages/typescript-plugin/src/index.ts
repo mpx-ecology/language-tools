@@ -13,6 +13,7 @@ import { getElementAttrs } from './requests/getElementAttrs'
 import { getElementNames } from './requests/getElementNames'
 import { getImportPathForFile } from './requests/getImportPathForFile'
 import { getPropertiesAtLocation } from './requests/getPropertiesAtLocation'
+import { getCompletionAtPostion } from './requests/getCompletion'
 
 const windowsPathReg = /\\/g
 const project2Service = new WeakMap<
@@ -130,6 +131,14 @@ export = createLanguageServicePlugin((ts, info) => {
         }
       },
     )
+    session.addProtocolHandler('_mpx:getCompletion', ({ arguments: args }) => {
+      return {
+        response: getCompletionAtPostion.apply(
+          getRequestContext(args[0]),
+          args,
+        ),
+      }
+    })
     session.addProtocolHandler(
       '_mpx:getPropertiesAtLocation',
       ({ arguments: args }) => {
