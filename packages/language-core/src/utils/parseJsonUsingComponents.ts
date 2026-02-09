@@ -75,16 +75,21 @@ export function parseUsingComponentsWithJs(
   function visit(node: ts.Node) {
     /**
      * usingComponents 会是两种情况
-     * 情况1{
+     */
+
+    /**
+     * Case 1 - shorthand property:
+     *
+     * module.exports = {
      *   usingComponents,
      * }
-     * 和
-     * {
-     *   usingComponents: foo,
-     * }
+     *
      */
-    // 情况1
-    if (ts.isShorthandPropertyAssignment(node) && ts.isIdentifier(node.name)) {
+    if (
+      ts.isShorthandPropertyAssignment(node) &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === 'usingComponents'
+    ) {
       const varName = node.name.text
       const resolved = findVariableInitializerExpression(
         ts,
@@ -104,7 +109,14 @@ export function parseUsingComponentsWithJs(
       return
     }
 
-    // 情况2
+    /**
+     * Case 2 - normal property:
+     *
+     * module.exports = {
+     *   usingComponents: foo,
+     * }
+     *
+     */
     if (
       ts.isPropertyAssignment(node) &&
       (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) &&

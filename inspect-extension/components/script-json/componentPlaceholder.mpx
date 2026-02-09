@@ -1,0 +1,11 @@
+<script name="json">
+/**
+ * 原生组件作为componentPlaceholder不报错
+ */
+const componentPlaceholder = {
+  "json": 'view'
+}
+module.exports = {
+  componentPlaceholder
+}
+</script>
