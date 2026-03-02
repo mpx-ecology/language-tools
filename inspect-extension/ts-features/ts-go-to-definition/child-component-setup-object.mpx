@@ -1,0 +1,29 @@
+<template>
+  <view>Child Component (Composition API - Object Style)</view>
+</template>
+
+<script setup lang="ts">
+// defineProps 对象写法（类似 Options API）
+const { msg = 'default msg' } = defineProps({
+  msg: String,
+  count: Number,
+  enabled: Boolean,
+  data: Array,
+  options: Object
+})
+
+const handleClick = () => {
+  console.log('click', msg)
+}
+
+defineExpose({
+  msg,
+  handleClick
+})
+</script>
+
+<script type="application/json">
+{
+  "component": true
+}
+</script>
