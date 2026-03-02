@@ -1,0 +1,24 @@
+<template>
+  <view>
+    <view> msg: {{ b?.c }} </view>
+  </view>
+</template>
+
+<script setup lang="ts">
+import { toRefs } from '@mpxjs/core'
+
+const props = withDefaults(
+  defineProps<{
+    a: { b?: { c?: number } }
+  }>(),
+  {
+    a: {},
+  },
+)
+
+const { b } = toRefs(props.a)
+
+defineExpose({
+  b,
+})
+</script>
