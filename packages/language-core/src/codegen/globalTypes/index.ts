@@ -158,10 +158,14 @@ export function generateGlobalTypes({
 	type I18nValues = { [k: string]: string } | Array<string>
 
 	type UnwrapRefs<T> = {
-		[K in keyof T]: T[K] extends import('${lib}').Ref
-			? import('${lib}').UnwrapRef<T[K]>
-			: T[K]
-	}
+    [K in keyof T]: T[K] extends import('${lib}').Ref
+      ? import('${lib}').UnwrapRef<T[K]>
+      : T[K] extends import('${lib}').Ref<infer V> | undefined
+        ? unknown extends V
+          ? undefined
+          : V | undefined
+        : T[K]
+  }
 	${defineComponentTypesContents.globalTypes()}
 }
 ` + defineComponentTypesContents.localTypes(lib)
