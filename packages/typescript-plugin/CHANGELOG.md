@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.20.0](https://github.com/mpx-ecology/language-tools/compare/v1.18.5...v1.20.0) (2026-03-09)
+
+### Features
+
+* review update ([de8bb4e](https://github.com/mpx-ecology/language-tools/commit/de8bb4e2c199c856160d4b2c432254436299d4b4))
+* 组件路径补全（mvp） ([6f19f1d](https://github.com/mpx-ecology/language-tools/commit/6f19f1d00ec71ee32778623d877b374142e1c6fe))
+
 ## [1.18.5](https://github.com/mpx-ecology/language-tools/compare/v1.18.4...v1.18.5) (2026-01-08)
 
 **Note:** Version bump only for package @mpxjs/typescript-plugin

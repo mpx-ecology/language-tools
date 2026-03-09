@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.20.0](https://github.com/mpx-ecology/language-tools/compare/v1.18.5...v1.20.0) (2026-03-09)
+
+### Bug Fixes
+
+* enhance TypeScript integration and add support for 'mpx' language ([7e7c071](https://github.com/mpx-ecology/language-tools/commit/7e7c0713e193053771cf81baa165fffc018562c5))
+* improve `parseUsingComponentsWithJs` ([50755aa](https://github.com/mpx-ecology/language-tools/commit/50755aaf7884ec4e2203639501e03b19ad245e71))
+* improve UnwrapRefs type to handle optional Ref types ([3474ecb](https://github.com/mpx-ecology/language-tools/commit/3474ecbec2c96c5c2f0f6b14ffe6453bbeb56bd5))
+* review rollback ([67b18ab](https://github.com/mpx-ecology/language-tools/commit/67b18ab2604fe5015a6b53ef18866cd48ff8a9f9))
+* 修复volar 虚拟文件和真实文件映射位置 ([ed9d307](https://github.com/mpx-ecology/language-tools/commit/ed9d3079772b31340c1987671f06d8aad62416ff))
+* 过滤原生标签,不进行格式化路径 ([c305b12](https://github.com/mpx-ecology/language-tools/commit/c305b12bef8aa859e78ca4669c804ddf7a2d323b))
+
+### Features
+
+* review update ([de8bb4e](https://github.com/mpx-ecology/language-tools/commit/de8bb4e2c199c856160d4b2c432254436299d4b4))
+* 组件路径补全（mvp） ([6f19f1d](https://github.com/mpx-ecology/language-tools/commit/6f19f1d00ec71ee32778623d877b374142e1c6fe))
+* 限制triggerCharacters ([cc58d5c](https://github.com/mpx-ecology/language-tools/commit/cc58d5c8dbca96b1035be27b93a99b8ffa2683dc))
+
 ## [1.18.5](https://github.com/mpx-ecology/language-tools/compare/v1.18.4...v1.18.5) (2026-01-08)
 
 ### Features

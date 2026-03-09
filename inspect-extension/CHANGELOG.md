@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.20.0](https://github.com/mpx-ecology/language-tools/compare/v1.18.5...v1.20.0) (2026-03-09)
+
+### Bug Fixes
+
+* improve UnwrapRefs type to handle optional Ref types ([3474ecb](https://github.com/mpx-ecology/language-tools/commit/3474ecbec2c96c5c2f0f6b14ffe6453bbeb56bd5))
+* 过滤原生标签,不进行格式化路径 ([c305b12](https://github.com/mpx-ecology/language-tools/commit/c305b12bef8aa859e78ca4669c804ddf7a2d323b))
+
 ## [1.18.5](https://github.com/mpx-ecology/language-tools/compare/v1.18.4...v1.18.5) (2026-01-08)
 
 **Note:** Version bump only for package inspect

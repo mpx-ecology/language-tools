@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.20.0](https://github.com/mpx-ecology/language-tools/compare/v1.18.5...v1.20.0) (2026-03-09)
+
+### Bug Fixes
+
+* enhance TypeScript integration and add support for 'mpx' language ([7e7c071](https://github.com/mpx-ecology/language-tools/commit/7e7c0713e193053771cf81baa165fffc018562c5))
+
 ## [1.18.5](https://github.com/mpx-ecology/language-tools/compare/v1.18.4...v1.18.5) (2026-01-08)
 
 **Note:** Version bump only for package mpx-official
