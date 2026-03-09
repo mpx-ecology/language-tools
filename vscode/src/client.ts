@@ -111,13 +111,14 @@ export const { activate, deactivate } = defineExtension(async () => {
      */
 
     client.onNotification('tsserver/request', async ([seq, command, args]) => {
-      const res = await vscode.commands.executeCommand<
-        { body: unknown } | undefined
-      >('typescript.tsserverRequest', command, args, {
-        isAsync: true,
-        lowPriority: true,
-      })
-      client.sendNotification('tsserver/response', [seq, res?.body])
+      vscode.commands
+        .executeCommand<
+          { body?: unknown } | undefined
+        >('typescript.tsserverRequest', command, args, { isAsync: true, lowPriority: true })
+        .then(
+          res => client.sendNotification('tsserver/response', [seq, res?.body]),
+          () => client.sendNotification('tsserver/response', [seq, undefined]),
+        )
     })
 
     client.start()
