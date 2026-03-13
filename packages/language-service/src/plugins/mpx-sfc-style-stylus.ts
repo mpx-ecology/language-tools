@@ -18,6 +18,10 @@ import {
 const stylusColorRegex =
   /^(\s*)([a-zA-Z][\w-]*)\s*:?\s+(.*?#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})(?![0-9a-fA-F]).*?)$/gm
 
+// Match MPX directive comments like /* @mpx-if (...) */, /* @mpx-elif (...) */, /* @mpx-else */, /* @mpx-endif */
+const mpxDirectiveCommentRegex =
+  /^(\s*)\/\*\s*@mpx-(if|elif|else|endif)\b.*?\*\/\s*$/
+
 export function create(): LanguageServicePlugin {
   const cssBuiltinData = CSS.getDefaultCSSDataProvider()
   const cssData: CSS.CSSDataV1 = {
@@ -81,10 +85,40 @@ export function create(): LanguageServicePlugin {
           }
 
           try {
+            // Extract MPX directive comments before formatting to prevent
+            // stylus-supremacy from moving them to different positions.
+            // Replace with single-line comment placeholders that stay in place.
+            const directiveComments: Map<string, string> = new Map()
+            const lines = stylusContent.split(/\r?\n/)
+            const processedLines = lines.map((line, index) => {
+              if (mpxDirectiveCommentRegex.test(line)) {
+                const placeholder = `// __MPX_DIRECTIVE_${index}__`
+                // Store the trimmed original comment text (without leading whitespace)
+                directiveComments.set(placeholder.trim(), line.trimStart())
+                const indent = line.match(/^(\s*)/)?.[1] ?? ''
+                return indent + placeholder.trim()
+              }
+              return line
+            })
+
+            const processedContent = processedLines.join('\n')
             let newText = stylusSupremacy.format(
-              stylusContent,
+              processedContent,
               formattingOptions,
             )
+
+            // Restore MPX directive comments from placeholders,
+            // keeping the indentation level assigned by the formatter
+            for (const [placeholder, commentText] of directiveComments) {
+              newText = newText.replace(
+                new RegExp(
+                  `^([ \\t]*)${placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`,
+                  'm',
+                ),
+                (_, indent) => indent + commentText,
+              )
+            }
+
             if (initialIndent) {
               newText = newText
                 .split(/\n/)
