@@ -1,0 +1,21 @@
+<script lang="ts">
+import { createComponent } from "@mpxjs/core";
+
+createComponent({
+  properties: {
+    parentText: {
+      type: String,
+      value: '123'
+    },
+    name: {
+      type: Number
+    }
+  },
+})
+</script>
+
+<script name="json">
+module.export = {
+  "component": true,
+}
+</script>

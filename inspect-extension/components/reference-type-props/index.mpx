@@ -1,0 +1,21 @@
+<template>
+  <component-options parentText="{{ 123 }}"></component-options>
+  <component-js-setup msg="{{ 123 }}"></component-js-setup>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+})
+</script>
+
+<script name="json">
+module.export = {
+  "component": true,
+  "usingComponents": {
+    "component-options": "./component-options.mpx",
+    "component-js-setup": "./component-js-setup.mpx"
+  }
+}
+</script>

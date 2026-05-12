@@ -1,8 +1,9 @@
 import type { Code } from '../../types'
 import type { ScriptCodegenOptions } from './index'
 import type { ScriptCodegenContext } from './context'
+import { camelize, capitalize } from '@mpxjs/language-shared'
 import { endOfLine, newLine } from '../utils'
-import { codeFeatures } from '../codeFeatures'
+import { identifierRegex } from '../utils'
 
 export function* generateJsonUsingComponents(
   options: ScriptCodegenOptions,
@@ -11,34 +12,32 @@ export function* generateJsonUsingComponents(
   const usingComponents = options.sfc.json?.usingComponents
 
   if (!usingComponents?.size) {
+    yield `const __MPX_jsonComponents = {}${endOfLine}`
     return
   }
 
-  yield `type __MPX_jsonComponents = {${newLine}`
+  yield `const __MPX_jsonComponents = {${newLine}`
 
   for (const [componentName, componentPaths] of usingComponents) {
-    for (const {
-      text: componentPath,
-      offset: componentPathOffset,
-      // nameOffset: componentNameOffset,
-    } of componentPaths) {
-      yield `${componentName}: typeof import('`
-
-      yield [
-        componentPath,
-        'scriptSetup',
-        componentPathOffset,
-        codeFeatures.all,
-      ]
+    const firstImportName = getUsingComponentImportName(componentName, 0)
+    yield `${firstImportName}`
+    if (componentPaths.length > 1) {
+      // Multiple resolved paths still need a single runtime value, so keep the
+      // first import as the value and widen its type to all candidate imports.
+      yield ` as `
+      for (let i = 0; i < componentPaths.length; i++) {
+        if (i) {
+          yield ` | `
+        }
+        yield `typeof ${getUsingComponentImportName(componentName, i)}`
+      }
     }
-
-    yield `)'${newLine}`
+    yield `,${newLine}`
   }
 
   yield `}${endOfLine}`
 }
 
-// 新增函数：生成用于路径补全的虚拟 import 代码
 export function* generateJsonPathCompletionImports(
   options: ScriptCodegenOptions,
   _ctx: ScriptCodegenContext,
@@ -52,20 +51,21 @@ export function* generateJsonPathCompletionImports(
 
   // 为 usingComponents 生成虚拟 import
   if (usingComponents?.size) {
-    let index = 0
-    for (const [, componentPaths] of usingComponents) {
-      for (const {
-        text: componentPath,
-        offset: componentPathOffset,
-      } of componentPaths) {
-        // 生成虚拟 import 语句，带特殊标记以便识别
-        yield `import __mpx_path_completion_${index++} from '`
+    for (const [componentName, componentPaths] of usingComponents) {
+      for (let i = 0; i < componentPaths.length; i++) {
+        const componentPathInfo = componentPaths[i]!
+        const importName = getUsingComponentImportName(componentName, i)
+
+        // Generate a virtual import with a stable identifier so the generated
+        // component map reads like normal source imports instead of index-based
+        // placeholders.
+        yield `import ${importName} from '`
 
         // 传递原始路径及位置信息
         yield [
-          componentPath,
+          componentPathInfo.text,
           'json_import',
-          jsonStart + componentPathOffset,
+          jsonStart + componentPathInfo.offset,
           {
             // 仅启用补全功能，不参与语义分析等
             completion: true,
@@ -91,7 +91,7 @@ export function* generateJsonPathCompletionImports(
       yield [
         page.text,
         'json_import',
-        page.offset,
+        jsonStart + page.offset,
         {
           completion: true,
           navigation: true,
@@ -107,4 +107,16 @@ export function* generateJsonPathCompletionImports(
   }
 
   yield `${newLine}`
+}
+
+export function getUsingComponentImportName(
+  componentName: string,
+  index: number,
+) {
+  const camelizedName = capitalize(camelize(componentName))
+  const baseName =
+    camelizedName && identifierRegex.test(camelizedName)
+      ? camelizedName
+      : `component_${index}`
+  return `${baseName}`
 }
