@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 import { createComponent } from "@mpxjs/core";
 
 createComponent({
@@ -15,7 +15,7 @@ createComponent({
 </script>
 
 <script name="json">
-module.export = {
+module.exports = {
   "component": true,
 }
 </script>
