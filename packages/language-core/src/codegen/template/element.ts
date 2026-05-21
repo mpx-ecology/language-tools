@@ -23,7 +23,6 @@ import { generateInterpolation } from './interpolation'
 import { generatePropertyAccess } from './propertyAccess'
 import { collectStyleScopedClassReferences } from './styleScopedClasses'
 import { generateVSlot } from './vSlot'
-import { getUsingComponentImportName } from '../script/jsonUsingComponents'
 
 const colonReg = /:/g
 
@@ -48,21 +47,17 @@ export function* generateComponent(
     node.tag,
     true,
   )
-  const matchedUsingComponentName = possibleOriginalNames.find(name =>
-    options.usingComponents?.has(name),
-  )
-  const matchImportName =
-    possibleOriginalNames.find(name =>
-      options.scriptSetupImportComponentNames.has(name),
-    ) ??
-    (matchedUsingComponentName
-      ? getUsingComponentImportName(matchedUsingComponentName, 0)
-      : undefined)
   const componentOriginalVar = ctx.getInternalVariable()
   const componentFunctionalVar = ctx.getInternalVariable()
   const componentVNodeVar = ctx.getInternalVariable()
   const componentCtxVar = ctx.getInternalVariable()
   const isComponentTag = node.tag.toLowerCase() === 'component'
+
+  ctx.templateNodeTags.push({
+    name: node.tag,
+    startTagOffset: tagOffsets[0],
+    endTagOffset: tagOffsets[1],
+  })
 
   ctx.currentComponent?.childTypes.push(`typeof ${componentVNodeVar}`)
   ctx.currentComponent = {
@@ -189,24 +184,6 @@ export function* generateComponent(
         },
       )
       yield `${endOfLine}`
-    }
-
-    if (matchImportName) {
-      // navigation support for resolved import
-      yield `/** @type {[`
-      for (const tagOffset of tagOffsets) {
-        yield `typeof `
-        const shouldCapitalize =
-          matchImportName[0].toUpperCase() === matchImportName[0]
-        yield* generateCamelized(
-          shouldCapitalize ? capitalize(node.tag) : node.tag,
-          'template',
-          tagOffset,
-          ctx.codeFeatures.withoutHighlightAndCompletion,
-        )
-        yield `, `
-      }
-      yield `]} */${endOfLine}`
     }
   } else {
     yield `const ${componentOriginalVar} = {} as any${endOfLine}`

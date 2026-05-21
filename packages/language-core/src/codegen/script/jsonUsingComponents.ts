@@ -24,7 +24,7 @@ export function* generateJsonUsingComponents(
     if (componentPaths.length > 1) {
       // Multiple resolved paths still need a single runtime value, so keep the
       // first import as the value and widen its type to all candidate imports.
-      yield ` as `
+      yield `: ${firstImportName} as `
       for (let i = 0; i < componentPaths.length; i++) {
         if (i) {
           yield ` | `
@@ -69,7 +69,7 @@ export function* generateJsonPathCompletionImports(
           {
             // 仅启用补全功能，不参与语义分析等
             completion: true,
-            navigation: true, // 需要导航功能来支持跳转
+            navigation: false,
             semantic: false,
             verification: false,
             structure: false,
@@ -94,7 +94,7 @@ export function* generateJsonPathCompletionImports(
         jsonStart + page.offset,
         {
           completion: true,
-          navigation: true,
+          navigation: false,
           semantic: false,
           verification: false,
           structure: false,
@@ -118,5 +118,5 @@ export function getUsingComponentImportName(
     camelizedName && identifierRegex.test(camelizedName)
       ? camelizedName
       : `component_${index}`
-  return `${baseName}`
+  return index && baseName === camelizedName ? `${baseName}_${index}` : baseName
 }
