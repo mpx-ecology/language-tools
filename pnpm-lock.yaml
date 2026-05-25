@@ -197,6 +197,9 @@ importers:
       typescript:
         specifier: '*'
         version: 5.9.2
+      volar-service-typescript:
+        specifier: 0.0.70
+        version: 0.0.70(@volar/language-service@2.4.28)
       vscode-uri:
         specifier: 'catalog:'
         version: 3.1.0

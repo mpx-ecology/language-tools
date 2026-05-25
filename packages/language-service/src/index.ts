@@ -24,6 +24,7 @@ import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
 import { create as createMpxJsonLinksPlugin } from './plugins/mpx-sfc-json-links'
 import { create as createMpxJsonImportCompletionPlugin } from './plugins/mpx-sfc-json-import-completion'
 import { create as createMpxPrettierPlugin } from './plugins/mpx-prettier'
+import { create as createMpxComponentDefinitionPlugin } from './plugins/mpx-component-definition'
 import { Commands } from './types'
 
 export * from '@volar/language-service'
@@ -77,6 +78,7 @@ function getCommonLanguageServicePlugins(
     createMpxJsonLinksPlugin(),
     createMpxJsonImportCompletionPlugin(getTsPluginClient),
     createMpxPrettierPlugin(),
+    createMpxComponentDefinitionPlugin(),
     createEmmetPlugin({
       mappedLanguages: {
         'mpx-root-tags': 'html',
