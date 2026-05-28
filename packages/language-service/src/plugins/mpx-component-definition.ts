@@ -1,4 +1,6 @@
 import type { LanguageServicePlugin } from '@volar/language-service'
+import type * as vscode from 'vscode-languageserver-protocol'
+import type { TextDocument } from 'vscode-languageserver-textdocument'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode, tsCodegen } from '@mpxjs/language-core'
 import { isMpPluginComponentPath } from '../utils'
@@ -40,8 +42,8 @@ export function create(): LanguageServicePlugin {
 
       async function provideJsonDefinition(
         root: MpxVirtualCode,
-        document: any,
-        position: any,
+        document: TextDocument,
+        position: vscode.Position,
       ) {
         if (!root.sfc.json) {
           return
@@ -87,8 +89,8 @@ export function create(): LanguageServicePlugin {
 
       async function provideTemplateDefinition(
         root: MpxVirtualCode,
-        document: any,
-        position: any,
+        document: TextDocument,
+        position: vscode.Position,
       ) {
         const { sfc } = root
         const codegen = tsCodegen.get(sfc)
@@ -103,7 +105,7 @@ export function create(): LanguageServicePlugin {
         const offset = document.offsetAt(position)
 
         for (const { name, startTagOffset, endTagOffset } of templateNodeTags) {
-          if (!usingComponents.has(name) || !startTagOffset) {
+          if (!usingComponents.has(name) || startTagOffset == null) {
             continue
           }
           const onStartTag =

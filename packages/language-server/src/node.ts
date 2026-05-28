@@ -47,7 +47,9 @@ connection.onInitialize(params => {
  * Activated via initializationOptions.agent = true.
  */
 function initializeForAgent(params: InitializeParams) {
-  const plugins = createMpxLanguageServicePlugins(ts, undefined)
+  const plugins = createMpxLanguageServicePlugins(ts, undefined, {
+    componentDefinitionProvider: true,
+  })
   plugins.push(createTypeScriptSemanticPlugin(ts))
 
   return server.initialize(

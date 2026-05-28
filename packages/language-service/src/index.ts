@@ -31,6 +31,10 @@ export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
 export * from './types'
 
+export interface MpxLanguageServicePluginOptions {
+  componentDefinitionProvider?: boolean
+}
+
 export function createMpxLanguageServicePlugins(
   ts: typeof import('typescript'),
   tsPluginClient:
@@ -41,8 +45,13 @@ export function createMpxLanguageServicePlugins(
         ) => Promise<ts.DocumentHighlights[] | null>
       })
     | undefined,
+  options: MpxLanguageServicePluginOptions = {},
 ) {
-  const plugins = getCommonLanguageServicePlugins(ts, () => tsPluginClient)
+  const plugins = getCommonLanguageServicePlugins(
+    ts,
+    () => tsPluginClient,
+    options,
+  )
 
   if (tsPluginClient) {
     plugins.push(
@@ -60,8 +69,9 @@ export function createMpxLanguageServicePlugins(
 function getCommonLanguageServicePlugins(
   ts: typeof import('typescript'),
   getTsPluginClient: (context: LanguageServiceContext) => IRequests | undefined,
+  options: MpxLanguageServicePluginOptions,
 ): LanguageServicePlugin[] {
-  return [
+  const plugins: LanguageServicePlugin[] = [
     createTypeScriptSyntacticPlugin(ts),
     createTypeScriptDocCommentTemplatePlugin(ts),
     createMpxSfcPlugin(),
@@ -78,7 +88,9 @@ function getCommonLanguageServicePlugins(
     createMpxJsonLinksPlugin(),
     createMpxJsonImportCompletionPlugin(getTsPluginClient),
     createMpxPrettierPlugin(),
-    createMpxComponentDefinitionPlugin(),
+    ...(options.componentDefinitionProvider
+      ? [createMpxComponentDefinitionPlugin()]
+      : []),
     createEmmetPlugin({
       mappedLanguages: {
         'mpx-root-tags': 'html',
@@ -101,4 +113,5 @@ function getCommonLanguageServicePlugins(
       },
     },
   ]
+  return plugins
 }
