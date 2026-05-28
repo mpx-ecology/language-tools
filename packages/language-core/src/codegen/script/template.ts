@@ -65,7 +65,7 @@ function* generateTemplateElements(): Generator<Code> {
 }
 
 function* generateTemplateComponents(): Generator<Code> {
-  const types: Code[] = [`typeof __MPX_ctx`]
+  const types: Code[] = [`typeof __MPX_ctx`, `typeof __MPX_jsonComponents`]
 
   yield `type __VLS_LocalComponents =`
   for (const type of types) {

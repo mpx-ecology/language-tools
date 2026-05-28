@@ -9,7 +9,10 @@ import { generateSrc } from './src'
 import { generateTemplate } from './template'
 import { codeFeatures } from '../codeFeatures'
 import { generateComponentSelf } from './componentSelf'
-import { generateJsonPathCompletionImports } from './jsonUsingComponents'
+import {
+  generateJsonPathCompletionImports,
+  generateJsonUsingComponents,
+} from './jsonUsingComponents'
 import {
   endOfLine,
   generateDefineComponent,
@@ -19,7 +22,6 @@ import {
 import { generateGlobalTypes, getGlobalTypesFileName } from '../globalTypes'
 import { ScriptCodegenContext, createScriptCodegenContext } from './context'
 import { generateScriptSetup, generateScriptSetupImports } from './scriptSetup'
-// import { generateJsonUsingComponents } from './jsonUsingComponents'
 
 export interface ScriptCodegenOptions {
   ts: typeof ts
@@ -30,6 +32,7 @@ export interface ScriptCodegenOptions {
   lang: string
   scriptRanges: ScriptRanges | undefined
   scriptSetupRanges: ScriptSetupRanges | undefined
+  scriptSetupImportComponentNames: Set<string>
   templateCodegen: (TemplateCodegenContext & { codes: Code[] }) | undefined
   destructuredPropNames: Set<string>
   templateRefNames: Set<string>
@@ -79,6 +82,10 @@ export function* generateScript(
       options.scriptSetupRanges,
     )
   }
+  // Keep JSON path completion imports near the real import section so the
+  // generated script layout stays close to vue-language-tools.
+  yield* generateJsonPathCompletionImports(options, ctx)
+  yield* generateJsonUsingComponents(options, ctx)
   if (options.sfc.script && options.scriptRanges) {
     const { createComponentObj } = options.scriptRanges
     const isCreateComponentRawObject =
@@ -177,11 +184,7 @@ export function* generateScript(
   if (!ctx.generatedTemplate) {
     yield* generateTemplate(options, ctx)
     yield* generateComponentSelf(options)
-    // yield* generateJsonUsingComponents(options, ctx)
   }
-
-  // 添加虚拟路径补全导入代码
-  yield* generateJsonPathCompletionImports(options, ctx)
 
   yield* ctx.localTypes.generate([...ctx.localTypes.getUsedNames()])
   if (options.appendGlobalTypes) {
