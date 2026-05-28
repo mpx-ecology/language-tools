@@ -10,5 +10,5 @@
   "mpx.format.script.prettier": true,
   "mpx.format.template.prettier": true,
   // 方便调试 TM，设置默认现代主题
-  "workbench.colorTheme": "Default Dark Modern"
+  "workbench.colorTheme": "Dark Modern"
 }
