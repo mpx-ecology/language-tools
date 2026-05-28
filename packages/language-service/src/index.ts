@@ -24,11 +24,16 @@ import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
 import { create as createMpxJsonLinksPlugin } from './plugins/mpx-sfc-json-links'
 import { create as createMpxJsonImportCompletionPlugin } from './plugins/mpx-sfc-json-import-completion'
 import { create as createMpxPrettierPlugin } from './plugins/mpx-prettier'
+import { create as createMpxComponentDefinitionPlugin } from './plugins/mpx-component-definition'
 import { Commands } from './types'
 
 export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
 export * from './types'
+
+export interface MpxLanguageServicePluginOptions {
+  componentDefinitionProvider?: boolean
+}
 
 export function createMpxLanguageServicePlugins(
   ts: typeof import('typescript'),
@@ -40,8 +45,13 @@ export function createMpxLanguageServicePlugins(
         ) => Promise<ts.DocumentHighlights[] | null>
       })
     | undefined,
+  options: MpxLanguageServicePluginOptions = {},
 ) {
-  const plugins = getCommonLanguageServicePlugins(ts, () => tsPluginClient)
+  const plugins = getCommonLanguageServicePlugins(
+    ts,
+    () => tsPluginClient,
+    options,
+  )
 
   if (tsPluginClient) {
     plugins.push(
@@ -59,8 +69,9 @@ export function createMpxLanguageServicePlugins(
 function getCommonLanguageServicePlugins(
   ts: typeof import('typescript'),
   getTsPluginClient: (context: LanguageServiceContext) => IRequests | undefined,
+  options: MpxLanguageServicePluginOptions,
 ): LanguageServicePlugin[] {
-  return [
+  const plugins: LanguageServicePlugin[] = [
     createTypeScriptSyntacticPlugin(ts),
     createTypeScriptDocCommentTemplatePlugin(ts),
     createMpxSfcPlugin(),
@@ -77,6 +88,9 @@ function getCommonLanguageServicePlugins(
     createMpxJsonLinksPlugin(),
     createMpxJsonImportCompletionPlugin(getTsPluginClient),
     createMpxPrettierPlugin(),
+    ...(options.componentDefinitionProvider
+      ? [createMpxComponentDefinitionPlugin()]
+      : []),
     createEmmetPlugin({
       mappedLanguages: {
         'mpx-root-tags': 'html',
@@ -99,4 +113,5 @@ function getCommonLanguageServicePlugins(
       },
     },
   ]
+  return plugins
 }

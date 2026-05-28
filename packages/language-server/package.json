@@ -25,6 +25,7 @@
     "@mpxjs/language-service": "workspace:*",
     "@volar/language-core": "catalog:",
     "@volar/language-server": "catalog:",
+    "volar-service-typescript": "0.0.70",
     "vscode-uri": "catalog:"
   },
   "devDependencies": {
