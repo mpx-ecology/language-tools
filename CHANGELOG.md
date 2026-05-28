@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.22.3](https://github.com/mpx-ecology/language-tools/compare/v1.22.2...v1.22.3) (2026-05-28)
+
+### Bug Fixes
+
+* update publish:npm script to include build command ([cbbe880](https://github.com/mpx-ecology/language-tools/commit/cbbe8800b6d9ef75c71eab720d5cace464ba1e2a))
+
 ## [1.22.2](https://github.com/mpx-ecology/language-tools/compare/v1.22.1...v1.22.2) (2026-05-28)
 
 **Note:** Version bump only for package mpx-language-tools-bk
