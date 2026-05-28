@@ -12,7 +12,7 @@
     "clean": "rimraf -g .eslintcache \"**/*.tsbuildinfo\" && pnpm clean:out",
     "clean:out": "rimraf -g \"packages/*/out\" \"vscode/out\" \"vscode/dist\"",
     "version:patch": "pnpm build && lerna version patch --yes --force-publish",
-    "publish:npm": "pnpm build && lerna publish from-package --yes",
+    "npm:publish": "lerna publish from-package --yes",
     "postinstall": "simple-git-hooks && pnpm clean"
   },
   "simple-git-hooks": {
