@@ -1,6 +1,6 @@
 {
   "name": "@mpxjs/language-server",
-  "version": "1.20.0",
+  "version": "1.22.3",
   "license": "MIT",
   "files": [
     "**/*.js",
@@ -25,6 +25,7 @@
     "@mpxjs/language-service": "workspace:*",
     "@volar/language-core": "catalog:",
     "@volar/language-server": "catalog:",
+    "volar-service-typescript": "0.0.70",
     "vscode-uri": "catalog:"
   },
   "devDependencies": {

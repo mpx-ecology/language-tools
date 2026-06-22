@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.22.3](https://github.com/mpx-ecology/language-tools/compare/v1.22.2...v1.22.3) (2026-05-28)
+
+**Note:** Version bump only for package @mpxjs/language-service
+
+## [1.22.2](https://github.com/mpx-ecology/language-tools/compare/v1.22.1...v1.22.2) (2026-05-28)
+
+**Note:** Version bump only for package @mpxjs/language-service
+
+## [1.22.1](https://github.com/mpx-ecology/language-tools/compare/v1.22.0...v1.22.1) (2026-05-28)
+
+**Note:** Version bump only for package @mpxjs/language-service
+
+# [1.22.0](https://github.com/mpx-ecology/language-tools/compare/v1.20.0...v1.22.0) (2026-05-28)
+
+### Bug Fixes
+
+* enhance handling of MPX directive comments in Stylus formatting ([edd7a2d](https://github.com/mpx-ecology/language-tools/commit/edd7a2dd026e8021848d41d0517d9c6b9b1b5d1d))
+
+### Features
+
+* add standalone agent mode and component goToDefinition ([296805d](https://github.com/mpx-ecology/language-tools/commit/296805d1d74e4fdd00f583c3186b89a31e778194))
+* enhance MpxLanguageServicePlugins with componentDefinitionProvider option ([9dab453](https://github.com/mpx-ecology/language-tools/commit/9dab453f833661d1659ae21a16ff1dac85c5f27d))
+
 # [1.20.0](https://github.com/mpx-ecology/language-tools/compare/v1.18.5...v1.20.0) (2026-03-09)
 
 ### Bug Fixes

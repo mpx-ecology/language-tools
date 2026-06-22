@@ -1,6 +1,6 @@
 {
   "private": true,
-  "packageManager": "pnpm@10.31.0",
+  "packageManager": "pnpm@11.4.0",
   "scripts": {
     "build": "tsc -b",
     "watch": "pnpm run \"/^watch:.*/\"",
@@ -12,7 +12,7 @@
     "clean": "rimraf -g .eslintcache \"**/*.tsbuildinfo\" && pnpm clean:out",
     "clean:out": "rimraf -g \"packages/*/out\" \"vscode/out\" \"vscode/dist\"",
     "version:patch": "pnpm build && lerna version patch --yes --force-publish",
-    "publish:npm": "lerna publish from-package --yes",
+    "npm:publish": "lerna publish from-package --yes",
     "postinstall": "simple-git-hooks && pnpm clean"
   },
   "simple-git-hooks": {
@@ -32,8 +32,8 @@
     "node": ">=24"
   },
   "devDependencies": {
-    "@lerna-lite/cli": "^4.6.2",
-    "@lerna-lite/publish": "^4.6.2",
+    "@lerna-lite/cli": "^5.2.2",
+    "@lerna-lite/publish": "^5.2.2",
     "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "^8.39.1",
     "@typescript-eslint/parser": "^8.39.1",
