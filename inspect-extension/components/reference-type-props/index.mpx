@@ -1,0 +1,23 @@
+<template>
+  <!-- 预期报错：Type 'number' is not assignable to type 'string'.ts-plugin(2322) -->
+  <component-options parentText="{{ 123 }}"></component-options>
+  <!-- 预期报错：Type 'string' is not assignable to type 'number'. -->
+  <component-js-setup count="{{ 'hello' }}"></component-js-setup>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+})
+</script>
+
+<script name="json">
+module.exports = {
+  "component": true,
+  "usingComponents": {
+    "component-options": "./component-options.mpx",
+    "component-js-setup": "./component-js-setup.mpx"
+  }
+}
+</script>

@@ -167,6 +167,7 @@ export function generateGlobalTypes({
         : T[K]
   }
 	${defineComponentTypesContents.globalTypes()}
+	${defineComponentTypesContents.runtimePropTypes()}
 }
 ` + defineComponentTypesContents.localTypes(lib)
 
