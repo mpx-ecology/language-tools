@@ -1,0 +1,89 @@
+<template>
+  <!-- 
+    ============================================
+    页面（Page）测试场景 - Composition API
+    使用 script setup 的页面
+    ============================================
+  -->
+
+  <!-- 子组件属性跳转 -->
+  <child-component
+    title="{{ title }}"
+    count="{{ count }}"
+  />
+
+  <!-- 子组件事件绑定 -->
+  <child-component
+    title="Event Test"
+    bind:change="onChildChange"
+    bindtap="onChildTap"
+  />
+
+  <!-- 原生组件事件 -->
+  <view
+    bindtap="handleViewTap"
+    bind:longpress="handleLongPress"
+  >
+    点击测试
+  </view>
+
+  <!-- input 事件 -->
+  <input
+    bind:blur="inputBlur"
+    bindfocus="inputFocus"
+    type="text"
+  />
+</template>
+
+<script setup lang="ts">
+// 页面数据
+const title = 'Page Setup Test'
+const count = 10
+
+// 子组件事件处理
+const onChildChange = (e: any) => {
+  console.log('child change:', e.detail)
+}
+
+const onChildTap = () => {
+  console.log('child tap')
+}
+
+// 原生组件事件处理
+const handleViewTap = () => {
+  console.log('view tap')
+}
+
+const handleLongPress = () => {
+  console.log('long press')
+}
+
+// input 事件处理
+const inputBlur = (e: any) => {
+  console.log('input blur', e.detail.value)
+}
+
+const inputFocus = (e: any) => {
+  console.log('input focus', e.detail.value)
+}
+
+// 暴露给模板
+defineExpose({
+  title,
+  count,
+  onChildChange,
+  onChildTap,
+  handleViewTap,
+  handleLongPress,
+  inputBlur,
+  inputFocus
+})
+</script>
+
+<script type="application/json">
+{
+  "usingComponents": {
+    "child-component": "./child-component"
+  }
+}
+</script>
