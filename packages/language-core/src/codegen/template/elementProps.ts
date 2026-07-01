@@ -437,7 +437,7 @@ function getPropsCodeInfo(
   strictPropsCheck: boolean,
 ): MpxCodeInformation {
   return ctx.resolveCodeFeatures({
-    ...codeFeatures.withoutHighlightAndCompletion,
+    ...codeFeatures.withoutHighlight,
     verification: strictPropsCheck || {
       shouldReport(_source, code) {
         // https://typescript.tv/errors/#ts2353

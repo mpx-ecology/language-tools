@@ -3,12 +3,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Client",
+      "name": "VSCode Extension",
       "type": "extensionHost",
       "request": "launch",
       "autoAttachChildProcesses": true,
       "runtimeExecutable": "${execPath}",
       "args": [
+        "--disable-extension=mpxjs.mpx-official",
         "--extensionDevelopmentPath=${workspaceRoot}/vscode",
         "--folder-uri=${workspaceRoot}/inspect-extension"
       ],
