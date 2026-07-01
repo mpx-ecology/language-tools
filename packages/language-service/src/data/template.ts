@@ -86,6 +86,65 @@ const data: html.HTMLDataV1 = {
             value: '手指松开后点击态的保留时间（ms）\n- 默认值：400',
           },
         },
+        {
+          name: 'animation',
+          description: {
+            kind: 'markdown',
+            value:
+              '传递动画实例，可配合 mpx.createAnimation 使用。\n- RN 环境支持',
+          },
+        },
+        {
+          name: 'enable-background',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，是否开启 background-image、background-size、background-position 的计算和渲染。\n- 默认值：false\n- 注意：按需开启；若生命周期内可能使用背景图，需在首次渲染时显式声明',
+          },
+        },
+        {
+          name: 'enable-animation',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，是否开启动画渲染。\n- 默认值：false\n- 注意：动画类型在组件生命周期内需要保持稳定',
+          },
+          values: [
+            { name: 'true', description: '开启 createAnimation API 动画' },
+            { name: 'false', description: '关闭动画渲染' },
+            { name: 'api', description: '使用 createAnimation API 动画' },
+            { name: 'transition', description: '使用 CSS transition 动画' },
+            {
+              name: 'animation',
+              description: 'CSS animation 类型（当前 RN 暂不支持渲染）',
+            },
+            { name: 'none', description: '不使用动画' },
+          ],
+        },
+        {
+          name: 'enable-fast-image',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，开启后使用 react-native-fast-image 渲染图片。\n- 默认值：false\n- 注意：会带来额外性能开销，请按需开启',
+          },
+        },
+        {
+          name: 'is-simple',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有标记，设置后使用简单版本 view 渲染，不包含 css var、calc、ref 等扩展能力，但性能更优。',
+          },
+        },
+        {
+          name: 'bindtransitionend',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境动画结束时触发\n- 事件对象：{ elapsedTime, finished, current }',
+          },
+        },
       ],
       references: [
         { name: WxDocs, url: `${WxCompUrl}/view.html` },
@@ -179,6 +238,13 @@ const data: html.HTMLDataV1 = {
           },
         },
         {
+          name: 'enhanced',
+          description: {
+            kind: 'markdown',
+            value: '开启 scroll-view 组件功能增强\n- 默认值：false',
+          },
+        },
+        {
           name: 'refresher-enabled',
           description: {
             kind: 'markdown',
@@ -234,6 +300,53 @@ const data: html.HTMLDataV1 = {
           },
         },
         {
+          name: 'paging-enabled',
+          description: {
+            kind: 'markdown',
+            value:
+              '分页滑动效果，滚动条会停在滚动视图尺寸的整数倍位置（需开启 enhanced）\n- 默认值：false',
+          },
+        },
+        {
+          name: 'enable-trigger-intersection-observer',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，是否开启 intersection-observer\n- 默认值：false',
+          },
+        },
+        {
+          name: 'simultaneous-handlers',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，允许多个手势处理器同时识别和处理。通常传入通过 this.$refs.xxx 获取的手势处理器数组。\n- 默认值：[]',
+          },
+        },
+        {
+          name: 'wait-for',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，允许等待指定手势处理器识别失败后再激活当前手势。通常传入通过 this.$refs.xxx 获取的手势处理器数组。\n- 默认值：[]',
+          },
+        },
+        {
+          name: 'scroll-event-throttle',
+          description: {
+            kind: 'markdown',
+            value: 'RN 环境特有属性，控制 scroll 事件触发频率\n- 默认值：0',
+          },
+        },
+        {
+          name: 'enable-sticky',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，使用 sticky 组件时需要设置为 true\n- 默认值：false',
+          },
+        },
+        {
           name: 'fast-deceleration',
           description: {
             kind: 'markdown',
@@ -285,6 +398,13 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value:
               '滚动时触发\n- 事件对象：{scrollLeft, scrollTop, scrollHeight, scrollWidth, deltaX, deltaY}',
+          },
+        },
+        {
+          name: 'bindscrollend',
+          description: {
+            kind: 'markdown',
+            value: '滚动结束时触发',
           },
         },
         {
@@ -350,6 +470,41 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value: '指示点颜色\n- 默认值：rgba(0,0,0,.3)',
+          },
+        },
+        {
+          name: 'indicator-width',
+          description: {
+            kind: 'markdown',
+            value: 'RN 环境指示点宽度\n- 默认值：8',
+          },
+        },
+        {
+          name: 'indicator-height',
+          description: {
+            kind: 'markdown',
+            value: 'RN 环境指示点高度\n- 默认值：8',
+          },
+        },
+        {
+          name: 'indicator-radius',
+          description: {
+            kind: 'markdown',
+            value: 'RN 环境指示点圆角\n- 默认值：4',
+          },
+        },
+        {
+          name: 'indicator-spacing',
+          description: {
+            kind: 'markdown',
+            value: 'RN 环境指示点间距\n- 默认值：4',
+          },
+        },
+        {
+          name: 'indicator-margin',
+          description: {
+            kind: 'markdown',
+            value: 'RN 环境指示点容器边距\n- 默认值：10',
           },
         },
         {
@@ -423,6 +578,14 @@ const data: html.HTMLDataV1 = {
           },
         },
         {
+          name: 'scale',
+          description: {
+            kind: 'markdown',
+            value:
+              '滑动时是否开启前后元素缩小。\n- 默认值：false\n- RN 环境暂不支持自定义缩放比例',
+          },
+        },
+        {
           name: 'easing-function',
           description: {
             kind: 'markdown',
@@ -457,10 +620,41 @@ const data: html.HTMLDataV1 = {
           ],
         },
         {
+          name: 'simultaneous-handlers',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，允许多个手势处理器同时识别和处理。通常传入通过 this.$refs.xxx 获取的手势处理器数组。\n- 默认值：[]',
+          },
+        },
+        {
+          name: 'wait-for',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，允许等待指定手势处理器识别失败后再激活当前手势。通常传入通过 this.$refs.xxx 获取的手势处理器数组。\n- 默认值：[]',
+          },
+        },
+        {
+          name: 'disableGesture',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，禁用 swiper 滑动手势。开启后用户无法通过手势滑动，只能通过 autoplay 自动轮播。\n- 默认值：false',
+          },
+        },
+        {
           name: 'bindchange',
           description: {
             kind: 'markdown',
             value: 'current改变时触发\n- 事件对象：{current, source}',
+          },
+        },
+        {
+          name: 'bindchangestart',
+          description: {
+            kind: 'markdown',
+            value: 'RN 环境滑块开始切换时触发',
           },
         },
         {
@@ -571,6 +765,30 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value: '是否允许移出可移动区域\n- 默认值：false',
+          },
+        },
+        {
+          name: 'simultaneous-handlers',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，允许多个手势处理器同时识别和处理。通常传入通过 this.$refs.xxx 获取的手势处理器数组。\n- 默认值：[]',
+          },
+        },
+        {
+          name: 'wait-for',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，允许等待指定手势处理器识别失败后再激活当前手势。通常传入通过 this.$refs.xxx 获取的手势处理器数组。\n- 默认值：[]',
+          },
+        },
+        {
+          name: 'disable-event-passthrough',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，设置为 true 后 movable-view 可消费垂直方向手势，避免被其他组件响应。\n- 默认值：false',
           },
         },
         {
@@ -743,6 +961,35 @@ const data: html.HTMLDataV1 = {
             value: '图片资源地址',
           },
         },
+        {
+          name: 'referrer-policy',
+          description: {
+            kind: 'markdown',
+            value: '获取图片时的 referrer 策略',
+          },
+        },
+        {
+          name: 'enable-fast-image',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，开启后使用 react-native-fast-image 渲染图片。\n- 默认值：false',
+          },
+        },
+        {
+          name: 'bindload',
+          description: {
+            kind: 'markdown',
+            value: '图片载入完毕时触发',
+          },
+        },
+        {
+          name: 'binderror',
+          description: {
+            kind: 'markdown',
+            value: '图片载入错误时触发',
+          },
+        },
       ],
       references: [
         { name: WxDocs, url: `${WxCompUrl}/cover-image.html` },
@@ -820,6 +1067,14 @@ const data: html.HTMLDataV1 = {
             kind: 'markdown',
             value:
               '是否允许用户选中文字\n- 默认值：false\n- 注意：该属性会使文本节点显示为 inline-block',
+          },
+        },
+        {
+          name: 'is-simple',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有标记，设置后使用简单版本 text 渲染，不包含 css var、calc、ref 等扩展能力，但性能更优。',
           },
         },
       ],
@@ -1360,6 +1615,13 @@ const data: html.HTMLDataV1 = {
           },
         },
         {
+          name: 'placeholder-class',
+          description: {
+            kind: 'markdown',
+            value: '指定 placeholder 的样式类。\n- RN 环境仅支持 color 属性',
+          },
+        },
+        {
           name: 'placeholder-style',
           description: {
             kind: 'markdown',
@@ -1558,6 +1820,14 @@ const data: html.HTMLDataV1 = {
           },
         },
         {
+          name: 'bind:selectionchange',
+          description: {
+            kind: 'markdown',
+            value:
+              '选区改变时触发\n- 事件对象：{ selectionStart, selectionEnd }',
+          },
+        },
+        {
           name: 'bindkeyboardheightchange',
           description: {
             kind: 'markdown',
@@ -1601,6 +1871,13 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value: '空值时的占位文本',
+          },
+        },
+        {
+          name: 'placeholder-class',
+          description: {
+            kind: 'markdown',
+            value: '指定 placeholder 的样式类。\n- RN 环境仅支持 color 属性',
           },
         },
         {
@@ -1658,6 +1935,13 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value: 'focus时的光标位置\n- 默认值：-1',
+          },
+        },
+        {
+          name: 'cursor-color',
+          description: {
+            kind: 'markdown',
+            value: '光标颜色',
           },
         },
         {
@@ -1768,6 +2052,14 @@ const data: html.HTMLDataV1 = {
           },
         },
         {
+          name: 'bind:selectionchange',
+          description: {
+            kind: 'markdown',
+            value:
+              '选区改变时触发\n- 事件对象：{ selectionStart, selectionEnd }',
+          },
+        },
+        {
           name: 'bindkeyboardheightchange',
           description: {
             kind: 'markdown',
@@ -1805,10 +2097,31 @@ const data: html.HTMLDataV1 = {
           },
         },
         {
+          name: 'mask-style',
+          description: {
+            kind: 'markdown',
+            value: '蒙层的样式',
+          },
+        },
+        {
           name: 'indicator-style',
           description: {
             kind: 'markdown',
             value: '中间选中框的样式（CSS字符串）',
+          },
+        },
+        {
+          name: 'indicator-class',
+          description: {
+            kind: 'markdown',
+            value: '中间选中框的类名',
+          },
+        },
+        {
+          name: 'enable-wheel-animation',
+          description: {
+            kind: 'markdown',
+            value: 'RN 环境特有属性，是否开启滚轮滚动动画效果\n- 默认值：true',
           },
         },
         {
@@ -1892,10 +2205,94 @@ const data: html.HTMLDataV1 = {
           },
         },
         {
+          name: 'range',
+          description: {
+            kind: 'markdown',
+            value:
+              'mode 为 selector 或 multiSelector 时的可选项数据。\n- 默认值：[]',
+          },
+        },
+        {
+          name: 'range-key',
+          description: {
+            kind: 'markdown',
+            value: '对象数组中用于显示文本的 key',
+          },
+        },
+        {
+          name: 'value',
+          description: {
+            kind: 'markdown',
+            value:
+              '当前选择值。selector 使用数字下标，multiSelector 使用数字数组，time/date 使用字符串，region 使用字符串数组。',
+          },
+        },
+        {
+          name: 'start',
+          description: {
+            kind: 'markdown',
+            value: 'mode 为 time/date 时的有效范围开始值',
+          },
+        },
+        {
+          name: 'end',
+          description: {
+            kind: 'markdown',
+            value: 'mode 为 time/date 时的有效范围结束值',
+          },
+        },
+        {
+          name: 'fields',
+          description: {
+            kind: 'markdown',
+            value: 'mode 为 date 时的选择器粒度\n- 默认值：day',
+          },
+          values: [
+            { name: 'year', description: '选择器粒度为年' },
+            { name: 'month', description: '选择器粒度为月份' },
+            { name: 'day', description: '选择器粒度为天' },
+          ],
+        },
+        {
+          name: 'custom-item',
+          description: {
+            kind: 'markdown',
+            value: 'mode 为 region 时，可为每一列顶部添加一个自定义项',
+          },
+        },
+        {
+          name: 'level',
+          description: {
+            kind: 'markdown',
+            value: 'mode 为 region 时的选择器层级\n- 默认值：region',
+          },
+          values: [
+            { name: 'province', description: '省级选择器' },
+            { name: 'city', description: '市级选择器' },
+            { name: 'region', description: '区级选择器' },
+            { name: 'sub-district', description: '街道级选择器' },
+          ],
+        },
+        {
           name: 'bindcancel',
           description: {
             kind: 'markdown',
             value: '取消选择时触发',
+          },
+        },
+        {
+          name: 'bindchange',
+          description: {
+            kind: 'markdown',
+            value: 'value 改变时触发\n- 事件对象：{ value }',
+          },
+        },
+        {
+          name: 'bindcolumnchange',
+          description: {
+            kind: 'markdown',
+            value:
+              'mode 为 multiSelector 时列改变触发\n- 事件对象：{ column, value }',
           },
         },
       ],
@@ -1949,6 +2346,14 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value: '长按是否显示识别小程序码菜单\n- 默认值：false',
+          },
+        },
+        {
+          name: 'enable-fast-image',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，开启后使用 react-native-fast-image 渲染图片。\n- 默认值：false',
           },
         },
         {
@@ -2516,6 +2921,76 @@ const data: html.HTMLDataV1 = {
     },
   ],
   globalAttributes: [
+    {
+      name: 'enable-offset',
+      description: {
+        kind: 'markdown',
+        value:
+          'RN 环境基础组件通用属性，设置是否获取组件布局信息。开启后会在 e.target 中返回 offsetLeft、offsetWidth 等信息。\n- 默认值：false',
+      },
+      references: [
+        {
+          name: RNBasicComp,
+          url: `${MpxRNCompUrl}basic-component-common-props`,
+        },
+      ],
+    },
+    {
+      name: 'enable-var',
+      description: {
+        kind: 'markdown',
+        value:
+          'RN 环境基础组件通用属性，控制是否支持 css variable。\n- 默认值：true',
+      },
+      references: [
+        {
+          name: RNBasicComp,
+          url: `${MpxRNCompUrl}basic-component-common-props`,
+        },
+      ],
+    },
+    {
+      name: 'parent-font-size',
+      description: {
+        kind: 'markdown',
+        value:
+          'RN 环境基础组件通用属性，父组件字体大小，主要用于 font-size: 100% 等百分比计算场景。',
+      },
+      references: [
+        {
+          name: RNBasicComp,
+          url: `${MpxRNCompUrl}basic-component-common-props`,
+        },
+      ],
+    },
+    {
+      name: 'parent-width',
+      description: {
+        kind: 'markdown',
+        value:
+          'RN 环境基础组件通用属性，父组件宽度，主要用于 width: calc(100% - 20px) 等百分比计算场景。',
+      },
+      references: [
+        {
+          name: RNBasicComp,
+          url: `${MpxRNCompUrl}basic-component-common-props`,
+        },
+      ],
+    },
+    {
+      name: 'parent-height',
+      description: {
+        kind: 'markdown',
+        value:
+          'RN 环境基础组件通用属性，父组件高度，主要用于 height: calc(100% - 20px) 等百分比计算场景。',
+      },
+      references: [
+        {
+          name: RNBasicComp,
+          url: `${MpxRNCompUrl}basic-component-common-props`,
+        },
+      ],
+    },
     {
       name: 'wx:if',
       description: {
