@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.22.6](https://github.com/mpx-ecology/language-tools/compare/v1.22.5...v1.22.6) (2026-07-01)
+
+### Features
+
+* add new attributes and descriptions for RN environment components ([26c1350](https://github.com/mpx-ecology/language-tools/commit/26c135079798c2603043e134f49120b456670d2e))
+
 ## [1.22.5](https://github.com/mpx-ecology/language-tools/compare/v1.22.4...v1.22.5) (2026-06-23)
 
 **Note:** Version bump only for package mpx-language-tools-bk
