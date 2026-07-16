@@ -1,7 +1,12 @@
 import type { LanguageServer } from '@volar/language-server'
+import type { InitializeParams } from '@volar/language-server'
 import * as ts from 'typescript'
 import { URI } from 'vscode-uri'
-import { createConnection, createServer } from '@volar/language-server/node'
+import {
+  createConnection,
+  createServer,
+  createTypeScriptProject,
+} from '@volar/language-server/node'
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject'
 import {
   createLanguage,
@@ -15,6 +20,7 @@ import {
   createMpxLanguageServicePlugins,
   createUriMap,
 } from '@mpxjs/language-service'
+import { create as createTypeScriptSemanticPlugin } from 'volar-service-typescript/lib/plugins/semantic'
 
 const connection = createConnection()
 const server = createServer(connection)
@@ -30,6 +36,53 @@ connection.onNotification('tsserver/response', ([id, response]) => {
 })
 
 connection.onInitialize(params => {
+  if (params.initializationOptions?.agent) {
+    return initializeForAgent(params)
+  }
+  return initializeForIDE(params)
+})
+
+/**
+ * Agent mode: standalone TypeScript project, no tsserver dependency.
+ * Activated via initializationOptions.agent = true.
+ */
+function initializeForAgent(params: InitializeParams) {
+  const plugins = createMpxLanguageServicePlugins(ts, undefined, {
+    componentDefinitionProvider: true,
+  })
+  plugins.push(createTypeScriptSemanticPlugin(ts))
+
+  return server.initialize(
+    params,
+    createTypeScriptProject(ts, undefined, ({ configFileName }) => {
+      const commandLine = configFileName
+        ? createParsedCommandLine(ts, ts.sys, configFileName)
+        : {
+            options: ts.getDefaultCompilerOptions(),
+            mpxOptions: getDefaultCompilerOptions(),
+          }
+      return {
+        languagePlugins: [
+          {
+            getLanguageId: (uri: any) => server.documents.get(uri)?.languageId,
+          },
+          createMpxLanguagePlugin(
+            ts,
+            commandLine.options,
+            commandLine.mpxOptions,
+            (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
+          ),
+        ],
+      }
+    }),
+    plugins,
+  )
+}
+
+/**
+ * IDE mode: delegates TypeScript semantics to IDE's tsserver via notifications.
+ */
+function initializeForIDE(params: InitializeParams) {
   const tsconfigProjects = createUriMap<LanguageService>()
   const file2ProjectInfo = new Map<
     string,
@@ -207,7 +260,7 @@ connection.onInitialize(params => {
       { mpx: { compilerOptions: commonLine.mpxOptions } },
     )
   }
-})
+}
 
 connection.onInitialized(server.initialized)
 

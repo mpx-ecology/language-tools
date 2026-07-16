@@ -3,6 +3,12 @@ packages:
   - vscode
   - inspect-extension
 
+allowBuilds:
+  '@vscode/vsce-sign': true
+  esbuild: true
+  keytar: true
+  simple-git-hooks: true
+
 catalog:
   '@mpxjs/core': ^2.10.13
   '@types/node': ^22.15.32

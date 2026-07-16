@@ -53,7 +53,7 @@ pnpm version:patch
 
 # 2. 更新大版本或小版本时，使用以下命令
 pnpm build
-npx lerna version [x.x.0|major|minor]
+npx lerna version [x.x.0|major|minor] --yes --force-publish
 
 # 3. 推送 tag 触发插件发版的 GitHub Actions CI
 git push origin main

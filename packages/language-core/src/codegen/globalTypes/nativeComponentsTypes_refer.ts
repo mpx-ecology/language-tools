@@ -11,7 +11,8 @@ export interface MpxNativeComponents extends NativeComponents {
 }
 type NativeComponents = {
   [K in keyof NativeComponentAttrs]: NativeComponentAttrs[K] &
-    Kubab2Camel<NativeComponentAttrs[K]>
+    MpxRnCommonAttrs &
+    Kubab2Camel<NativeComponentAttrs[K] & MpxRnCommonAttrs>
 }
 type Kubab2Camel<T> = {
   [K in keyof T as Camel<K>]: T[K]
@@ -20,6 +21,15 @@ type Camel<K> = K extends `${infer K1}-${infer K2}`
   ? `${K1}${Capitalize<Camel<K2>>}`
   : K
 type EventHandler<T = any> = ($event: T, ...args: any[]) => void
+type MpxAnimationType = 'api' | 'animation' | 'transition' | 'none'
+type MpxPickerRangeItem = object | number | string
+interface MpxRnCommonAttrs {
+  'enable-offset'?: boolean
+  'enable-var'?: boolean
+  'parent-font-size'?: number
+  'parent-width'?: number
+  'parent-height'?: number
+}
 interface NativeComponentAttrs {
   'cover-image': MpxCoverImage
   'cover-view': MpxCoverView
@@ -47,6 +57,7 @@ interface NativeComponentAttrs {
   label: MpxLabel
   picker: MpxPicker
   'picker-view': MpxPickerView
+  'picker-view-column': MpxPickerViewColumn
   radio: MpxRadio
   'radio-group': MpxRadioGroup
   slider: MpxSlider
@@ -62,17 +73,15 @@ interface NativeComponentAttrs {
   'live-player': MpxLivePlayer
   'live-pusher': MpxLivePusher
   video: MpxVideo
+  'web-view': MpxWebView
   'video-room': MpxVideoRoom
   map: MpxMap
   canvas: MpxCanvas
 }
-interface MpxCoverImage {
-  src?: string
+interface MpxCoverImage extends MpxImage {
   'referrer-policy'?: string
-  bindload?: EventHandler
-  binderror?: EventHandler
 }
-interface MpxCoverView {
+interface MpxCoverView extends MpxView {
   'scroll-top'?: number | string
 }
 interface MpxMatchMedia {
@@ -91,6 +100,9 @@ interface MpxMovableView {
   direction?: string
   inertia?: boolean
   'out-of-bounds'?: boolean
+  'simultaneous-handlers'?: Array<object>
+  'wait-for'?: Array<object>
+  'disable-event-passthrough'?: boolean
   x?: number | string
   y?: number | string
   damping?: number
@@ -105,6 +117,8 @@ interface MpxMovableView {
   bindscale?: EventHandler
   htouchmove?: EventHandler
   vtouchmove?: EventHandler
+  bindhtouchmove?: EventHandler
+  bindvtouchmove?: EventHandler
 }
 interface MpxPageContainer {
   show?: boolean
@@ -132,6 +146,7 @@ interface MpxScrollView {
   'scroll-with-animation'?: boolean
   'enable-back-to-top'?: boolean
   'enable-passive'?: boolean
+  enhanced?: boolean
   'refresher-enabled'?: boolean
   'refresher-threshold'?: number
   'refresher-default-style'?: string
@@ -139,6 +154,12 @@ interface MpxScrollView {
   'refresher-triggered'?: boolean
   bounces?: boolean
   'show-scrollbar'?: boolean
+  'paging-enabled'?: boolean
+  'enable-trigger-intersection-observer'?: boolean
+  'simultaneous-handlers'?: Array<object>
+  'wait-for'?: Array<object>
+  'scroll-event-throttle'?: number
+  'enable-sticky'?: boolean
   'fast-deceleration'?: boolean
   binddragstart?: EventHandler
   binddragging?: EventHandler
@@ -146,6 +167,7 @@ interface MpxScrollView {
   bindscrolltoupper?: EventHandler
   bindscrolltolower?: EventHandler
   bindscroll?: EventHandler
+  bindscrollend?: EventHandler
   bindrefresherpulling?: EventHandler
   bindrefresherrefresh?: EventHandler
   bindrefresherrestore?: EventHandler
@@ -155,6 +177,11 @@ interface MpxScrollView {
 interface MpxSwiper {
   'indicator-dots'?: boolean
   'indicator-color'?: string
+  'indicator-width'?: number
+  'indicator-height'?: number
+  'indicator-radius'?: number
+  'indicator-spacing'?: number
+  'indicator-margin'?: number
   'indicator-active-color'?: string
   autoplay?: boolean
   current?: number
@@ -165,9 +192,14 @@ interface MpxSwiper {
   'display-multiple-items'?: number
   'previous-margin'?: string
   'next-margin'?: string
+  scale?: boolean
   'easing-function'?: string
   direction?: string
+  'simultaneous-handlers'?: Array<object>
+  'wait-for'?: Array<object>
+  disableGesture?: boolean
   bindchange?: EventHandler
+  bindchangestart?: EventHandler
   bindtransition?: EventHandler
   bindanimationfinish?: EventHandler
 }
@@ -177,9 +209,17 @@ interface MpxSwiperItem {
 }
 interface MpxView {
   'hover-class'?: string
+  'hover-style'?: object
   'hover-stop-propagation'?: boolean
   'hover-start-time'?: number
   'hover-stay-time'?: number
+  animation?: object
+  'enable-background'?: boolean
+  'enable-animation'?: boolean | MpxAnimationType
+  'enable-fast-image'?: boolean
+  'is-simple'?: boolean
+  bindtransitionend?: EventHandler
+  catchtransitionend?: EventHandler
 }
 interface MpxIcon {
   type: string
@@ -212,6 +252,8 @@ interface MpxSelection {
 interface MpxText {
   selectable?: boolean
   'user-select'?: boolean
+  decode?: boolean
+  'is-simple'?: boolean
 }
 interface MpxButton {
   size?: string
@@ -222,6 +264,7 @@ interface MpxButton {
   'form-type'?: string
   'open-type'?: string
   'hover-class'?: string
+  'hover-style'?: object
   'hover-stop-propagation'?: boolean
   'hover-start-time'?: number
   'hover-stay-time'?: number
@@ -245,6 +288,7 @@ interface MpxButton {
   bindlaunchapp?: EventHandler
   bindchooseavatar?: EventHandler
   bindagreeprivacyauthorization?: EventHandler
+  bindtap?: EventHandler
 }
 interface MpxCheckbox {
   value?: string
@@ -285,6 +329,7 @@ interface MpxInput {
   type?: string
   password?: boolean
   placeholder?: string
+  'placeholder-class'?: string
   'placeholder-style'?: string
   disabled?: boolean
   maxlength?: number
@@ -306,11 +351,13 @@ interface MpxInput {
   'safe-password-nonce'?: string
   'safe-password-salt'?: string
   'safe-password-custom-hash'?: string
+  'keyboard-type'?: string
   bindinput?: EventHandler
   bindchange?: EventHandler
   bindfocus?: EventHandler
   bindblur?: EventHandler
   bindconfirm?: EventHandler
+  bindselectionchange?: EventHandler
   bindkeyboardheightchange?: EventHandler
   bindnicknamereview?: EventHandler
 }
@@ -321,16 +368,30 @@ interface MpxPicker {
   'header-text'?: string
   mode?: string
   disabled?: boolean
+  range?: Array<MpxPickerRangeItem>
+  'range-key'?: string
+  value?: number | Array<number> | string | Array<string>
+  start?: string
+  end?: string
+  fields?: 'day' | 'month' | 'year'
+  'custom-item'?: string
+  level?: 'province' | 'city' | 'region' | 'sub-district'
   bindcancel?: EventHandler
+  bindchange?: EventHandler
+  bindcolumnchange?: EventHandler
 }
 interface MpxPickerView {
   value?: Array<number>
   'mask-class'?: string
-  'indicator-style'?: string
+  'mask-style'?: string | object
+  'indicator-style'?: string | object
+  'indicator-class'?: string
+  'enable-wheel-animation'?: boolean
   bindchange?: EventHandler
   bindpickstart?: EventHandler
   bindpickend?: EventHandler
 }
+interface MpxPickerViewColumn {}
 interface MpxRadio {
   value?: string
   checked?: boolean
@@ -366,6 +427,7 @@ interface MpxSwitch {
 interface MpxTextarea {
   value?: string
   placeholder?: string
+  'placeholder-class'?: string
   'placeholder-style'?: string
   disabled?: boolean
   maxlength?: number
@@ -374,6 +436,7 @@ interface MpxTextarea {
   'auto-height'?: boolean
   'cursor-spacing'?: number
   cursor?: number
+  'cursor-color'?: string
   'selection-start'?: number
   'selection-end'?: number
   'adjust-position'?: boolean
@@ -382,11 +445,13 @@ interface MpxTextarea {
   'confirm-type'?: string
   'confirm-hold'?: boolean
   'adjust-keyboard-to'?: boolean
+  'keyboard-type'?: string
   bindfocus?: EventHandler
   bindblur?: EventHandler
   bindlinechange?: EventHandler
   bindinput?: EventHandler
   bindconfirm?: EventHandler
+  bindselectionchange?: EventHandler
   bindkeyboardheightchange?: EventHandler
 }
 interface MpxFunctionalPageNavigator {
@@ -457,6 +522,7 @@ interface MpxChannelVideo {
 interface MpxImage {
   src?: string
   mode?: string
+  'enable-fast-image'?: boolean
   'show-menu-by-longpress'?: boolean
   binderror?: EventHandler
   bindload?: EventHandler
@@ -602,6 +668,12 @@ interface MpxVideo {
   bindcastinguserselect?: EventHandler
   bindcastingstatechange?: EventHandler
   bindcastinginterrupt?: EventHandler
+}
+interface MpxWebView {
+  src?: string
+  bindmessage?: EventHandler
+  bindload?: EventHandler
+  binderror?: EventHandler
 }
 interface MpxVideoRoom {
   openid: string
