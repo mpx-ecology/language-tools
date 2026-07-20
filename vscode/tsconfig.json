@@ -4,7 +4,7 @@
     "outDir": "out",
     "rootDir": "src",
     "module": "CommonJS",
-    "moduleResolution": "Node"
+    "moduleResolution": "Bundler"
   },
   "include": ["src"],
   "references": [

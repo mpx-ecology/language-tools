@@ -2,9 +2,7 @@
   "extends": "../../tsconfig.base",
   "compilerOptions": {
     "outDir": "out",
-    "rootDir": "src",
-    "module": "CommonJS",
-    "moduleResolution": "Node"
+    "rootDir": "src"
   },
   "include": ["src"],
   "exclude": ["__tests__"],
