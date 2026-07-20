@@ -1,21 +1,36 @@
-<script>
-import { createComponent } from "@mpxjs/core";
+<template>
+  <view>11</view>
+</template>
+
+<script lang="ts">
+import { createComponent, type PropType } from '@mpxjs/core'
+
+interface UserProfile {
+  id: number
+  name: string
+}
 
 createComponent({
   properties: {
+    // 短写 properties，应解析为 string
+    shortText: String,
     parentText: {
       type: String,
-      value: '123'
+      value: '123',
     },
     name: {
-      type: Number
-    }
+      type: Number,
+    },
+    // 自定义引用类型，应保留 UserProfile，而不是退化为 Record<string, any>
+    profile: {
+      type: Object as PropType<UserProfile>,
+    },
   },
 })
 </script>
 
 <script name="json">
 module.exports = {
-  "component": true,
+  "component": true
 }
 </script>

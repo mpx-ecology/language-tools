@@ -1,23 +1,42 @@
 <template>
-  <!-- 预期报错：Type 'number' is not assignable to type 'string'.ts-plugin(2322) -->
+  <!-- ❌ 完整 String 写法，预期报错：Type 'number' is not assignable to type 'string'. -->
   <component-options parentText="{{ 123 }}"></component-options>
-  <!-- 预期报错：Type 'string' is not assignable to type 'number'. -->
-  <component-js-setup count="{{ 'hello' }}"></component-js-setup>
+
+  <!-- ❌ properties 短写，预期报错：Type 'number' is not assignable to type 'string'. -->
+  <component-options shortText="{{ 123 }}"></component-options>
+
+  <!-- ❌ 完整 Number 写法，预期报错：Type 'string' is not assignable to type 'number'. -->
+  <component-options name="{{ 'hello' }}"></component-options>
+
+  <!-- ❌ PropType<UserProfile>，预期报错：Type 'string' is not assignable to type 'UserProfile'. -->
+  <component-options profile="{{ 'not-a-profile' }}"></component-options>
+
+  <!-- ❌ 预期报错：Type 'string' is not assignable to type 'number'. -->
+  <component-js-setup msg="ok" count="{{ 'hello' }}"></component-js-setup>
+
+  <!-- ✅ 无 properties 的 Options 组件不应出现 $rawOptions.properties 报错。 -->
+  <component-no-properties></component-no-properties>
 </template>
 
 <script lang="ts">
 import { createComponent } from '@mpxjs/core'
 
-createComponent({
-})
+createComponent({})
 </script>
 
-<script name="json">
-module.exports = {
-  "component": true,
-  "usingComponents": {
-    "component-options": "./component-options.mpx",
-    "component-js-setup": "./component-js-setup.mpx"
+<script type="application/json">
+  {
+    "component": true,
+    "usingComponents": {
+      // 自定义组件
+      "component-options": "./component-options.mpx",
+      "component-js-setup": "./component-js-setup.mpx",
+      "component-no-properties": "./component-no-properties.mpx"
+    },
+    "componentPlaceholder": {
+      "component-options": "view",
+      "component-js-setup": "view",
+      "component-no-properties": "view"
+    }
   }
-}
 </script>

@@ -104,6 +104,9 @@ importers:
       '@vant/weapp':
         specifier: ^1.11.7
         version: 1.11.7
+      miniprogram-api-typings:
+        specifier: ^3.12.3
+        version: 3.12.3
       typescript:
         specifier: 'catalog:'
         version: 5.9.2
@@ -8550,8 +8553,8 @@ snapshots:
 
   tinyglobby@0.2.16:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
 
   tmp@0.2.3: {}
 
@@ -8726,8 +8729,8 @@ snapshots:
   vite@6.3.5(@types/node@22.15.32)(jiti@2.4.2)(stylus@0.64.0)(tsx@4.19.3)(yaml@2.9.0):
     dependencies:
       esbuild: 0.25.9
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
       postcss: 8.5.3
       rollup: 4.46.3
       tinyglobby: 0.2.14

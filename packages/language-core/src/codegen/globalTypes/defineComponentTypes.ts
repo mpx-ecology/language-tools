@@ -38,24 +38,7 @@ const globalTypes = () => `
 `
 
 const runtimePropTypes = () => `
-type __VLS_ResolveProp<T> = T extends { type: StringConstructor }
-  ? string
-  : T extends { type: NumberConstructor }
-    ? number
-    : T extends { type: BooleanConstructor }
-      ? boolean
-      : T extends { type: ArrayConstructor }
-        ? any[]
-        : T extends { type: ObjectConstructor }
-          ? Record<string, any>
-          : T extends { type: import('@mpxjs/core').PropType<infer V> }
-            ? V
-            : T extends import('@mpxjs/core').PropType<infer V>
-              ? V
-              : unknown
-type __VLS_GetPropsType<T extends Record<string, any>> = Partial<{
-  readonly [K in keyof T]: __VLS_ResolveProp<T[K]>
-}>
+  type __VLS_GetPropsType<T> = T extends Properties ? Partial<GetPropsType<T>> : {}
 `
 
 const localTypes = (lib: MpxCompilerOptions['lib']) => `

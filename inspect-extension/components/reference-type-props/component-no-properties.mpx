@@ -1,0 +1,20 @@
+<template>
+  <view>{{ count }}</view>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+// 没有 properties 时，生成的组件 props 类型应回退为 {}。
+createComponent({
+  data: {
+    count: 0,
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  "component": true
+}
+</script>

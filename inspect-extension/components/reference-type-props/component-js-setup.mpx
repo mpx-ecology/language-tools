@@ -5,3 +5,7 @@ defineProps<{
 }>()
 defineExpose({})
 </script>
+
+<template>
+  <view>11</view>
+</template>
