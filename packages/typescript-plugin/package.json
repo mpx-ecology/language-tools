@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@types/path-browserify": "catalog:"
+    "@types/path-browserify": "catalog:",
+    "typescript": "catalog:"
   }
 }
