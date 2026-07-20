@@ -12,7 +12,7 @@ allowBuilds:
 catalog:
   '@mpxjs/core': ^2.10.13
   '@types/node': ^22.15.32
-  '@types/path-browserify': ^1.0.1
+  '@types/path-browserify': ^1.0.3
   '@types/semver': ^7.7.0
   '@volar/language-core': ~2.4.28
   '@volar/language-server': ~2.4.28
@@ -23,7 +23,7 @@ catalog:
   path-browserify: ^1.0.1
   reactive-vscode: ^0.4.1
   stylus: ^0.64.0
-  typescript: ^5.9.2
+  typescript: ^6.0.3
   vscode-uri: ^3.1.0
 
 onlyBuiltDependencies:
