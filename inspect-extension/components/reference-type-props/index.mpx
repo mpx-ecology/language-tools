@@ -12,16 +12,27 @@
   <component-options profile="{{ 'not-a-profile' }}"></component-options>
 
   <!-- ❌ 预期报错：Type 'string' is not assignable to type 'number'. -->
-  <component-js-setup msg="ok" count="{{ 'hello' }}"></component-js-setup>
+  <component-js-setup
+    msg="ok"
+    count="{{ 'hello' }}"
+  />
 
-  <!-- ✅ 无 properties 的 Options 组件不应出现 $rawOptions.properties 报错。 -->
+  <!--
+    ✅ 自定义引用类型子属性补全：删除 id/name 后，在对象中输入 i 或 n，
+    预期出现 id（number）和 name（string）候选。
+  -->
+  <component-options profile="{{ { id: 1, name: 'Mpx' } }}"></component-options>
+
   <component-no-properties></component-no-properties>
 </template>
 
 <script lang="ts">
 import { createComponent } from '@mpxjs/core'
 
-createComponent({})
+createComponent({
+  a: 1,
+  b: 2,
+})
 </script>
 
 <script type="application/json">

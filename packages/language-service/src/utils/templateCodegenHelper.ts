@@ -25,6 +25,7 @@ export const templateCodegenHelper = (
   const codegen = tsCodegen.get(sfc)
   return {
     codegen,
+    documentUri,
     sfc,
   }
 }

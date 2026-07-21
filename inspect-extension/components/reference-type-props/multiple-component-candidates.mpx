@@ -1,0 +1,42 @@
+<template>
+  <!-- ✅ 命中 Options API 候选组件，value 类型为 string。 -->
+  <multi-candidate value="hello"></multi-candidate>
+
+  <!-- ✅ 命中 script setup 候选组件，value 类型为 number。 -->
+  <multi-candidate value="{{ 123 }}"></multi-candidate>
+
+  <!-- ✅ 仅 Options API 候选组件提供的属性。 -->
+  <multi-candidate optionsText="options"></multi-candidate>
+
+  <!-- ✅ 仅 script setup 候选组件提供的属性。 -->
+  <multi-candidate setupCount="{{ 1 }}"></multi-candidate>
+
+  <!-- ❌ 两个候选组件都不接受 boolean，预期报错：boolean 不能赋给 string | number。 -->
+  <multi-candidate value="{{ true }}"></multi-candidate>
+
+  <multi-candidate></multi-candidate>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({})
+</script>
+
+<script name="json">
+const wxConfig = {
+  component: true,
+  usingComponents: {
+    'multi-candidate': './component-candidate-options.mpx',
+  },
+}
+
+const aliConfig = {
+  component: true,
+  usingComponents: {
+    'multi-candidate': './component-candidate-setup.mpx',
+  },
+}
+
+module.exports = __mpx_mode__ === 'ali' ? aliConfig : wxConfig
+</script>

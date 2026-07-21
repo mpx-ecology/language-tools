@@ -206,7 +206,11 @@ export function* generateElementProps(
       const shouldSpread = prop.name === 'style' || prop.name === 'class'
       const shouldCamelize = false
       // isComponent && getShouldCamelize(options, prop, prop.name)
-      const codeInfo = getPropsCodeInfo(ctx, strictPropsCheck)
+      const codeInfo = getPropsCodeInfo(
+        ctx,
+        strictPropsCheck,
+        (options.usingComponents?.get(node.tag)?.length ?? 0) > 1,
+      )
 
       if (shouldSpread) {
         yield `...{ `
@@ -435,9 +439,16 @@ export function* generateSingleMustache(
 function getPropsCodeInfo(
   ctx: TemplateCodegenContext,
   strictPropsCheck: boolean,
+  hasMultipleComponentCandidates: boolean,
 ): MpxCodeInformation {
   return ctx.resolveCodeFeatures({
-    ...codeFeatures.withoutHighlight,
+    // HTML custom data always owns prop completion so it can insert `name=""`.
+    // Keep TypeScript's richer native hover for a single component candidate,
+    // but disable it for multi-path components because QuickInfo only shows
+    // one branch; their merged union hover is provided by the HTML service.
+    ...(hasMultipleComponentCandidates
+      ? codeFeatures.navigationAndVerification
+      : codeFeatures.withoutHighlightAndCompletion),
     verification: strictPropsCheck || {
       shouldReport(_source, code) {
         // https://typescript.tv/errors/#ts2353

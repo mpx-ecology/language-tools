@@ -1,0 +1,17 @@
+<script setup lang="ts">
+defineProps<{
+  value: number
+  setupCount?: number
+}>()
+defineExpose({})
+</script>
+
+<template>
+  <view>{{ value }}</view>
+</template>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

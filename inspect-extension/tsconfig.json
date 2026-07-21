@@ -10,9 +10,8 @@
     "allowJs": true,
     "declaration": true,
     "noEmit": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["components/*"],
+      "@/*": ["./components/*"],
       "@vant/weapp/*": ["./node_modules/@vant/weapp/dist/*"]
     }
   },

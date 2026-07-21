@@ -1,7 +1,25 @@
 <script setup lang="ts">
 defineProps<{
+  /**
+   * script setup 组件的旧版消息文案。
+   *
+   * @deprecated 请改用新的 title 属性。
+   */
   msg: string
+
+  /**
+   * 可选计数值。
+   *
+   * @default 0
+   */
   count?: number
+
+  /**
+   * 组件显示主题，用于验证字面量联合类型的补全。
+   *
+   * @default 'light'
+   */
+  theme?: 'light' | 'dark'
 }>()
 defineExpose({})
 </script>
