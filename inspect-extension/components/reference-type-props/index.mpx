@@ -1,4 +1,6 @@
 <template>
+  <!-- Case 1：缺少 .mpx，./component-options 应解析为 ./component-options.mpx。 -->
+
   <!-- ❌ 完整 String 写法，预期报错：Type 'number' is not assignable to type 'string'. -->
   <component-options parentText="{{ 123 }}"></component-options>
 
@@ -27,6 +29,14 @@
   -->
   <component-options profile="{{ { id: 1, name: 'Mpx' } }}"></component-options>
 
+  <!-- Case 2：缺少 /index.mpx，./component-index 应解析为 ./component-index/index.mpx。 -->
+
+  <!-- ✅ 目录组件属性类型正确。 -->
+  <component-index directoryCount="{{ 1 }}"></component-index>
+
+  <!-- ❌ 预期报错：Type 'string' is not assignable to type 'number'. -->
+  <component-index directoryCount="{{ 'hello' }}"></component-index>
+
   <component-no-properties></component-no-properties>
 </template>
 
@@ -46,8 +56,10 @@ createComponent({
   {
     "component": true,
     "usingComponents": {
-      // 自定义组件
-      "component-options": "./component-options.mpx",
+      // Case 1：缺少 .mpx
+      "component-options": "./component-options",
+      // Case 2：缺少 /index.mpx
+      "component-index": "./component-index",
       "component-js-setup": "./component-js-setup.mpx",
       "component-no-properties": "./component-no-properties.mpx"
     },

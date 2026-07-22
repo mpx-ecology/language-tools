@@ -1,159 +1,105 @@
 import type * as ts from 'typescript'
+import type { MatchPath } from 'tsconfig-paths'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as enhancedResolve from 'enhanced-resolve'
-import { MatchPathAsync, createMatchPathAsync } from 'tsconfig-paths'
-import { withResolvers } from './utils'
-
-function createTsAliasMatcher(compilerConfig: ts.CompilerOptions) {
-  return createMatchPathAsync(
-    compilerConfig.baseUrl ?? path.join(process.cwd(), './'),
-    compilerConfig.paths ?? {},
-  )
-}
-
-let tsMatcher: MatchPathAsync | undefined
+import { createMatchPath } from 'tsconfig-paths'
 
 interface RequestOptions {
   extensions?: string[]
   tryIndices?: string[]
 }
 
-async function tryRequest(
+function tryRequest(
   uri: string,
-  matcher: MatchPathAsync,
+  matcher: MatchPath,
   options: RequestOptions = {},
 ) {
   const { extensions = [], tryIndices = ['index'] } = options
 
-  async function doRequest(uri: string) {
-    return new Promise<string | undefined>((resolve, reject) => {
-      matcher(
-        uri,
-        pkg => require(pkg),
-        (uri, callback) => {
-          callback(undefined, fs.existsSync(uri))
-        },
-        [],
-        async (err, result) => {
-          if (err) return reject(err)
-          if (!result) return resolve(undefined)
-
-          const absolute = path.isAbsolute(result)
-            ? result
-            : path.resolve(process.cwd(), result)
-
-          if (
-            await fs.promises.stat(absolute).then(
-              res => res.isDirectory(),
-              () => true,
-            )
-          )
-            return resolve(undefined)
-          resolve(absolute)
-        },
-      )
-    })
-  }
-
-  async function request(uri: string, resolve: (path: string) => void) {
-    const res = await doRequest(uri).catch(() => {})
-
-    if (res) {
-      resolve(res)
-      return true
-    }
-  }
-
-  async function tryExtensions(
-    uri: string,
-    resolve: (path: string) => void,
-    index?: string,
-  ) {
-    for (const ext of extensions) {
-      const urls = [`${uri}/${index}${ext}`, `${uri}${ext}`]
-      for (const url of urls) {
-        if (await request(url, resolve)) return true
-      }
-    }
-  }
-
-  const { promise, resolve, reject } = withResolvers<string | undefined>()
-
-  async function start() {
+  function request(requestUri: string) {
+    let result: string | undefined
     try {
-      if (await request(uri, resolve).catch(() => {})) return
+      result = matcher(
+        requestUri,
+        packageJsonPath => {
+          try {
+            return JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
+          } catch {
+            return undefined
+          }
+        },
+        fs.existsSync,
+        [],
+      )
+    } catch {
+      return
+    }
 
-      for (const tryIndex of tryIndices) {
-        if (await tryExtensions(uri, resolve, tryIndex)) return
+    if (!result) {
+      return
+    }
+
+    const absolute = path.isAbsolute(result)
+      ? result
+      : path.resolve(process.cwd(), result)
+
+    try {
+      if (fs.statSync(absolute).isFile()) {
+        return absolute
       }
-
-      resolve(undefined)
-    } catch (error) {
-      reject(error)
-    } finally {
-      resolve(undefined)
+    } catch {
+      // The matcher can return a path that disappears between lookup and stat.
     }
   }
 
-  start()
+  const exactResult = request(uri)
+  if (exactResult) {
+    return exactResult
+  }
 
-  return promise
+  for (const tryIndex of tryIndices) {
+    for (const ext of extensions) {
+      // Keep the same lookup order as the JSON path resolver used previously.
+      for (const candidate of [`${uri}/${tryIndex}${ext}`, `${uri}${ext}`]) {
+        const result = request(candidate)
+        if (result) {
+          return result
+        }
+      }
+    }
+  }
 }
 
-/**
- * 使用 tsconfig.json 中的 paths 配置解析路径
- *
- * ```json
- * {
- *   "compilerOptions": {
- *     "paths": {
- *      "@root/*": ["./src/*"]
- *     }
- *   }
- * }
- * ```
- *
- * ```ts
- * {
- *  "component1": "@root/components/component1"
- * }
- * ```
- *
- * @param uri
- * @returns
- */
-export async function tryResolveByTsConfig(
-  uri: string,
-  compilerConfig: ts.CompilerOptions,
-) {
-  const matcher = (tsMatcher ??= createTsAliasMatcher(compilerConfig))
+/** Create a project-scoped resolver for tsconfig `baseUrl` / `paths`. */
+export function createTsConfigPathResolver(compilerConfig: ts.CompilerOptions) {
+  const matcher = createMatchPath(
+    compilerConfig.baseUrl ?? path.join(process.cwd(), './'),
+    compilerConfig.paths ?? {},
+  )
 
-  if (!matcher) return
-
-  return tryRequest(uri, matcher, {
-    extensions: ['.mpx', '.js'],
-  })
+  return (uri: string) =>
+    tryRequest(uri, matcher, {
+      extensions: ['.mpx', '.js'],
+    })
 }
 
-let _resolver: enhancedResolve.ResolveFunctionAsync
-
-export async function tryResolvePackage(uri: string, baseUri: string) {
-  const { promise, resolve, reject } = withResolvers<string | undefined>()
-
-  const resolver = (_resolver ??= enhancedResolve.create({
+/** Create a project-scoped package resolver for Mpx component extensions. */
+export function createPackagePathResolver() {
+  const resolver = enhancedResolve.create.sync({
     extensions: ['.mpx', '.js'],
-  }))
-
-  const baseDir =
-    fs.existsSync(baseUri) && fs.statSync(baseUri).isDirectory()
-      ? baseUri
-      : path.dirname(baseUri)
-
-  resolver({}, baseDir, uri, (err, result) => {
-    if (err) return reject(err)
-    resolve(result || undefined)
   })
 
-  return promise
+  return (uri: string, baseUri: string) => {
+    const baseDir =
+      fs.existsSync(baseUri) && fs.statSync(baseUri).isDirectory()
+        ? baseUri
+        : path.dirname(baseUri)
+
+    try {
+      return resolver({}, baseDir, uri) || undefined
+    } catch {
+      return undefined
+    }
+  }
 }

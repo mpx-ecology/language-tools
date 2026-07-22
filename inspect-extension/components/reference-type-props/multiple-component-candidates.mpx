@@ -27,7 +27,7 @@ createComponent({})
 const wxConfig = {
   component: true,
   usingComponents: {
-    'multi-candidate': './component-candidate-options.mpx',
+    'multi-candidate': './component-candidate-options',
   },
 }
 

@@ -1,7 +1,12 @@
-import type { Code } from '../../types'
+import type {
+  Code,
+  SfcJsonBlockResolvedUsingComponents,
+  UsingComponentInfo,
+} from '../../types'
 import type { ScriptCodegenOptions } from './index'
 import type { ScriptCodegenContext } from './context'
 import { camelize, capitalize } from '@mpxjs/language-shared'
+import * as path from 'path-browserify'
 import { endOfLine, newLine } from '../utils'
 import { identifierRegex } from '../utils'
 
@@ -43,6 +48,7 @@ export function* generateJsonPathCompletionImports(
   _ctx: ScriptCodegenContext,
 ): Generator<Code> {
   const usingComponents = options.sfc.json?.usingComponents
+  const resolvedUsingComponents = getResolvedUsingComponents(options)
   const jsonStart = (options.sfc.json?.startTagEnd || 0) + 1
   const pages = options.sfc.json?.pages
 
@@ -55,6 +61,38 @@ export function* generateJsonPathCompletionImports(
       for (let i = 0; i < componentPaths.length; i++) {
         const componentPathInfo = componentPaths[i]!
         const importName = getUsingComponentImportName(componentName, i)
+        const resolvedImportPath = getResolvedImportPath(
+          options.fileName,
+          componentName,
+          componentPathInfo,
+          resolvedUsingComponents,
+        )
+
+        if (
+          resolvedImportPath &&
+          resolvedImportPath !== componentPathInfo.text
+        ) {
+          // Keep a source-mapped side-effect import for JSON path completion.
+          // The separately generated named import points at the resolved Mpx
+          // file and supplies the component type used by template codegen.
+          yield `import '`
+          yield [
+            componentPathInfo.text,
+            'json_import',
+            jsonStart + componentPathInfo.offset,
+            {
+              completion: true,
+              navigation: false,
+              semantic: false,
+              verification: false,
+              structure: false,
+              format: false,
+            },
+          ]
+          yield `'${newLine}`
+          yield `import ${importName} from ${JSON.stringify(resolvedImportPath)}${newLine}`
+          continue
+        }
 
         // Generate a virtual import with a stable identifier so the generated
         // component map reads like normal source imports instead of index-based
@@ -107,6 +145,47 @@ export function* generateJsonPathCompletionImports(
   }
 
   yield `${newLine}`
+}
+
+function getResolvedUsingComponents(
+  options: ScriptCodegenOptions,
+): SfcJsonBlockResolvedUsingComponents['result'] | undefined {
+  return options.sfc.json?.resolvedUsingComponents?.result
+}
+
+function getResolvedImportPath(
+  importer: string,
+  componentName: string,
+  componentPathInfo: UsingComponentInfo,
+  resolvedUsingComponents:
+    | SfcJsonBlockResolvedUsingComponents['result']
+    | undefined,
+) {
+  const resolvedInfo = resolvedUsingComponents
+    ?.get(componentName)
+    ?.find(
+      info =>
+        info.offset === componentPathInfo.offset &&
+        info.text === componentPathInfo.text,
+    )
+  const realFilename = resolvedInfo?.realFilename
+
+  if (!realFilename || realFilename.startsWith('plugin://')) {
+    return
+  }
+
+  let importPath = path
+    .relative(path.dirname(importer), realFilename)
+    .replace(/\\/g, '/')
+
+  if (!importPath) {
+    importPath = path.basename(realFilename)
+  }
+  if (!importPath.startsWith('./') && !importPath.startsWith('../')) {
+    importPath = `./${importPath}`
+  }
+
+  return importPath
 }
 
 export function getUsingComponentImportName(

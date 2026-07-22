@@ -1,16 +1,77 @@
-import { SfcJsonBlockPages } from './../types'
 import type * as ts from 'typescript'
 import type {
   MpxLanguagePlugin,
+  SfcJsonBlockPages,
   SfcJsonBlockResolvedPages,
   SfcJsonBlockResolvedUsingComponents,
   SfcJsonBlockUsingComponents,
 } from '../types'
 import { allCodeFeatures } from './shared'
-import { withResolvers } from '../utils/utils'
-import { formatUsingComponentsPath } from '../utils/formatUsingComponentsPath'
+import { createUsingComponentsPathResolver } from '../utils/formatUsingComponentsPath'
 
 const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
+  const resolveComponentPath =
+    createUsingComponentsPathResolver(compilerOptions)
+
+  function resolveUsingComponentsPath(
+    usingComponents: SfcJsonBlockUsingComponents,
+    uri: string,
+  ) {
+    const result: SfcJsonBlockResolvedUsingComponents['result'] = new Map()
+    const errors: SfcJsonBlockResolvedUsingComponents['errors'] = []
+
+    for (const [name, componentInfos] of usingComponents) {
+      for (const info of componentInfos) {
+        if (!info.text) {
+          continue
+        }
+
+        const { result: resolvedFilename, error } =
+          resolveComponentPath(info.text, uri) || {}
+
+        // 路径错误收集
+        if (error) {
+          errors.push(info)
+        } else if (resolvedFilename) {
+          if (!result.has(name)) {
+            result.set(name, [])
+          }
+          result.get(name)!.push({
+            ...info,
+            realFilename: resolvedFilename,
+          })
+        }
+      }
+    }
+
+    return { result, errors }
+  }
+
+  function resolvePagesPath(pages: SfcJsonBlockPages, uri: string) {
+    const result: SfcJsonBlockResolvedPages['result'] = []
+    const errors: SfcJsonBlockResolvedPages['errors'] = []
+
+    for (const info of pages) {
+      if (!info.text) {
+        continue
+      }
+
+      const { result: resolvedFilename, error } =
+        resolveComponentPath(info.text, uri) || {}
+
+      if (error) {
+        errors.push(info)
+      } else if (resolvedFilename) {
+        result.push({
+          ...info,
+          realFilename: resolvedFilename,
+        })
+      }
+    }
+
+    return { result, errors }
+  }
+
   return {
     name: 'mpx-sfc-json',
 
@@ -53,83 +114,8 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
       }
     },
 
-    resolveUsingComponentsPath(
-      usingComponents: SfcJsonBlockUsingComponents,
-      uri: string,
-    ) {
-      const { promise, resolve } =
-        withResolvers<SfcJsonBlockResolvedUsingComponents>()
-      const result: SfcJsonBlockResolvedUsingComponents['result'] = new Map()
-      const errors: SfcJsonBlockResolvedUsingComponents['errors'] = []
-
-      Promise.allSettled(
-        [...usingComponents.entries()].map(async ([name, info]) => {
-          await Promise.allSettled(
-            info.map(async info => {
-              if (!info.text) {
-                return
-              }
-
-              const { result: resolvedFilename, error } =
-                (await formatUsingComponentsPath(
-                  info.text,
-                  uri,
-                  compilerOptions,
-                )) || {}
-
-              // 路径错误收集
-              if (error) {
-                errors.push(info)
-                return
-              } else if (resolvedFilename) {
-                if (!result.has(name)) {
-                  result.set(name, [])
-                }
-                result.get(name)!.push({
-                  ...info,
-                  realFilename: resolvedFilename,
-                })
-              }
-            }),
-          )
-        }),
-      ).then(() => resolve({ result, errors }))
-
-      return promise
-    },
-
-    resolvePagesPath(pages: SfcJsonBlockPages, uri: string) {
-      const { promise, resolve } = withResolvers<SfcJsonBlockResolvedPages>()
-      const result: SfcJsonBlockResolvedPages['result'] = []
-      const errors: SfcJsonBlockResolvedPages['errors'] = []
-
-      Promise.allSettled(
-        pages.map(async info => {
-          if (!info.text) {
-            return
-          }
-
-          const { result: resolvedFilename, error } =
-            (await formatUsingComponentsPath(
-              info.text,
-              uri,
-              compilerOptions,
-            )) || {}
-
-          if (error) {
-            errors.push(info)
-            return
-          } else if (resolvedFilename) {
-            result.push({
-              ...info,
-              realFilename: resolvedFilename,
-            })
-          }
-        }),
-      ).then(() => resolve({ result, errors }))
-
-      return promise
-    },
+    resolveUsingComponentsPath,
+    resolvePagesPath,
   }
 }
 

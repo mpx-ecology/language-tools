@@ -1,0 +1,18 @@
+<template>
+  <view>{{ directoryCount }}</view>
+</template>
+
+<script setup lang="ts">
+defineProps<{
+  /** 目录组件接收的数值。 */
+  directoryCount?: number
+}>()
+
+defineExpose({})
+</script>
+
+<script type="application/json">
+{
+  "component": true
+}
+</script>
