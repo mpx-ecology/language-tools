@@ -40,6 +40,14 @@ export function* generateElementProps(
 
   for (const prop of props) {
     if (prop.type === CompilerDOM.NodeTypes.DIRECTIVE && prop.name === 'on') {
+      // Component events are checked separately by generateElementEvents().
+      // Including them in the component props object as well makes valid Mpx
+      // bindings such as catchtap look like unknown component props once the
+      // component's exact props type is available. Native elements do not use
+      // generateElementEvents(), so keep their event attributes here.
+      if (isComponent) {
+        continue
+      }
       if (prop.arg?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
         // ...{} 解构后会丢失 bindxx 属性类型检查报错时的属性定位
         // yield `...{ `

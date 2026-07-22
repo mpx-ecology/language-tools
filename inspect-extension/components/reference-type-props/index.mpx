@@ -9,7 +9,11 @@
   <component-options name="{{ 'hello' }}"></component-options>
 
   <!-- ❌ PropType<UserProfile>，预期报错：Type 'string' is not assignable to type 'UserProfile'. -->
-  <component-options profile="{{ 'not-a-profile' }}"></component-options>
+  <component-options
+    bindtap="handleTap"
+    catch:tap="handleTap"
+    profile="{{ 'not-a-profile' }}"
+  ></component-options>
 
   <!-- ❌ 预期报错：Type 'string' is not assignable to type 'number'. -->
   <component-js-setup
@@ -32,6 +36,9 @@ import { createComponent } from '@mpxjs/core'
 createComponent({
   a: 1,
   b: 2,
+  methods: {
+    handleTap() {},
+  },
 })
 </script>
 
