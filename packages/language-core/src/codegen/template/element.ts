@@ -18,7 +18,11 @@ import type { TemplateCodegenContext } from './context'
 import { generateElementChildren } from './elementChildren'
 import { generateElementDirectives } from './elementDirectives'
 import { generateElementEvents } from './elementEvents'
-import { type FailedPropExpression, generateElementProps } from './elementProps'
+import {
+  type FailedPropExpression,
+  generateAtModePropChecks,
+  generateElementProps,
+} from './elementProps'
 import { generateInterpolation } from './interpolation'
 import { generatePropertyAccess } from './propertyAccess'
 import { collectStyleScopedClassReferences } from './styleScopedClasses'
@@ -200,6 +204,15 @@ export function* generateComponent(
     false,
   )
   yield `}))${endOfLine}`
+
+  yield* generateAtModePropChecks(
+    options,
+    ctx,
+    node,
+    props,
+    componentOriginalVar,
+    options.mpxCompilerOptions.checkUnknownProps,
+  )
 
   yield `const `
   yield* wrapWith(
