@@ -138,8 +138,9 @@ export function* generateScript(
         options.sfc.script.content.length,
         codeFeatures.all,
       )
-      // defineComponent
-      yield `const __VLS_defineComponent = ${OptionsComponentCtor[createComponentObj.ctor]}(`
+      // Capture the source options before applying Mpx's constrained inference.
+      // This keeps IDE metadata available if the strict instance collapses.
+      yield `const __VLS_rawOptions = __VLS_CaptureOptions(`
       yield* generateDefineComponent(
         options.sfc.script,
         createComponentObj.expression.start,
@@ -150,6 +151,9 @@ export function* generateScript(
         },
       )
       yield `)${endOfLine}`
+      yield `const __VLS_defineComponent = ${OptionsComponentCtor[createComponentObj.ctor]}(__VLS_rawOptions)${endOfLine}`
+      yield `const __VLS_rawProperties = __VLS_GetRawProperties(__VLS_rawOptions)${endOfLine}`
+      yield `const __VLS_templateContext = __VLS_GetTemplateContext(__VLS_rawOptions)${endOfLine}`
     } else {
       yield generateSfcBlockSection(
         options.sfc.script,

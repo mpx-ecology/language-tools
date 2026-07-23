@@ -56,7 +56,7 @@ function* generateTemplateCtx(options: ScriptCodegenOptions): Generator<Code> {
 
     yield `const __MPX_ctx = { ...__VLS_defineProps, ...__VLS_defineExposeUnrefs, ...__VLS_defineOptions, ...__VLS_reactHooks }${endOfLine}`
   } else {
-    yield `const __MPX_ctx = __VLS_defineComponent${endOfLine}`
+    yield `const __MPX_ctx = __VLS_templateContext${endOfLine}`
   }
 }
 

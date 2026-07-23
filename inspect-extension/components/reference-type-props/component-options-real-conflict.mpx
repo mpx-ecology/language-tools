@@ -1,0 +1,42 @@
+<template>
+  <!-- ✅ 真实重名也只影响冲突字段，其他模板变量继续保持类型。 -->
+  <view>{{ stableText.toUpperCase() }}</view>
+  <view>{{ computedText.toUpperCase() }}</view>
+  <view>{{ formatCount(localCount) }}</view>
+
+  <!-- ❌ 真实 Prop/computed 重名：homeVersion 的模板类型应为 never。 -->
+  <view>{{ homeVersion.toFixed(0) }}</view>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  data: {
+    localCount: 1,
+  },
+  properties: {
+    stableText: String,
+    homeVersion: Number,
+  },
+  computed: {
+    computedText() {
+      return 'computed'
+    },
+    homeVersion() {
+      return 'computed-home-version'
+    },
+  },
+  methods: {
+    formatCount(value: number) {
+      return value.toFixed(0)
+    },
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

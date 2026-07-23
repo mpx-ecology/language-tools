@@ -20,11 +20,10 @@ export function* generateComponentSelf(
     yield `}${endOfLine}`
     yield `const __VLS_self = {} as __VLS_SelfComponent${endOfLine}`
   } else {
-    yield `type __VLS_SelfProps = typeof __VLS_defineComponent['$rawOptions'] extends {${newLine}`
-    yield `  properties: infer P${newLine}`
-    yield `} ? __VLS_GetPropsType<NonNullable<P>> : {}${endOfLine}`
-    yield `type __VLS_SelfComponent = typeof __VLS_defineComponent & {${newLine}`
-    yield `  new (props: __VLS_SelfProps): typeof __VLS_defineComponent & {${newLine}`
+    yield `type __VLS_SelfProps = __VLS_GetPropsType<typeof __VLS_rawProperties>${endOfLine}`
+    yield `type __VLS_SelfBase = [typeof __VLS_defineComponent] extends [never] ? {} : typeof __VLS_defineComponent${endOfLine}`
+    yield `type __VLS_SelfComponent = __VLS_SelfBase & {${newLine}`
+    yield `  new (props: __VLS_SelfProps): __VLS_SelfBase & {${newLine}`
     yield `    $props: __VLS_SelfProps${endOfLine}`
     yield `  }${newLine}`
     yield `}${endOfLine}`

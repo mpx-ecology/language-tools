@@ -1,0 +1,23 @@
+<template>
+  <view>{{ jsText }}</view>
+</template>
+
+<!--
+  对照组：简单的 Options API JavaScript 组件可以正常导出 Props 类型。
+  这说明问题不是由缺少 lang="ts" 单独导致的。
+-->
+<script>
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  properties: {
+    jsText: String,
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

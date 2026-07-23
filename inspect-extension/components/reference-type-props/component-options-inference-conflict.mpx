@@ -1,0 +1,54 @@
+<template>
+  <!-- ✅ 非冲突字段仍有准确类型。 -->
+  <view>{{ stableText.toUpperCase() }}</view>
+  <view>{{ isV80 ? formatCount(localCount) : 'legacy' }}</view>
+
+  <!--
+    ⚠️ 如果外部 helper 的静态类型仍误包含 homeVersion，
+    只有这个冲突字段保持 never，不会影响整个模板上下文。
+  -->
+  <view>{{ homeVersion.toFixed(0) }}</view>
+</template>
+
+<!--
+  静态类型不准确的回归组：mappedGetters 运行时只有 isV80，
+  但这里强制让其静态返回类型包含 homeVersion，模拟外部 helper 误报字段。
+
+  严格 ComponentIns 会因此变成 never；IDE 模板上下文应只保留字段级冲突。
+-->
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+const mappedGetters = {
+  isV80() {
+    return true
+  },
+} as {
+  isV80(): boolean
+  homeVersion(): 'homepagemarketing' | 'homepageonestop'
+}
+
+createComponent({
+  data: {
+    localCount: 1,
+  },
+  properties: {
+    stableText: String,
+    homeVersion: Number,
+  },
+  computed: {
+    ...mappedGetters,
+  },
+  methods: {
+    formatCount(value: number) {
+      return value.toFixed(0)
+    },
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

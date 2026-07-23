@@ -47,6 +47,6 @@ createComponent({
 
 <script name="json">
 module.exports = {
-  "component": true
+  component: true,
 }
 </script>
