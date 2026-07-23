@@ -1,0 +1,49 @@
+<template>
+  <component-options
+    parentText="{{ 123 }}"
+    shortText="{{ 123 }}"
+    name="{{ 'hello' }}"
+    profile="{{ 'invalid-profile' }}"
+  />
+  <component-options
+    name@ios|android|harmony="{{ 'hello' }}"
+    parentText@_wx="{{ 123 }}"
+  />
+  <component-options
+    name@ios="{{ 'hello' }}"
+    name@android="{{ 2 }}"
+  />
+  <component-options
+    bindtap="handleTap"
+    catchtap="handleTap"
+    catch:tap="handleTap"
+  />
+  <component-options profile="{{ {  } }}" />
+  <component-options-js jsText="{{ 123 }}" />
+  <component-index directoryCount="{{ 'hello' }}" />
+  <component-options-inference-conflict stableText="{{ 123 }}" />
+</template>
+
+<script lang="ts">
+import ComponentOptions, { createComponent } from '@mpxjs/core'
+
+void ComponentOptions
+
+createComponent({
+  methods: {
+    handleTap() {},
+  },
+})
+</script>
+
+<script type="application/json">
+  {
+    "component": true,
+    "usingComponents": {
+      "component-options": "./component-options",
+      "component-index": "./component-index",
+      "component-options-inference-conflict": "./component-options-inference-conflict.mpx",
+      "component-options-js": "./component-options-js.mpx"
+    }
+  }
+</script>

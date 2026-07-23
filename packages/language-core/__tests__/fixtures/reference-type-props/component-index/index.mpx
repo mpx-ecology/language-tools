@@ -1,0 +1,15 @@
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  properties: {
+    directoryCount: Number,
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

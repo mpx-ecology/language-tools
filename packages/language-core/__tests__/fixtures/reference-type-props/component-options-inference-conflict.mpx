@@ -1,0 +1,42 @@
+<template>
+  <view>{{ stableText.toUpperCase() }}</view>
+  <view>{{ isV80 ? formatCount(localCount) : 'legacy' }}</view>
+  <view>{{ homeVersion.toFixed(0) }}</view>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+const mappedGetters = {
+  isV80() {
+    return true
+  },
+} as {
+  isV80(): boolean
+  homeVersion(): 'homepagemarketing' | 'homepageonestop'
+}
+
+createComponent({
+  data: {
+    localCount: 1,
+  },
+  properties: {
+    stableText: String,
+    homeVersion: Number,
+  },
+  computed: {
+    ...mappedGetters,
+  },
+  methods: {
+    formatCount(value: number) {
+      return value.toFixed(0)
+    },
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

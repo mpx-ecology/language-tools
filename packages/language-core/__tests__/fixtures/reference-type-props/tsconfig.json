@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "checkJs": true,
+    "preserveSymlinks": true,
+    "noEmit": true
+  },
+  "mpxCompilerOptions": {
+    "optionsComponentCtor": ["createComponent"]
+  },
+  "include": ["**/*"]
+}

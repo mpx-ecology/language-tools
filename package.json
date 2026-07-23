@@ -6,7 +6,8 @@
     "watch": "pnpm run \"/^watch:.*/\"",
     "watch:base": "tsc -b -w",
     "watch:vscode": "pnpm -F mpx-official run watch",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint --cache .",
     "format": "prettier --write --cache .",
     "clean": "rimraf -g .eslintcache \"**/*.tsbuildinfo\" && pnpm clean:out",
@@ -44,6 +45,7 @@
     "rimraf": "^6.0.1",
     "simple-git-hooks": "^2.9.0",
     "tsx": "^4.19.3",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

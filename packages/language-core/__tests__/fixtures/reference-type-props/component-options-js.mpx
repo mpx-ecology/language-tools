@@ -1,0 +1,15 @@
+<script>
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  properties: {
+    jsText: String,
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

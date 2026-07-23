@@ -1,0 +1,55 @@
+<template>
+  <view>{{ parentText }}</view>
+</template>
+
+<script lang="ts">
+import { createComponent, type PropType } from '@mpxjs/core'
+
+interface UserProfile {
+  /** 用户唯一 ID。 */
+  id: number
+
+  /** 用户展示名称。 */
+  name: string
+}
+
+createComponent({
+  properties: {
+    /**
+     * 旧版简短文案。
+     *
+     * @deprecated 请改用 parentText。
+     */
+    shortText: String,
+
+    /**
+     * 父组件传入的主文案。
+     *
+     * @default 'hello'
+     */
+    parentText: {
+      type: String,
+      value: 'hello',
+    },
+
+    /** 用于演示 Number 属性的数值。 */
+    name: {
+      type: Number,
+    },
+
+    /** 当前用户资料。 */
+    profile: {
+      type: Object as PropType<UserProfile>,
+    },
+
+    /** 组件显示主题。 */
+    theme: String as PropType<'light' | 'dark'>,
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

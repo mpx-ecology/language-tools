@@ -1,0 +1,22 @@
+<template>
+  <foo-bar value="text" />
+  <fooBar value="{{ 1 }}" />
+</template>
+
+<script lang="ts">
+import FooBar, { createComponent } from '@mpxjs/core'
+
+void FooBar
+
+createComponent({})
+</script>
+
+<script type="application/json">
+  {
+    "component": true,
+    "usingComponents": {
+      "foo-bar": "./component-candidate-options.mpx",
+      "fooBar": "./component-candidate-setup.mpx"
+    }
+  }
+</script>

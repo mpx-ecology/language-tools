@@ -24,6 +24,7 @@ catalog:
   reactive-vscode: ^0.4.1
   stylus: ^0.64.0
   typescript: ^6.0.3
+  vitest: ^4.1.10
   vscode-uri: ^3.1.0
 
 onlyBuiltDependencies:
