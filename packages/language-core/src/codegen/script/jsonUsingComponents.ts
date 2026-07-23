@@ -23,18 +23,45 @@ export function* generateJsonUsingComponents(
 
   yield `const __MPX_jsonComponents = {${newLine}`
 
-  for (const [componentName, componentPaths] of usingComponents) {
-    const firstImportName = getUsingComponentImportName(componentName, 0)
-    yield `${firstImportName}`
-    if (componentPaths.length > 1) {
-      // Multiple resolved paths still need a single runtime value, so keep the
-      // first import as the value and widen its type to all candidate imports.
-      yield `: ${firstImportName} as `
-      for (let i = 0; i < componentPaths.length; i++) {
+  const componentsByPropertyName = new Map<
+    string,
+    { componentIndex: number; candidateCount: number }[]
+  >()
+  for (const [componentIndex, [componentName, componentPaths]] of [
+    ...usingComponents,
+  ].entries()) {
+    const componentPropertyName = getUsingComponentPropertyName(
+      componentName,
+      componentIndex,
+    )
+    let components = componentsByPropertyName.get(componentPropertyName)
+    if (!components) {
+      componentsByPropertyName.set(componentPropertyName, (components = []))
+    }
+    components.push({
+      componentIndex,
+      candidateCount: componentPaths.length,
+    })
+  }
+
+  for (const [componentPropertyName, components] of componentsByPropertyName) {
+    const importNames = components.flatMap(
+      ({ componentIndex, candidateCount }) =>
+        Array.from({ length: candidateCount }, (_, candidateIndex) =>
+          getUsingComponentImportName(componentIndex, candidateIndex),
+        ),
+    )
+    const firstImportName = importNames[0]!
+    yield `${componentPropertyName}: ${firstImportName}`
+    if (importNames.length > 1) {
+      // Multiple paths or normalized component names still need a single
+      // runtime value, so keep the first import and widen it to all candidates.
+      yield ` as `
+      for (let i = 0; i < importNames.length; i++) {
         if (i) {
           yield ` | `
         }
-        yield `typeof ${getUsingComponentImportName(componentName, i)}`
+        yield `typeof ${importNames[i]}`
       }
     }
     yield `,${newLine}`
@@ -57,10 +84,12 @@ export function* generateJsonPathCompletionImports(
 
   // 为 usingComponents 生成虚拟 import
   if (usingComponents?.size) {
-    for (const [componentName, componentPaths] of usingComponents) {
+    for (const [componentIndex, [componentName, componentPaths]] of [
+      ...usingComponents,
+    ].entries()) {
       for (let i = 0; i < componentPaths.length; i++) {
         const componentPathInfo = componentPaths[i]!
-        const importName = getUsingComponentImportName(componentName, i)
+        const importName = getUsingComponentImportName(componentIndex, i)
         const resolvedImportPath = getResolvedImportPath(
           options.fileName,
           componentName,
@@ -94,9 +123,8 @@ export function* generateJsonPathCompletionImports(
           continue
         }
 
-        // Generate a virtual import with a stable identifier so the generated
-        // component map reads like normal source imports instead of index-based
-        // placeholders.
+        // Keep generated imports in a reserved internal namespace so a JSON
+        // component name cannot collide with user script bindings.
         yield `import ${importName} from '`
 
         // 传递原始路径及位置信息
@@ -188,14 +216,19 @@ function getResolvedImportPath(
   return importPath
 }
 
-export function getUsingComponentImportName(
+function getUsingComponentPropertyName(
   componentName: string,
-  index: number,
+  componentIndex: number,
 ) {
   const camelizedName = capitalize(camelize(componentName))
-  const baseName =
-    camelizedName && identifierRegex.test(camelizedName)
-      ? camelizedName
-      : `component_${index}`
-  return index && baseName === camelizedName ? `${baseName}_${index}` : baseName
+  return camelizedName && identifierRegex.test(camelizedName)
+    ? camelizedName
+    : `component_${componentIndex}`
+}
+
+export function getUsingComponentImportName(
+  componentIndex: number,
+  candidateIndex: number,
+) {
+  return `__MPX_jsonComponent_${componentIndex}_${candidateIndex}`
 }

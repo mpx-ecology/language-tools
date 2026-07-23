@@ -99,6 +99,10 @@ export function create(
     create(context) {
       const baseServiceInstance = baseService.create(context)
       let customDataUpdateId = 0
+      const isCustomDataRequestCurrent = (
+        updateId: number,
+        token?: vscode.CancellationToken,
+      ) => !token?.isCancellationRequested && updateId === customDataUpdateId
 
       const runUpdateExtraCustomData = (
         usingComponents?: SfcJsonBlockUsingComponents,
@@ -179,12 +183,15 @@ export function create(
           }
         }
 
-        if (token?.isCancellationRequested || updateId !== customDataUpdateId) {
-          return usingComponents
+        if (!isCustomDataRequestCurrent(updateId, token)) {
+          return
         }
 
         runUpdateExtraCustomData(usingComponents, componentProps, mode)
-        return usingComponents
+        return {
+          updateId,
+          usingComponents,
+        }
       }
 
       return {
@@ -206,18 +213,24 @@ export function create(
           if (!context.project.mpx) {
             return
           }
-          const usingComponents = await updateCustomDataAtPosition(
+          const customData = await updateCustomDataAtPosition(
             document,
             position,
             'completion',
             token,
           )
+          if (!customData) {
+            return
+          }
           let htmlComplete = await baseServiceInstance.provideCompletionItems?.(
             document,
             position,
             completionContext,
             token,
           )
+          if (!isCustomDataRequestCurrent(customData.updateId, token)) {
+            return
+          }
           if (!htmlComplete?.items.length) {
             htmlComplete = {
               isIncomplete: false,
@@ -225,8 +238,8 @@ export function create(
             }
           }
           htmlComplete.items.forEach(item => {
-            if (usingComponents?.has(item.label)) {
-              const componentPaths = usingComponents.get(item.label)
+            if (customData.usingComponents?.has(item.label)) {
+              const componentPaths = customData.usingComponents.get(item.label)
               if (componentPaths?.length) {
                 item.labelDetails = {
                   description: `自定义组件`,
@@ -241,12 +254,23 @@ export function create(
           if (document.languageId !== 'html') {
             return
           }
-          await updateCustomDataAtPosition(document, position, 'hover', token)
+          const customData = await updateCustomDataAtPosition(
+            document,
+            position,
+            'hover',
+            token,
+          )
+          if (!customData) {
+            return
+          }
           const res = await baseServiceInstance.provideHover?.(
             document,
             position,
             token,
           )
+          if (!isCustomDataRequestCurrent(customData.updateId, token)) {
+            return
+          }
           // @ts-ignore
           if (res?.contents?.value?.startsWith('自定义组件')) {
             return

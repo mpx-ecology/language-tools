@@ -71,11 +71,17 @@
 </template>
 
 <script lang="ts">
-import { createComponent } from '@mpxjs/core'
+import ComponentOptions, { createComponent } from '@mpxjs/core'
+
+// JSON 中的 component-options 会归一化为 ComponentOptions；该用户 import
+// 不应与语言工具为组件类型生成的内部 import 名称冲突。
+void ComponentOptions
 
 createComponent({
-  a: 1,
-  b: 2,
+  data: {
+    a: 1,
+    b: 2,
+  },
   methods: {
     handleTap() {},
   },
