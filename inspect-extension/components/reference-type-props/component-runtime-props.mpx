@@ -1,0 +1,20 @@
+<script setup lang="ts">
+defineProps({
+  /**
+   * 运行时声明的文案。
+   */
+  runtimeText: {
+    type: String,
+    value: '',
+  },
+  /**
+   * 运行时声明的计数。
+   */
+  runtimeCount: Number,
+})
+defineExpose({})
+</script>
+
+<template>
+  <view>runtime props</view>
+</template>

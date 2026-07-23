@@ -59,6 +59,15 @@
     homeVersion="{{ 8 }}"
   />
 
+  <!--
+    ❌ script setup 运行时 defineProps 回归：
+    runtimeText 预期 string，runtimeCount 预期 number，并应能跳转到属性声明。
+  -->
+  <component-runtime-props
+    runtimeText="{{ 123 }}"
+    runtimeCount="{{ 'not-a-number' }}"
+  />
+
   <!-- Case 2：缺少 /index.mpx，./component-index 应解析为 ./component-index/index.mpx。 -->
 
   <!-- ✅ 目录组件属性类型正确。 -->
@@ -100,6 +109,7 @@ createComponent({
       "component-options-js-control": "./component-options-js-control.mpx",
       "component-options-inference-conflict": "./component-options-inference-conflict.mpx",
       "component-options-real-conflict": "./component-options-real-conflict.mpx",
+      "component-runtime-props": "./component-runtime-props.mpx",
       "component-no-properties": "./component-no-properties.mpx"
     },
     "componentPlaceholder": {

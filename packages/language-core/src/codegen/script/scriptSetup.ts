@@ -380,6 +380,13 @@ function* generateComponentProps(
     ctx.generatedPropsType = true
     yield `__VLS_Props`
   }
+  if (scriptSetupRanges.defineProps?.arg) {
+    if (ctx.generatedPropsType) {
+      yield ` & `
+    }
+    ctx.generatedPropsType = true
+    yield `Partial<typeof __VLS_defineProps>`
+  }
   if (scriptSetupRanges.defineProp.length) {
     if (ctx.generatedPropsType) {
       yield ` & `
