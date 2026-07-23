@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.24.1](https://github.com/mpx-ecology/language-tools/compare/v1.24.0...v1.24.1) (2026-07-23)
+
+### Features
+
+* add component-runtime-props for runtime property handling and update index.mpx ([91f607f](https://github.com/mpx-ecology/language-tools/commit/91f607fb321333c647e5840cf27621d66f70088b))
+
 # [1.24.0](https://github.com/mpx-ecology/language-tools/compare/v1.22.6...v1.24.0) (2026-07-23)
 
 ### Bug Fixes
