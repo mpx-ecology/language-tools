@@ -60,7 +60,7 @@ git push origin main
 git push origin --tags
 
 # 4. 同步发布 npm 包（注意需要 @mpxjs npm scope 管理员权限）
-pnpm publish:npm
+pnpm npm:publish
 ```
 
 ## 插件发版 CI/CD
