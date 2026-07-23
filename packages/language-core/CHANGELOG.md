@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.24.0](https://github.com/mpx-ecology/language-tools/compare/v1.22.6...v1.24.0) (2026-07-23)
+
+### Features
+
+* add component options examples and improve type inference handling in templates ([b632db6](https://github.com/mpx-ecology/language-tools/commit/b632db665256b18d9f59de12d8f134533a19ee21))
+* add event handling to component-options and improve prop type checks ([9b7a9ab](https://github.com/mpx-ecology/language-tools/commit/9b7a9abea160b3524d3cde33d292c2b46c15c1c3))
+* add vitest for testing, update pnpm workspace, and implement component tests ([cb3a680](https://github.com/mpx-ecology/language-tools/commit/cb3a680ca5de1a4cf21aab5b899f66c2dfbd57ad))
+* enhance component import handling and improve custom data request validation ([789b7d1](https://github.com/mpx-ecology/language-tools/commit/789b7d1fe8d8edee4b403e3c4aa4c1fddf41ba66))
+* enhance component structure and add new component without properties ([78efa51](https://github.com/mpx-ecology/language-tools/commit/78efa51917652a1b42e37188675e28584c388cc2))
+* enhance prop handling with at-mode checks and add getAtModeBaseName utility ([68e68a2](https://github.com/mpx-ecology/language-tools/commit/68e68a2ab1eadd0d24f065f090bdd3d6ae8bc170))
+* implement synchronous resolution for using components paths in JSON files ([dc1fe73](https://github.com/mpx-ecology/language-tools/commit/dc1fe73e7dd27894ed10040fc711a42074d8ef94))
+* support type checking and completion for custom component props ([fd71c11](https://github.com/mpx-ecology/language-tools/commit/fd71c1199724ba1d3bc95e3e2de90d7d17b1e102))
+* 支持自定义组件props类型提示支持, close: https://github.com/mpx-ecology/language-tools/issues/86 ([d35a9dc](https://github.com/mpx-ecology/language-tools/commit/d35a9dccc1bf7fde6d22b9609c2b7d12fc495602))
+
 ## [1.22.6](https://github.com/mpx-ecology/language-tools/compare/v1.22.5...v1.22.6) (2026-07-01)
 
 ### Features

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.24.0](https://github.com/mpx-ecology/language-tools/compare/v1.22.6...v1.24.0) (2026-07-23)
+
+### Features
+
+* add vitest for testing, update pnpm workspace, and implement component tests ([cb3a680](https://github.com/mpx-ecology/language-tools/commit/cb3a680ca5de1a4cf21aab5b899f66c2dfbd57ad))
+* enhance component import handling and improve custom data request validation ([789b7d1](https://github.com/mpx-ecology/language-tools/commit/789b7d1fe8d8edee4b403e3c4aa4c1fddf41ba66))
+* support type checking and completion for custom component props ([fd71c11](https://github.com/mpx-ecology/language-tools/commit/fd71c1199724ba1d3bc95e3e2de90d7d17b1e102))
+
 ## [1.22.6](https://github.com/mpx-ecology/language-tools/compare/v1.22.5...v1.22.6) (2026-07-01)
 
 ### Features

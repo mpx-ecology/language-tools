@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.24.0](https://github.com/mpx-ecology/language-tools/compare/v1.22.6...v1.24.0) (2026-07-23)
+
+### Features
+
+* support type checking and completion for custom component props ([fd71c11](https://github.com/mpx-ecology/language-tools/commit/fd71c1199724ba1d3bc95e3e2de90d7d17b1e102))
+
 ## [1.22.6](https://github.com/mpx-ecology/language-tools/compare/v1.22.5...v1.22.6) (2026-07-01)
 
 **Note:** Version bump only for package @mpxjs/typescript-plugin

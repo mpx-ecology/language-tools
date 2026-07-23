@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.24.0](https://github.com/mpx-ecology/language-tools/compare/v1.22.6...v1.24.0) (2026-07-23)
+
+### Features
+
+* enhance prop handling with at-mode checks and add getAtModeBaseName utility ([68e68a2](https://github.com/mpx-ecology/language-tools/commit/68e68a2ab1eadd0d24f065f090bdd3d6ae8bc170))
+
 ## [1.22.6](https://github.com/mpx-ecology/language-tools/compare/v1.22.5...v1.22.6) (2026-07-01)
 
 **Note:** Version bump only for package @mpxjs/language-shared

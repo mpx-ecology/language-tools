@@ -1,6 +1,6 @@
 {
   "name": "@mpxjs/language-shared",
-  "version": "1.22.6",
+  "version": "1.24.0",
   "license": "MIT",
   "files": [
     "**/*.js",
