@@ -64,15 +64,17 @@ export function* generateInterpolation(
         section.length === 0 && (type === 'startText' || type === 'endText')
       if (!shouldSkip) {
         if (start !== undefined && data) {
+          const resolvedData =
+            typeof data === 'function' ? data(start + offset) : data
           yield [
             section,
             source,
             start + offset,
             type === 'errorMappingOnly'
               ? ctx.codeFeatures.verification
-              : typeof data === 'function'
-                ? data(start + offset)
-                : data,
+              : type === 'completionMappingOnly'
+                ? { completion: resolvedData.completion }
+                : resolvedData,
           ]
         } else {
           yield section
@@ -99,7 +101,7 @@ interface BracesVar {
 type Segment = [
   fragment: string,
   offset: number | undefined,
-  type?: 'errorMappingOnly' | 'startText' | 'endText',
+  type?: 'errorMappingOnly' | 'completionMappingOnly' | 'startText' | 'endText',
 ]
 
 function* forEachInterpolationSegment(
@@ -175,7 +177,12 @@ function* forEachInterpolationSegment(
       } else {
         // eg: "{{ { a } }}" -> "{ a: ctx.a }"
         if (curVar.isShorthand) {
-          yield [`${curVar.text}: `, undefined]
+          // Keep the generated property key mapped before the rewritten value.
+          // TypeScript can then use the contextual object type to complete a
+          // partially typed shorthand key (`{ i }` -> `id`), while the second
+          // mapping below still powers navigation and checking for ctx.i.
+          yield [curVar.text, curVar.offset, 'completionMappingOnly']
+          yield [`: `, undefined]
         }
         yield* generateVar(templateRefNames, ctx, code, offset, curVar)
       }

@@ -2,12 +2,13 @@ import type { TemplateCodegenOptions } from './index'
 import type { TemplateCodegenContext } from './context'
 import type { Code, MpxCodeInformation, MpxCompilerOptions } from '../../types'
 import * as CompilerDOM from '@vue/compiler-dom'
-import { camelize } from '@mpxjs/language-shared'
+import { camelize, getAtModeBaseName } from '@mpxjs/language-shared'
 import { minimatch } from 'minimatch'
 import { toString } from 'muggle-string'
 import { codeFeatures } from '../codeFeatures'
 import {
   createTsAst,
+  endOfLine,
   extractSpacingContentAndPosition,
   generateUnicode,
   mustacheRE,
@@ -37,9 +38,18 @@ export function* generateElementProps(
   failedPropExps?: FailedPropExpression[],
 ): Generator<Code> {
   const isComponent = node.tagType === CompilerDOM.ElementTypes.COMPONENT
+  const duplicateAtModePropNames = getDuplicateAtModePropNames(props)
 
   for (const prop of props) {
     if (prop.type === CompilerDOM.NodeTypes.DIRECTIVE && prop.name === 'on') {
+      // Component events are checked separately by generateElementEvents().
+      // Including them in the component props object as well makes valid Mpx
+      // bindings such as catchtap look like unknown component props once the
+      // component's exact props type is available. Native elements do not use
+      // generateElementEvents(), so keep their event attributes here.
+      if (isComponent) {
+        continue
+      }
       if (prop.arg?.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
         // ...{} 解构后会丢失 bindxx 属性类型检查报错时的属性定位
         // yield `...{ `
@@ -81,12 +91,7 @@ export function* generateElementProps(
         propName = getModelPropName(node, options.mpxCompilerOptions)
       }
 
-      if (
-        propName === undefined ||
-        options.mpxCompilerOptions.dataAttributes.some(pattern =>
-          minimatch(propName!, pattern),
-        )
-      ) {
+      if (propName === undefined) {
         if (
           prop.exp &&
           prop.exp.constType !== CompilerDOM.ConstantTypes.CAN_STRINGIFY
@@ -101,6 +106,22 @@ export function* generateElementProps(
         prop.modifiers.some(m => m.content === 'prop' || m.content === 'attr')
       ) {
         propName = propName.slice(1)
+      }
+
+      propName = getAtModeBaseName(propName)
+
+      if (
+        options.mpxCompilerOptions.dataAttributes.some(pattern =>
+          minimatch(propName, pattern),
+        )
+      ) {
+        if (
+          prop.exp &&
+          prop.exp.constType !== CompilerDOM.ConstantTypes.CAN_STRINGIFY
+        ) {
+          failedPropExps?.push({ node: prop.exp, prefix: `(`, suffix: `)` })
+        }
+        continue
       }
 
       const shouldSpread = propName === 'style' || propName === 'class'
@@ -171,9 +192,11 @@ export function* generateElementProps(
         yield newLine
       }
     } else if (prop.type === CompilerDOM.NodeTypes.ATTRIBUTE) {
+      const propName = getAtModeBaseName(prop.name)
+
       if (
         options.mpxCompilerOptions.dataAttributes.some(pattern =>
-          minimatch(prop.name, pattern),
+          minimatch(propName, pattern),
         )
       ) {
         continue
@@ -181,7 +204,7 @@ export function* generateElementProps(
 
       if (
         node.tag === 'component' &&
-        prop.name === 'range' &&
+        propName === 'range' &&
         prop.value?.content.trim()
       ) {
         const content = prop.value.content
@@ -203,10 +226,15 @@ export function* generateElementProps(
         }
       }
 
-      const shouldSpread = prop.name === 'style' || prop.name === 'class'
+      const shouldSpread = propName === 'style' || propName === 'class'
       const shouldCamelize = false
       // isComponent && getShouldCamelize(options, prop, prop.name)
-      const codeInfo = getPropsCodeInfo(ctx, strictPropsCheck)
+      const codeInfo = getPropsCodeInfo(
+        ctx,
+        strictPropsCheck,
+        (options.usingComponents?.get(node.tag)?.length ?? 0) > 1,
+        duplicateAtModePropNames.has(propName),
+      )
 
       if (shouldSpread) {
         yield `...{ `
@@ -217,7 +245,7 @@ export function* generateElementProps(
           prop.loc.end.offset,
           ctx.codeFeatures.verification,
           ...generateObjectProperty(
-            prop.name,
+            propName,
             prop.loc.start.offset,
             codeInfo,
             shouldCamelize,
@@ -266,6 +294,96 @@ export function* generateElementProps(
       yield `,${newLine}`
     }
   }
+}
+
+/**
+ * The main props object checks the last occurrence of each normalized key.
+ * Validate earlier at-mode variants separately so every platform value is
+ * checked without changing required-prop behavior for the component call.
+ */
+export function* generateAtModePropChecks(
+  options: TemplateCodegenOptions,
+  ctx: TemplateCodegenContext,
+  node: CompilerDOM.ElementNode,
+  props: CompilerDOM.ElementNode['props'],
+  componentOriginalVar: string,
+  strictPropsCheck: boolean,
+): Generator<Code> {
+  const groups = getAtModePropGroups(props)
+
+  for (const [propName, group] of groups) {
+    if (group.length < 2) {
+      continue
+    }
+
+    // The final occurrence is already checked by the component call's props
+    // object. Only validate values that TypeScript considers overwritten.
+    for (const prop of group.slice(0, -1)) {
+      const codeInfo = getPropsCodeInfo(
+        ctx,
+        strictPropsCheck,
+        (options.usingComponents?.get(node.tag)?.length ?? 0) > 1,
+        false,
+      )
+
+      const valueCodes = prop.value
+        ? [...generateAttrValue(options, ctx, prop.value)]
+        : ([`true`] satisfies Code[])
+
+      yield `new ${componentOriginalVar}({${newLine}`
+      yield `...({} as ConstructorParameters<typeof ${componentOriginalVar}>[0]),${newLine}`
+      yield* generateObjectProperty(propName, prop.loc.start.offset, codeInfo)
+      yield `: `
+      if (prop.value) {
+        yield* wrapWith(
+          prop.value.loc.start.offset,
+          prop.value.loc.end.offset,
+          ctx.codeFeatures.verification,
+          toString(valueCodes),
+        )
+      } else {
+        yield `true`
+      }
+      yield `,${newLine}})${endOfLine}`
+    }
+  }
+}
+
+function getDuplicateAtModePropNames(props: CompilerDOM.ElementNode['props']) {
+  return new Set(
+    [...getAtModePropGroups(props)]
+      .filter(([, group]) => group.length > 1)
+      .map(([name]) => name),
+  )
+}
+
+function getAtModePropGroups(props: CompilerDOM.ElementNode['props']) {
+  const groups = new Map<string, CompilerDOM.AttributeNode[]>()
+  const atModeNames = new Set<string>()
+
+  for (const prop of props) {
+    if (prop.type !== CompilerDOM.NodeTypes.ATTRIBUTE) {
+      continue
+    }
+    const propName = getAtModeBaseName(prop.name)
+    if (propName !== prop.name) {
+      atModeNames.add(propName)
+    }
+    let group = groups.get(propName)
+    if (!group) {
+      group = []
+      groups.set(propName, group)
+    }
+    group.push(prop)
+  }
+
+  for (const propName of groups.keys()) {
+    if (!atModeNames.has(propName)) {
+      groups.delete(propName)
+    }
+  }
+
+  return groups
 }
 
 export function* generatePropExp(
@@ -435,14 +553,32 @@ export function* generateSingleMustache(
 function getPropsCodeInfo(
   ctx: TemplateCodegenContext,
   strictPropsCheck: boolean,
+  hasMultipleComponentCandidates: boolean,
+  suppressDuplicateAtModeProp: boolean,
 ): MpxCodeInformation {
   return ctx.resolveCodeFeatures({
-    ...codeFeatures.withoutHighlightAndCompletion,
-    verification: strictPropsCheck || {
+    // HTML custom data always owns prop completion so it can insert `name=""`.
+    // Keep TypeScript's richer native hover for a single component candidate,
+    // but disable it for multi-path components because QuickInfo only shows
+    // one branch; their merged union hover is provided by the HTML service.
+    ...(hasMultipleComponentCandidates
+      ? codeFeatures.navigationAndVerification
+      : codeFeatures.withoutHighlightAndCompletion),
+    verification: {
       shouldReport(_source, code) {
+        // Multiple conditional variants of one prop are valid because Mpx only
+        // keeps the branch for the active platform. Earlier values are checked
+        // separately by generateAtModePropChecks(); suppress only TypeScript's
+        // duplicate-key diagnostic in the main props object.
+        if (suppressDuplicateAtModeProp && String(code) === '1117') {
+          return false
+        }
         // https://typescript.tv/errors/#ts2353
         // https://typescript.tv/errors/#ts2561
-        if (String(code) === '2353' || String(code) === '2561') {
+        if (
+          !strictPropsCheck &&
+          (String(code) === '2353' || String(code) === '2561')
+        ) {
           return false
         }
         return true

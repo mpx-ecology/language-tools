@@ -29,6 +29,8 @@ export interface IRequests {
   >
 }
 
+export type { ComponentPropInfo } from './getComponentProps'
+
 export {
   collectExtractProps,
   getComponentNames,

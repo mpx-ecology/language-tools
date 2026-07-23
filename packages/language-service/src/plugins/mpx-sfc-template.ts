@@ -1,5 +1,13 @@
 import type * as vscode from 'vscode-languageserver-protocol'
-import type { Disposable } from '@volar/language-service'
+import type {
+  Disposable,
+  LanguageServiceContext,
+} from '@volar/language-service'
+import type {
+  ComponentPropInfo,
+  IRequests,
+} from '@mpxjs/typescript-plugin/src/requests'
+import type { TextDocument } from 'vscode-languageserver-textdocument'
 import * as html from 'vscode-html-languageservice'
 import { create as createHtmlService } from 'volar-service-html'
 import { LanguageServicePlugin, SfcJsonBlockUsingComponents } from '../types'
@@ -7,7 +15,9 @@ import templateBuiltinData from '../data/template'
 import { templateCodegenHelper } from '../utils/templateCodegenHelper'
 import { formatWithBracketSpacing, prettierEnabled } from '../utils/formatter'
 
-export function create(): LanguageServicePlugin {
+export function create(
+  getTsClient: (context: LanguageServiceContext) => IRequests | undefined,
+): LanguageServicePlugin {
   const mpxBuiltinData = html.newHTMLDataProvider(
     'mpx-template-built-in',
     templateBuiltinData,
@@ -25,6 +35,9 @@ export function create(): LanguageServicePlugin {
       insertTextFormat: 2 satisfies typeof vscode.InsertTextFormat.Snippet,
       kind: 14 satisfies typeof vscode.CompletionItemKind.Keyword,
     } satisfies vscode.CompletionItem
+  })
+  const htmlParser = html.getLanguageService({
+    useDefaultDataProvider: false,
   })
 
   let htmlBuiltinData = [html.getDefaultHTMLDataProvider()]
@@ -85,10 +98,28 @@ export function create(): LanguageServicePlugin {
 
     create(context) {
       const baseServiceInstance = baseService.create(context)
+      let customDataUpdateId = 0
+      const isCustomDataRequestCurrent = (
+        updateId: number,
+        token?: vscode.CancellationToken,
+      ) => !token?.isCancellationRequested && updateId === customDataUpdateId
 
       const runUpdateExtraCustomData = (
         usingComponents?: SfcJsonBlockUsingComponents,
+        componentProps?: Map<string, ComponentPropInfo[]>,
+        mode: 'completion' | 'hover' = 'completion',
       ) => {
+        const getAttributes = (componentTag: string) =>
+          (componentProps?.get(componentTag) ?? [])
+            .filter(prop => !prop.isAttribute)
+            .map(prop =>
+              toAttributeData(
+                prop,
+                mode === 'completion' ||
+                  (usingComponents?.get(componentTag)?.length ?? 0) > 1,
+              ),
+            )
+
         updateExtraCustomData({
           getId: () => 'mpx-template-custom-json',
           isApplicable: () => true,
@@ -105,15 +136,62 @@ export function create(): LanguageServicePlugin {
                     kind: 'markdown',
                     value: `自定义组件：\n- ${componentPaths.map(p => p.text).join('\n- ')}`,
                   },
-                  attributes: [],
+                  attributes: getAttributes(componentTag),
                 })
               }
             }
             return tags
           },
-          provideAttributes: () => [],
-          provideValues: () => [],
+          provideAttributes: getAttributes,
+          provideValues: (componentTag, attribute) =>
+            getAttributes(componentTag).find(item => item.name === attribute)
+              ?.values ?? [],
         })
+      }
+
+      const updateCustomDataAtPosition = async (
+        document: TextDocument,
+        position: vscode.Position,
+        mode: 'completion' | 'hover',
+        token?: vscode.CancellationToken,
+      ) => {
+        const updateId = ++customDataUpdateId
+        const helper = templateCodegenHelper(context, document.uri)
+        const usingComponents = helper?.sfc.json?.usingComponents
+        const tagContext = getTagContextAtPosition(document, position)
+        const componentTag = tagContext?.tag
+        const componentProps = new Map<string, ComponentPropInfo[]>()
+
+        const hasMultipleComponentCandidates =
+          componentTag !== undefined &&
+          (usingComponents?.get(componentTag)?.length ?? 0) > 1
+
+        if (
+          helper &&
+          componentTag &&
+          tagContext.isAfterTagName &&
+          usingComponents?.has(componentTag) &&
+          (mode === 'completion' || hasMultipleComponentCandidates) &&
+          !token?.isCancellationRequested
+        ) {
+          const props = await getTsClient(context)?.getComponentProps(
+            helper.documentUri.fsPath,
+            componentTag,
+          )
+          if (props?.length) {
+            componentProps.set(componentTag, props)
+          }
+        }
+
+        if (!isCustomDataRequestCurrent(updateId, token)) {
+          return
+        }
+
+        runUpdateExtraCustomData(usingComponents, componentProps, mode)
+        return {
+          updateId,
+          usingComponents,
+        }
       }
 
       return {
@@ -135,15 +213,24 @@ export function create(): LanguageServicePlugin {
           if (!context.project.mpx) {
             return
           }
-          const helper = templateCodegenHelper(context, document.uri)
-          const usingComponents = helper?.sfc.json?.usingComponents
-          runUpdateExtraCustomData(usingComponents)
+          const customData = await updateCustomDataAtPosition(
+            document,
+            position,
+            'completion',
+            token,
+          )
+          if (!customData) {
+            return
+          }
           let htmlComplete = await baseServiceInstance.provideCompletionItems?.(
             document,
             position,
             completionContext,
             token,
           )
+          if (!isCustomDataRequestCurrent(customData.updateId, token)) {
+            return
+          }
           if (!htmlComplete?.items.length) {
             htmlComplete = {
               isIncomplete: false,
@@ -151,8 +238,8 @@ export function create(): LanguageServicePlugin {
             }
           }
           htmlComplete.items.forEach(item => {
-            if (usingComponents?.has(item.label)) {
-              const componentPaths = usingComponents.get(item.label)
+            if (customData.usingComponents?.has(item.label)) {
+              const componentPaths = customData.usingComponents.get(item.label)
               if (componentPaths?.length) {
                 item.labelDetails = {
                   description: `自定义组件`,
@@ -167,14 +254,23 @@ export function create(): LanguageServicePlugin {
           if (document.languageId !== 'html') {
             return
           }
-          const helper = templateCodegenHelper(context, document.uri)
-          const usingComponents = helper?.sfc.json?.usingComponents
-          runUpdateExtraCustomData(usingComponents)
+          const customData = await updateCustomDataAtPosition(
+            document,
+            position,
+            'hover',
+            token,
+          )
+          if (!customData) {
+            return
+          }
           const res = await baseServiceInstance.provideHover?.(
             document,
             position,
             token,
           )
+          if (!isCustomDataRequestCurrent(customData.updateId, token)) {
+            return
+          }
           // @ts-ignore
           if (res?.contents?.value?.startsWith('自定义组件')) {
             return
@@ -265,5 +361,57 @@ export function create(): LanguageServicePlugin {
     extraCustomData = [extraData]
     htmlBuiltinData = [htmlBuiltinData2]
     onDidChangeCustomDataListeners.forEach(l => l())
+  }
+
+  function getTagContextAtPosition(
+    document: TextDocument,
+    position: vscode.Position,
+  ) {
+    const offset = document.offsetAt(position)
+    const node = htmlParser.parseHTMLDocument(document).findNodeAt(offset)
+    if (
+      !node?.tag ||
+      offset <= node.start ||
+      (node.startTagEnd !== undefined && offset > node.startTagEnd)
+    ) {
+      return
+    }
+    return {
+      tag: node.tag,
+      // Component props are only needed for attribute completion / hover. Asking
+      // tsserver for them while editing the tag name can repeatedly force project
+      // analysis and make tag completion appear to hang.
+      isAfterTagName: offset > node.start + 1 + node.tag.length,
+    }
+  }
+
+  function toAttributeData(
+    prop: ComponentPropInfo,
+    includeDescription: boolean,
+  ): html.IAttributeData {
+    const description: string[] = []
+    if (prop.type) {
+      description.push(
+        `\`${prop.name}${prop.required ? '' : '?'}: ${prop.type}\``,
+      )
+    }
+    if (prop.deprecated) {
+      description.push('**@deprecated**')
+    }
+    if (prop.commentMarkdown) {
+      description.push(prop.commentMarkdown)
+    }
+
+    return {
+      name: prop.name,
+      description:
+        includeDescription && description.length
+          ? {
+              kind: 'markdown',
+              value: description.join('\n\n'),
+            }
+          : undefined,
+      values: prop.values?.map(name => ({ name })),
+    }
   }
 }

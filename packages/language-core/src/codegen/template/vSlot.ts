@@ -193,10 +193,21 @@ function getElementInnerLoc(
   if (node.children.length) {
     let start = node.children[0].loc.start.offset
     let end = node.children.at(-1)!.loc.end.offset
-    while (options.template.content[start - 1] !== '>') {
+    const minStart = Math.max(0, node.loc.start.offset)
+    const maxEnd = Math.min(
+      options.template.content.length,
+      node.loc.end.offset,
+    )
+
+    // During tag editing the parser may recover an unmatched opening tag by
+    // treating all following nodes as its children. In that state there may be
+    // no closing tag (and therefore no next "<") before the end of the node.
+    // Keep both scans inside the recovered element range so code generation
+    // cannot loop forever on malformed, intermediate template text.
+    while (start > minStart && options.template.content[start - 1] !== '>') {
       start--
     }
-    while (options.template.content[end] !== '<') {
+    while (end < maxEnd && options.template.content[end] !== '<') {
       end++
     }
     return {

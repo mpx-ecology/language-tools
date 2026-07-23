@@ -10,7 +10,7 @@ allowBuilds:
   simple-git-hooks: true
 
 catalog:
-  '@mpxjs/core': ^2.10.13
+  '@mpxjs/core': ^2.11.0
   '@types/node': ^22.15.32
   '@types/path-browserify': ^1.0.3
   '@types/semver': ^7.7.0

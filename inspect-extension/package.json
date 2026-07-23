@@ -6,6 +6,7 @@
   "devDependencies": {
     "@mpxjs/core": "catalog:",
     "@vant/weapp": "^1.11.7",
+    "miniprogram-api-typings": "^3.12.3",
     "typescript": "catalog:",
     "unocss": "^66.3.3",
     "vue": "^2.7.0"

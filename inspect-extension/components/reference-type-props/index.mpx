@@ -1,0 +1,111 @@
+<template>
+  <!-- Case 1：缺少 .mpx，./component-options 应解析为 ./component-options.mpx。 -->
+
+  <!-- ❌ 完整 String 写法，预期报错：Type 'number' is not assignable to type 'string'. -->
+  <component-options parentText="{{ 123 }}"></component-options>
+
+  <!-- ❌ properties 短写，预期报错：Type 'number' is not assignable to type 'string'. -->
+  <component-options shortText="{{ 123 }}"></component-options>
+
+  <!-- ❌ 完整 Number 写法，预期报错：Type 'string' is not assignable to type 'number'. -->
+  <component-options name="{{ 'hello' }}"></component-options>
+
+  <!-- ❌ 平台条件后缀不属于 prop 名；name 仍为 number，parentText 仍为 string。 -->
+  <component-options
+    name@ios|android|harmony="{{ 'hello' }}"
+    parentText@_wx="{{ 123 }}"
+  ></component-options>
+
+  <!-- ❌ 同一 prop 的平台分支可以共存：iOS 分支预期类型报错，但不应产生 TS1117。 -->
+  <component-options
+    name@ios="{{ 'hello' }}"
+    name@android="{{ 2 }}"
+  ></component-options>
+
+  <!-- ❌ PropType<UserProfile>，预期报错：Type 'string' is not assignable to type 'UserProfile'. -->
+  <component-options
+    bindtap="handleTap"
+    catch:tap="handleTap"
+    profile="{{ 'not-a-profile' }}"
+  ></component-options>
+
+  <!-- ❌ 预期报错：Type 'string' is not assignable to type 'number'. -->
+  <component-js-setup
+    msg="ok"
+    count="{{ 'hello' }}"
+  />
+
+  <!--
+    ✅ 自定义引用类型子属性补全：删除 id/name 后，在对象中输入 i 或 n，
+    预期出现 id（number）和 name（string）候选。
+  -->
+  <component-options profile="{{ { id: 1, name: 'Mpx' } }}"></component-options>
+
+  <!--
+    ✅ JS 对照组：jsText 是 string，预期报错：
+    ❌ Type 'number' is not assignable to type 'string'.
+  -->
+  <component-options-js-control jsText="{{ 123 }}" />
+
+  <!--
+    ✅ 静态误扩宽回归组：严格实例虽然变成 never，模板仅冲突字段受影响；
+    引用方 stableText 仍应报错 ❌ Type 'number' is not assignable to type 'string'.
+  -->
+  <component-options-inference-conflict stableText="{{ 123 }}" />
+
+  <!-- ✅ 真实重名组件的对外 Props 仍按 properties 检查。 -->
+  <component-options-real-conflict
+    stableText="valid"
+    homeVersion="{{ 8 }}"
+  />
+
+  <!-- Case 2：缺少 /index.mpx，./component-index 应解析为 ./component-index/index.mpx。 -->
+
+  <!-- ✅ 目录组件属性类型正确。 -->
+  <component-index directoryCount="{{ 1 }}"></component-index>
+
+  <!-- ❌ 预期报错：Type 'string' is not assignable to type 'number'. -->
+  <component-index directoryCount="{{ 'hello' }}"></component-index>
+
+  <component-no-properties></component-no-properties>
+</template>
+
+<script lang="ts">
+import ComponentOptions, { createComponent } from '@mpxjs/core'
+
+// JSON 中的 component-options 会归一化为 ComponentOptions；该用户 import
+// 不应与语言工具为组件类型生成的内部 import 名称冲突。
+void ComponentOptions
+
+createComponent({
+  data: {
+    a: 1,
+    b: 2,
+  },
+  methods: {
+    handleTap() {},
+  },
+})
+</script>
+
+<script type="application/json">
+  {
+    "component": true,
+    "usingComponents": {
+      // Case 1：缺少 .mpx
+      "component-options": "./component-options",
+      // Case 2：缺少 /index.mpx
+      "component-index": "./component-index",
+      "component-js-setup": "./component-js-setup.mpx",
+      "component-options-js-control": "./component-options-js-control.mpx",
+      "component-options-inference-conflict": "./component-options-inference-conflict.mpx",
+      "component-options-real-conflict": "./component-options-real-conflict.mpx",
+      "component-no-properties": "./component-no-properties.mpx"
+    },
+    "componentPlaceholder": {
+      "component-options": "view",
+      "component-js-setup": "view",
+      "component-no-properties": "view"
+    }
+  }
+</script>
