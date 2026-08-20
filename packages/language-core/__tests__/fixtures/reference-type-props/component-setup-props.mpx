@@ -1,0 +1,38 @@
+<template>
+  <view>{{ correct.no_exist }}</view>
+  <view>{{ incorrect.no_exist }}</view>
+  <view>{{ mixed.no_exist }}</view>
+  <view>{{ mixedIncorrect.no_exist }}</view>
+</template>
+
+<script lang="ts">
+import { computed, createComponent, type PropType } from '@mpxjs/core'
+
+type Foo = { exist: string }
+type MixedFoo = { mixedExist: number }
+
+const propsMixin = {
+  properties: {
+    mixed: {
+      type: Object as PropType<MixedFoo>,
+      value: {} as MixedFoo,
+    },
+  },
+}
+
+createComponent({
+  mixins: [propsMixin],
+  properties: {
+    correct: {
+      type: Object as PropType<Foo>,
+      value: {} as Foo,
+    },
+  },
+  setup(props) {
+    const incorrect = computed(() => props.correct)
+    const mixedIncorrect = computed(() => props.mixed)
+
+    return { incorrect, mixedIncorrect }
+  },
+})
+</script>

@@ -3,8 +3,16 @@ import { MpxCompilerOptions } from '../../types'
 // Capture raw options independently from Mpx's constrained inference so IDE
 // metadata remains available even when ComponentIns contains conflicting fields.
 const globalTypes = () => `
-  function __VLS_CaptureOptions<RawO extends Record<string, any>>(
-    opt: RawO & ThisType<__VLS_TemplateContext<RawO>>
+  function __VLS_CaptureOptions<
+    P extends Properties = {},
+    Mi extends Array<any> = [],
+    RawO extends Record<string, any> = Record<string, any>,
+  >(
+    opt: RawO & {
+      properties?: P
+      mixins?: Mi
+      setup?: SetupFunction<P, Mi, any>
+    } & ThisType<__VLS_TemplateContext<RawO>>
   ): RawO
   function __VLS_GetRawProperties<RawO extends Record<string, any>>(
     opt: RawO
@@ -82,6 +90,14 @@ type ObjectOf<T> = {
   [key: string]: T
 }
 type AnyObject = ObjectOf<any>
+type SetupFunction<
+  P extends Properties,
+  Mi extends Array<any>,
+  S,
+> = (
+  props: GetPropsType<P & UnboxMixinsField<Mi, 'properties'>>,
+  context: any
+) => S
 type ThisTypedComponentOpt<
   D extends Data,
   P extends Properties,
@@ -105,7 +121,7 @@ interface ComponentOpt<
   methods?: M
   mixins?: Mi
   watch?: WatchField
-  setup?: (props: GetPropsType<P & UnboxMixinsField<Mi, 'properties'>>, context: any) => S
+  setup?: SetupFunction<P, Mi, S>
   pageShow?: () => void
   pageHide?: () => void
   initData?: Record<string, any>

@@ -1,0 +1,76 @@
+<template>
+  <!--
+    Issue #115 manual regression:
+    - correct and incorrect should both hover as Foo.
+    - mixed and mixedIncorrect should both hover as MixedFoo.
+    - Every valid property access should have no diagnostic.
+    - Every no_exist access should report TS2339.
+    - Script semantic highlighting should remain stable when blank lines around
+      properties, mixins, or setup are inserted or removed.
+  -->
+
+  <!-- ✅ properties 直接字段：Foo.exist 存在，预期不报错。 -->
+  <view>{{ correct.exist }}</view>
+
+  <!-- ❌ properties 直接字段：Foo.no_exist 不存在，预期 TS2339。 -->
+  <view>{{ correct.no_exist }}</view>
+
+  <!-- ✅ setup 返回的 computed：应解包为 Foo，访问 exist 预期不报错。 -->
+  <view>{{ incorrect.exist }}</view>
+
+  <!-- ❌ setup 返回的 computed：若没有 TS2339，说明返回值退化成了 any。 -->
+  <view>{{ incorrect.no_exist }}</view>
+
+  <!-- ✅ mixins.properties 直接字段：MixedFoo.mixedExist 存在，预期不报错。 -->
+  <view>{{ mixed.mixedExist }}</view>
+
+  <!-- ❌ mixins.properties 直接字段：MixedFoo.no_exist 不存在，预期 TS2339。 -->
+  <view>{{ mixed.no_exist }}</view>
+
+  <!-- ✅ setup 返回的 mixin computed：应解包为 MixedFoo，预期不报错。 -->
+  <view>{{ mixedIncorrect.mixedExist }}</view>
+
+  <!-- ❌ mixin prop 经 setup/computed 返回后仍应保持类型，预期 TS2339。 -->
+  <view>{{ mixedIncorrect.no_exist }}</view>
+</template>
+
+<script lang="ts">
+import { computed, createComponent, type PropType } from '@mpxjs/core'
+
+type Foo = { exist: string }
+type MixedFoo = { mixedExist: number }
+
+const propsMixin = {
+  properties: {
+    mixed: {
+      type: Object as PropType<MixedFoo>,
+      value: {} as MixedFoo,
+    },
+  },
+}
+
+createComponent({
+  mixins: [propsMixin],
+  properties: {
+    correct: {
+      type: Object as PropType<Foo>,
+      value: {} as Foo,
+    },
+  },
+  setup(props) {
+    // ✅ props.correct 应推断为 Foo；悬浮 correct 可确认类型，预期不报错。
+    const incorrect = computed(() => props.correct)
+
+    // ✅ props.mixed 来自 mixins.properties，应推断为 MixedFoo，预期不报错。
+    const mixedIncorrect = computed(() => props.mixed)
+
+    return { incorrect, mixedIncorrect }
+  },
+})
+</script>
+
+<script type="application/json">
+  {
+    "component": true
+  }
+</script>

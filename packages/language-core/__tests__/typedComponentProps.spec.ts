@@ -1,5 +1,6 @@
 import type { RequestContext } from '../../typescript-plugin/src/requests/types'
 import { getComponentProps } from '../../typescript-plugin/src/requests/getComponentProps'
+import type { VirtualCode } from '@volar/language-core'
 import * as ts from 'typescript'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import {
@@ -91,6 +92,76 @@ describe('typed custom component props', () => {
     )
   })
 
+  it('keeps setup returns typed from runtime props without duplicate semantics', () => {
+    const relativePath = 'component-setup-props.mpx'
+    const fileName = service.file(relativePath)
+    const source = service.read(relativePath)
+    const diagnostics = service.proxyLanguageService
+      .getSemanticDiagnostics(fileName)
+      .filter(diagnostic => diagnostic.code === 2339)
+
+    expect(
+      diagnostics.map(diagnostic => diagnosticMessage(diagnostic)),
+    ).toEqual([
+      "Property 'no_exist' does not exist on type 'Foo'.",
+      "Property 'no_exist' does not exist on type 'Foo'.",
+      "Property 'no_exist' does not exist on type 'MixedFoo'.",
+      "Property 'no_exist' does not exist on type 'MixedFoo'.",
+    ])
+
+    const incorrectPosition = source.indexOf('incorrect.no_exist') + 1
+    const incorrectInfo = service.proxyLanguageService.getQuickInfoAtPosition(
+      fileName,
+      incorrectPosition,
+    )
+    expect(displayPartsToString(incorrectInfo?.displayParts)).toBe(
+      '(property) incorrect: Foo',
+    )
+
+    const mixedIncorrectPosition = source.indexOf('mixedIncorrect.no_exist') + 1
+    const mixedIncorrectInfo =
+      service.proxyLanguageService.getQuickInfoAtPosition(
+        fileName,
+        mixedIncorrectPosition,
+      )
+    expect(displayPartsToString(mixedIncorrectInfo?.displayParts)).toBe(
+      '(property) mixedIncorrect: MixedFoo',
+    )
+
+    const mixedPropPosition =
+      source.indexOf('props.mixed') + 'props.'.length + 1
+    const mixedPropInfo = service.proxyLanguageService.getQuickInfoAtPosition(
+      fileName,
+      mixedPropPosition,
+    )
+    expect(displayPartsToString(mixedPropInfo?.displayParts)).toBe(
+      '(property) mixed: MixedFoo',
+    )
+
+    const propsPosition = source.indexOf('props.correct') + 1
+    const propsInfo = service.proxyLanguageService.getQuickInfoAtPosition(
+      fileName,
+      propsPosition,
+    )
+    const propsDisplay = displayPartsToString(propsInfo?.displayParts)
+    expect(propsDisplay).toContain('(parameter) props: GetPropsType<')
+    expect(propsDisplay).not.toContain('(parameter) props: any')
+
+    const { root } = service.getServiceScript(relativePath)
+    const scriptCode = findEmbeddedCode(root, 'script_ts')
+    const semanticMappings = scriptCode?.mappings.flatMap(mapping =>
+      mapping.sourceOffsets.flatMap((sourceOffset, index) => {
+        const length = mapping.lengths[index]
+        return sourceOffset <= propsPosition &&
+          propsPosition < sourceOffset + length &&
+          mapping.data.semantic
+          ? [mapping]
+          : []
+      }),
+    )
+    expect(semanticMappings).toHaveLength(1)
+  })
+
   it('keeps extensionless directory component Props typed', () => {
     const props = getProps('index.mpx', 'component-index')
 
@@ -178,4 +249,19 @@ function displayPartsToString(parts: ts.SymbolDisplayPart[] | undefined) {
 
 function diagnosticMessage(diagnostic: ts.Diagnostic) {
   return ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
+}
+
+function findEmbeddedCode(
+  root: VirtualCode,
+  id: string,
+): VirtualCode | undefined {
+  for (const code of root.embeddedCodes ?? []) {
+    if (code.id === id) {
+      return code
+    }
+    const nested = findEmbeddedCode(code, id)
+    if (nested) {
+      return nested
+    }
+  }
 }
