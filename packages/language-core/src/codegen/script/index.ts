@@ -148,6 +148,7 @@ export function* generateScript(
         {
           ...codeFeatures.all,
           verification: false, // 避免重复报错
+          semantic: false, // 避免同一源码区间产生两套语义信息
         },
       )
       yield `)${endOfLine}`
