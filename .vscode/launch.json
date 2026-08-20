@@ -39,7 +39,7 @@
       "name": "Attach to Language Server",
       "type": "node",
       "request": "attach",
-      "port": 6009,
+      "port": 6019,
       "restart": true,
       "outFiles": ["${workspaceRoot}/**/*.js"]
     }
