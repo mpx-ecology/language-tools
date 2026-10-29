@@ -3,7 +3,7 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["packages/*/__tests__"],
+  "include": ["packages/*/__tests__", "vscode/__tests__"],
   "references": [
     {
       "path": "./vscode/tsconfig.json"

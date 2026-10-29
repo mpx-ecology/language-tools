@@ -4,5 +4,6 @@ scripts
 src
 stats.html
 tests
+__tests__
 tsconfig.*
 node_modules/**/*.js.map

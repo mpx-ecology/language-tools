@@ -2,6 +2,17 @@
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "Mpx",
   "scopeName": "source.mpx",
+  "injections": {
+    "L:source.mpx comment": {
+      "patterns": [
+        {
+          "comment": "Keep MARK tokens in the root language for minimap section headers on editors that filter out embedded-language comments.",
+          "match": "\\bMARK:",
+          "name": "meta.section-header.mpx"
+        }
+      ]
+    }
+  },
   "patterns": [
     {
       "include": "text.html.basic#comment"
