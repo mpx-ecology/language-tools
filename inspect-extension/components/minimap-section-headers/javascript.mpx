@@ -1,0 +1,26 @@
+<template>
+  <!-- MARK: JavaScript 组件 -->
+  <view class="label">{{label}}</view>
+</template>
+
+<script>
+import { createComponent } from '@mpxjs/core'
+
+// MARK: JavaScript 数据
+// #region 普通 script 区域
+createComponent({
+  data: {
+    label: 'MARK: 字符串不生成标题',
+  },
+})
+// #endregion
+</script>
+
+<style>
+/* MARK: CSS 样式 */
+/* #region 默认 style 区域 */
+.label {
+  color: #333;
+}
+/* #endregion */
+</style>

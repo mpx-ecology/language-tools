@@ -1,6 +1,9 @@
 {
   "unocss.languageIds": ["mpx"],
   "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.minimap.enabled": true,
+  "editor.minimap.showMarkSectionHeaders": true,
+  "editor.minimap.showRegionSectionHeaders": true,
   // template 格式化配置
   "mpx.format.template.wrapAttributes": "force-expand-multiline",
   "mpx.format.template.wrapLineLength": 80,

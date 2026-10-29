@@ -1,0 +1,61 @@
+<template>
+  <!-- MARK: 头部 -->
+  <view class="header">头部</view>
+
+  <!-- MARK: - 列表 -->
+  <view wx:for="{{ list }}" wx:key="*this" class="list">{{ item }}</view>
+
+  <!-- #region 模板区域 -->
+  <view bindtap="onScroll">滚动</view>
+  <!-- #endregion -->
+
+  <!-- 预期：属性字符串和普通文本中的标记不生成节标题。 -->
+  <view data-label="MARK: 属性字符串">MARK: 模板文本</view>
+</template>
+
+<script setup lang="ts">
+// 预期：MARK 注释在 minimap 显示节标题，并与这一行源码对齐。
+// MARK: 列表数据
+const list = ['第一项', '第二项']
+
+// MARK: 滚动
+const onScroll = () => list.length
+
+/*
+ * MARK: 多行脚本注释
+ */
+
+// #region 脚本区域
+const label = 'MARK: 脚本字符串'
+const template = `
+// MARK: 模板字符串
+`
+// #endregion
+
+// 预期：以上两处字符串中的标记不生成标题，普通注释和变量保留原来的高亮。
+console.log(label, template)
+
+defineExpose({
+  list,
+  onScroll
+})
+</script>
+
+<style lang="stylus" scoped>
+/* MARK: 头部样式 */
+.header
+  height 88rpx
+
+/* MARK: 列表样式 */
+.list
+  flex 1
+
+/*
+ * MARK: 多行样式注释
+ */
+
+/* #region 样式区域 */
+.header:after
+  content "MARK: 样式字符串"
+/* #endregion */
+</style>
