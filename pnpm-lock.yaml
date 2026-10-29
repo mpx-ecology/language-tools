@@ -370,6 +370,12 @@ importers:
       vscode-ext-gen:
         specifier: ^1.0.2
         version: 1.0.2
+      vscode-oniguruma:
+        specifier: 2.0.1
+        version: 2.0.1
+      vscode-textmate:
+        specifier: 9.2.0
+        version: 9.2.0
       vscode-tmlanguage-snapshot:
         specifier: ^0.1.3
         version: 0.1.3

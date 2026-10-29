@@ -1,0 +1,58 @@
+[
+  {
+    "scopeName": "text.html.basic",
+    "patterns": [
+      { "include": "#comment" },
+      { "begin": "\"", "end": "\"", "name": "string.quoted.double.html" }
+    ],
+    "repository": {
+      "comment": {
+        "begin": "<!--",
+        "end": "-->",
+        "name": "comment.block.html"
+      }
+    }
+  },
+  {
+    "scopeName": "text.html.derivative",
+    "patterns": [{ "include": "text.html.basic" }]
+  },
+  {
+    "scopeName": "source.ts",
+    "patterns": [
+      {
+        "begin": "//",
+        "end": "(?=$)",
+        "contentName": "comment.line.double-slash.ts"
+      },
+      { "begin": "/\\*", "end": "\\*/", "name": "comment.block.ts" },
+      {
+        "begin": "\"",
+        "end": "\"",
+        "name": "string.quoted.double.ts",
+        "patterns": [{ "match": "\\\\." }]
+      },
+      { "begin": "'", "end": "'", "name": "string.quoted.single.ts" },
+      { "begin": "`", "end": "`", "name": "string.template.ts" }
+    ]
+  },
+  {
+    "scopeName": "source.js",
+    "patterns": [{ "include": "source.ts" }]
+  },
+  {
+    "scopeName": "source.css",
+    "patterns": [
+      { "begin": "/\\*", "end": "\\*/", "name": "comment.block.css" },
+      { "begin": "\"", "end": "\"", "name": "string.quoted.double.css" },
+      { "begin": "'", "end": "'", "name": "string.quoted.single.css" }
+    ]
+  },
+  {
+    "scopeName": "source.stylus",
+    "patterns": [
+      { "include": "source.css" },
+      { "begin": "//", "end": "(?=$)", "name": "comment.line.stylus" }
+    ]
+  }
+]
