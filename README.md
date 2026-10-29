@@ -6,7 +6,6 @@
 [![open-vsx-version-badge]][open-vsx-mpx-official]
 [![open-vsx-downloads-badge]][open-vsx-mpx-official]
 [![license-badge]][license-url]
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)][mpx-deepwiki]
 
 ## Why new Extension?
 
@@ -93,10 +92,6 @@ flowchart TD
 
 For details on how to contribute to this project, please refer to our [Contributing Guide][contributing-guide].
 
-## Dive In
-
-For architecture details and source code documentation, please refer to our [Deepwiki][mpx-deepwiki].
-
 ## RoadMap
 
 For details on our planned features and future direction, please refer to our [Roadmap].
@@ -115,7 +110,6 @@ For details on our planned features and future direction, please refer to our [R
 [Volar]: https://github.com/volarjs/volar.js
 [vue-official]: https://marketplace.visualstudio.com/items?itemName=Vue.volar
 [vue-language-tools]: https://github.com/vuejs/language-tools
-[mpx-deepwiki]: https://deepwiki.com/mpx-ecology/language-tools
 [mpx-vscode-wiki]: https://github.com/mpx-ecology/language-tools/wiki
 [roadmap]: https://github.com/mpx-ecology/language-tools/discussions/4
 [Johnson Chu]: https://github.com/johnsoncodehk
