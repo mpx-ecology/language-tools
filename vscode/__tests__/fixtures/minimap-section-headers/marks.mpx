@@ -1,0 +1,39 @@
+<template>
+  <!-- MARK: 头部 -->
+  <view class="header" />
+  <!-- MARK: - 列表 -->
+  <view class="list" data-label="MARK: 属性字符串" />
+  <!-- 普通模板注释 -->
+  <view>MARK: 模板文本</view>
+</template>
+
+<script setup lang="ts">
+// MARK: 列表数据
+const list: string[] = []
+// MARK: 滚动
+const onScroll = () => list.length
+/*
+ * MARK: 多行脚本注释
+ */
+// 普通脚本注释
+const label = "MARK: 脚本字符串"
+const template = `
+// MARK: 模板字符串
+`
+defineExpose({ list, onScroll })
+</script>
+
+<style lang="stylus" scoped>
+/* MARK: 头部样式 */
+.header
+  height 88rpx
+/* MARK: 列表样式 */
+.list
+  flex 1
+/*
+ * MARK: 多行样式注释
+ */
+// 普通样式注释
+.label:after
+  content "MARK: 样式字符串"
+</style>

@@ -6,7 +6,6 @@
 [![open-vsx-version-badge]][open-vsx-mpx-official]
 [![open-vsx-downloads-badge]][open-vsx-mpx-official]
 [![license-badge]][license-url]
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)][mpx-deepwiki]
 
 ## Why new Extension?
 
@@ -93,10 +92,6 @@ flowchart TD
 
 For details on how to contribute to this project, please refer to our [Contributing Guide][contributing-guide].
 
-## Dive In
-
-For architecture details and source code documentation, please refer to our [Deepwiki][mpx-deepwiki].
-
 ## RoadMap
 
 For details on our planned features and future direction, please refer to our [Roadmap].
@@ -115,7 +110,6 @@ For details on our planned features and future direction, please refer to our [R
 [Volar]: https://github.com/volarjs/volar.js
 [vue-official]: https://marketplace.visualstudio.com/items?itemName=Vue.volar
 [vue-language-tools]: https://github.com/vuejs/language-tools
-[mpx-deepwiki]: https://deepwiki.com/mpx-ecology/language-tools
 [mpx-vscode-wiki]: https://github.com/mpx-ecology/language-tools/wiki
 [roadmap]: https://github.com/mpx-ecology/language-tools/discussions/4
 [Johnson Chu]: https://github.com/johnsoncodehk
@@ -136,10 +130,10 @@ For details on our planned features and future direction, please refer to our [R
 
 <!-- Extension Links -->
 
-[vscode-market-version-badge]: https://img.shields.io/vscode-marketplace/v/mpxjs.mpx-official?label=VS%20Code&style=flat
-[vscode-market-version-badge-1]: https://img.shields.io/vscode-marketplace/v/mpxjs.mpx-official?label=Mpx%20(Official)&style=flat
-[vscode-market-downloads-badge]: https://img.shields.io/vscode-marketplace/d/mpxjs.mpx-official?label=VS%20Code%20Downloads&style=flat&color=brightgreen
-[vscode-market-installs-badge]: https://img.shields.io/vscode-marketplace/i/mpxjs.mpx-official?label=VS%20Code%20Installs&style=flat&color=brightgreen
+[vscode-market-version-badge]: https://badgen.net/vs-marketplace/v/mpxjs.mpx-official?label=VS%20Code
+[vscode-market-version-badge-1]: https://badgen.net/vs-marketplace/v/mpxjs.mpx-official?label=Mpx%20(Official)
+[vscode-market-downloads-badge]: https://badgen.net/vs-marketplace/d/mpxjs.mpx-official?label=VS%20Code%20Downloads&color=green
+[vscode-market-installs-badge]: https://badgen.net/vs-marketplace/i/mpxjs.mpx-official?label=VS%20Code%20Installs&color=green
 [vscode-market-mpx-official]: https://marketplace.visualstudio.com/items?itemName=mpxjs.mpx-official
 [open-vsx-version-badge]: https://img.shields.io/open-vsx/v/mpxjs/mpx-official?label=Open%20VSX&style=flat
 [open-vsx-downloads-badge]: https://img.shields.io/open-vsx/dt/mpxjs/mpx-official?label=Open%20VSX%20Downloads&style=flat&color=brightgreen

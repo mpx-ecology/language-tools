@@ -1,7 +1,7 @@
 {
   "name": "mpx-official",
   "private": true,
-  "version": "1.24.2",
+  "version": "1.24.3",
   "icon": "images/icon.png",
   "displayName": "Mpx (Official)",
   "description": "Official Mpx language support for Visual Studio Code",
@@ -79,6 +79,7 @@
         "path": "./syntaxes/mpx.tmLanguage.json",
         "embeddedLanguages": {
           "source.mpx": "mpx",
+          "meta.section-header.mpx": "mpx",
           "text": "plaintext",
           "text.html.derivative": "html",
           "text.html.markdown": "markdown",
@@ -350,6 +351,8 @@
     "semver": "^7.7.1",
     "stylus": "catalog:",
     "vscode-ext-gen": "^1.0.2",
+    "vscode-oniguruma": "2.0.1",
+    "vscode-textmate": "9.2.0",
     "vscode-tmlanguage-snapshot": "^0.1.3"
   }
 }

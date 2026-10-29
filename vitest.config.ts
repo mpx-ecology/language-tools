@@ -24,7 +24,10 @@ export default defineConfig({
     clearMocks: true,
     environment: 'node',
     fileParallelism: false,
-    include: ['packages/*/__tests__/**/*.spec.ts'],
+    include: [
+      'packages/*/__tests__/**/*.spec.ts',
+      'vscode/__tests__/**/*.spec.ts',
+    ],
     pool: 'forks',
     restoreMocks: true,
     testTimeout: 15_000,
