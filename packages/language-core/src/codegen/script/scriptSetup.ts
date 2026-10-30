@@ -2,7 +2,12 @@ import { camelize } from '@mpxjs/language-shared'
 import type { ScriptSetupRanges } from '../../parsers/scriptSetupRanges'
 import type { Code, Sfc, TextRange } from '../../types'
 import { codeFeatures } from '../codeFeatures'
-import { endOfLine, generateSfcBlockSection, newLine } from '../utils'
+import {
+  endOfLine,
+  generateSfcBlockSection,
+  identifierRegex,
+  newLine,
+} from '../utils'
 import { generateCamelized } from '../utils/camelized'
 import { generateComponentSelf } from './componentSelf'
 import type { ScriptCodegenContext } from './context'
@@ -53,6 +58,8 @@ function* generateSetupFunction(
   scriptSetup: NonNullable<Sfc['scriptSetup']>,
   scriptSetupRanges: ScriptSetupRanges,
 ): Generator<Code> {
+  yield* generateSetupMacros(options, ctx)
+
   let setupCodeModifies: [Code[], number, number][] = []
   if (scriptSetupRanges.defineProps) {
     const { statement, callExp, typeArg } = scriptSetupRanges.defineProps
@@ -251,6 +258,26 @@ function* generateSetupFunction(
   yield* generateComponentProps(ctx, scriptSetup, scriptSetupRanges)
   yield* generateTemplate(options, ctx)
   yield* generateComponentSelf(options)
+}
+
+function* generateSetupMacros(
+  options: ScriptCodegenOptions,
+  ctx: ScriptCodegenContext,
+): Generator<Code> {
+  for (const [macro, type] of [
+    ['defineProps', '__VLS_MpxDefineProps'],
+    ['withDefaults', '__VLS_MpxWithDefaults'],
+  ] as const) {
+    for (const name of new Set(options.mpxCompilerOptions.macros[macro])) {
+      // A real import or local binding must keep its own type and diagnostics.
+      if (ctx.bindingNames.has(name) || !identifierRegex.test(name)) {
+        continue
+      }
+      yield options.lang === 'js'
+        ? `const ${name} = /** @type {${type}} */ ({})${endOfLine}`
+        : `const ${name} = {} as ${type}${endOfLine}`
+    }
+  }
 }
 
 function* generateDefineWithType(

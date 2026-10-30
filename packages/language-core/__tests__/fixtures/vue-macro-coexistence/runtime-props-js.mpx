@@ -1,0 +1,14 @@
+<template>
+  <view>{{ title.toUpperCase() }} {{ count.toFixed() }}</view>
+</template>
+
+<script setup>
+const props = defineProps({
+  title: { type: String, value: 'hello' },
+  count: { type: Number, value: 1 },
+})
+
+props.title.toUpperCase()
+props.count.toFixed()
+defineExpose({ props })
+</script>

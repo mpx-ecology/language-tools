@@ -77,6 +77,36 @@ const runtimePropTypes = () => `
           : any
 `
 
+// Match Mpx's compiler macros instead of relying on ambient declarations: Vue
+// 2.7 declares the same global names with different runtime-prop/default rules.
+const scriptSetupMacroTypes = () => `
+  type __VLS_MpxDefineProps = {
+    <T extends Properties = {}>(props: T): Readonly<GetPropsType<T>>
+    <T>(): Readonly<T>
+  }
+  type __VLS_MpxWithDefaults = <Props, Defaults extends __VLS_MpxInferDefaults<Props>>(
+    props: Props,
+    defaults: Defaults
+  ) => Props & {
+    [K in keyof Defaults]: K extends keyof Props
+      ? Exclude<Props[K], undefined>
+      : never
+  }
+  type __VLS_MpxInferDefaults<T> = {
+    [K in keyof T]?: __VLS_MpxInferDefault<T, Exclude<T[K], undefined>>
+  }
+  type __VLS_MpxInferDefault<P, T> = T extends
+    | null
+    | number
+    | string
+    | boolean
+    | symbol
+    | Array<any>
+    | Object
+      ? T | ((props: P) => T)
+      : (props: P) => T
+`
+
 const localTypes = (lib: MpxCompilerOptions['lib']) => `
 // #region DefineComponent - local types
 type Data = object | (() => object)
@@ -310,4 +340,5 @@ export const defineComponentTypesContents = {
   globalTypes,
   localTypes,
   runtimePropTypes,
+  scriptSetupMacroTypes,
 }

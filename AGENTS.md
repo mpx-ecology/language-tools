@@ -45,3 +45,11 @@
 
 - Preserve unrelated user changes in the working tree and keep edits scoped to the requested behavior.
 - Do not commit, push, publish, or update changelogs unless the user explicitly asks for that action.
+
+## Bug fix delivery workflow
+
+- For each requested bug fix, first find the matching GitHub issue or create one before implementation. Keep the issue concise: describe the problem, the necessary reproduction steps, and the expected behavior.
+- Reuse labels applied to similar historical issues. Add reproduction screenshots only when useful and safe to publish; keep screenshots containing internal information local.
+- Create a new `codex/` branch from the target base branch for the fix. Keep unrelated local commits and user changes out of the branch.
+- Implement and validate the fix, then commit, push the branch, and open a focused pull request. Link the issue in the PR body with `Closes #<issue-number>` or an equivalent closing keyword.
+- The user's standing instruction authorizes this issue → branch → fix → PR workflow for requested bug fixes. Merging, publishing a release, and updating changelogs still require an explicit request.

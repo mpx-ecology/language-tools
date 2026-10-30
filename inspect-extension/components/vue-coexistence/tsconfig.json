@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16"
+  },
+  "files": [
+    "./vue-first.ts",
+    "./control.vue",
+    "./runtime-props.mpx",
+    "./typed-defaults.mpx"
+  ],
+  "include": []
+}

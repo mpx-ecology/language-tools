@@ -1,0 +1,9 @@
+<script setup lang="ts">
+const props = defineProps({ title: { type: String, value: 'hello' } })
+
+// Intentional errors: keep normal assignability, readonly and property checks.
+const incorrect: number = props.title
+props.title = 'changed'
+props.title.missing()
+defineExpose({ incorrect })
+</script>
