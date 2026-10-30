@@ -1,0 +1,26 @@
+<template>
+  <view>{{ title.toUpperCase() }} {{ profile.name.toUpperCase() }}</view>
+</template>
+
+<script setup lang="ts">
+import type { PropType } from '@mpxjs/core'
+
+interface Profile {
+  name: string
+}
+
+const props = defineProps({
+  title: { type: String, value: 'hello' },
+  count: { type: Number, value: 1 },
+  profile: {
+    type: Object as PropType<Profile>,
+    value: { name: 'mpx' },
+  },
+})
+
+props.title.toUpperCase()
+props.count.toFixed()
+props.profile.name.toUpperCase()
+
+defineExpose({ props })
+</script>

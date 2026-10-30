@@ -1,0 +1,10 @@
+<script setup lang="ts">
+import type { withDefaults } from './local-macros'
+import { type defineProps } from './local-macros'
+
+const defaults: typeof withDefaults = value => ({ localCount: value.localLabel.length })
+const props: typeof defineProps = value => ({ localLabel: value })
+const result = defaults(props('local'))
+result.localCount.toFixed()
+defineExpose({ result })
+</script>

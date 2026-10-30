@@ -1,0 +1,7 @@
+<script setup lang="ts">
+import type { defineProps } from './local-macros'
+
+// Intentional error: a type-only import cannot be called as a value (TS1361).
+const props = defineProps('local')
+defineExpose({ props })
+</script>

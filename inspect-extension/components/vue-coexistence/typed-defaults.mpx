@@ -1,0 +1,24 @@
+<template>
+  <!-- Expected: defaults remove undefined from title/profile in the template. -->
+  <view>{{ title.toUpperCase() }} {{ profile.name.toUpperCase() }}</view>
+</template>
+
+<script setup lang="ts">
+interface Profile {
+  name: string
+}
+
+// Expected: Mpx allows the object default directly; no Vue factory-only error.
+const props = withDefaults(
+  defineProps<{ title?: string; profile?: Profile; count?: number }>(),
+  { title: 'hello', profile: { name: 'mpx' }, count: 1 },
+)
+
+props.title.toUpperCase()
+props.profile.name.toUpperCase()
+props.count.toFixed()
+
+// Intentional error: TS2540, props stay readonly.
+props.title = 'changed'
+defineExpose({ props })
+</script>

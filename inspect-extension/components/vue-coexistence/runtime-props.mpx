@@ -1,0 +1,30 @@
+<template>
+  <!-- Expected: title: string, profile.name: string; no possibly-undefined errors. -->
+  <view>{{ title.toUpperCase() }} {{ profile.name.toUpperCase() }}</view>
+</template>
+
+<script setup lang="ts">
+import type { PropType } from '@mpxjs/core'
+
+interface Profile {
+  name: string
+}
+
+const props = defineProps({
+  title: { type: String, value: 'hello' },
+  count: { type: Number, value: 1 },
+  profile: {
+    type: Object as PropType<Profile>,
+    value: { name: 'mpx' },
+  },
+})
+
+// Expected: string / number / Profile hover types and typed member completions.
+props.title.toUpperCase()
+props.count.toFixed()
+props.profile.name.toUpperCase()
+
+// Intentional error: TS2339, number has no toUpperCase().
+props.count.toUpperCase()
+defineExpose({ props })
+</script>

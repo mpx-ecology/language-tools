@@ -1,0 +1,15 @@
+<script setup lang="ts">
+import type { withDefaults } from './local-macros'
+import { type defineProps } from './local-macros'
+
+// Expected: no import conflicts; typeof uses the explicitly imported functions.
+const defaults: typeof withDefaults = value => ({ localCount: value.localLabel.length })
+const props: typeof defineProps = value => ({ localLabel: value })
+const result = defaults(props('local'))
+result.localCount.toFixed()
+
+// Expected: definition navigation on both typeof names reaches local-macros.ts.
+// Intentional error: TS2339, number has no toUpperCase().
+result.localCount.toUpperCase()
+defineExpose({ result })
+</script>

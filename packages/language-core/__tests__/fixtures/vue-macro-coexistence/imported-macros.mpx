@@ -1,0 +1,7 @@
+<script setup lang="ts">
+import { defineProps, withDefaults } from './local-macros'
+
+const props = withDefaults(defineProps('local'))
+props.localCount.toFixed()
+defineExpose({ props })
+</script>

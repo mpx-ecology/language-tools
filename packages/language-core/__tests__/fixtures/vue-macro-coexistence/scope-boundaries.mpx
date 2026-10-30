@@ -1,0 +1,38 @@
+<script setup lang="ts">
+function localFunction() {
+  var defineProps = 1
+  return defineProps
+}
+const localArrow = () => {
+  var withDefaults = 1
+  return withDefaults
+}
+class LocalClass {
+  static {
+    var defineProps = 1
+    void defineProps
+  }
+  method() {
+    var withDefaults = 1
+    return withDefaults
+  }
+}
+namespace LocalNamespace {
+  export var defineProps = 1
+}
+if (true) {
+  let defineProps = 1
+  const withDefaults = 1
+  void defineProps
+  void withDefaults
+}
+try {} catch (defineProps) { void defineProps }
+
+// Nested scopes and block-scoped bindings must not hide these ambient macros.
+const props = withDefaults(
+  defineProps({ title: { type: String, value: 'hello' } }),
+  {},
+)
+props.title.toUpperCase()
+defineExpose({ props, localFunction, localArrow, LocalClass, LocalNamespace })
+</script>

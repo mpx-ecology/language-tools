@@ -1,0 +1,20 @@
+<script setup lang="ts">
+if (true) {
+  var defineProps = (value: string) => ({ localLabel: value })
+  var withDefaults = (value: { localLabel: string }) => ({
+    ...value,
+    localCount: value.localLabel.length,
+  })
+}
+
+// Expected: these are local functions, with no TS2345 / TS2554 macro errors.
+const props = withDefaults(defineProps('local'))
+props.localLabel.toUpperCase()
+props.localCount.toFixed()
+
+// Expected: F12 on either call reaches its var declaration above.
+// F2 from a declaration or call must include both declaration and call.
+// Intentional error: TS2339, number has no toUpperCase().
+props.localCount.toUpperCase()
+defineExpose({ props })
+</script>

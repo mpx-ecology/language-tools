@@ -1,0 +1,14 @@
+<script setup lang="ts">
+if (true) {
+  var defineProps = (value: string) => ({ localLabel: value })
+  var withDefaults = (value: { localLabel: string }) => ({
+    ...value,
+    localCount: value.localLabel.length,
+  })
+}
+
+const props = withDefaults(defineProps('local'))
+props.localLabel.toUpperCase()
+props.localCount.toFixed()
+defineExpose({ props })
+</script>
