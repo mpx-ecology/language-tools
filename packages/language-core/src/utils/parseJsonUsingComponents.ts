@@ -68,9 +68,9 @@ export function parseUsingComponentsWithJs(
   sourceFile: ts.SourceFile,
 ): SfcJsonBlockUsingComponents {
   const usingComponents: SfcJsonBlockUsingComponents = new Map()
-  // 记录对对象变量的补充：例如 const comps = ...;
-  // Object.assign(comps, { classify: './classify' }); { usingComponents: comps }
-  const objectAssignAugments: Map<string, ts.Expression[]> = new Map()
+  // Only consume writes when their object is reached from usingComponents.
+  const objectAugments: Map<string, ts.Expression[]> = new Map()
+  const parsedExpressions = new Set<ts.Expression>()
 
   function visit(node: ts.Node) {
     /**
@@ -90,22 +90,7 @@ export function parseUsingComponentsWithJs(
       ts.isIdentifier(node.name) &&
       node.name.text === 'usingComponents'
     ) {
-      const varName = node.name.text
-      const resolved = findVariableInitializerExpression(
-        ts,
-        sourceFile,
-        varName,
-      )
-      if (resolved) {
-        parseObjectFromExpression(resolved)
-      }
-      // 合并通过 Object.assign 收集到的补充
-      const augments = objectAssignAugments.get(varName)
-      if (augments && augments.length) {
-        for (const augmentExp of augments) {
-          parseObjectFromExpression(augmentExp)
-        }
-      }
+      parseObjectFromExpression(node.name)
       return
     }
 
@@ -141,6 +126,19 @@ export function parseUsingComponentsWithJs(
   }
 
   function collectAugments(node: ts.Node) {
+    // Visit assignment expressions directly, including comma expressions and
+    // conditional blocks. Computed component names are intentionally excluded.
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+    ) {
+      const property = getStaticObjectProperty(node.left)
+      if (property) {
+        const list = objectAugments.get(property.object.text) ?? []
+        list.push(node)
+        objectAugments.set(property.object.text, list)
+      }
+    }
     // 收集 Object.assign(target, ...) 对象补充
     if (
       ts.isCallExpression(node) &&
@@ -153,14 +151,34 @@ export function parseUsingComponentsWithJs(
       const target = node.arguments[0]
       if (ts.isIdentifier(target)) {
         const targetName = target.text
-        const list = objectAssignAugments.get(targetName) ?? []
+        const list = objectAugments.get(targetName) ?? []
         for (let i = 1; i < node.arguments.length; i++) {
           list.push(node.arguments[i])
         }
-        objectAssignAugments.set(targetName, list)
+        objectAugments.set(targetName, list)
       }
     }
     ts.forEachChild(node, collectAugments)
+  }
+
+  function getStaticObjectProperty(expression: ts.Expression) {
+    if (
+      ts.isPropertyAccessExpression(expression) &&
+      ts.isIdentifier(expression.expression) &&
+      ts.isIdentifier(expression.name)
+    ) {
+      return { object: expression.expression, name: expression.name }
+    }
+    if (
+      ts.isElementAccessExpression(expression) &&
+      ts.isIdentifier(expression.expression) &&
+      ts.isStringLiteral(expression.argumentExpression)
+    ) {
+      return {
+        object: expression.expression,
+        name: expression.argumentExpression,
+      }
+    }
   }
 
   function parseAssignmentExpression(assignment: ts.BinaryExpression) {
@@ -248,14 +266,24 @@ export function parseUsingComponentsWithJs(
   }
 
   function parsePropertyAssignment(prop: ts.PropertyAssignment) {
-    const name = (prop.name as ts.Identifier | ts.StringLiteral).text
+    parseComponentPath(
+      prop.name as ts.Identifier | ts.StringLiteral,
+      prop.initializer,
+    )
+  }
+
+  function parseComponentPath(
+    nameNode: ts.Identifier | ts.StringLiteral,
+    initializer: ts.Expression,
+  ) {
+    const name = nameNode.text
     let text = ''
     let _variableOffset: number | undefined = undefined
 
-    if (ts.isStringLiteral(prop.initializer)) {
-      text = prop.initializer.text
-    } else if (ts.isIdentifier(prop.initializer)) {
-      const identifierName = prop.initializer.text
+    if (ts.isStringLiteral(initializer)) {
+      text = initializer.text
+    } else if (ts.isIdentifier(initializer)) {
+      const identifierName = initializer.text
       const { variableValue, variableOffset } = findVariableValue(
         ts,
         sourceFile,
@@ -265,10 +293,10 @@ export function parseUsingComponentsWithJs(
         text = variableValue
         _variableOffset = variableOffset
       }
-    } else if (ts.isPropertyAccessExpression(prop.initializer)) {
+    } else if (ts.isPropertyAccessExpression(initializer)) {
       text = sourceFile.text.substring(
-        prop.initializer.getStart(),
-        prop.initializer.getEnd(),
+        initializer.getStart(),
+        initializer.getEnd(),
       )
     }
 
@@ -278,8 +306,8 @@ export function parseUsingComponentsWithJs(
       }
       usingComponents.get(name)!.push({
         text,
-        offset: _variableOffset ?? prop.initializer.getStart(sourceFile),
-        nameOffset: prop.name.getStart(sourceFile),
+        offset: _variableOffset ?? initializer.getStart(sourceFile),
+        nameOffset: nameNode.getStart(sourceFile),
       })
     }
   }
@@ -308,6 +336,23 @@ export function parseUsingComponentsWithJs(
   }
 
   function parseObjectFromExpression(expression: ts.Expression) {
+    // Shared spreads and cyclic object references must not duplicate mappings
+    // or recurse indefinitely.
+    if (parsedExpressions.has(expression)) {
+      return
+    }
+    parsedExpressions.add(expression)
+
+    if (
+      ts.isBinaryExpression(expression) &&
+      expression.operatorToken.kind === ts.SyntaxKind.EqualsToken
+    ) {
+      const property = getStaticObjectProperty(expression.left)
+      if (property) {
+        parseComponentPath(property.name, expression.right)
+      }
+      return
+    }
     // 处理括号包裹的表达式 ({ ... })
     if (ts.isParenthesizedExpression(expression)) {
       expression = expression.expression
@@ -325,7 +370,7 @@ export function parseUsingComponentsWithJs(
         parseObjectFromExpression(resolved)
       }
       // 合并通过 Object.assign 收集到的补充
-      const augments = objectAssignAugments.get(varName)
+      const augments = objectAugments.get(varName)
       if (augments && augments.length) {
         for (const augmentExp of augments) {
           parseObjectFromExpression(augmentExp)
