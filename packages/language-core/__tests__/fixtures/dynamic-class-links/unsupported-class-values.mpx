@@ -1,0 +1,26 @@
+<template>
+  <!-- Intentional negative cases: ordinary class requires strings, not normalized objects/arrays. -->
+  <view class="{{ { 'object-class': enabled } }}" />
+  <view class="{{ ['array-only-class'] }}" />
+  <!-- Mixed wx:class text stringifies its expression rather than normalizing an object. -->
+  <view wx:class="prefix {{ { 'mixed-object-class': enabled } }}" />
+  <!-- Valid concatenation: quoted fragments below are not complete class names. -->
+  <view class="pre-{{ enabled ? 'active' : 'inactive' }}" />
+  <view class="{{ 'active' }}-suffix" />
+  <view wx:class="pre-{{ enabled ? 'active' : 'inactive' }}" />
+  <view wx:class="{{ 'active' }}-suffix" />
+  <view class="{{ 'active' }}{{ 'inactive' }}" />
+</template>
+
+<script setup lang="ts">
+const enabled = true
+defineExpose({ enabled })
+</script>
+
+<style scoped>
+.object-class {}
+.array-only-class {}
+.mixed-object-class {}
+.active {}
+.inactive {}
+</style>

@@ -35,6 +35,7 @@ export function* generateComponent(
   ctx: TemplateCodegenContext,
   node: CompilerDOM.ElementNode,
 ): Generator<Code> {
+  collectStyleScopedClassReferences(options, ctx, node)
   const tagOffsets = [
     node.loc.start.offset +
       options.template.content.slice(node.loc.start.offset).indexOf(node.tag),
@@ -290,8 +291,6 @@ export function* generateComponent(
     }
   }
 
-  collectStyleScopedClassReferences(options, ctx, node)
-
   const slotDir = node.props.find(
     p => p.type === CompilerDOM.NodeTypes.DIRECTIVE && p.name === 'slot',
   ) as CompilerDOM.DirectiveNode
@@ -307,6 +306,7 @@ export function* generateElement(
   ctx: TemplateCodegenContext,
   node: CompilerDOM.ElementNode,
 ): Generator<Code> {
+  collectStyleScopedClassReferences(options, ctx, node)
   const startTagOffset =
     node.loc.start.offset +
     options.template.content.slice(node.loc.start.offset).indexOf(node.tag)
@@ -382,8 +382,6 @@ export function* generateElement(
       `__VLS_NativeElements['${isExternalNodeTag ? 'external-' : ''}${node.tag}']`,
     )
   }
-
-  collectStyleScopedClassReferences(options, ctx, node)
 
   const { currentComponent } = ctx
   ctx.currentComponent = undefined
