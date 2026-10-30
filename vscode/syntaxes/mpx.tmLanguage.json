@@ -3,6 +3,19 @@
   "name": "Mpx",
   "scopeName": "source.mpx",
   "injections": {
+    "L:source.mpx source.css comment, L:source.mpx source.stylus comment, L:source.mpx source.postcss comment, L:source.mpx source.sass comment": {
+      "patterns": [
+        {
+          "comment": "Match directives at the start of a comment or comment line, preserving the embedded grammar's comment and string boundaries.",
+          "match": "(?:\\G|^)[ \\t]*(@mpx-(?:if|elif|else|endif))(?=[\\s(]|\\*/|$)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.directive.mpx"
+            }
+          }
+        }
+      ]
+    },
     "L:source.mpx comment": {
       "patterns": [
         {

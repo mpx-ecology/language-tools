@@ -1,0 +1,73 @@
+<template>
+  <view class="style-directive-sample">Style conditional directives</view>
+</template>
+
+<script setup lang="ts">
+// Expected: script comments keep their normal scopes.
+const label = 'style directives'
+defineExpose({ label })
+</script>
+
+<style>
+/* Expected: all four commands get directive scopes; conditions remain comments. */
+/* @mpx-if (__mpx_mode__ === 'wx') */
+.style-directive-sample {
+  color: green;
+}
+/* @mpx-elif (__mpx_mode__ === 'ali') */
+.style-directive-sample {
+  color: blue;
+}
+/* @mpx-else */
+.style-directive-sample {
+  color: red;
+}
+/* @mpx-endif */
+
+/* MARK: Multiline condition */
+/*
+  @mpx-if (
+    __mpx_mode__ === 'wx'
+  )
+*/
+.style-directive-sample::after {
+  /* Expected: the quoted text remains a string, with no directive completion. */
+  content: '/* @mpx-i */';
+}
+/* @mpx-endif */
+</style>
+
+<style lang="scss">
+/* Expected: completing inside this comment preserves its delimiters and condition. */
+/* @mpx-if (__mpx_mode__ === 'wx') */
+.style-directive-sample {
+  border-width: 1px;
+}
+/* @mpx-endif */
+</style>
+
+<style lang="less">
+/* Expected: the same completion and directive scopes as CSS. */
+/* @mpx-if (__mpx_mode__ === 'wx') */
+.style-directive-sample {
+  border-style: solid;
+}
+/* @mpx-endif */
+</style>
+
+<style lang="postcss">
+/* Expected: block-comment directives preserve plain PostCSS comment boundaries. */
+/* @mpx-if (__mpx_mode__ === 'wx') */
+.style-directive-sample {
+  border-color: green;
+}
+/* @mpx-endif */
+</style>
+
+<style lang="stylus">
+/* Expected: block-comment directives preserve the surrounding Stylus scopes. */
+/* @mpx-if (__mpx_mode__ === 'wx') */
+.style-directive-sample
+  padding 4px
+/* @mpx-endif */
+</style>
