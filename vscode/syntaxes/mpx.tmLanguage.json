@@ -138,6 +138,9 @@
               "patterns": [
                 {
                   "include": "source.postcss"
+                },
+                {
+                  "include": "source.css"
                 }
               ]
             }

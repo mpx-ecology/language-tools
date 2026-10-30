@@ -27,3 +27,14 @@ Incomplete prefixes are created during editing rather than committed as invalid 
 The automated completion and tokenization fixtures live under `packages/language-service/__tests__` and `vscode/__tests__`, independently of this mutable manual workspace. F5 UI acceptance is a separate check from those automated tests.
 
 The valid directive forms and multiline comments follow `mpx-core`'s `packages/webpack-plugin/lib/style-compiler/plugins/conditional-strip.js` and `lib/style-compiler/strip-conditional.js`; the latter also handles `//` directives before style preprocessing. `__mpx_mode__` is injected through the plugin's default `defs`. Full directive-looking text inside strings, ordinary prose, nested comment delimiters and incomplete syntax in automated tests are intentional lexical/editor negative cases, not claims that the Mpx compiler accepts those inputs.
+
+## Visual acceptance — 2026-10-30
+
+Passed in the actual F5 Extension Host using the normal `VSCode Extension` launch configuration and watch task, with the workspace's **Dark Modern** theme. CSS was checked in VS Code 1.144.0; the complete matrix was checked after restarting the host in Code Insiders 1.145.0.
+
+- CSS, SCSS, Less, PostCSS and Stylus directive keywords use `keyword.control.directive.mpx` and render purple (`#C586C0`). Surrounding comment delimiters and conditions remain green (`#6A9955`). Multiline directives retain the same distinction.
+- The quoted comment-looking text on line 35 remains `string.quoted.single.css`, orange (`#CE9178`), with no directive scope. Ordinary comments retain their comment scope and green color.
+- The nearby `MARK:` keeps `meta.section-header.mpx` and its minimap header. Selectors and properties after closing comments keep normal stylesheet colors.
+- The PostCSS block also passes without an installed `source.postcss` grammar: it falls back to the built-in CSS grammar. This default-editor case has a dedicated regression test.
+
+Actual window screenshots were retained locally as review evidence, outside Git.

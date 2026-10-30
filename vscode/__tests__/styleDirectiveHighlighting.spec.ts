@@ -32,7 +32,6 @@ beforeAll(async () => {
   for (const scopeName of [
     'source.css.scss',
     'source.css.less',
-    'source.postcss',
     'source.sass',
   ]) {
     grammars.set(scopeName, {
@@ -82,6 +81,25 @@ function tokenAt(line: ReturnType<typeof tokenize>[number], text: string) {
 }
 
 describe('style conditional directive highlighting', () => {
+  it('keeps PostCSS directives and string boundaries without a PostCSS grammar extension', () => {
+    // No source.postcss dependency is registered above: a default VS Code
+    // installation still provides the CSS grammar used by this fallback.
+    const lines = tokenize(
+      '<style lang="postcss">\n/* @mpx-if (__mpx_mode__) */\n.x { content: "@mpx-if"; color: red; }\n/* @mpx-endif */\n</style>',
+    )
+    expect(tokenAt(lines[1], '@mpx-if').scopes).toContain(
+      'keyword.control.directive.mpx',
+    )
+    expect(tokenAt(lines[2], '@mpx-if').scopes).not.toContain(
+      'keyword.control.directive.mpx',
+    )
+    expect(
+      tokenAt(lines[2], '@mpx-if').scopes.some(scope =>
+        scope.startsWith('string.'),
+      ),
+    ).toBe(true)
+  })
+
   it.each([
     'style',
     'style lang="css"',
