@@ -68,6 +68,7 @@ export function createTemplateCodegenContext(
     source: string
     className: string
     offset: number
+    isShorthand?: boolean
   }[] = []
   const emptyClassOffsets: number[] = []
   const bindingAttrLocs: CompilerDOM.SourceLocation[] = []
