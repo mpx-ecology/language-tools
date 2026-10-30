@@ -39,6 +39,11 @@ describe.each([
     'both-scripts.mpx',
     'macro-aliases.mpx',
     'imported-macros.mpx',
+    'type-imports.mpx',
+    'import-equals.mpx',
+    'namespace-binding.mpx',
+    'both-scripts-bindings.mpx',
+    'runtime-defaults-js.mpx',
   ])('keeps valid Mpx props typed in %s', relativePath => {
     const fileName = service.file(relativePath)
     const diagnostics = [
@@ -115,6 +120,92 @@ describe.each([
       service.file('invalid-defaults.mpx'),
     )
     expect(defaults.map(diagnostic => diagnostic.code)).toEqual([2322])
+    const typeImport = service.proxyLanguageService.getSemanticDiagnostics(
+      service.file('invalid-type-import-call.mpx'),
+    )
+    expect(typeImport.map(diagnostic => diagnostic.code)).toEqual([1361])
+  })
+
+  it.each([
+    ['runtime-props.mpx', 'defineProps'],
+    ['typed-defaults.mpx', 'withDefaults'],
+    ['runtime-props-js.mpx', 'defineProps'],
+    ['runtime-defaults-js.mpx', 'withDefaults'],
+  ])('preserves ambient macro navigation in %s (%s)', (relativePath, macro) => {
+    const source = service.read(relativePath)
+    const position = source.indexOf(`${macro}(`)
+    const fileName = service.file(relativePath)
+    const ambientSource = service.read('ambient-control.ts')
+    const expected = service.proxyLanguageService.getDefinitionAtPosition(
+      service.file('ambient-control.ts'),
+      ambientSource.lastIndexOf(macro),
+    )
+    expect(expected?.length).toBeGreaterThan(0)
+    expect(
+      expected?.every(definition => definition.fileName.endsWith('.d.ts')),
+    ).toBe(true)
+    expect(
+      service.proxyLanguageService.getDefinitionAtPosition(fileName, position),
+    ).toEqual(expected)
+    expect(
+      service.proxyLanguageService.getDefinitionAndBoundSpan(fileName, position)
+        ?.definitions,
+    ).toEqual(expected)
+  })
+
+  it.each([
+    ['runtime-props.mpx', 'defineProps'],
+    ['typed-defaults.mpx', 'withDefaults'],
+    ['runtime-props-js.mpx', 'defineProps'],
+    ['runtime-defaults-js.mpx', 'withDefaults'],
+    ['macro-aliases.mpx', 'mpxProps'],
+    ['macro-aliases.mpx', 'mpxDefaults'],
+  ])('rejects incomplete macro renames in %s (%s)', (relativePath, macro) => {
+    const fileName = service.file(relativePath)
+    const position = service.read(relativePath).indexOf(`${macro}`)
+    expect(
+      service.proxyLanguageService.getRenameInfo(fileName, position, {})
+        .canRename,
+    ).toBe(false)
+    expect(
+      service.proxyLanguageService.findRenameLocations(
+        fileName,
+        position,
+        false,
+        false,
+      ) ?? [],
+    ).toEqual([])
+  })
+
+  it('preserves navigation and rename for explicitly imported functions', () => {
+    const relativePath = 'imported-macros.mpx'
+    const fileName = service.file(relativePath)
+    const position = service.read(relativePath).indexOf('defineProps(')
+    const definitions = service.proxyLanguageService.getDefinitionAtPosition(
+      fileName,
+      position,
+    )
+    expect(definitions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ fileName: service.file('local-macros.ts') }),
+      ]),
+    )
+    expect(
+      service.proxyLanguageService.getRenameInfo(fileName, position, {})
+        .canRename,
+    ).toBe(true)
+    expect(
+      service.proxyLanguageService.findRenameLocations(
+        fileName,
+        position,
+        false,
+        false,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ fileName: service.file('local-macros.ts') }),
+      ]),
+    )
   })
 
   it('does not change the ambient macro in ordinary TypeScript modules', () => {

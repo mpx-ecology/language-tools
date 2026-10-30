@@ -9,7 +9,9 @@
     "./vue-first.ts",
     "./control.vue",
     "./runtime-props.mpx",
-    "./typed-defaults.mpx"
+    "./typed-defaults.mpx",
+    "./explicit-type-imports.mpx",
+    "./explicit-bindings.mpx"
   ],
   "include": []
 }

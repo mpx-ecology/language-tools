@@ -1,0 +1,12 @@
+<script lang="ts">
+import defineProps = require('./callable-macro')
+import type { withDefaults } from './local-macros'
+</script>
+
+<script setup lang="ts">
+const props = defineProps('local')
+const defaults: typeof withDefaults = value => ({ localCount: value.localLabel.length })
+defaults(props).localCount.toFixed()
+props.localLabel.toUpperCase()
+defineExpose({ props })
+</script>

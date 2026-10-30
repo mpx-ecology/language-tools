@@ -1,0 +1,17 @@
+<script setup lang="ts">
+import defineProps = require('./callable-macro')
+
+namespace withDefaults {
+  export const version = 1
+}
+
+// Expected: no declaration conflicts; hover gives string and number respectively.
+const props = defineProps('local')
+props.localLabel.toUpperCase()
+withDefaults.version.toFixed()
+
+// Expected: F12 on defineProps reaches callable-macro.ts; F2 includes its declaration.
+// Intentional error: TS2339, string has no toFixed().
+props.localLabel.toFixed()
+defineExpose({ props })
+</script>

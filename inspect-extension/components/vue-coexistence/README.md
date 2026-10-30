@@ -1,6 +1,6 @@
 # Vue / Mpx 宏共存检查
 
-对应问题：[与 Vue 插件共存时 defineProps / withDefaults 出现类型误报 #119](https://github.com/mpx-ecology/language-tools/issues/119)。
+对应问题：[Vue / Mpx 宏共存 #119](https://github.com/mpx-ecology/language-tools/issues/119)、[显式绑定、导航和重命名回归 #122](https://github.com/mpx-ecology/language-tools/issues/122)。
 
 目标：同一 TypeScript project 中，Mpx 的 `defineProps` / `withDefaults` 使用 Mpx 的类型规则，Vue 组件继续使用 Vue 规则。
 
@@ -23,6 +23,8 @@
 
 5. 切换修复代码后，等待原窗口的 watch 重新编译、打包，再在 Extension Host 执行 `Mpx: Restart Server`。`pnpm build` 只构建 TS 项目，不能代替扩展 bundle 的更新；通过默认 F5 watch 验证即可。
 6. 修复启用后继续检查成员补全，以及 `.mpx` 的 `profile.name` 到 interface 字段的定义跳转。
+7. 在 `runtime-props.mpx` 的 `defineProps` 和 `typed-defaults.mpx` 的 `withDefaults` 上执行 F12，应到真实的全局宏声明，不应跳到生成的局部声明或没有结果。Vue-first 项目的目标可以是 Vue 的全局声明，但 props 推断仍使用 Mpx 规则。在这些宏名上执行 F2，应拒绝仅修改调用处的重命名。
+8. 打开 `explicit-type-imports.mpx` 和 `explicit-bindings.mpx`：除注释标记的 TS2339 外，不应有声明冲突、参数数量或推断错误。检查 `typeof` 名称及显式导入函数的 F12；显式导入函数仍允许 F2，并应包含源声明，不能把所有同名函数的导航或重命名一起关闭。
 
 本目录故意预载入 Vue 类型，用于稳定检查共享 TS project 下的宏类型隔离。关闭 Vue 插件不会移除 `vue-first.ts` 引入的类型，所以不能把“禁用 Vue 插件后这里仍报错”判为复现失败。若要另查插件单独启用的普通场景，应使用未显式预载入 Vue 类型的项目。
 
