@@ -311,6 +311,31 @@ function* generateSetupMacros(
       ]
       yield endOfLine
     }
+    // Complete in a lexical scope with the Mpx signatures and configured aliases.
+    // Its local declarations cannot shadow bindings in the actual setup code.
+    yield `{${newLine}`
+    for (const call of calls) {
+      yield `const ${call.name} = __VLS_setupMacros.${call.name}${endOfLine}`
+    }
+    // Keep the surrounding call context: signature help and completion share a
+    // capability, including at the start of a nested macro argument.
+    for (const statement of scriptSetup.ast.statements) {
+      const start = statement.getStart(scriptSetup.ast)
+      if (
+        calls.some(
+          call => start <= call.exp.start && call.exp.end <= statement.end,
+        )
+      ) {
+        yield generateSfcBlockSection(
+          scriptSetup,
+          start,
+          statement.end,
+          codeFeatures.completion,
+        )
+        yield endOfLine
+      }
+    }
+    yield `}${newLine}`
   }
 
   for (const code of codes) {
@@ -338,7 +363,7 @@ function* generateSetupMacros(
         call.name,
         source,
         call.exp.start,
-        { ...features, navigation: false },
+        { ...features, completion: false, navigation: false },
       ]
       offset = call.exp.end
     }

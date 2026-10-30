@@ -1,0 +1,11 @@
+<script setup lang="ts">
+import * as macros from './local-macros'
+
+if (true) {
+  var { defineProps: mpxProps, withDefaults: mpxDefaults } = macros
+}
+
+const props = mpxDefaults(mpxProps('local'))
+props.localCount.toFixed()
+defineExpose({ props })
+</script>

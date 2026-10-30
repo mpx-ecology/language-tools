@@ -1,0 +1,12 @@
+<script setup>
+import * as macros from './local-macros'
+
+if (true) {
+  var defineProps = macros.defineProps
+  var withDefaults = macros.withDefaults
+}
+
+const props = withDefaults(defineProps('local'))
+props.localCount.toFixed()
+defineExpose({ props })
+</script>

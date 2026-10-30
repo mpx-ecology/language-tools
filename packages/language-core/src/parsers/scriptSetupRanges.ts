@@ -399,6 +399,9 @@ export function parseBindingRanges(
         }
       }
     }
+    if (!ts.isVariableStatement(node)) {
+      collectHoistedBindings(node)
+    }
   })
 
   return bindings
@@ -413,6 +416,30 @@ export function parseBindingRanges(
 
   function _findBindingVars(left: ts.BindingName) {
     return findBindingVars(ts, left, ast)
+  }
+
+  function collectHoistedBindings(node: ts.Node) {
+    // var escapes statement blocks, but functions, classes (including static
+    // blocks), and namespaces have their own scopes.
+    if (
+      ts.isFunctionLike(node) ||
+      ts.isClassLike(node) ||
+      ts.isModuleDeclaration(node)
+    ) {
+      return
+    }
+    if (
+      ts.isVariableDeclarationList(node) &&
+      !(node.flags & ts.NodeFlags.BlockScoped)
+    ) {
+      for (const declaration of node.declarations) {
+        bindings.push(
+          ..._findBindingVars(declaration.name).map(range => ({ range })),
+        )
+      }
+      return
+    }
+    ts.forEachChild(node, collectHoistedBindings)
   }
 }
 

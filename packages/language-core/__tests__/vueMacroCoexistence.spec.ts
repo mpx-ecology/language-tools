@@ -44,6 +44,10 @@ describe.each([
     'namespace-binding.mpx',
     'both-scripts-bindings.mpx',
     'runtime-defaults-js.mpx',
+    'hoisted-var.mpx',
+    'hoisted-var-js.mpx',
+    'hoisted-destructured.mpx',
+    'scope-boundaries.mpx',
   ])('keeps valid Mpx props typed in %s', relativePath => {
     const fileName = service.file(relativePath)
     const diagnostics = [
@@ -110,6 +114,133 @@ describe.each([
       ]),
     )
   })
+
+  it.each([
+    ['runtime-props.mpx', 'defineProps'],
+    ['typed-defaults.mpx', 'withDefaults'],
+    ['runtime-props-js.mpx', 'defineProps'],
+    ['runtime-defaults-js.mpx', 'withDefaults'],
+    ['macro-aliases.mpx', 'mpxProps'],
+    ['macro-aliases.mpx', 'mpxDefaults'],
+  ])('preserves lexical completions in %s (%s)', (relativePath, macro) => {
+    const fileName = service.file(relativePath)
+    const source = service.read(relativePath)
+    for (const offset of [0, Math.floor(macro.length / 2), macro.length]) {
+      const position = source.indexOf(macro) + offset
+      const completions = service.proxyLanguageService.getCompletionsAtPosition(
+        fileName,
+        position,
+        {},
+      )
+      expect(completions?.isMemberCompletion).toBe(false)
+      const names = completions?.entries.map(entry => entry.name)
+      expect(names).toEqual(
+        expect.arrayContaining([
+          macro,
+          'defineProps',
+          'defineExpose',
+          'defineOptions',
+          'withDefaults',
+        ]),
+      )
+      expect(names?.filter(name => name === macro)).toHaveLength(1)
+      if (relativePath === 'macro-aliases.mpx') {
+        expect(names).toEqual(
+          expect.arrayContaining(['mpxProps', 'mpxDefaults']),
+        )
+      }
+      for (const name of [macro, 'defineExpose']) {
+        const details = service.proxyLanguageService.getCompletionEntryDetails(
+          fileName,
+          position,
+          name,
+          {},
+          undefined,
+          {},
+          undefined,
+        )
+        expect(details?.name).toBe(name)
+        expect(ts.displayPartsToString(details?.displayParts)).not.toBe('')
+      }
+    }
+  })
+
+  it.each(['typed-defaults.mpx', 'runtime-defaults-js.mpx'])(
+    'preserves Mpx signature help in %s',
+    relativePath => {
+      const fileName = service.file(relativePath)
+      const position =
+        service.read(relativePath).indexOf('withDefaults(') +
+        'withDefaults('.length
+      const info = service.proxyLanguageService.getSignatureHelpItems(
+        fileName,
+        position,
+        { triggerReason: { kind: 'invoked' } },
+      )
+      expect(
+        info?.items[0]?.parameters.map(parameter => parameter.name),
+      ).toEqual(['props', 'defaults'])
+      expect(ts.displayPartsToString(info?.items[0]?.prefixDisplayParts)).toBe(
+        'withDefaults(',
+      )
+    },
+  )
+
+  it.each(['hoisted-var.mpx', 'hoisted-var-js.mpx'])(
+    'preserves hoisted local function types and renames in %s',
+    relativePath => {
+      const fileName = service.file(relativePath)
+      const source = service.read(relativePath)
+      const countPosition =
+        source.indexOf('props.localCount.') + 'props.'.length
+      const info = service.proxyLanguageService.getQuickInfoAtPosition(
+        fileName,
+        countPosition,
+      )
+      expect(ts.displayPartsToString(info?.displayParts)).toBe(
+        '(property) localCount: number',
+      )
+      for (const macro of ['defineProps', 'withDefaults']) {
+        const declaration = source.indexOf(`var ${macro}`) + 'var '.length
+        const call = source.indexOf(`${macro}(`)
+        expect(
+          service.proxyLanguageService.getDefinitionAtPosition(fileName, call),
+        ).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              fileName,
+              textSpan: { start: declaration, length: macro.length },
+            }),
+          ]),
+        )
+        for (const position of [declaration, call]) {
+          expect(
+            service.proxyLanguageService.getRenameInfo(fileName, position, {})
+              .canRename,
+          ).toBe(true)
+          expect(
+            service.proxyLanguageService.findRenameLocations(
+              fileName,
+              position,
+              false,
+              false,
+            ),
+          ).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                fileName,
+                textSpan: { start: declaration, length: macro.length },
+              }),
+              expect.objectContaining({
+                fileName,
+                textSpan: { start: call, length: macro.length },
+              }),
+            ]),
+          )
+        }
+      }
+    },
+  )
 
   it('retains errors for incorrect prop uses and defaults', () => {
     const codes = service.proxyLanguageService

@@ -11,7 +11,9 @@
     "./runtime-props.mpx",
     "./typed-defaults.mpx",
     "./explicit-type-imports.mpx",
-    "./explicit-bindings.mpx"
+    "./explicit-bindings.mpx",
+    "./hoisted-bindings.mpx",
+    "./hoisted-bindings-js.mpx"
   ],
   "include": []
 }
