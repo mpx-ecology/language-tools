@@ -1,0 +1,31 @@
+<template>
+  <component
+    is="{{ currentPanel }}"
+    range="platform-hold-panel,carpool-hold-panel,layout-panel"
+  />
+  <carpool-hold-panel />
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  data: {
+    currentPanel: 'carpool-hold-panel'
+  }
+})
+</script>
+
+<script name="json">
+const miniComponents = {}
+if (__mpx_mode__ === 'wx') {
+  miniComponents['carpool-hold-panel'] = './component-options.mpx?root=demo'
+}
+module.exports = {
+  usingComponents: {
+    ...miniComponents,
+    'platform-hold-panel': './component-options.mpx',
+    'layout-panel': './component-setup-props.mpx'
+  }
+}
+</script>

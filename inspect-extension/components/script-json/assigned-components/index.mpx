@@ -1,0 +1,36 @@
+<template>
+  <!-- Cmd/Ctrl 点击和 F12：三个 range 名称都应跳转到 panel.mpx。 -->
+  <component
+    wx:if="{{ currentPanel }}"
+    is="{{ currentPanel }}"
+    range="platform-hold-panel,carpool-hold-panel,layout-panel"
+  />
+  <!-- 普通标签也应识别注册，并提供 parentText 属性提示和 String 类型悬浮。 -->
+  <carpool-hold-panel parentText="demo" />
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  data: {
+    currentPanel: 'carpool-hold-panel'
+  }
+})
+</script>
+
+<script name="json">
+const miniComponents = {}
+if (__mpx_mode__ === 'wx') {
+  // 路径也应可跳转；query 不影响目标文件解析。
+  miniComponents['carpool-hold-panel'] = './panel.mpx?root=demo'
+}
+module.exports = {
+  component: true,
+  usingComponents: {
+    ...miniComponents,
+    'platform-hold-panel': './panel.mpx',
+    'layout-panel': './panel.mpx'
+  }
+}
+</script>
