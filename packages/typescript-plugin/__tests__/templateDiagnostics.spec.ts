@@ -6,6 +6,7 @@ import {
   createTestLanguageService,
 } from '../../language-core/__tests__/utils/createTestLanguageService'
 import { compileMpxFixture } from '../../language-core/__tests__/utils/compileMpxFixture'
+import { withDiagnosticLocale } from '../../language-core/__tests__/utils/withDiagnosticLocale'
 import { formatTemplateDiagnosticMessage } from '../../language-core/src'
 import { proxyLanguageServiceForMpx } from '../src/common'
 import { transformTemplateDiagnostic } from '../src/utils/diagnostics'
@@ -99,6 +100,73 @@ describe('template diagnostic messages', () => {
     ).toBe(true)
     expect(proxy.getSemanticDiagnostics(fileName)).toEqual(original)
   })
+
+  it('preserves real TS2339 literal types containing quoted context-like names', () => {
+    const fileName = service.file('literal-types.mpx')
+    const source = service.read('literal-types.mpx')
+    const original =
+      service.proxyLanguageService.getSemanticDiagnostics(fileName)
+    expect(original.map(d => d.code)).toEqual([2339, 2339])
+    expect(
+      original.map(d => source.slice(d.start!, d.start! + d.length!)),
+    ).toEqual(['missing', 'missing'])
+    expect(
+      ts.flattenDiagnosticMessageText(original[0].messageText, '\n'),
+    ).toContain("'__MPX_ctx.missing'")
+    expect(
+      ts.flattenDiagnosticMessageText(original[1].messageText, '\n'),
+    ).toContain("'__MPX_dollars.missing'")
+    expect(proxy.getSemanticDiagnostics(fileName)).toEqual(original)
+  })
+
+  it.each(['en', 'zh-cn'] as const)(
+    'restores real %s TS18049 diagnostics without changing metadata or suppression',
+    locale =>
+      withDiagnosticLocale(locale, () => {
+        const local = createTestLanguageService(fixtureRoot)
+        try {
+          const proxy = proxyLanguageServiceForMpx(
+            ts,
+            local.language,
+            local.proxyLanguageService,
+            local.getServiceScript('index.mpx').root.mpxCompilerOptions,
+            id => id,
+          )
+          for (const relativePath of ['index.mpx', 'directives.mpx']) {
+            const fileName = local.file(relativePath)
+            const before =
+              local.proxyLanguageService.getSemanticDiagnostics(fileName)
+            const result = proxy.getSemanticDiagnostics(fileName)
+            expect(result).toHaveLength(before.length)
+            result.forEach((diagnostic, index) =>
+              expect({
+                ...diagnostic,
+                messageText: before[index].messageText,
+              }).toEqual(before[index]),
+            )
+            if (relativePath === 'index.mpx') {
+              const raw = before.find(d => d.code === 18049)!
+              const diagnostic = result.find(d => d.code === 18049)!
+              const message = ts.flattenDiagnosticMessageText(
+                diagnostic.messageText,
+                '\n',
+              )
+              expect(message).toBe(
+                ts
+                  .flattenDiagnosticMessageText(raw.messageText, '\n')
+                  .replace('__MPX_ctx.nullishUser', 'nullishUser'),
+              )
+              if (locale === 'zh-cn')
+                expect(message).toMatch(/^nullishUser可能为/)
+            } else {
+              expect(result.map(d => d.code)).toEqual([18048, 2578])
+            }
+          }
+        } finally {
+          local.dispose()
+        }
+      }),
+  )
 
   it('formats nested diagnostic chains and template related information without mutating them', () => {
     const original = service.proxyLanguageService
@@ -210,7 +278,12 @@ describe('template diagnostic messages', () => {
     ).toBe('optionalUser')
   })
 
-  it('uses syntax accepted by the real Mpx compiler', async () => {
-    await expect(compileMpxFixture(fileName)).resolves.toHaveProperty('wxml')
-  })
+  it.each(['index.mpx', 'literal-types.mpx', 'directives.mpx'])(
+    'uses syntax accepted by the real Mpx compiler in %s',
+    async relativePath => {
+      await expect(
+        compileMpxFixture(service.file(relativePath)),
+      ).resolves.toHaveProperty('wxml')
+    },
+  )
 })

@@ -2,7 +2,7 @@ import type { LanguageServicePlugin, Range } from '@volar/language-service'
 import {
   MpxVirtualCode,
   formatTemplateDiagnosticMessage,
-  shouldReportDiagnostics,
+  isDiagnosticsEnabled,
 } from '@mpxjs/language-core'
 import { create as baseCreate } from 'volar-service-typescript/lib/plugins/semantic'
 import { URI } from 'vscode-uri'
@@ -67,11 +67,11 @@ export function create(
         const start = document.offsetAt(range.start)
         const end = document.offsetAt(range.end)
         if (code) {
+          // Message lookup must not execute stateful suppression callbacks.
+          // Volar applies shouldReport when mapping the original diagnostic.
           for (const [sourceStart, sourceEnd] of context.language.maps
             .get(code, source)
-            .toSourceRange(start, end, true, data =>
-              shouldReportDiagnostics(data, undefined, undefined),
-            )) {
+            .toSourceRange(start, end, true, isDiagnosticsEnabled)) {
             return formatTemplateDiagnosticMessage(
               ts,
               root,
