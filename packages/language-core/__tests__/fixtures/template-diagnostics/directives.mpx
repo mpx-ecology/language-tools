@@ -1,0 +1,22 @@
+<template>
+  <view>{{ optionalUser.name }}</view>
+  <view>
+    <!-- @mpx-expect-error -->
+    {{ optionalUser.name }}
+  </view>
+  <view>
+    <!-- @mpx-ignore -->
+    {{ optionalUser.name }}
+  </view>
+  <view>
+    <!-- @mpx-expect-error -->
+    {{ known }}
+  </view>
+</template>
+
+<script setup lang="ts">
+const optionalUser = {} as { name: string } | undefined
+const known = 'ok'
+
+defineExpose({ optionalUser, known })
+</script>

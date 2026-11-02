@@ -9,7 +9,7 @@ import {
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject'
 import {
   createMpxLanguageServicePlugins,
-  createMpxTypeScriptSemanticPlugin,
+  createTypeScriptSemanticPlugin,
   createUriMap,
 } from '@mpxjs/language-service'
 import {
@@ -57,7 +57,7 @@ function initializeForAgent(params: InitializeParams) {
   const plugins = createMpxLanguageServicePlugins(ts, undefined, {
     componentDefinitionProvider: true,
   })
-  plugins.push(createMpxTypeScriptSemanticPlugin(ts))
+  plugins.push(createTypeScriptSemanticPlugin(ts))
 
   return server.initialize(
     params,

@@ -8,7 +8,7 @@ import type {
 } from '@mpxjs/language-service'
 import {
   createMpxLanguageServicePlugins,
-  createMpxTypeScriptSemanticPlugin,
+  createTypeScriptSemanticPlugin,
   createUriMap,
 } from '@mpxjs/language-service'
 import { createTypeScriptLS } from '@volar/language-server/lib/project/typescriptProjectLs'
@@ -72,7 +72,7 @@ export async function createJsonProject(
     jsonOnly ? tsClient : undefined,
     { componentDefinitionProvider: true },
   )
-  if (!jsonOnly) plugins.push(createMpxTypeScriptSemanticPlugin(ts))
+  if (!jsonOnly) plugins.push(createTypeScriptSemanticPlugin(ts))
   const server = {
     documents: {
       get: (uri: URI) => documents.get(uri),

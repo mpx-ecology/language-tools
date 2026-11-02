@@ -6,13 +6,17 @@ import type {
 import { isRenameEnabled } from '@mpxjs/language-core'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
 import { URI } from 'vscode-uri'
-import { create as createSemantic } from 'volar-service-typescript/lib/plugins/semantic'
+import { create as createSemantic } from './typescript-semantic'
 
 export function create(
   ts: typeof import('typescript'),
   jsonOnly = true,
+  options?: Parameters<typeof createSemantic>[1],
 ): LanguageServicePlugin {
-  const base = createSemantic(ts, { disableAutoImportCache: jsonOnly })
+  const base = createSemantic(ts, {
+    disableAutoImportCache: jsonOnly,
+    ...options,
+  })
   return {
     ...base,
     name: jsonOnly ? 'mpx-json-js' : 'typescript-semantic',
@@ -138,6 +142,7 @@ export function create(
 /** The standalone project keeps all TS features, with the same JSON mapping safeguards. */
 export function createProject(
   ts: typeof import('typescript'),
+  options?: Parameters<typeof createSemantic>[1],
 ): LanguageServicePlugin {
-  return create(ts, false)
+  return create(ts, false, options)
 }
