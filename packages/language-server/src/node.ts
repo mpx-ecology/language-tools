@@ -81,9 +81,13 @@ function initializeForIDE(params: InitializeParams) {
   // Invalidate inherited configs and package resolution settings as well as
   // the root tsconfig; each project disposes its document and file watchers.
   server.fileWatcher.onDidChangeWatchedFiles(({ changes }) => {
-    if (changes.some(change => URI.parse(change.uri).path.endsWith('.json'))) {
+    const configChanged = changes.some(change =>
+      URI.parse(change.uri).path.endsWith('.json'),
+    )
+    if (configChanged) {
       disposeProjects()
     }
+    server.languageFeatures.requestRefresh(configChanged)
   })
 
   let simpleLs: Promise<TypeScriptProjectLS> | undefined
@@ -240,6 +244,14 @@ function initializeForIDE(params: InitializeParams) {
   }
 }
 
-connection.onInitialized(server.initialized)
+connection.onInitialized(() => {
+  server.initialized()
+  // Volar's FS/TypeScript caches consume these events, but merely subscribing
+  // does not register a watcher with the editor. Include config/package JSON
+  // and all native TS/JS extensions used by the JSON semantic project.
+  void server.fileWatcher.watchFiles([
+    '**/*.{mpx,js,jsx,cjs,mjs,ts,tsx,cts,mts,json}',
+  ])
+})
 
 connection.onShutdown(server.shutdown)

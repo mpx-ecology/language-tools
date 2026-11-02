@@ -3,7 +3,7 @@
 在本 worktree 根目录打开 VS Code，按 F5 启动 `VSCode Extension`。等待 watch 完成；已打开的 Extension Host 执行 `Mpx: Restart Server`。
 
 1. 打开 `index.mpx`，在 JSON 内检查 `config` 的定义、引用、F2 重命名，以及 `title/count` 的悬浮类型、属性补全、`formatTitle` 的签名提示。JSON 和业务 script 的同名变量应隔离。
-2. 对 `require('./shared')` 路径和 `shared.title` 执行 F12，应进入 `shared.js`。修改 `shared.js` 的 title 为数字（不保存），回到 JSON 检查类型刷新与参数错误；恢复后错误消失。
+2. 对 `require('./shared')` 路径和 `shared.title` 执行 F12，应进入 `shared.js`。修改 `shared.js` 的 title 为数字（不保存），回到 JSON，hover 应变为 number，调用参数出现 TS2345；执行 `Mpx: Restart Mpx and TS servers` 后仍应如此。关闭 `shared.js` 并选择不保存后，hover 恢复 string，参数错误消失。另在打开首个 Mpx 文件前先修改并保持该 JS 缓冲区，检查扩展激活时也能同步已有修改。
 3. 检查组件路径链接及模板组件导航仍正常；在 JSON 重命名变量后，编辑只应落在该 JSON 块中。撤销修改。
 4. 打开 `errors.mpx`，逐项核对注释中的预期错误。每个错误只出现一次，路径错误范围不包含引号。该文件专门包含诊断用错误，不用于实际运行。
 5. 打开 `inline.mpx`，检查行内 JSON 的 F12、hover 和路径链接；将文件行尾切换为 CRLF 后重复检查。打开 `json-only.mpx` 检查没有业务 script 的情况。
