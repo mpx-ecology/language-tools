@@ -1,0 +1,12 @@
+<template>
+  <view wx:for="{{ rows }}" wx:for-item="row" wx:for-index="rowIndex" wx:key="id">
+    <!-- Expected TS2339: the numeric local remains checked despite an any context. -->
+    <text>{{ rowIndex.missing }}</text>
+  </view>
+</template>
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+const rows = [{ id: 'a' }]
+defineExpose({ rows })
+onReactHooksExec(() => Object.create(null))
+</script>

@@ -59,7 +59,9 @@ export function createTemplateCodegenContext(
       if (!name) {
         name = `__VLS_${variableId++}`
         contexts.set(key, name)
-        yield `const ${name} = { ...__MPX_ctx, ${key} }${endOfLine}`
+        // An any spread would erase even the known local fields. Guard only
+        // this completion view, without changing the real template context.
+        yield `const ${name} = { ...(__MPX_ctx as __VLS_PickNotAny<typeof __MPX_ctx, {}>), ${key} }${endOfLine}`
       }
       // Only completion uses this merged view. The original expression keeps
       // its checking, hover and source navigation mappings.

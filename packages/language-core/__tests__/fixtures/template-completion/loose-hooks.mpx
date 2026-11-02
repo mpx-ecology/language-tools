@@ -1,0 +1,19 @@
+<template>
+  <view wx:for="{{ rows }}" wx:for-item="row" wx:for-index="rowIndex" wx:key="id">
+    <text>{{ rowIndex }} {{ row.id }}</text>
+    <button bindtap="onTap($event, rowIndex)" />
+    <view wx:for="{{ rows }}" wx:for-item="nestedRow" wx:for-index="nestedIndex" wx:key="id">
+      <text>{{ nestedIndex }}</text>
+    </view>
+  </view>
+  <text>{{ outsideTitle }}</text>
+</template>
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+const rows = [{ id: 'a' }]
+const privateValue = 'not exposed'
+const onTap = () => {}
+defineExpose({ rows, onTap, outsideTitle: 'outside' })
+// Object.create returns any, as can bindings from untyped third-party Hooks.
+onReactHooksExec(() => Object.create(null))
+</script>

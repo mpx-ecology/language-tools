@@ -111,6 +111,8 @@ describe('template variable completions', () => {
     'native-attributes.mpx',
     'scoped.mpx',
     'capture-events.mpx',
+    'loose-hooks.mpx',
+    'loose-hooks-js.mpx',
   ])('keeps valid Mpx syntax and types in %s', async file => {
     expect(
       service.proxyLanguageService
@@ -381,6 +383,120 @@ describe('template variable completions', () => {
       )
     },
   )
+
+  describe.each(['loose-hooks.mpx', 'loose-hooks-js.mpx'])(
+    'local completion with an any Hooks result in %s',
+    file => {
+      it.each([3, 4, 11])('keeps root locals at offset %i', delta => {
+        const source = service.read(file)
+        const position = source.indexOf('{{ rowIndex }}') + delta
+        const result = service.proxyLanguageService.getCompletionsAtPosition(
+          service.file(file),
+          position,
+          {},
+        )
+        const names = result?.entries.map(entry => entry.name)
+        expect(names).toEqual(expect.arrayContaining(['row', 'rowIndex']))
+        expect(names).not.toContain('privateValue')
+        expect(names?.filter(name => name === 'rowIndex')).toHaveLength(1)
+      })
+
+      it('keeps nested and event locals in their own scopes', () => {
+        const source = service.read(file)
+        const nested = service.proxyLanguageService.getCompletionsAtPosition(
+          service.file(file),
+          source.indexOf('{{ nestedIndex }}') + 3,
+          {},
+        )
+        expect(nested?.entries.map(entry => entry.name)).toEqual(
+          expect.arrayContaining([
+            'row',
+            'rowIndex',
+            'nestedRow',
+            'nestedIndex',
+          ]),
+        )
+        const event = service.proxyLanguageService.getCompletionsAtPosition(
+          service.file(file),
+          source.indexOf('onTap($event, rowIndex)') + 6,
+          {},
+        )
+        expect(event?.entries.map(entry => entry.name)).toEqual(
+          expect.arrayContaining(['$event', 'row', 'rowIndex']),
+        )
+        const outside = service.proxyLanguageService.getCompletionsAtPosition(
+          service.file(file),
+          source.indexOf('{{ outsideTitle }}') + 3,
+          {},
+        )
+        for (const name of [
+          'row',
+          'rowIndex',
+          'nestedRow',
+          'nestedIndex',
+          '$event',
+          'privateValue',
+        ])
+          expect(outside?.entries.map(entry => entry.name) ?? []).not.toContain(
+            name,
+          )
+      })
+
+      it('retains the numeric index type, hover and source definition', () => {
+        const source = service.read(file)
+        const position = source.indexOf('{{ rowIndex }}') + 4
+        const details = service.proxyLanguageService.getCompletionEntryDetails(
+          service.file(file),
+          position,
+          'rowIndex',
+          {},
+          undefined,
+          {},
+          undefined,
+        )
+        expect(ts.displayPartsToString(details?.displayParts)).toContain(
+          'rowIndex: number',
+        )
+        const info = service.proxyLanguageService.getQuickInfoAtPosition(
+          service.file(file),
+          position,
+        )
+        expect(ts.displayPartsToString(info?.displayParts)).toContain(
+          'rowIndex: number',
+        )
+        const declaration =
+          source.indexOf('wx:for-index="rowIndex"') + 'wx:for-index="'.length
+        expect(
+          service.proxyLanguageService.getDefinitionAtPosition(
+            service.file(file),
+            position,
+          ),
+        ).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              fileName: service.file(file),
+              textSpan: { start: declaration, length: 8 },
+            }),
+          ]),
+        )
+      })
+    },
+  )
+
+  it('keeps numeric local errors with an any template context', () => {
+    const file = 'loose-hooks-errors.mpx'
+    const source = service.read(file)
+    const diagnostics = service.proxyLanguageService.getSemanticDiagnostics(
+      service.file(file),
+    )
+    expect(diagnostics.map(diagnostic => diagnostic.code)).toEqual([2339])
+    expect(
+      source.slice(
+        diagnostics[0].start!,
+        diagnostics[0].start! + diagnostics[0].length!,
+      ),
+    ).toBe('missing')
+  })
 
   it('retains errors for unwrapped members', () => {
     const diagnostics = service.proxyLanguageService.getSemanticDiagnostics(
