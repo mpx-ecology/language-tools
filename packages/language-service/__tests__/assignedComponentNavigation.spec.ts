@@ -54,6 +54,31 @@ describe('assigned component object navigation', () => {
 
   afterAll(() => service.dispose())
 
+  it('keeps tag navigation through an uninitialized parameter var', async () => {
+    const fileName = service.file('parameter-component-object.mpx')
+    const { root } = service.getServiceScript('parameter-component-object.mpx')
+    const sourceScript = service.language.scripts.get(fileName)!
+    const sourceUri = URI.file(fileName)
+    const document = TextDocument.create(
+      `${sourceUri}.__template.html`,
+      'html',
+      0,
+      root.sfc.template!.content,
+    )
+    const parameterContext = {
+      decodeEmbeddedDocumentUri: () => [sourceUri, 'template'],
+      language: { scripts: { get: () => sourceScript } },
+    } as unknown as LanguageServiceContext
+    const plugin = createComponentDefinition().create!(parameterContext)!
+    const offset = document.getText().indexOf('parameter-panel')
+    const definitions = await plugin.provideDefinition!(
+      document,
+      document.positionAt(offset + 1),
+      token,
+    )
+    expect(definitions).toEqual([expect.objectContaining({ targetUri })])
+  })
+
   it('does not report path errors from a shadowing component object', async () => {
     const plugin = createJsonLinks().create!(context)!
     const diagnostics = await plugin.provideDiagnostics!(jsonDocument, token)

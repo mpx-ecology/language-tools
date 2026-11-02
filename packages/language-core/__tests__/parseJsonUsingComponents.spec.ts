@@ -263,4 +263,80 @@ describe('assigned component objects', () => {
       },
     ])
   })
+
+  it.each([
+    ['uninitialized var', 'var components', ['panel']],
+    ['hoisted var', 'if (true) { var components }', ['panel']],
+    ['initialized var', 'var components = {}', []],
+    ['later initializer', 'var components; var components = {}', []],
+    ['iteration binding', 'for (var components of [{}]) {}', []],
+  ])('preserves parameter object writes for an %s', (_, declaration, names) => {
+    const source = `
+      function build(components = {}, config = { usingComponents: components }) {
+        ${declaration}
+        Object.assign(components, { panel: './panel.mpx' })
+        return config
+      }
+      module.exports = build()
+    `
+    const result = parse(source)
+    expect([...result.keys()]).toEqual(names)
+    if (names.length) {
+      expect(result.get('panel')).toEqual([
+        {
+          text: './panel.mpx',
+          offset: source.indexOf("'./panel.mpx'"),
+          nameOffset: source.indexOf('panel:'),
+        },
+      ])
+    }
+  })
+
+  it('keeps repeated registrations linear in cache probes', () => {
+    function measure(size: number) {
+      const source = `
+        const components = {}
+        ${Array.from({ length: size }, (_, i) => `components.panel${i} = './panel${i}.mpx'`).join('\n')}
+        const configs = [${Array.from({ length: size }, () => '{ usingComponents: components }').join(',')}]
+        module.exports = configs[0]
+      `
+      const ast = ts.createSourceFile(
+        'config.js',
+        source,
+        ts.ScriptTarget.Latest,
+      )
+      const has = Set.prototype.has
+      let probes = 0
+      try {
+        // Count work instead of wall-clock time so CI load cannot make this flaky.
+        Set.prototype.has = function (value) {
+          probes++
+          return has.call(this, value)
+        }
+        const result = parseUsingComponentsWithJs(ts, ast)
+        return { result, probes }
+      } finally {
+        Set.prototype.has = has
+      }
+    }
+    const small = measure(50)
+    const large = measure(100)
+    expect(large.result.size).toBe(100)
+    expect([...large.result.values()].every(paths => paths.length === 1)).toBe(
+      true,
+    )
+    expect(large.probes).toBeLessThanOrEqual(Math.max(1, small.probes) * 3)
+  })
+
+  it('keeps paths through recursive object sources without duplicate mappings', () => {
+    const result = parse(`
+      const first = {}
+      const second = { ...first, second: './second.mpx' }
+      Object.assign(first, second, { first: './first.mpx' })
+      module.exports = { usingComponents: { ...first, ...second } }
+    `)
+    expect([...result.keys()].sort()).toEqual(['first', 'second'])
+    expect(result.get('first')).toHaveLength(1)
+    expect(result.get('second')).toHaveLength(1)
+  })
 })

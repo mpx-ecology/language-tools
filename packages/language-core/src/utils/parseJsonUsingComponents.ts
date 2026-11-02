@@ -72,6 +72,7 @@ export function parseUsingComponentsWithJs(
   // Only consume writes when their object is reached from usingComponents.
   const objectAugments = new Map<LocalBinding, ts.Expression[]>()
   const parsedExpressions = new Set<ts.Expression>()
+  const parsedBindings = new Set<LocalBinding>()
 
   function visit(node: ts.Node) {
     /**
@@ -131,7 +132,8 @@ export function parseUsingComponentsWithJs(
     // conditional blocks. Computed component names are intentionally excluded.
     if (
       ts.isBinaryExpression(node) &&
-      node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+      node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      isComponentPathExpression(node.right)
     ) {
       const property = getStaticObjectProperty(node.left)
       if (property) {
@@ -256,15 +258,21 @@ export function parseUsingComponentsWithJs(
       if (
         ts.isPropertyAssignment(prop) &&
         (ts.isIdentifier(prop.name) || ts.isStringLiteral(prop.name)) &&
-        (ts.isStringLiteral(prop.initializer) ||
-          ts.isIdentifier(prop.initializer) ||
-          ts.isPropertyAccessExpression(prop.initializer))
+        isComponentPathExpression(prop.initializer)
       ) {
         parsePropertyAssignment(prop)
       } else if (ts.isSpreadAssignment(prop)) {
         handleSpreadAssignment(prop)
       }
     }
+  }
+
+  function isComponentPathExpression(expression: ts.Expression) {
+    return (
+      ts.isStringLiteral(expression) ||
+      ts.isIdentifier(expression) ||
+      ts.isPropertyAccessExpression(expression)
+    )
   }
 
   function parsePropertyAssignment(prop: ts.PropertyAssignment) {
@@ -358,6 +366,10 @@ export function parseUsingComponentsWithJs(
     // 处理标识符：const components = { ... }; usingComponents: components
     if (ts.isIdentifier(expression)) {
       const binding = resolveBinding(expression)
+      if (parsedBindings.has(binding)) {
+        return
+      }
+      parsedBindings.add(binding)
       if (binding.initializer) {
         parseObjectFromExpression(binding.initializer)
       }
@@ -419,6 +431,7 @@ export function parseUsingComponentsWithJs(
 
 interface LocalBinding {
   initializer?: ts.Expression
+  isParameter?: boolean
 }
 
 interface LocalScope {
@@ -434,6 +447,7 @@ function createBindingResolver(
   sourceFile: ts.SourceFile,
 ) {
   const scopes = new Map<ts.Identifier, LocalScope>()
+  let indexed = false
   const rootScope: LocalScope = {
     bindings: new Map(),
     isVarScope: true,
@@ -443,17 +457,20 @@ function createBindingResolver(
     scope: LocalScope,
     name: ts.BindingName,
     initializer?: ts.Expression,
+    isParameter = false,
   ) {
     if (ts.isIdentifier(name)) {
       let binding = scope.bindings.get(name.text)
-      if (!binding) {
+      // An initialized var or another declaration replaces a copied parameter.
+      if (!binding || (binding.isParameter && !isParameter)) {
         scope.bindings.set(name.text, (binding = {}))
       }
       binding.initializer ??= initializer
+      if (isParameter) binding.isParameter = true
     } else {
       for (const element of name.elements) {
         if (ts.isBindingElement(element)) {
-          declare(scope, element.name)
+          declare(scope, element.name, undefined, isParameter)
         }
       }
     }
@@ -496,22 +513,37 @@ function createBindingResolver(
       declare(scope, node.name)
     }
 
-    if (ts.isVariableDeclaration(node)) {
+    if (ts.isVariableDeclarationList(node)) {
       let declarationScope = scope
-      if (
-        parent &&
-        ts.isVariableDeclarationList(parent) &&
-        !(parent.flags & ts.NodeFlags.BlockScoped)
-      ) {
+      const isVar = !(node.flags & ts.NodeFlags.BlockScoped)
+      const isIteration =
+        parent && (ts.isForInStatement(parent) || ts.isForOfStatement(parent))
+      if (isVar) {
         while (!declarationScope.isVarScope && declarationScope.parent) {
           declarationScope = declarationScope.parent
         }
       }
-      declare(declarationScope, node.name, node.initializer)
+      for (const declaration of node.declarations) {
+        const { name, initializer } = declaration
+        if (isVar && !isIteration && !initializer && ts.isIdentifier(name)) {
+          const parameter =
+            declarationScope.bindings.get(name.text) ??
+            declarationScope.parent?.bindings.get(name.text)
+          if (parameter?.isParameter) {
+            // A bare var keeps the parameter's object; initialized/iteration
+            // declarations are separate and go through declare() instead.
+            declarationScope.bindings.set(name.text, parameter)
+            continue
+          }
+        }
+        declare(declarationScope, name, initializer)
+      }
+    } else if (ts.isCatchClause(node) && node.variableDeclaration) {
+      declare(scope, node.variableDeclaration.name)
     } else if (ts.isParameter(node)) {
       // Parameters and destructuring still shadow outer names even when their
       // runtime values cannot be resolved to a static object or path.
-      declare(scope, node.name)
+      declare(scope, node.name, undefined, true)
     }
 
     if (ts.isIdentifier(node)) {
@@ -531,9 +563,11 @@ function createBindingResolver(
     }
   }
 
-  visit(sourceFile, rootScope)
-
   return (identifier: ts.Identifier) => {
+    if (!indexed) {
+      visit(sourceFile, rootScope)
+      indexed = true
+    }
     let scope = scopes.get(identifier)
     while (scope) {
       const binding = scope.bindings.get(identifier.text)
