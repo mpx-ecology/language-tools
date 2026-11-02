@@ -1,0 +1,28 @@
+<template>
+  <view wx:class="{{ [dynamicClass, getClass('argument-class'), 'prefix-' + titleText, { [computedKey]: enabled, 'value-class': 'value-only' }] }}" />
+  <view hidden="{{ Boolean({ 'value-class': enabled }) }}" />
+  <view wx:class="{{ { enabled } }}" />
+  <view wx:class="{{ ['before-class', '\u0065scaped-class', 'after-class', '中文-class'] }}" />
+</template>
+
+<script setup lang="ts">
+const dynamicClass = 'runtime-class'
+const computedKey = 'runtime-key'
+const titleText = 'hello'
+const enabled = true
+const getClass = (value: string) => value
+defineExpose({ dynamicClass, computedKey, titleText, enabled, getClass })
+</script>
+
+<style scoped>
+.dynamicClass {}
+.argument-class {}
+.prefix- {}
+.computedKey {}
+.value-only {}
+.value-class {}
+.enabled {}
+.before-class {}
+.escaped-class {}
+.after-class {}
+</style>

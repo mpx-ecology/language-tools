@@ -1,0 +1,13 @@
+<template>
+  <view wx:class="{{ { 'is-solo': titleText.toFixed(), ['computed-class']: missingCondition } }}" />
+</template>
+
+<script setup lang="ts">
+const titleText = 'hello'
+defineExpose({ titleText })
+</script>
+
+<style scoped>
+.is-solo {}
+.computed-class {}
+</style>
