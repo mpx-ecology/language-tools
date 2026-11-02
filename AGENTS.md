@@ -49,6 +49,7 @@
 ## Bug fix delivery workflow
 
 - For each requested bug fix, first find the matching GitHub issue or create one before implementation. Keep the issue concise: describe the problem, the necessary reproduction steps, and the expected behavior.
+- Follow the [Issue and PR format schema](CONTRIBUTING.md#issue-与-pr-格式-schema) and the matching templates in `.github/`. The schema applies to both GitHub UI submissions and bodies submitted through CLI/API tools.
 - Reuse labels applied to similar historical issues.
 - When screenshots help explain a bug, prefer capturing the actual reproduction in this repository's VS Code Extension Host with a minimal `inspect-extension` scenario. Upload useful captures as GitHub issue attachments rather than committing image files.
 - When visual evidence helps verify a fix, include before/after screenshots in the PR from the same Extension Host scenario and editor settings, showing the relevant diagnostics or editor behavior. Screenshots are optional when code and other evidence already explain the problem clearly.
@@ -56,3 +57,10 @@
 - Create a new `codex/` branch from the target base branch for the fix. Keep unrelated local commits and user changes out of the branch.
 - Implement and validate the fix, then commit, push the branch, and open a focused pull request. Link the issue in the PR body with `Closes #<issue-number>` or an equivalent closing keyword.
 - The user's standing instruction authorizes this issue → branch → fix → PR workflow for requested bug fixes. Merging, publishing a release, and updating changelogs still require an explicit request.
+
+## Issue and PR format checks
+
+- Before creating or updating an issue or PR, check its title, required headings, heading order, and required content against the schema. Preserve existing discussion and evidence when restructuring a body.
+- Use concise Markdown prose, numbered reproduction steps, and a validation results table. Keep implementation detail in the PR; the issue should explain the observable problem and expected behavior.
+- Fill every required section. Remove unused optional sections and template hints; do not submit empty headings or placeholder text. Use `未知（原因）` for unavailable facts and `不适用（原因）` for inapplicable fields.
+- Report validation as `通过`, `失败`, or `未执行（原因）`, with concrete commands or manual steps and evidence. Never present planned checks as completed checks.

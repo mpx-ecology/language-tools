@@ -1,31 +1,41 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
+about: 按结构化模板描述问题、复现步骤与预期行为
+title: 'bug(<scope>): '
 labels: bug
 assignees: ''
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
-请简要描述遇到的问题。
+<!-- 遵循 CONTRIBUTING.md 中的 Issue schema。保留必填章节，提交前移除提示和未使用的可选章节。 -->
 
-**To Reproduce**
-请使用 [@mpxjs/cli](https://mpxjs.cn/guide/basic/start.html) 提供最小复现 Demo。
+## 问题描述
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-预期行为描述。
+<!-- 描述触发条件、实际行为及影响范围；诊断问题附诊断文本或编号。 -->
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-如果需要请添加问题相关截图。
+## 复现步骤
 
-**Versions**
+<!-- 提供最小复现代码、仓库链接或可独立验证的 inspect-extension 场景路径，再列出操作和观察结果。 -->
+<!-- 可使用 @mpxjs/cli 创建最小复现项目：https://mpxjs.cn/guide/basic/start.html 。示例须符合 Mpx 语法。 -->
 
-- @mpxjs/core 依赖版本（请以 node_modules 中实际安装为准）: [e.g. 2.10.16]
-- Mpx (Official) 插件版本: [e.g. 1.14.0]
+1. <!-- 准备场景或打开文件。 -->
+2. <!-- 执行触发问题的操作，并记录实际结果。 -->
 
-**Additional context**
-Add any other context about the problem here.
-其他补充信息。
+## 预期行为
+
+<!-- 描述同一操作下应该出现的结果，使修复可以验收。 -->
+
+## 环境信息
+
+<!-- 按实际安装情况填写；未知写“未知（原因）”，不适用写“不适用（原因）”。 -->
+
+| 项目           | 版本或说明 |
+| -------------- | ---------- |
+| @mpxjs/core    |            |
+| Mpx (Official) |            |
+| TypeScript     |            |
+| VS Code        |            |
+| 目标平台       |            |
+
+## 补充信息
+
+<!-- 可选：截图、日志、关联问题或临时绕过方式。不要包含内部信息；无补充内容时删除本节。 -->
