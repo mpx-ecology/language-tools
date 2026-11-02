@@ -333,3 +333,83 @@ it('evaluates positive fixtures with the published Mpx JSON compiler', async () 
     evaluateMpxJson(p.read('json-only.mpx'), p.uri('json-only.mpx').fsPath),
   ).toEqual({ navigationBarTitleText: 'json only' })
 })
+
+for (const jsonOnly of [true, false]) {
+  it.each([
+    [
+      'TypeScript setup',
+      '<script setup lang="ts">const runtimeTitle = "runtime"; defineExpose({ runtimeTitle })</script>',
+    ],
+    [
+      'JavaScript setup',
+      '<script setup>const runtimeTitle = "runtime"; defineExpose({ runtimeTitle })</script>',
+    ],
+    [
+      'JavaScript options',
+      '<script>import { createComponent } from "@mpxjs/core"; createComponent({ data: { runtimeTitle: "runtime" } })</script>',
+    ],
+    ['JSON only', ''],
+  ])(
+    'keeps JSON semantics independent of %s (JSON-only host: ' + jsonOnly + ')',
+    async (_, script) => {
+      const p = (project = await createJsonProject(jsonOnly))
+      const json =
+        '<script name="json">\nconst shared = require("./shared")\nconst config = { title: shared.title }\n/** @type {number} */\nconst count = "wrong"\nmodule.exports = { navigationBarTitleText: config.title, count }\n</script>'
+      const source = script + '\n' + json
+      await p.edit('index.mpx', source)
+      const document = doc(p, 'index.mpx', source)
+      const uri = p.uri('index.mpx')
+      expect(
+        hoverText(
+          await p.service.getHover(uri, at(document, 'config.title', 8)),
+        ),
+      ).toContain('title: string')
+      const definitions = await p.service.getDefinition(
+        uri,
+        at(document, 'config.title'),
+      )
+      expect(
+        definitions?.map(definition =>
+          document.getText(definition.targetSelectionRange),
+        ),
+      ).toEqual(['config'])
+      expect(
+        (await p.service.getDiagnostics(uri)).filter(d => d.code === 2322),
+      ).toHaveLength(1)
+    },
+  )
+}
+
+it.each([true, false])(
+  'keeps diagnostics and navigation after removing and restoring lang="ts" in a warm project (JSON-only host: %s)',
+  async jsonOnly => {
+    const p = (project = await createJsonProject(jsonOnly))
+    const name = 'errors.mpx'
+    const original = p.read(name)
+    const uri = p.uri(name)
+    await p.edit(name, original)
+    for (const source of [
+      original,
+      original.replace(' lang="ts"', ''),
+      original,
+    ]) {
+      await p.edit(name, source)
+      const document = doc(p, name, source)
+      const diagnostics = (await p.service.getDiagnostics(uri)).filter(
+        d =>
+          document.offsetAt(d.range.start) >
+          source.indexOf('<script name="json">'),
+      )
+      for (const code of [2322, 2304, 2339])
+        expect(diagnostics.filter(d => d.code === code)).toHaveLength(1)
+      const definitions = await p.service.getDefinition(
+        uri,
+        at(document, 'invalidTitle.missing'),
+      )
+      expect(definitions).toHaveLength(1)
+      expect(document.getText(definitions![0].targetSelectionRange)).toBe(
+        'invalidTitle',
+      )
+    }
+  },
+)

@@ -15,6 +15,7 @@ import { createTypeScriptLS } from '@volar/language-server/lib/project/typescrip
 import { createUriConverter } from '@volar/language-server/lib/project/typescriptProject'
 import * as ts from 'typescript'
 import { URI } from 'vscode-uri'
+import { SnapshotDocument } from '@volar/language-server/lib/utils/snapshotDocument'
 import { createMpxProject } from '../../src/mpxProject'
 
 // Mpx's ambient process declaration only exposes env. Use the actual Node API
@@ -51,12 +52,7 @@ export async function createJsonProject(
   const config = JSON.parse(fs.readFileSync(configFile, 'utf8'))
   Object.assign(config.compilerOptions, options)
   fs.writeFileSync(configFile, JSON.stringify(config))
-  type Document = {
-    uri: string
-    languageId: string
-    version: number
-    getSnapshot(): ts.IScriptSnapshot
-  }
+  type Document = SnapshotDocument
   const documents = createUriMap<Document>()
   let closedVersion = 0
   const open = event<{ document: Document }>()
@@ -141,11 +137,45 @@ export async function createJsonProject(
     async edit(name: string, text: string) {
       const uri = URI.file(path.join(root, name))
       const existed = documents.get(uri)
-      const document = {
-        uri: uri.toString(),
-        languageId: name.endsWith('.mpx') ? 'mpx' : 'javascript',
-        version: (existed?.version ?? 0) + 1,
-        getSnapshot: () => ts.ScriptSnapshot.fromString(text),
+      let document = existed
+      if (document) {
+        const old = document.getText()
+        let start = 0
+        while (
+          start < old.length &&
+          start < text.length &&
+          old[start] === text[start]
+        )
+          start++
+        let oldEnd = old.length
+        let newEnd = text.length
+        while (
+          oldEnd > start &&
+          newEnd > start &&
+          old[oldEnd - 1] === text[newEnd - 1]
+        ) {
+          oldEnd--
+          newEnd--
+        }
+        document.update(
+          [
+            {
+              range: {
+                start: document.positionAt(start),
+                end: document.positionAt(oldEnd),
+              },
+              text: text.slice(start, newEnd),
+            },
+          ],
+          document.version + 1,
+        )
+      } else {
+        document = new SnapshotDocument(
+          uri.toString(),
+          name.endsWith('.mpx') ? 'mpx' : 'javascript',
+          1,
+          text,
+        )
       }
       documents.set(uri, document)
       if (!existed) await open.emit({ document })
