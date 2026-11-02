@@ -3,7 +3,77 @@
   "name": "Mpx",
   "scopeName": "source.mpx",
   "injections": {
-    "L:source.mpx comment": {
+    "L:source.mpx source.css comment.block - meta.embedded.block.mpx-style-condition, L:source.mpx source.stylus comment.block - meta.embedded.block.mpx-style-condition, L:source.mpx source.postcss comment.block - meta.embedded.block.mpx-style-condition, L:source.mpx source.sass comment.block - meta.embedded.block.mpx-style-condition": {
+      "patterns": [
+        {
+          "comment": "Bound JavaScript retokenization to balanced condition segments so unfinished expressions cannot escape the stylesheet comment.",
+          "begin": "(?:\\G|^)[ \\t]*(@mpx-(?:if|elif))[ \\t]*(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.directive.mpx"
+            },
+            "2": {
+              "name": "meta.embedded.inline.mpx-style-condition punctuation.section.parens.begin.js"
+            }
+          },
+          "end": "(\\))|(?=\\*/|</style\\b)",
+          "endCaptures": {
+            "1": {
+              "name": "meta.embedded.inline.mpx-style-condition punctuation.section.parens.end.js"
+            }
+          },
+          "contentName": "meta.embedded.block.mpx-style-condition source.js",
+          "patterns": [
+            {
+              "include": "#style-condition-parentheses"
+            },
+            {
+              "include": "#style-condition-segment"
+            }
+          ]
+        },
+        {
+          "comment": "Match directives at the start of a comment or comment line, preserving the embedded grammar's comment and string boundaries.",
+          "match": "(?:\\G|^)[ \\t]*(@mpx-(?:if|elif|else|endif))(?=[\\s(]|\\*/|$)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.directive.mpx"
+            }
+          }
+        }
+      ]
+    },
+    "L:source.mpx source.css comment.line - meta.embedded.block.mpx-style-condition, L:source.mpx source.stylus comment.line - meta.embedded.block.mpx-style-condition, L:source.mpx source.postcss comment.line - meta.embedded.block.mpx-style-condition, L:source.mpx source.sass comment.line - meta.embedded.block.mpx-style-condition": {
+      "patterns": [
+        {
+          "comment": "Line-comment captures cannot cross the newline, including while a condition is incomplete.",
+          "match": "(?:\\G|^)[ \\t]*(@mpx-(?:if|elif))[ \\t]*(\\(.*\\)|\\(.*$)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.directive.mpx"
+            },
+            "2": {
+              "name": "meta.embedded.block.mpx-style-condition source.js",
+              "patterns": [
+                {
+                  "include": "source.js#expression"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "comment": "Match directives at the start of a comment or comment line, preserving the embedded grammar's comment and string boundaries.",
+          "match": "(?:\\G|^)[ \\t]*(@mpx-(?:if|elif|else|endif))(?=[\\s(]|\\*/|$)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.directive.mpx"
+            }
+          }
+        }
+      ]
+    },
+    "L:source.mpx comment - meta.embedded.block.mpx-style-condition": {
       "patterns": [
         {
           "comment": "Keep MARK tokens in the root language for minimap section headers on editors that filter out embedded-language comments.",
@@ -125,6 +195,9 @@
               "patterns": [
                 {
                   "include": "source.postcss"
+                },
+                {
+                  "include": "source.css"
                 }
               ]
             }
@@ -1152,6 +1225,40 @@
           "include": "source.json#value"
         }
       ]
+    },
+    "style-condition-parentheses": {
+      "begin": "\\(",
+      "end": "(\\))|(?=\\*/|</style\\b)",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.section.parens.begin.js"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.section.parens.end.js"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#style-condition-parentheses"
+        },
+        {
+          "include": "#style-condition-segment"
+        }
+      ]
+    },
+    "style-condition-segment": {
+      "match": "(?:'(?:\\\\(?!(?:\\*/|</style\\b)).|(?!(?:\\*/|</style\\b))[^'\\\\])*'?|\"(?:\\\\(?!(?:\\*/|</style\\b)).|(?!(?:\\*/|</style\\b))[^\"\\\\])*\"?|`(?:\\\\(?!(?:\\*/|</style\\b)).|(?!(?:\\*/|</style\\b))[^`\\\\])*`?|/(?![/*])(?:\\\\(?!(?:\\*/|</style\\b)).|\\[(?:\\\\(?!(?:\\*/|</style\\b)).|(?!(?:\\*/|</style\\b))[^\\]\\\\])*\\]|(?!(?:\\*/|</style\\b))[^/\\\\\\[])+/[dgimsuvy]*|(?!(?:\\*/|</style\\b))[^()'\"`])+",
+      "captures": {
+        "0": {
+          "patterns": [
+            {
+              "include": "source.js#expression"
+            }
+          ]
+        }
+      }
     }
   }
 }
