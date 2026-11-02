@@ -963,6 +963,14 @@ const data: html.HTMLDataV1 = {
       },
       attributes: [
         {
+          name: 'is-svg',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，是否强制使用 SVG 方式渲染图片\n- 默认值：false',
+          },
+        },
+        {
           name: 'src',
           description: {
             kind: 'markdown',

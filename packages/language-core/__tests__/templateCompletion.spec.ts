@@ -109,9 +109,19 @@ describe('template variable completions', () => {
     'typed-props.mpx',
     'javascript.mpx',
     'native-attributes.mpx',
+    'scoped.mpx',
+    'capture-events.mpx',
   ])('keeps valid Mpx syntax and types in %s', async file => {
     expect(
-      service.proxyLanguageService.getSemanticDiagnostics(service.file(file)),
+      service.proxyLanguageService
+        .getSemanticDiagnostics(service.file(file))
+        .map(diagnostic => ({
+          code: diagnostic.code,
+          message: ts.flattenDiagnosticMessageText(
+            diagnostic.messageText,
+            '\n',
+          ),
+        })),
     ).toEqual([])
     expect((await compileMpxFixture(service.file(file))).code).toContain(
       'createComponent',
@@ -150,10 +160,238 @@ describe('template variable completions', () => {
     expect(ts.displayPartsToString(info?.displayParts)).toContain(type)
   })
 
+  it.each([
+    ['{{ propTitle }}', 3, ['row', 'rowIndex']],
+    ['{{ defaultTitle }}', 3, ['item', 'index']],
+    ['{{ propTitle }}', 4, ['row', 'rowIndex']],
+    ['{{ propTitle }}', 12, ['row', 'rowIndex']],
+    ['{{ row.id }}', 3, ['row', 'rowIndex']],
+    ['{{ nestedTitle }}', 3, ['row', 'rowIndex', 'child', 'childIndex']],
+    ['{{ shadowTitle }}', 3, ['row', 'rowIndex', 'innerIndex']],
+    ['handleTap($event, row)', 0, ['row', 'rowIndex', '$event']],
+    ['handleTap($event, row)', 10, ['row', 'rowIndex', '$event']],
+  ] as const)('keeps template locals at %s + %i', (needle, delta, locals) => {
+    const file = service.file('scoped.mpx')
+    const source = service.read('scoped.mpx')
+    const result = service.proxyLanguageService.getCompletionsAtPosition(
+      file,
+      source.indexOf(needle) + delta,
+      {},
+    )
+    const names = result?.entries.map(entry => entry.name)
+    expect(names).toEqual(
+      expect.arrayContaining(['propTitle', 'rows', 'handleTap', ...locals]),
+    )
+    expect(names).not.toContain('privateValue')
+    expect(names?.filter(name => name === 'row')).toHaveLength(1)
+    if (!needle.startsWith('handleTap')) expect(names).not.toContain('$event')
+    if (needle.includes('shadowTitle')) expect(names).not.toContain('child')
+  })
+
+  it.each([
+    ['{{  }}', 3, ['row', 'rowIndex', 'rows', 'handleTap']],
+    ['{{row.}}', 6, ['id', 'children']],
+    ['handleTap(row.)', 14, ['id', 'children']],
+    ['bindtap=""', 9, ['row', 'rowIndex', 'rows', 'handleTap']],
+  ] as const)(
+    'completes unfinished scoped expression %s',
+    (needle, delta, expected) => {
+      const file = service.file('scoped-editing.mpx')
+      const source = service.read('scoped-editing.mpx')
+      const result = service.proxyLanguageService.getCompletionsAtPosition(
+        file,
+        source.indexOf(needle) + delta,
+        {},
+      )
+      expect(result?.entries.map(entry => entry.name)).toEqual(
+        expect.arrayContaining([...expected]),
+      )
+    },
+  )
+
+  it.each([
+    ['{{ propTitle }}', true],
+    ['{{ shadowTitle }}', false],
+  ])(
+    'uses the closest row type in completion details at %s',
+    (needle, hasChildren) => {
+      const file = service.file('scoped.mpx')
+      const source = service.read('scoped.mpx')
+      const details = service.proxyLanguageService.getCompletionEntryDetails(
+        file,
+        source.indexOf(needle as string) + 3,
+        'row',
+        {},
+        undefined,
+        {},
+        undefined,
+      )
+      const display = ts.displayPartsToString(details?.displayParts)
+      expect(display).toContain('id: string')
+      expect(display.includes('children')).toBe(hasChildren)
+    },
+  )
+
+  it('keeps the outside row type and local source navigation', () => {
+    const file = service.file('scoped.mpx')
+    const source = service.read('scoped.mpx')
+    const details = service.proxyLanguageService.getCompletionEntryDetails(
+      file,
+      source.indexOf('{{ outsideTitle }}') + 3,
+      'row',
+      {},
+      undefined,
+      {},
+      undefined,
+    )
+    expect(ts.displayPartsToString(details?.displayParts)).toBe(
+      '(property) row: \"outside\"',
+    )
+    const position = source.indexOf('{{ row.id }}') + 4
+    const info = service.proxyLanguageService.getQuickInfoAtPosition(
+      file,
+      position,
+    )
+    expect(ts.displayPartsToString(info?.displayParts)).toContain('children')
+    const alias = source.indexOf('wx:for-item="row"') + 'wx:for-item="'.length
+    expect(
+      service.proxyLanguageService.getDefinitionAtPosition(file, position),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          fileName: file,
+          textSpan: { start: alias, length: 3 },
+        }),
+      ]),
+    )
+  })
+
+  it('resolves source completions before inner aliases shadow outer ones', () => {
+    const file = service.file('scoped.mpx')
+    const source = service.read('scoped.mpx')
+    const position = source.indexOf('{{ row.children }}') + 3
+    const result = service.proxyLanguageService.getCompletionsAtPosition(
+      file,
+      position,
+      {},
+    )
+    const names = result?.entries.map(entry => entry.name)
+    expect(names).toEqual(
+      expect.arrayContaining(['row', 'rowIndex', 'propTitle']),
+    )
+    expect(names).not.toContain('child')
+    expect(names).not.toContain('childIndex')
+    const details = service.proxyLanguageService.getCompletionEntryDetails(
+      file,
+      position,
+      'row',
+      {},
+      undefined,
+      {},
+      undefined,
+    )
+    expect(ts.displayPartsToString(details?.displayParts)).toContain('children')
+  })
+
+  it('keeps completion mappings independent from semantics and navigation', () => {
+    const file = service.file('scoped.mpx')
+    const source = service.read('scoped.mpx')
+    const position = source.indexOf('{{ row.id }}') + 4
+    const script = service.language.scripts.get(file)!
+    const code = script.generated!.languagePlugin.typescript!.getServiceScript(
+      script.generated!.root,
+    )!.code
+    const mappings = code.mappings.filter(mapping =>
+      mapping.sourceOffsets.some(
+        (offset, index) =>
+          offset <= position && position < offset + mapping.lengths[index],
+      ),
+    )
+    expect(mappings.filter(mapping => mapping.data.semantic)).toHaveLength(1)
+    expect(mappings.filter(mapping => mapping.data.navigation)).toHaveLength(1)
+    expect(
+      mappings.some(
+        mapping =>
+          mapping.data.completion &&
+          !mapping.data.semantic &&
+          !mapping.data.navigation &&
+          !mapping.data.verification,
+      ),
+    ).toBe(true)
+  })
+
+  it('does not leak nested or event locals after their scope', () => {
+    const file = service.file('scoped.mpx')
+    const source = service.read('scoped.mpx')
+    const result = service.proxyLanguageService.getCompletionsAtPosition(
+      file,
+      source.indexOf('{{ outsideTitle }}') + 3,
+      {},
+    )
+    const names = result?.entries.map(entry => entry.name)
+    for (const name of [
+      'rowIndex',
+      'child',
+      'childIndex',
+      'innerIndex',
+      '$event',
+      'privateValue',
+    ])
+      expect(names).not.toContain(name)
+  })
+
+  it.each(['compactBind', 'compactCatch', 'colonBind', 'colonCatch'])(
+    'keeps capture handler %s typed, navigable and completable',
+    name => {
+      const file = service.file('capture-events.mpx')
+      const source = service.read('capture-events.mpx')
+      const position = source.indexOf('"' + name + '"') + 2
+      const info = service.proxyLanguageService.getQuickInfoAtPosition(
+        file,
+        position,
+      )
+      expect(ts.displayPartsToString(info?.displayParts)).toContain(
+        '() => void',
+      )
+      expect(
+        service.proxyLanguageService.getDefinitionAtPosition(file, position),
+      ).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            fileName: file,
+            textSpan: {
+              start: source.indexOf(name, source.indexOf('defineExpose')),
+              length: name.length,
+            },
+          }),
+        ]),
+      )
+      const result = service.proxyLanguageService.getCompletionsAtPosition(
+        file,
+        position,
+        {},
+      )
+      expect(result?.entries.map(entry => entry.name)).toEqual(
+        expect.arrayContaining([
+          'compactBind',
+          'compactCatch',
+          'colonBind',
+          'colonCatch',
+        ]),
+      )
+    },
+  )
+
   it('retains errors for unwrapped members', () => {
     const diagnostics = service.proxyLanguageService.getSemanticDiagnostics(
       service.file('errors.mpx'),
     )
-    expect(diagnostics.map(diagnostic => diagnostic.code)).toEqual([2339])
+    expect(diagnostics.map(diagnostic => diagnostic.code)).toEqual([2339, 2339])
+    const source = service.read('errors.mpx')
+    expect(
+      diagnostics.map(diagnostic =>
+        source.slice(diagnostic.start!, diagnostic.start! + diagnostic.length!),
+      ),
+    ).toEqual(['missing', 'missingCapture'])
   })
 })

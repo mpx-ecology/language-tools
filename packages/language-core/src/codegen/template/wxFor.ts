@@ -23,41 +23,16 @@ export function* generateWxFor(
     node.parseResult
   const forBlockVars: string[] = []
 
-  const collectVar = () => {
-    const collectAst = createTsAst(
-      options.ts,
-      node.parseResult,
-      `const [${leftExpressionText}]`,
-    )
-    collectVars(options.ts, collectAst, collectAst, forBlockVars)
-  }
+  const collectAst = createTsAst(
+    options.ts,
+    node.parseResult,
+    `const [${leftExpressionText}]`,
+  )
+  collectVars(options.ts, collectAst, collectAst, forBlockVars)
 
-  yield `for (const [`
-  if (leftExpressionRange && leftExpressionText && !mpx) {
-    collectVar()
-    yield [
-      leftExpressionText,
-      'template',
-      leftExpressionRange.start,
-      ctx.codeFeatures.all,
-    ]
-  } else {
-    collectVar()
-    yield [
-      value!.loc.source,
-      'template',
-      value!.loc.start.offset,
-      defaultValue ? ctx.codeFeatures.none : ctx.codeFeatures.all,
-    ]
-    yield ','
-    yield [
-      index!.loc.source,
-      'template',
-      index!.loc.start.offset,
-      defaultIndex ? ctx.codeFeatures.none : ctx.codeFeatures.all,
-    ]
-  }
-  yield `] of `
+  // Resolve the source before introducing loop bindings that may shadow it.
+  const sourceVar = ctx.getInternalVariable()
+  yield `const ${sourceVar} = `
   if (source.type === CompilerDOM.NodeTypes.SIMPLE_EXPRESSION) {
     yield `__VLS_getWxForSourceType(`
     if (source.isStatic) {
@@ -88,7 +63,32 @@ export function* generateWxFor(
   } else {
     yield `{} as any`
   }
-  yield `) {${newLine}`
+  yield endOfLine
+  yield* ctx.generateLocalCompletions()
+  yield `for (const [`
+  if (leftExpressionRange && leftExpressionText && !mpx) {
+    yield [
+      leftExpressionText,
+      'template',
+      leftExpressionRange.start,
+      ctx.codeFeatures.all,
+    ]
+  } else {
+    yield [
+      value!.loc.source,
+      'template',
+      value!.loc.start.offset,
+      defaultValue ? ctx.codeFeatures.none : ctx.codeFeatures.all,
+    ]
+    yield ','
+    yield [
+      index!.loc.source,
+      'template',
+      index!.loc.start.offset,
+      defaultIndex ? ctx.codeFeatures.none : ctx.codeFeatures.all,
+    ]
+  }
+  yield `] of ${sourceVar}) {${newLine}`
 
   for (const varName of forBlockVars) {
     ctx.addLocalVariable(varName)

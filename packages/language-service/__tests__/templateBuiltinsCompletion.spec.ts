@@ -54,6 +54,7 @@ describe('built-in template attribute and event completion', () => {
     ['view', 'wx:model'],
     ['text', 'decode'],
     ['image', 'is-svg'],
+    ['cover-image', 'is-svg'],
     ['input', 'keyboard-type'],
     ['textarea', 'keyboard-type'],
     ['movable-view', 'workletChange'],

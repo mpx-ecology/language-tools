@@ -13,7 +13,10 @@ const commentDirectiveRegex =
   /^<!--\s*@mpx-(?<name>[-\w]+)\b(?<content>[\s\S]*)-->$/
 
 export function createTemplateCodegenContext(
-  options: Pick<TemplateCodegenOptions, 'scriptSetupBindingNames'>,
+  options: Pick<
+    TemplateCodegenOptions,
+    'scriptSetupBindingNames' | 'propsAssignName' | 'slotsAssignName'
+  >,
 ) {
   let variableId = 0
 
@@ -45,6 +48,27 @@ export function createTemplateCodegenContext(
 
   const hoistVars = new Map<string, string>()
   const localVars = new Map<string, number>()
+  const localCompletions = new Map<string, { code: Code; locals: string[] }>()
+
+  function* generateLocalCompletions(): Generator<Code> {
+    if (!localCompletions.size) return
+    const contexts = new Map<string, string>()
+    for (const { code, locals } of localCompletions.values()) {
+      const key = locals.join(',')
+      let name = contexts.get(key)
+      if (!name) {
+        name = `__VLS_${variableId++}`
+        contexts.set(key, name)
+        yield `const ${name} = { ...__MPX_ctx, ${key} }${endOfLine}`
+      }
+      // Only completion uses this merged view. The original expression keeps
+      // its checking, hover and source navigation mappings.
+      yield `// @ts-ignore${newLine}${name}.`
+      yield code
+      yield endOfLine
+    }
+    localCompletions.clear()
+  }
   const dollarVars = new Set<string>()
   const accessExternalVariables = new Map<string, Set<number>>()
   const slots: {
@@ -141,11 +165,36 @@ export function createTemplateCodegenContext(
     hasLocalVariable(name: string) {
       return !!localVars.get(name)
     },
+    getLocalVariables() {
+      return [...localVars]
+        .filter(
+          ([name, count]) =>
+            count >
+            Number(name === options.propsAssignName) +
+              Number(name === options.slotsAssignName),
+        )
+        .map(([name]) => name)
+    },
+    addLocalCompletion(
+      source: string,
+      offset: number,
+      text: string,
+      locals: string[],
+      completion: MpxCodeInformation['completion'],
+    ) {
+      localCompletions.set(`${source}:${offset}`, {
+        code: [text, source, offset, { completion }],
+        locals,
+      })
+    },
+    generateLocalCompletions,
     addLocalVariable(name: string) {
       localVars.set(name, (localVars.get(name) ?? 0) + 1)
     },
     removeLocalVariable(name: string) {
-      localVars.set(name, localVars.get(name)! - 1)
+      const count = localVars.get(name)! - 1
+      if (count) localVars.set(name, count)
+      else localVars.delete(name)
     },
     getInternalVariable() {
       return `__VLS_${variableId++}`
@@ -247,6 +296,7 @@ export function createTemplateCodegenContext(
       return true
     },
     *exit(): Generator<Code> {
+      yield* generateLocalCompletions()
       const data = stack.pop()!
       commentBuffer.length = 0
       if (data.expectError !== undefined) {

@@ -1,0 +1,13 @@
+<template>
+  <view capture-bindtap="compactBind" />
+  <view capture-catchtap="compactCatch" />
+  <view capture-bind:tap="colonBind" />
+  <view capture-catch:tap="colonCatch" />
+</template>
+<script setup lang="ts">
+const compactBind = () => {}
+const compactCatch = () => {}
+const colonBind = () => {}
+const colonCatch = () => {}
+defineExpose({ compactBind, compactCatch, colonBind, colonCatch })
+</script>
