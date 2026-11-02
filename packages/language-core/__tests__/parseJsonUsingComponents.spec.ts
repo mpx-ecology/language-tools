@@ -270,6 +270,12 @@ describe('assigned component objects', () => {
     ['initialized var', 'var components = {}', []],
     ['later initializer', 'var components; var components = {}', []],
     ['iteration binding', 'for (var components of [{}]) {}', []],
+    ['fresh assign target', 'var components = Object.assign({}, {})', []],
+    [
+      'different assign target',
+      'const other = {}; var components = Object.assign(other, {})',
+      [],
+    ],
   ])('preserves parameter object writes for an %s', (_, declaration, names) => {
     const source = `
       function build(components = {}, config = { usingComponents: components }) {
@@ -291,6 +297,53 @@ describe('assigned component objects', () => {
       ])
     }
   })
+
+  it.each([
+    "var components = Object.assign(components, { panel: './panel.mpx' })",
+    "var components; var components = Object.assign(components, { panel: './panel.mpx' })",
+    "var components = Object.assign(components); Object.assign(components, { panel: './panel.mpx' })",
+    "var components = Object.assign(components, { panel: './panel.mpx' }); var components = Object.assign(components, {})",
+  ])('preserves an Object.assign parameter target through %s', declaration => {
+    const source = `
+      function build(components = {}, config = { usingComponents: components }) {
+        ${declaration}
+        components.footer = './footer.mpx'
+        return config
+      }
+      module.exports = build()
+    `
+    const result = parse(source)
+    expect([...result.keys()]).toEqual(['panel', 'footer'])
+    expect(result.get('panel')).toEqual([
+      {
+        text: './panel.mpx',
+        offset: source.indexOf("'./panel.mpx'"),
+        nameOffset: source.indexOf('panel:'),
+      },
+    ])
+    expect(result.get('footer')).toHaveLength(1)
+  })
+
+  it.each([
+    `function build(components = {}, config = { usingComponents: components }, Object = {
+      assign(target, source) { return source }
+    }) {
+      var components = Object.assign(components, { ghost: './missing.mpx' })
+      return config
+    }
+    module.exports = build()`,
+    `function build(components = {}, config = { usingComponents: components }) {
+      var components = Object.assign(components, { ghost: './missing.mpx' })
+      return config
+    }
+    const Object = { assign(target, source) { return source } }
+    module.exports = build()`,
+  ])(
+    'does not preserve a target through a shadowed Object.assign: %s',
+    source => {
+      expect(parse(source).size).toBe(0)
+    },
+  )
 
   it('keeps repeated registrations linear in cache probes', () => {
     function measure(size: number) {

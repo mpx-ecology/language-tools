@@ -144,14 +144,7 @@ export function parseUsingComponentsWithJs(
       }
     }
     // 收集 Object.assign(target, ...) 对象补充
-    if (
-      ts.isCallExpression(node) &&
-      ts.isPropertyAccessExpression(node.expression) &&
-      ts.isIdentifier(node.expression.expression) &&
-      node.expression.expression.text === 'Object' &&
-      node.expression.name.text === 'assign' &&
-      node.arguments.length >= 2
-    ) {
+    if (isObjectAssignCall(ts, node)) {
       const target = node.arguments[0]
       if (ts.isIdentifier(target)) {
         const binding = resolveBinding(target)
@@ -406,14 +399,7 @@ export function parseUsingComponentsWithJs(
     }
 
     // 处理 Object.assign({}, {...}) 作为一个表达式传入的情况（例如解构或直接传入）
-    if (
-      ts.isCallExpression(expression) &&
-      ts.isPropertyAccessExpression(expression.expression) &&
-      ts.isIdentifier(expression.expression.expression) &&
-      expression.expression.expression.text === 'Object' &&
-      expression.expression.name.text === 'assign' &&
-      expression.arguments.length >= 2
-    ) {
+    if (isObjectAssignCall(ts, expression)) {
       // 合并除第一个 target 之外的参数
       for (let i = 1; i < expression.arguments.length; i++) {
         parseObjectFromExpression(expression.arguments[i])
@@ -427,6 +413,25 @@ export function parseUsingComponentsWithJs(
   visit(sourceFile)
 
   return usingComponents
+}
+
+type ObjectAssignCall = ts.CallExpression & {
+  expression: ts.PropertyAccessExpression & { expression: ts.Identifier }
+}
+
+function isObjectAssignCall(
+  ts: typeof import('typescript'),
+  node: ts.Node | undefined,
+): node is ObjectAssignCall {
+  return (
+    !!node &&
+    ts.isCallExpression(node) &&
+    ts.isPropertyAccessExpression(node.expression) &&
+    ts.isIdentifier(node.expression.expression) &&
+    node.expression.expression.text === 'Object' &&
+    node.expression.name.text === 'assign' &&
+    node.arguments.length >= 1
+  )
 }
 
 interface LocalBinding {
@@ -447,6 +452,11 @@ function createBindingResolver(
   sourceFile: ts.SourceFile,
 ) {
   const scopes = new Map<ts.Identifier, LocalScope>()
+  const parameterAssigns: {
+    scope: LocalScope
+    name: ts.Identifier
+    initializer: ObjectAssignCall
+  }[] = []
   let indexed = false
   const rootScope: LocalScope = {
     bindings: new Map(),
@@ -525,15 +535,29 @@ function createBindingResolver(
       }
       for (const declaration of node.declarations) {
         const { name, initializer } = declaration
-        if (isVar && !isIteration && !initializer && ts.isIdentifier(name)) {
-          const parameter =
-            declarationScope.bindings.get(name.text) ??
-            declarationScope.parent?.bindings.get(name.text)
-          if (parameter?.isParameter) {
-            // A bare var keeps the parameter's object; initialized/iteration
-            // declarations are separate and go through declare() instead.
-            declarationScope.bindings.set(name.text, parameter)
-            continue
+        if (isVar && !isIteration && ts.isIdentifier(name)) {
+          const assign = isObjectAssignCall(ts, initializer)
+            ? initializer
+            : undefined
+          const target = assign?.arguments[0]
+          if (
+            !initializer ||
+            (target && ts.isIdentifier(target) && target.text === name.text)
+          ) {
+            const parameter =
+              declarationScope.bindings.get(name.text) ??
+              declarationScope.parent?.bindings.get(name.text)
+            if (parameter?.isParameter) {
+              // Bare var and Object.assign(var, ...) preserve the parameter object.
+              declarationScope.bindings.set(name.text, parameter)
+              if (assign)
+                parameterAssigns.push({
+                  scope: declarationScope,
+                  name,
+                  initializer: assign,
+                })
+              continue
+            }
           }
         }
         declare(declarationScope, name, initializer)
@@ -563,11 +587,7 @@ function createBindingResolver(
     }
   }
 
-  return (identifier: ts.Identifier) => {
-    if (!indexed) {
-      visit(sourceFile, rootScope)
-      indexed = true
-    }
+  function findBinding(identifier: ts.Identifier) {
     let scope = scopes.get(identifier)
     while (scope) {
       const binding = scope.bindings.get(identifier.text)
@@ -576,6 +596,25 @@ function createBindingResolver(
       }
       scope = scope.parent
     }
+  }
+
+  return (identifier: ts.Identifier) => {
+    if (!indexed) {
+      visit(sourceFile, rootScope)
+      // Validate after all declarations are indexed, including later Object
+      // bindings. This checks only candidate calls, without another AST walk.
+      for (const { scope, name, initializer } of parameterAssigns) {
+        if (
+          findBinding(initializer.expression.expression) &&
+          scope.bindings.get(name.text)?.isParameter
+        ) {
+          scope.bindings.set(name.text, { initializer })
+        }
+      }
+      indexed = true
+    }
+    const declared = findBinding(identifier)
+    if (declared) return declared
     // Mpx injects CommonJS and user-defined globals. Intern unresolved names
     // at the root so their writes still share an identity, without a whitelist.
     const binding = rootScope.bindings.get(identifier.text) ?? {}

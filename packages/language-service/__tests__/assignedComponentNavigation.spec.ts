@@ -54,7 +54,7 @@ describe('assigned component object navigation', () => {
 
   afterAll(() => service.dispose())
 
-  it('keeps tag navigation through an uninitialized parameter var', async () => {
+  it('keeps navigation and diagnostics through an Object.assign parameter target', async () => {
     const fileName = service.file('parameter-component-object.mpx')
     const { root } = service.getServiceScript('parameter-component-object.mpx')
     const sourceScript = service.language.scripts.get(fileName)!
@@ -65,8 +65,17 @@ describe('assigned component object navigation', () => {
       0,
       root.sfc.template!.content,
     )
+    const parameterJson = TextDocument.create(
+      `${sourceUri}.__json.js`,
+      'javascript',
+      0,
+      root.sfc.json!.content,
+    )
     const parameterContext = {
-      decodeEmbeddedDocumentUri: () => [sourceUri, 'template'],
+      decodeEmbeddedDocumentUri: (uri: URI) => [
+        sourceUri,
+        uri.toString() === document.uri ? 'template' : 'json_js',
+      ],
       language: { scripts: { get: () => sourceScript } },
     } as unknown as LanguageServiceContext
     const plugin = createComponentDefinition().create!(parameterContext)!
@@ -77,6 +86,19 @@ describe('assigned component object navigation', () => {
       token,
     )
     expect(definitions).toEqual([expect.objectContaining({ targetUri })])
+    const pathOffset = parameterJson
+      .getText()
+      .indexOf('./component-options.mpx')
+    const pathDefinitions = await plugin.provideDefinition!(
+      parameterJson,
+      parameterJson.positionAt(pathOffset + 2),
+      token,
+    )
+    expect(pathDefinitions).toEqual([expect.objectContaining({ targetUri })])
+    const jsonPlugin = createJsonLinks().create!(parameterContext)!
+    expect(await jsonPlugin.provideDiagnostics!(parameterJson, token)).toEqual(
+      [],
+    )
   })
 
   it('does not report path errors from a shadowing component object', async () => {

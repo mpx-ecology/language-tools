@@ -12,7 +12,7 @@ createComponent({})
 <script name="json">
 function build(components = {}, config = { usingComponents: components }) {
   var components
-  Object.assign(components, { 'parameter-panel': './component-options.mpx' })
+  var components = Object.assign(components, { 'parameter-panel': './component-options.mpx' })
   return config
 }
 module.exports = build()

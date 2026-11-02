@@ -11,9 +11,10 @@ createComponent({})
 
 <script name="json">
 function build(components = {}, config = { usingComponents: components }) {
-  // 裸 var 保留形参对象，不能导致组件注册或路径跳转丢失。
+  // 裸 var 和 Object.assign 的返回值均保留原形参对象。
+  // 标签及下方路径应能跳转，组件注册和属性提示不能丢失或重复。
   var components
-  Object.assign(components, { 'parameter-panel': './panel.mpx' })
+  var components = Object.assign(components, { 'parameter-panel': './panel.mpx' })
   return config
 }
 module.exports = build()
