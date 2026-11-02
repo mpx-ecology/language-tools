@@ -30,6 +30,7 @@ import { Commands } from './types'
 export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
 export * from './types'
+export { create as createTypeScriptSemanticPlugin } from './plugins/typescript-semantic'
 
 export interface MpxLanguageServicePluginOptions {
   componentDefinitionProvider?: boolean

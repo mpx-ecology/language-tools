@@ -1,0 +1,39 @@
+<template>
+  <view>{{ optionalUser.name }}</view>
+  <view>{{ nullableUser.name }}</view>
+  <view>{{ nullishUser.name }}</view>
+  <view>{{ unknownValue.name }}</view>
+  <view>{{ unknownItems[selectedIndex].name }}</view>
+  <view>{{ userMap['__MPX_ctx.name'].name }}</view>
+  <view>{{ user.__MPX_ctx.name }}</view>
+  <view wx:if="{{ optionalUser }}">{{ optionalUser.name }}</view>
+</template>
+
+<script setup lang="ts">
+type User = { name: string }
+
+const optionalUser = { name: 'Mpx' } as User | undefined
+const nullableUser = { name: 'Mpx' } as User | null
+const nullishUser = { name: 'Mpx' } as User | null | undefined
+const unknownValue: unknown = { name: 'Mpx' }
+const unknownItems: unknown[] = [{ name: 'Mpx' }]
+const selectedIndex = 0
+const userMap = {} as { '__MPX_ctx.name': User | undefined }
+const user = {} as { __MPX_ctx: User | undefined }
+
+// Intentional script errors must retain the original messages.
+optionalUser.name
+const literal: 'allowed' = '__MPX_ctx.optionalUser'
+
+defineExpose({
+  optionalUser,
+  nullableUser,
+  nullishUser,
+  unknownValue,
+  unknownItems,
+  selectedIndex,
+  userMap,
+  user,
+  literal
+})
+</script>
