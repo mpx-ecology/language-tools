@@ -1,0 +1,19 @@
+<template>
+  <!-- Expected: number is not assignable to the registered string prop. -->
+  <parameter-panel parentText="{{ 123 }}" />
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({})
+</script>
+
+<script name="json">
+function build(components = {}, config = { usingComponents: components }) {
+  var components
+  var components = Object.assign(components, { 'parameter-panel': './component-options.mpx' })
+  return config
+}
+module.exports = build()
+</script>

@@ -1,0 +1,22 @@
+<template>
+  <view>{{ parentText }}</view>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  properties: {
+    parentText: {
+      type: String,
+      value: 'demo'
+    }
+  }
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true
+}
+</script>
