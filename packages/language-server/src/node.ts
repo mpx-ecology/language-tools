@@ -18,9 +18,9 @@ import {
   LanguageService,
   createLanguageService,
   createMpxLanguageServicePlugins,
+  createTypeScriptSemanticPlugin,
   createUriMap,
 } from '@mpxjs/language-service'
-import { create as createTypeScriptSemanticPlugin } from 'volar-service-typescript/lib/plugins/semantic'
 
 const connection = createConnection()
 const server = createServer(connection)
