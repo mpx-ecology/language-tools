@@ -106,11 +106,8 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
     resolveEmbeddedCode(_fileName, sfc, embeddedFile) {
       const json = /json_(js|json)/.test(embeddedFile.id) ? sfc.json : undefined
       if (json) {
-        let content = json.content
-        if (content.startsWith('\n')) {
-          content = content.slice(1)
-        }
-        embeddedFile.content.push([content, json.name, 1, allCodeFeatures])
+        // Keep every offset relative to the unmodified block, including CRLF.
+        embeddedFile.content.push([json.content, json.name, 0, allCodeFeatures])
       }
     },
 

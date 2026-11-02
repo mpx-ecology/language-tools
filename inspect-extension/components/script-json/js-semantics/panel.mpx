@@ -1,0 +1,2 @@
+<template><view>JSON 组件路径跳转目标</view></template>
+<script setup>defineExpose({})</script>

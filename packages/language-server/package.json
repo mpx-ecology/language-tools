@@ -30,7 +30,8 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vscode-languageserver-textdocument": "^1.0.12"
   },
   "peerDependencies": {
     "typescript": "*"

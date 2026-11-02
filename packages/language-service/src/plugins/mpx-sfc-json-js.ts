@@ -1,31 +1,13 @@
-// import type { IRequests } from '@mpxjs/typescript-plugin/src/requests'
-// import type {
-//   LanguageServiceContext,
-//   LanguageServicePlugin,
-// } from '@volar/language-service'
+import type { LanguageServicePlugin } from '@volar/language-service'
+import { create as createSemantic } from 'volar-service-typescript/lib/plugins/semantic'
 
-// export function create(
-//   _ts: typeof import('typescript'),
-//   getTsPluginClient: (context: LanguageServiceContext) => IRequests | undefined,
-// ): LanguageServicePlugin {
-//   return {
-//     name: 'mpx-json-js',
-
-//     capabilities: {
-//       diagnosticProvider: {
-//         interFileDependencies: true,
-//         workspaceDiagnostics: false,
-//       },
-//     },
-
-//     create(context) {
-//       if (!context.project.mpx) {
-//         return {}
-//       }
-
-//       const tsPluginClient = getTsPluginClient?.(context)
-
-//       return {}
-//     },
-//   }
-// }
+// In IDE mode this project's host exposes only JSON JS as TypeScript scripts.
+// Use the standard semantic service so edits and targets use Volar's mappings.
+export function create(ts: typeof import('typescript')): LanguageServicePlugin {
+  return {
+    // The IDE already maintains the package auto-import index in tsserver.
+    // Avoid a second cache and its file-watcher subscription for JSON projects.
+    ...createSemantic(ts, { disableAutoImportCache: true }),
+    name: 'mpx-json-js',
+  }
+}

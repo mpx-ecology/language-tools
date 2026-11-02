@@ -1,0 +1,4 @@
+<script name="json">
+const factory = require('./factory.cjs')
+module.exports = { navigationBarTitleText: factory.jsonTitleFactory() }
+</script>

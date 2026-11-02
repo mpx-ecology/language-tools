@@ -56,9 +56,9 @@ export function create(): LanguageServicePlugin {
                 }
                 result.push({
                   range: {
-                    start: document.positionAt(componentPathOffset),
+                    start: document.positionAt(componentPathOffset + 1),
                     end: document.positionAt(
-                      componentPathOffset + componentPath.length,
+                      componentPathOffset + 1 + componentPath.length,
                     ),
                   },
                   // fix: 兼容 Windows 路径协议 eg: file:///d:/{you_path}/list.mpx
@@ -81,8 +81,10 @@ export function create(): LanguageServicePlugin {
               }
               result.push({
                 range: {
-                  start: document.positionAt(pagePathOffset),
-                  end: document.positionAt(pagePathOffset + pagePath.length),
+                  start: document.positionAt(pagePathOffset + 1),
+                  end: document.positionAt(
+                    pagePathOffset + 1 + pagePath.length,
+                  ),
                 },
                 target: URI.file(targetFilePath).toString(),
                 tooltip: `页面路径：${pagePath}`,
@@ -130,8 +132,8 @@ export function create(): LanguageServicePlugin {
           ]) {
             diagnostics.push({
               range: {
-                start: document.positionAt(offset),
-                end: document.positionAt(offset + text.length),
+                start: document.positionAt(offset + 1),
+                end: document.positionAt(offset + 1 + text.length),
               },
               severity: 1 satisfies typeof vscode.DiagnosticSeverity.Error,
               code: '4001',
