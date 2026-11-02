@@ -1,14 +1,12 @@
 <script setup lang="ts">
+import * as helpers from './local-macros'
+
 if (true) {
-  var defineProps = (value: string) => ({ localLabel: value })
-  var withDefaults = (value: { localLabel: string }) => ({
-    ...value,
-    localCount: value.localLabel.length,
-  })
+  var mpxProps = helpers.defineProps
+  var mpxDefaults = helpers.withDefaults
 }
 
-const props = withDefaults(defineProps('local'))
-props.localLabel.toUpperCase()
+const props = mpxDefaults(mpxProps('local'))
 props.localCount.toFixed()
 defineExpose({ props })
 </script>

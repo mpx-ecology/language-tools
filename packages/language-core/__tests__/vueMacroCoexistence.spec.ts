@@ -6,6 +6,7 @@ import {
   type TestLanguageService,
   createTestLanguageService,
 } from './utils/createTestLanguageService'
+import { mpxCompilerCases } from './utils/mpxCompilerCases'
 
 const fixtureRoot = path.resolve(__dirname, 'fixtures/vue-macro-coexistence')
 const requireFromTest = createRequire(__filename)
@@ -31,36 +32,42 @@ describe.each([
   })
   afterAll(() => service.dispose())
 
-  it.each([
-    'runtime-props.mpx',
-    'typed-defaults.mpx',
-    'runtime-props-js.mpx',
-    'destructured.mpx',
-    'both-scripts.mpx',
-    'macro-aliases.mpx',
-    'imported-macros.mpx',
-    'type-imports.mpx',
-    'import-equals.mpx',
-    'namespace-binding.mpx',
-    'both-scripts-bindings.mpx',
-    'runtime-defaults-js.mpx',
-    'hoisted-var.mpx',
-    'hoisted-var-js.mpx',
-    'hoisted-destructured.mpx',
-    'scope-boundaries.mpx',
-  ])('keeps valid Mpx props typed in %s', relativePath => {
-    const fileName = service.file(relativePath)
-    const diagnostics = [
-      ...service.proxyLanguageService.getSyntacticDiagnostics(fileName),
-      ...service.proxyLanguageService.getSemanticDiagnostics(fileName),
-    ]
-    expect(
-      diagnostics.map(diagnostic => ({
-        code: diagnostic.code,
-        message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
-      })),
-    ).toEqual([])
-  })
+  it.each(mpxCompilerCases.map(testCase => testCase.file))(
+    'keeps valid Mpx props typed in %s',
+    relativePath => {
+      const fileName = service.file(relativePath)
+      const diagnostics = [
+        ...service.proxyLanguageService.getSyntacticDiagnostics(fileName),
+        ...service.proxyLanguageService.getSemanticDiagnostics(fileName),
+      ]
+      expect(
+        diagnostics.map(diagnostic => ({
+          code: diagnostic.code,
+          message: ts.flattenDiagnosticMessageText(
+            diagnostic.messageText,
+            '\n',
+          ),
+        })),
+      ).toEqual([])
+      const ast = service.languageService.getProgram()!.getSourceFile(fileName)!
+      const declaration = ast.statements.find(
+        statement =>
+          ts.isTypeAliasDeclaration(statement) &&
+          statement.name.text === '__VLS_PublicProps',
+      )
+      expect(declaration).toBeDefined()
+      const checker = service.languageService.getProgram()!.getTypeChecker()
+      const propertyNames = checker
+        .getTypeAtLocation(declaration!)
+        .getProperties()
+        .map(property => property.name)
+        .sort()
+      const expected = mpxCompilerCases.find(
+        testCase => testCase.file === relativePath,
+      )!
+      expect(propertyNames).toEqual(Object.keys(expected.defaults).sort())
+    },
+  )
 
   it('preserves Mpx runtime prop hover types and member completions', () => {
     const relativePath = 'runtime-props.mpx'
@@ -119,14 +126,13 @@ describe.each([
     ['runtime-props.mpx', 'defineProps'],
     ['typed-defaults.mpx', 'withDefaults'],
     ['runtime-props-js.mpx', 'defineProps'],
-    ['runtime-defaults-js.mpx', 'withDefaults'],
     ['macro-aliases.mpx', 'mpxProps'],
     ['macro-aliases.mpx', 'mpxDefaults'],
   ])('preserves lexical completions in %s (%s)', (relativePath, macro) => {
     const fileName = service.file(relativePath)
     const source = service.read(relativePath)
     for (const offset of [0, Math.floor(macro.length / 2), macro.length]) {
-      const position = source.indexOf(macro) + offset
+      const position = source.indexOf(`${macro}(`) + offset
       const completions = service.proxyLanguageService.getCompletionsAtPosition(
         fileName,
         position,
@@ -165,13 +171,15 @@ describe.each([
     }
   })
 
-  it.each(['typed-defaults.mpx', 'runtime-defaults-js.mpx'])(
+  it.each([
+    ['typed-defaults.mpx', 'withDefaults', ['props', 'defaults']],
+    ['runtime-props-js.mpx', 'defineProps', ['props']],
+  ] as const)(
     'preserves Mpx signature help in %s',
-    relativePath => {
+    (relativePath, macro, parameters) => {
       const fileName = service.file(relativePath)
       const position =
-        service.read(relativePath).indexOf('withDefaults(') +
-        'withDefaults('.length
+        service.read(relativePath).indexOf(`${macro}(`) + `${macro}(`.length
       const info = service.proxyLanguageService.getSignatureHelpItems(
         fileName,
         position,
@@ -179,14 +187,18 @@ describe.each([
       )
       expect(
         info?.items[0]?.parameters.map(parameter => parameter.name),
-      ).toEqual(['props', 'defaults'])
+      ).toEqual(parameters)
       expect(ts.displayPartsToString(info?.items[0]?.prefixDisplayParts)).toBe(
-        'withDefaults(',
+        `${macro}(`,
       )
     },
   )
 
-  it.each(['hoisted-var.mpx', 'hoisted-var-js.mpx'])(
+  it.each([
+    'hoisted-var.mpx',
+    'hoisted-var-js.mpx',
+    'hoisted-destructured.mpx',
+  ])(
     'preserves hoisted local function types and renames in %s',
     relativePath => {
       const fileName = service.file(relativePath)
@@ -200,8 +212,8 @@ describe.each([
       expect(ts.displayPartsToString(info?.displayParts)).toBe(
         '(property) localCount: number',
       )
-      for (const macro of ['defineProps', 'withDefaults']) {
-        const declaration = source.indexOf(`var ${macro}`) + 'var '.length
+      for (const macro of ['mpxProps', 'mpxDefaults']) {
+        const declaration = source.indexOf(macro)
         const call = source.indexOf(`${macro}(`)
         expect(
           service.proxyLanguageService.getDefinitionAtPosition(fileName, call),
@@ -261,7 +273,6 @@ describe.each([
     ['runtime-props.mpx', 'defineProps'],
     ['typed-defaults.mpx', 'withDefaults'],
     ['runtime-props-js.mpx', 'defineProps'],
-    ['runtime-defaults-js.mpx', 'withDefaults'],
   ])('preserves ambient macro navigation in %s (%s)', (relativePath, macro) => {
     const source = service.read(relativePath)
     const position = source.indexOf(`${macro}(`)
@@ -288,9 +299,6 @@ describe.each([
     ['runtime-props.mpx', 'defineProps'],
     ['typed-defaults.mpx', 'withDefaults'],
     ['runtime-props-js.mpx', 'defineProps'],
-    ['runtime-defaults-js.mpx', 'withDefaults'],
-    ['macro-aliases.mpx', 'mpxProps'],
-    ['macro-aliases.mpx', 'mpxDefaults'],
   ])('rejects incomplete macro renames in %s (%s)', (relativePath, macro) => {
     const fileName = service.file(relativePath)
     const position = service.read(relativePath).indexOf(`${macro}`)
@@ -309,9 +317,11 @@ describe.each([
   })
 
   it('preserves navigation and rename for explicitly imported functions', () => {
-    const relativePath = 'imported-macros.mpx'
+    const relativePath = 'macro-aliases.mpx'
     const fileName = service.file(relativePath)
-    const position = service.read(relativePath).indexOf('defineProps(')
+    const source = service.read(relativePath)
+    const position = source.indexOf('mpxProps(')
+    const declaration = source.indexOf('mpxProps')
     const definitions = service.proxyLanguageService.getDefinitionAtPosition(
       fileName,
       position,
@@ -334,7 +344,14 @@ describe.each([
       ),
     ).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ fileName: service.file('local-macros.ts') }),
+        expect.objectContaining({
+          fileName,
+          textSpan: { start: declaration, length: 'mpxProps'.length },
+        }),
+        expect.objectContaining({
+          fileName,
+          textSpan: { start: position, length: 'mpxProps'.length },
+        }),
       ]),
     )
   })

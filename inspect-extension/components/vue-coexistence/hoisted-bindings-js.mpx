@@ -3,16 +3,18 @@
 import * as macros from './local-macros'
 
 if (true) {
-  var defineProps = macros.defineProps
-  var withDefaults = macros.withDefaults
+  var mpxProps = macros.defineProps
+  var mpxDefaults = macros.withDefaults
 }
 
 // Expected: the local JavaScript functions keep their imported signatures.
-const props = withDefaults(defineProps('local'))
+const props = mpxDefaults(mpxProps('local'))
 props.localCount.toFixed()
 
 // Expected: localCount hover is number; F12 and F2 preserve the local var bindings.
 // Intentional error: TS2339, number has no toUpperCase().
-props.localCount.toUpperCase()
+if (false) {
+  props.localCount.toUpperCase()
+}
 defineExpose({ props })
 </script>

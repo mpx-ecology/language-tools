@@ -1,9 +1,0 @@
-<script lang="ts">
-export const description = 'Both script blocks use the Mpx macro scope.'
-</script>
-
-<script setup lang="ts">
-const props = defineProps({ title: { type: String, value: 'hello' } })
-props.title.toUpperCase()
-defineExpose({ props })
-</script>

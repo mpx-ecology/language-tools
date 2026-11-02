@@ -81,6 +81,7 @@ export function parseScriptSetupRanges(
     )?.end ?? 0
 
   let bindings = parseBindingRanges(ts, ast)
+  let localBindingNames: Set<string> | undefined
   let foundNonImportExportNode = false
   let importSectionEndOffset = 0
 
@@ -208,7 +209,7 @@ export function parseScriptSetupRanges(
           comments: getClosestMultiLineCommentRange(ts, node, parents, ast),
           argNode: options,
         })
-      } else if (mpxCompilerOptions.macros.defineProps.includes(callText)) {
+      } else if (isPropsMacro('defineProps', callText)) {
         defineProps = {
           ...parseCallExpressionAssignment(node, parent),
           statement: getStatementRange(ts, parents, node, ast),
@@ -230,16 +231,14 @@ export function parseScriptSetupRanges(
           }
         } else if (
           ts.isCallExpression(parent) &&
-          mpxCompilerOptions.macros.withDefaults.includes(
-            _getNodeText(parent.expression),
-          )
+          isPropsMacro('withDefaults', _getNodeText(parent.expression))
         ) {
           const grand = parents.at(-2)
           if (grand && ts.isVariableDeclaration(grand)) {
             defineProps.name = _getNodeText(grand.name)
           }
         }
-      } else if (mpxCompilerOptions.macros.withDefaults.includes(callText)) {
+      } else if (isPropsMacro('withDefaults', callText)) {
         const [, arg] = node.arguments
         withDefaults = {
           callExp: _getStartEnd(node),
@@ -296,6 +295,19 @@ export function parseScriptSetupRanges(
         ? _getStartEnd(node.typeArguments[0])
         : undefined,
     }
+  }
+
+  function isPropsMacro(macro: 'defineProps' | 'withDefaults', name: string) {
+    // Mpx reserves the canonical names. A configured alias with a local runtime
+    // or type-only binding is an ordinary symbol, not component props metadata.
+    if (!mpxCompilerOptions.macros[macro].includes(name)) return false
+    if (name === macro) return true
+    localBindingNames ??= new Set(
+      parseBindingRanges(ts, ast, true).map(({ range }) =>
+        text.slice(range.start, range.end),
+      ),
+    )
+    return !localBindingNames.has(name)
   }
 
   function parseCallExpressionAssignment(

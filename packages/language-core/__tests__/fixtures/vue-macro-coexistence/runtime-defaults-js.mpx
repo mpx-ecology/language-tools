@@ -1,5 +1,0 @@
-<script setup>
-const props = withDefaults(defineProps({ title: String }), { title: 'hello' })
-props.title.toUpperCase()
-defineExpose({ props })
-</script>

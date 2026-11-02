@@ -2,11 +2,11 @@
 import * as macros from './local-macros'
 
 if (true) {
-  var defineProps = macros.defineProps
-  var withDefaults = macros.withDefaults
+  var mpxProps = macros.defineProps
+  var mpxDefaults = macros.withDefaults
 }
 
-const props = withDefaults(defineProps('local'))
+const props = mpxDefaults(mpxProps('local'))
 props.localCount.toFixed()
 defineExpose({ props })
 </script>

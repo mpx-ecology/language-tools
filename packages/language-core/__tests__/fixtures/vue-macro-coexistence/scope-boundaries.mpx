@@ -30,9 +30,13 @@ try {} catch (defineProps) { void defineProps }
 
 // Nested scopes and block-scoped bindings must not hide these ambient macros.
 const props = withDefaults(
-  defineProps({ title: { type: String, value: 'hello' } }),
-  {},
+  defineProps<{ title?: string }>(),
+  { title: 'hello' },
 )
 props.title.toUpperCase()
-defineExpose({ props, localFunction, localArrow, LocalClass, LocalNamespace })
+void localFunction
+void localArrow
+void LocalClass
+void LocalNamespace
+defineExpose({ props })
 </script>

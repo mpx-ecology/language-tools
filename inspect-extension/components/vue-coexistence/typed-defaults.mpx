@@ -1,6 +1,6 @@
 <template>
   <!-- Expected: defaults remove undefined from title/profile in the template. -->
-  <view>{{ title.toUpperCase() }} {{ profile.name.toUpperCase() }}</view>
+  <view>{{ title.length }} {{ profile.name }}</view>
 </template>
 
 <script setup lang="ts">
@@ -18,7 +18,9 @@ props.title.toUpperCase()
 props.profile.name.toUpperCase()
 props.count.toFixed()
 
-// Intentional error: TS2540, props stay readonly.
-props.title = 'changed'
+// Intentional error: TS2339, number has no toUpperCase().
+if (false) {
+  props.count.toUpperCase()
+}
 defineExpose({ props })
 </script>

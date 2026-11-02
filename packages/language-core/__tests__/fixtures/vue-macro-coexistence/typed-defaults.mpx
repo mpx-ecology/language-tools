@@ -1,5 +1,5 @@
 <template>
-  <view>{{ title.toUpperCase() }} {{ profile.name.toUpperCase() }}</view>
+  <view>{{ title.length }} {{ profile.name }}</view>
 </template>
 
 <script setup lang="ts">

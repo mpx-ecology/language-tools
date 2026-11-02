@@ -1,5 +1,5 @@
 <template>
-  <view>{{ title.toUpperCase() }} {{ count.toFixed() }}</view>
+  <view>{{ title.length }} {{ count + 1 }}</view>
 </template>
 
 <script setup lang="ts">

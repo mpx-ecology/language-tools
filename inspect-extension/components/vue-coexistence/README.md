@@ -1,43 +1,53 @@
 # Vue / Mpx 宏共存检查
 
-对应问题：[Vue / Mpx 宏共存 #119](https://github.com/mpx-ecology/language-tools/issues/119)、[显式绑定、导航和重命名回归 #122](https://github.com/mpx-ecology/language-tools/issues/122)、[宏补全及提升绑定回归 #125](https://github.com/mpx-ecology/language-tools/issues/125)。
+对应问题：[#119](https://github.com/mpx-ecology/language-tools/issues/119)、[#122](https://github.com/mpx-ecology/language-tools/issues/122)、[#125](https://github.com/mpx-ecology/language-tools/issues/125)、[Mpx 用例及编译验证 #132](https://github.com/mpx-ecology/language-tools/issues/132)。
 
-目标：同一 TypeScript project 中，Mpx 的 `defineProps` / `withDefaults` 使用 Mpx 的类型规则，Vue 组件继续使用 Vue 规则。
+所有 `.mpx` 场景使用单个有效的 `<script setup>`。默认 wx 模板仅使用原生属性访问和运算；字符串/数字方法的类型断言放在脚本里。`control.vue` 是 Vue 插件的独立对照文件，不按 Mpx 组件编译。
 
-## 在 VS Code 中对照修复前后
+Mpx 编译器按保留名称识别 `defineProps` / `withDefaults`，局部同名函数不会将这些调用变成普通函数。`withDefaults` 只用于 TypeScript 类型式 `defineProps`；JavaScript 的默认值写在运行时 props 的 `value` 中。
 
-本目录的独立 `tsconfig.json` 把 `vue-first.ts` 列在文件列表首位，该文件仅通过类型导入加载 Vue 的声明，让本项目稳定进入“Vue 声明先于 Mpx”的情况。打开文件的先后不是可靠的复现开关。
+`mpxProps` / `mpxDefaults` 在本项目的语言工具配置中登记为别名，但这不会生成运行时函数，也不会改变 Mpx 编译器。绑定场景均从 `local-macros.ts` 显式导入或赋值，调用的是实际存在的普通函数；没有未绑定的别名调用。F12 可进入 helper 源声明，F2 修改本地绑定及其引用。Mpx 原生宏和普通 helper 的行为分别验证。
 
-1. 在仓库根目录打开 VS Code，选择默认 `VSCode Extension` 配置后按 F5。默认 watch 会编译 TS 并重新打包开发扩展，等待终端构建完成。
-2. 在新开的 Extension Development Host 中确认 Vue (Official) 已启用；Mpx 使用本仓库的开发扩展。执行 `TypeScript: Select TypeScript Version`，选择工作区版本（本轮验证为 6.0.3）。
-3. 打开本目录 `vue-first.ts`，执行 `TypeScript: Go to Project Configuration`，应进入本目录的 `tsconfig.json`。再打开两份 `.mpx`，执行 `Mpx: Restart Server`。若项目仍使用旧缓存，执行 `Developer: Reload Window`。
-4. 打开 Problems 面板（Cmd/Ctrl+Shift+M），按当前文件过滤，对照下表。将鼠标放到脚本里的 `props.title`、`props.profile` 上，检查 hover；同时观察模板内相同字段的诊断。
+## Extension Host 检查
 
-| 文件 / 位置                                                   | 临时还原修复后，应复现的问题                                                      | 应用修复后，应观察的结果                                                           |
-| ------------------------------------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `runtime-props.mpx` 的 `props.title.toUpperCase()` 等合法调用 | TS18048：`props.title / count / profile` 可能为 `undefined`；模板也有相应误报。   | 合法调用无误报，`title` 为 `string`，`count` 为 `number`，`profile` 为 `Profile`。 |
-| `typed-defaults.mpx` 的 `profile: { name: 'mpx' }`            | TS2353：对象默认值被要求符合 Vue 的工厂函数类型；后续字段可能继续报 TS18048。     | 接受 Mpx 的对象默认值，默认值后的字段没有 `undefined`。                            |
-| `runtime-props.mpx` 最后的 `props.count.toUpperCase()`        | 故意错误，仍应报错。                                                              | 仍报 TS2339；不能为了消除误报关闭类型检查。                                        |
-| `typed-defaults.mpx` 最后的 `props.title = 'changed'`         | 故意错误，仍应报错。                                                              | 仍报 TS2540，props 仍只读。                                                        |
-| `control.vue`                                                 | 合法 `required / default` 用法正常；只有故意的 `number.toUpperCase()` 报 TS2339。 | Vue 保持相同结果。                                                                 |
+1. 在仓库根目录打开 VS Code，使用默认 `VSCode Extension` 配置按 F5，等待 watch 完成编译和扩展打包。开发扩展使用本仓库的 `vscode`；已安装的同名 Mpx 扩展由启动配置禁用。
+2. 确认 Vue (Official) 已启用，TypeScript 选择工作区版本。本目录 `tsconfig.json` 首先载入 `vue-first.ts`，稳定建立 Vue 声明先加载的场景，不能用打开文件的先后顺序代替。
+3. 对 `vue-first.ts` 执行 `TypeScript: Go to Project Configuration`，应进入本目录的 `tsconfig.json`。修改服务端后执行 `Mpx: Restart Server`；若切换了扩展客户端或 bundle，则重启 Extension Host。
+4. 在 Problems 中按当前文件过滤，逐项检查下表。故意的类型错误放在 `if (false)` 内，不会在执行编译产物时触发，但类型诊断必须保留。
 
-5. 切换修复代码后，等待原窗口的 watch 重新编译、打包，再在 Extension Host 执行 `Mpx: Restart Server`。`pnpm build` 只构建 TS 项目，不能代替扩展 bundle 的更新；通过默认 F5 watch 验证即可。
-6. 修复启用后继续检查成员补全，以及 `.mpx` 的 `profile.name` 到 interface 字段的定义跳转。
-7. 在 `runtime-props.mpx` 的 `defineProps` 和 `typed-defaults.mpx` 的 `withDefaults` 上执行 F12，应到真实的全局宏声明，不应跳到生成的局部声明或没有结果。Vue-first 项目的目标可以是 Vue 的全局声明，但 props 推断仍使用 Mpx 规则。在这些宏名上执行 F2，应拒绝仅修改调用处的重命名。
-8. 打开 `explicit-type-imports.mpx` 和 `explicit-bindings.mpx`：除注释标记的 TS2339 外，不应有声明冲突、参数数量或推断错误。检查 `typeof` 名称及显式导入函数的 F12；显式导入函数仍允许 F2，并应包含源声明，不能把所有同名函数的导航或重命名一起关闭。
-9. 在 `runtime-props.mpx` 的 `define|Props` 和 `typed-defaults.mpx` 的 `with|Defaults` 位置按 Ctrl+Space（竖线表示光标，不要输入竖线），应能补全当前词法作用域中的名称，例如 `defineExpose`、`defineOptions`；选择条目时应有补全详情，不能只剩辅助对象的成员。检查 `withDefaults(` 第一个参数起始位置的参数提示，同时确认 props 的 hover、成员补全和故意错误保持正常。
-10. 打开 `hoisted-bindings.mpx` 和 `hoisted-bindings-js.mpx`，除注释标记的 TS2339 外不应出现宏参数类型或参数数量误报；`localCount` 应为 `number`。在 `defineProps` / `withDefaults` 调用处按 F12，应到上方 `var` 声明；从声明或调用处执行 F2，都应同时更新声明和调用。
+| 文件                                               | 应检查的行为                                                                                                       | 唯一预期类型错误                  |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| `runtime-props.mpx`                                | `props.title/count/profile` 为 string/number/Profile；模板 `title.length`、`profile.name` 无误报；对象字段补全正常 | TS2339：number 没有 `toUpperCase` |
+| `typed-defaults.mpx`                               | 接受对象默认值，默认字段不含 undefined；`profile.name` 可跳转到 interface 字段                                     | TS2339：number 没有 `toUpperCase` |
+| `explicit-type-imports.mpx`                        | `typeof` 使用显式类型导入的函数类型；没有声明冲突；类型查询名称能跳转到 helper                                     | TS2339：number 没有 `toUpperCase` |
+| `explicit-bindings.mpx`                            | `mpxProps` 是已导入的实际函数；namespace `withDefaults.version` 为 number；导入别名可跳转和重命名                  | TS2339：string 没有 `missing`     |
+| `hoisted-bindings.mpx` / `hoisted-bindings-js.mpx` | 块内 var 提升的 `mpxProps` / `mpxDefaults` 保留 helper 签名；`localCount` 为 number；无宏参数误报                  | TS2339：number 没有 `toUpperCase` |
+| `control.vue`                                      | Vue 的 required/default 规则不变                                                                                   | TS2339：number 没有 `toUpperCase` |
 
-本目录故意预载入 Vue 类型，用于稳定检查共享 TS project 下的宏类型隔离。关闭 Vue 插件不会移除 `vue-first.ts` 引入的类型，所以不能把“禁用 Vue 插件后这里仍报错”判为复现失败。若要另查插件单独启用的普通场景，应使用未显式预载入 Vue 类型的项目。
+5. 在真实宏 `defineProps` / `withDefaults` 上按 F12，应到真实的全局声明；Vue-first 项目的目标可以是 Vue 声明，但 Mpx props 推断必须保持 Mpx 规则。F2 应拒绝只修改宏调用处的重命名。
+6. 在 `runtime-props.mpx` 的 `define|Props`、`typed-defaults.mpx` 的 `with|Defaults` 上按 Ctrl+Space（竖线表示光标，不要输入），应出现当前词法作用域中的 `defineExpose`、`defineOptions` 等名称及补全详情，不能只剩辅助对象成员。检查 `withDefaults(` 第一个参数起始处的参数提示。
+7. 在提升绑定场景中，从 `mpxProps` / `mpxDefaults` 的声明及调用处分别执行 F12/F2，重命名必须包含声明和调用。它们是有真实绑定的 helper，不能套用原生编译宏禁止局部重命名的规则。
 
-## 不启动编辑器的最小对照
+显式载入 Vue 类型后，禁用 Vue 插件不会移除这些声明，不能用禁用插件后的结果判断本目录是否仍在复现 Vue-first 环境。
 
-在仓库根目录运行：
+## 自动化验证
+
+在仓库根目录执行：
 
 ```sh
-pnpm_config_verify_deps_before_run=warn pnpm exec vitest run packages/language-core/__tests__/vueMacroCoexistence.spec.ts -t 'Vue before Mpx.*keeps valid Mpx props typed in (runtime-props|typed-defaults)[.]mpx$'
+pnpm exec vitest run packages/language-core/__tests__/vueMacroCoexistence.spec.ts packages/language-core/__tests__/scriptSetupBindings.spec.ts packages/language-core/__tests__/mpxCompilation.spec.ts
 ```
 
-未应用修复时，这两个测试应因 TS18048 / TS2353 失败；应用修复后应全部通过。该命令只选择两个最小用例，避免把其他回归项的失败混入观察。`pnpm_config_verify_deps_before_run=warn` 用于本机依赖状态提示，避免 pnpm 自动触发重装，不会跳过 Vitest 检查。
+自动化 fixture 独立保存在 owning package 的 `__tests__/fixtures`，不读取本手工目录。每个正向 fixture 都必须登记编译产物的 props 默认值和 setup 返回结果，并与语言服务推断的组件 props 名称一致。
 
-自动化回归在 `packages/language-core/__tests__/vueMacroCoexistence.spec.ts`，使用独立 fixture 和实际安装的 Vue 2.7 声明，控制 Mpx-only / Mpx-first / Vue-first 三种声明加载顺序。它不依赖本目录，也不代替 Extension Host 的最终 UI 验收。
+默认键使用 Mpx 实际的 `withDefaults` 类型声明；只读赋值的回归断言保留在运行时 props 反例 `invalid-props.mpx` 中。普通 TS 文件 `ambient-control.ts` 只检查环境声明的类型推断，其探针不会执行。
+
+`mpxCompilation.spec.ts` 使用锁定的 `@mpxjs/webpack-plugin@2.11.1`，运行真实 SFC 选择、script-setup 编译、模板编译和原生绑定表达式检查，再转译并执行生成的 JavaScript。测试捕获 `createComponent` 注册以检查属性和执行 setup，不模拟完整小程序宿主。编译器反例明确验证运行时 props 配合 withDefaults、保留宏名调用、未绑定别名及模板方法调用的错误边界。
+
+若需要与相邻源码库交叉验证，可显式指定其 package.json：
+
+```sh
+MPX_TEST_COMPILER_PACKAGE=../mpx-core/packages/webpack-plugin/package.json pnpm exec vitest run packages/language-core/__tests__/mpxCompilation.spec.ts
+```
+
+默认测试不依赖相邻仓库；编译验证不替代 Extension Host 或真机验证。

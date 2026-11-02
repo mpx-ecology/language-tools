@@ -1,6 +1,6 @@
 <template>
   <!-- Expected: title: string, profile.name: string; no possibly-undefined errors. -->
-  <view>{{ title.toUpperCase() }} {{ profile.name.toUpperCase() }}</view>
+  <view>{{ title.length }} {{ profile.name }}</view>
 </template>
 
 <script setup lang="ts">
@@ -25,6 +25,8 @@ props.count.toFixed()
 props.profile.name.toUpperCase()
 
 // Intentional error: TS2339, number has no toUpperCase().
-props.count.toUpperCase()
+if (false) {
+  props.count.toUpperCase()
+}
 defineExpose({ props })
 </script>
