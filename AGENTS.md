@@ -45,3 +45,14 @@
 
 - Preserve unrelated user changes in the working tree and keep edits scoped to the requested behavior.
 - Do not commit, push, publish, or update changelogs unless the user explicitly asks for that action.
+
+## Bug fix delivery workflow
+
+- For each requested bug fix, first find the matching GitHub issue or create one before implementation. Keep the issue concise: describe the problem, the necessary reproduction steps, and the expected behavior.
+- Reuse labels applied to similar historical issues.
+- When screenshots help explain a bug, prefer capturing the actual reproduction in this repository's VS Code Extension Host with a minimal `inspect-extension` scenario. Upload useful captures as GitHub issue attachments rather than committing image files.
+- When visual evidence helps verify a fix, include before/after screenshots in the PR from the same Extension Host scenario and editor settings, showing the relevant diagnostics or editor behavior. Screenshots are optional when code and other evidence already explain the problem clearly.
+- Keep internal information out of published captures and keep user-provided screenshots containing internal information local.
+- Create a new `codex/` branch from the target base branch for the fix. Keep unrelated local commits and user changes out of the branch.
+- Implement and validate the fix, then commit, push the branch, and open a focused pull request. Link the issue in the PR body with `Closes #<issue-number>` or an equivalent closing keyword.
+- The user's standing instruction authorizes this issue → branch → fix → PR workflow for requested bug fixes. Merging, publishing a release, and updating changelogs still require an explicit request.
