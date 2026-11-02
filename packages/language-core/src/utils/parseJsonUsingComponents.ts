@@ -68,8 +68,9 @@ export function parseUsingComponentsWithJs(
   sourceFile: ts.SourceFile,
 ): SfcJsonBlockUsingComponents {
   const usingComponents: SfcJsonBlockUsingComponents = new Map()
+  const resolveBinding = createBindingResolver(ts, sourceFile)
   // Only consume writes when their object is reached from usingComponents.
-  const objectAugments: Map<string, ts.Expression[]> = new Map()
+  const objectAugments = new Map<LocalBinding, ts.Expression[]>()
   const parsedExpressions = new Set<ts.Expression>()
 
   function visit(node: ts.Node) {
@@ -133,10 +134,11 @@ export function parseUsingComponentsWithJs(
       node.operatorToken.kind === ts.SyntaxKind.EqualsToken
     ) {
       const property = getStaticObjectProperty(node.left)
-      if (property) {
-        const list = objectAugments.get(property.object.text) ?? []
+      const binding = property && resolveBinding(property.object)
+      if (binding) {
+        const list = objectAugments.get(binding) ?? []
         list.push(node)
-        objectAugments.set(property.object.text, list)
+        objectAugments.set(binding, list)
       }
     }
     // 收集 Object.assign(target, ...) 对象补充
@@ -149,13 +151,13 @@ export function parseUsingComponentsWithJs(
       node.arguments.length >= 2
     ) {
       const target = node.arguments[0]
-      if (ts.isIdentifier(target)) {
-        const targetName = target.text
-        const list = objectAugments.get(targetName) ?? []
+      const binding = ts.isIdentifier(target) && resolveBinding(target)
+      if (binding) {
+        const list = objectAugments.get(binding) ?? []
         for (let i = 1; i < node.arguments.length; i++) {
           list.push(node.arguments[i])
         }
-        objectAugments.set(targetName, list)
+        objectAugments.set(binding, list)
       }
     }
     ts.forEachChild(node, collectAugments)
@@ -283,15 +285,10 @@ export function parseUsingComponentsWithJs(
     if (ts.isStringLiteral(initializer)) {
       text = initializer.text
     } else if (ts.isIdentifier(initializer)) {
-      const identifierName = initializer.text
-      const { variableValue, variableOffset } = findVariableValue(
-        ts,
-        sourceFile,
-        identifierName,
-      )
-      if (variableValue) {
-        text = variableValue
-        _variableOffset = variableOffset
+      const value = resolveBinding(initializer)?.initializer
+      if (value && ts.isStringLiteral(value)) {
+        text = value.text
+        _variableOffset = value.getStart(sourceFile)
       }
     } else if (ts.isPropertyAccessExpression(initializer)) {
       text = sourceFile.text.substring(
@@ -360,17 +357,12 @@ export function parseUsingComponentsWithJs(
 
     // 处理标识符：const components = { ... }; usingComponents: components
     if (ts.isIdentifier(expression)) {
-      const varName = expression.text
-      const resolved = findVariableInitializerExpression(
-        ts,
-        sourceFile,
-        varName,
-      )
-      if (resolved) {
-        parseObjectFromExpression(resolved)
+      const binding = resolveBinding(expression)
+      if (binding?.initializer) {
+        parseObjectFromExpression(binding.initializer)
       }
-      // 合并通过 Object.assign 收集到的补充
-      const augments = objectAugments.get(varName)
+      // Merge writes only from this binding, including Object.assign sources.
+      const augments = binding && objectAugments.get(binding)
       if (augments && augments.length) {
         for (const augmentExp of augments) {
           parseObjectFromExpression(augmentExp)
@@ -425,61 +417,113 @@ export function parseUsingComponentsWithJs(
   return usingComponents
 }
 
-/**
- * 查找变量的初始值（用于解析字符串路径变量）
- */
-function findVariableValue(
-  ts: typeof import('typescript'),
-  sourceFile: ts.SourceFile,
-  identifierName: string,
-) {
-  let variableValue: string | undefined = undefined
-  let variableOffset: number | undefined = undefined
-
-  function findDeclaration(node: ts.Node): boolean | undefined {
-    if (
-      (ts.isVariableDeclaration(node) || ts.isPropertyAssignment(node)) &&
-      ts.isIdentifier(node.name) &&
-      node.name.text === identifierName &&
-      node.initializer &&
-      ts.isStringLiteral(node.initializer)
-    ) {
-      variableValue = node.initializer.text
-      variableOffset = node.initializer.getStart(sourceFile)
-      return true
-    }
-
-    return ts.forEachChild(node, findDeclaration)
-  }
-
-  findDeclaration(sourceFile)
-  return { variableValue, variableOffset }
+interface LocalBinding {
+  initializer?: ts.Expression
 }
 
-/**
- * 查找对象变量的初始表达式（用于解析赋值给 usingComponents 的对象变量）
- */
-function findVariableInitializerExpression(
+interface LocalScope {
+  parent?: LocalScope
+  bindings: Map<string, LocalBinding>
+  isVarScope: boolean
+}
+
+// The JSON AST has no parent links. Index scopes once, then resolve references
+// after all declarations are known, including hoisted var and shadowing names.
+function createBindingResolver(
   ts: typeof import('typescript'),
   sourceFile: ts.SourceFile,
-  identifierName: string,
 ) {
-  let initExp: ts.Expression | undefined
-
-  function findDeclaration(node: ts.Node): boolean | undefined {
-    if (
-      ts.isVariableDeclaration(node) &&
-      ts.isIdentifier(node.name) &&
-      node.name.text === identifierName &&
-      !!node.initializer
-    ) {
-      initExp = node.initializer
-      return true
-    }
-
-    return ts.forEachChild(node, findDeclaration)
+  const scopes = new Map<ts.Identifier, LocalScope>()
+  const rootScope: LocalScope = {
+    bindings: new Map(),
+    isVarScope: true,
   }
 
-  findDeclaration(sourceFile)
-  return initExp
+  function declare(
+    scope: LocalScope,
+    name: ts.BindingName,
+    initializer?: ts.Expression,
+  ) {
+    if (ts.isIdentifier(name)) {
+      let binding = scope.bindings.get(name.text)
+      if (!binding) {
+        scope.bindings.set(name.text, (binding = {}))
+      }
+      binding.initializer ??= initializer
+    } else {
+      for (const element of name.elements) {
+        if (ts.isBindingElement(element)) {
+          declare(scope, element.name)
+        }
+      }
+    }
+  }
+
+  function visit(node: ts.Node, scope: LocalScope, parent?: ts.Node) {
+    if (
+      (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) &&
+      node.name
+    ) {
+      declare(scope, node.name)
+    }
+
+    const isVarScope =
+      ts.isFunctionLike(node) || ts.isClassStaticBlockDeclaration(node)
+    if (
+      isVarScope ||
+      ts.isBlock(node) ||
+      ts.isCatchClause(node) ||
+      ts.isCaseBlock(node) ||
+      ts.isForStatement(node) ||
+      ts.isForInStatement(node) ||
+      ts.isForOfStatement(node) ||
+      ts.isClassDeclaration(node) ||
+      ts.isClassExpression(node)
+    ) {
+      scope = { parent: scope, bindings: new Map(), isVarScope }
+    }
+
+    if (
+      (ts.isFunctionExpression(node) || ts.isClassExpression(node)) &&
+      node.name
+    ) {
+      declare(scope, node.name)
+    }
+
+    if (ts.isVariableDeclaration(node)) {
+      let declarationScope = scope
+      if (
+        parent &&
+        ts.isVariableDeclarationList(parent) &&
+        !(parent.flags & ts.NodeFlags.BlockScoped)
+      ) {
+        while (!declarationScope.isVarScope && declarationScope.parent) {
+          declarationScope = declarationScope.parent
+        }
+      }
+      declare(declarationScope, node.name, node.initializer)
+    } else if (ts.isParameter(node)) {
+      // Parameters and destructuring still shadow outer names even when their
+      // runtime values cannot be resolved to a static object or path.
+      declare(scope, node.name)
+    }
+
+    if (ts.isIdentifier(node)) {
+      scopes.set(node, scope)
+    }
+    ts.forEachChild(node, child => visit(child, scope, node))
+  }
+
+  visit(sourceFile, rootScope)
+
+  return (identifier: ts.Identifier) => {
+    let scope = scopes.get(identifier)
+    while (scope) {
+      const binding = scope.bindings.get(identifier.text)
+      if (binding) {
+        return binding
+      }
+      scope = scope.parent
+    }
+  }
 }

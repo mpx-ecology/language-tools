@@ -8,6 +8,7 @@ import {
 } from '../../language-core/__tests__/utils/createTestLanguageService'
 import { create as createTemplateLinks } from '../src/plugins/mpx-sfc-template-links'
 import { create as createComponentDefinition } from '../src/plugins/mpx-component-definition'
+import { create as createJsonLinks } from '../src/plugins/mpx-sfc-json-links'
 
 const token = {
   isCancellationRequested: false,
@@ -52,6 +53,21 @@ describe('assigned component object navigation', () => {
   })
 
   afterAll(() => service.dispose())
+
+  it('does not report path errors from a shadowing component object', async () => {
+    const plugin = createJsonLinks().create!(context)!
+    const diagnostics = await plugin.provideDiagnostics!(jsonDocument, token)
+    expect(diagnostics).toEqual([])
+  })
+
+  it('does not provide component links for shadowing object writes', async () => {
+    const plugin = createJsonLinks().create!(context)!
+    const links = await plugin.provideDocumentLinks!(jsonDocument, token)
+    expect(links).toHaveLength(3)
+    expect(links?.map(link => jsonDocument.getText(link.range))).not.toContain(
+      './component-setup-props.mpx',
+    )
+  })
 
   it('provides a document link for the range entry registered by assignment', async () => {
     const plugin = createTemplateLinks().create!(context)!

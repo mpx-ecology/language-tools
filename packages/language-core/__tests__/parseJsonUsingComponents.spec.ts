@@ -101,4 +101,122 @@ describe('assigned component objects', () => {
       },
     ])
   })
+
+  it.each([
+    [
+      'function local',
+      `function unused() {
+      const components = {}
+      components.ghost = './missing.mpx'
+      Object.assign(components, { panel: './wrong.mpx' })
+    }`,
+    ],
+    [
+      'parameter',
+      `function unused(components) {
+      components.ghost = './missing.mpx'
+      Object.assign(components, { panel: './wrong.mpx' })
+    }`,
+    ],
+    [
+      'destructured parameter',
+      `function unused({ components }) {
+      components.ghost = './missing.mpx'
+    }`,
+    ],
+    [
+      'block local',
+      `{
+      const components = {}
+      components.ghost = './missing.mpx'
+    }`,
+    ],
+    [
+      'destructured local',
+      `{
+      const { components } = { components: {} }
+      components.ghost = './missing.mpx'
+    }`,
+    ],
+    [
+      'catch binding',
+      `try {} catch (components) {
+      components.ghost = './missing.mpx'
+    }`,
+    ],
+    [
+      'loop binding',
+      `for (const components of [{}]) {
+      components.ghost = './missing.mpx'
+    }`,
+    ],
+    [
+      'hoisted function var',
+      `function unused() {
+      components.ghost = './missing.mpx'
+      if (true) { var components = {} }
+    }`,
+    ],
+    [
+      'named function expression',
+      `const unused = function components() {
+      components.ghost = './missing.mpx'
+    }`,
+    ],
+    [
+      'class binding',
+      `{
+      class components {}
+      components.ghost = './missing.mpx'
+    }`,
+    ],
+  ])('ignores writes to a shadowing %s', (_, shadow) => {
+    // Put unrelated declarations first so resolving an initializer must also
+    // respect scope, rather than choosing the first name in the source file.
+    const result = parse(`
+      ${shadow}
+      const components = { initial: './initial.mpx' }
+      if (__mpx_mode__ === 'wx') {
+        components.panel = './panel.mpx'
+        Object.assign(components, { footer: './footer.mpx' })
+      }
+      module.exports = { usingComponents: { ...components } }
+    `)
+    expect([...result.keys()]).toEqual(['initial', 'panel', 'footer'])
+    expect(result.get('panel')?.map(info => info.text)).toEqual(['./panel.mpx'])
+  })
+
+  it('resolves a block-local registration, alias and path in their own scope', () => {
+    const source = `
+      const components = { ghost: './missing.mpx' }
+      const panelPath = './wrong.mpx'
+      {
+        const components = {}
+        const panelPath = './panel.mpx'
+        const alias = components
+        components.panel = panelPath
+        module.exports = { usingComponents: { ...alias, ...components } }
+      }
+    `
+    const result = parse(source)
+    expect([...result.keys()]).toEqual(['panel'])
+    expect(result.get('panel')).toEqual([
+      {
+        text: './panel.mpx',
+        offset: source.indexOf("'./panel.mpx'"),
+        nameOffset: source.indexOf('panel ='),
+      },
+    ])
+  })
+
+  it('resolves var declarations hoisted out of conditional blocks', () => {
+    const result = parse(`
+      if (__mpx_mode__ === 'wx') {
+        var components = { initial: './initial.mpx' }
+      }
+      components.panel = './panel.mpx'
+      module.exports = { usingComponents: components }
+    `)
+    expect([...result.keys()]).toEqual(['initial', 'panel'])
+  })
 })

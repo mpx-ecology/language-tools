@@ -50,6 +50,21 @@ describe('typed custom component props', () => {
     })
   })
 
+  it('keeps shadowing object writes out of registered component prop types', () => {
+    const relativePath = 'assigned-component-object.mpx'
+    const props = getProps(relativePath, 'carpool-hold-panel')
+    expect(props.get('parentText')?.type).toBe('string | undefined')
+    expect(props.has('correct')).toBe(false)
+
+    const diagnostics = service.proxyLanguageService
+      .getSemanticDiagnostics(service.file(relativePath))
+      .filter(diagnostic => diagnostic.code === 2322)
+      .map(diagnostic => diagnosticMessage(diagnostic))
+    expect(diagnostics).toEqual([
+      "Type 'number' is not assignable to type 'string'.",
+    ])
+  })
+
   it('reports invalid normal and platform-specific prop values', () => {
     const allDiagnostics = service.proxyLanguageService.getSemanticDiagnostics(
       service.file('index.mpx'),

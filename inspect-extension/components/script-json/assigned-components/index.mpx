@@ -20,6 +20,13 @@ createComponent({
 </script>
 
 <script name="json">
+function unrelated() {
+  const miniComponents = {}
+  // 这是另一个局部对象：两处不存在的路径均不应报 mpx-json 4001。
+  // 这里的注册不应影响 range 跳转或普通标签的属性提示。
+  miniComponents['carpool-hold-panel'] = './missing-shadowed.mpx'
+  Object.assign(miniComponents, { ghost: './missing-assign.mpx' })
+}
 const miniComponents = {}
 if (__mpx_mode__ === 'wx') {
   // 路径也应可跳转；query 不影响目标文件解析。
