@@ -3,6 +3,7 @@ import {
   type Language,
   MpxVirtualCode,
   formatTemplateDiagnosticMessage,
+  shouldFormatTemplateDiagnosticMessage,
 } from '@mpxjs/language-core'
 
 export function transformTemplateDiagnostic<T, D extends ts.Diagnostic>(
@@ -11,15 +12,18 @@ export function transformTemplateDiagnostic<T, D extends ts.Diagnostic>(
   asScriptId: (fileName: string) => T,
   diagnostic: D,
 ): D {
-  const root =
-    diagnostic.file &&
-    language.scripts.get(
+  const format = (message: string, code = diagnostic.code) => {
+    if (
+      !shouldFormatTemplateDiagnosticMessage(message, code) ||
+      !diagnostic.file ||
+      diagnostic.start === undefined ||
+      diagnostic.length === undefined
+    )
+      return message
+    const root = language.scripts.get(
       asScriptId(diagnostic.file.fileName.replace(/\\/g, '/')),
     )?.generated?.root
-  const format = (message: string, code = diagnostic.code) =>
-    root instanceof MpxVirtualCode &&
-    diagnostic.start !== undefined &&
-    diagnostic.length !== undefined
+    return root instanceof MpxVirtualCode
       ? formatTemplateDiagnosticMessage(
           ts,
           root,
@@ -29,6 +33,7 @@ export function transformTemplateDiagnostic<T, D extends ts.Diagnostic>(
           code,
         )
       : message
+  }
   function formatChain(
     chain: ts.DiagnosticMessageChain,
   ): ts.DiagnosticMessageChain {

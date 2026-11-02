@@ -1,6 +1,6 @@
 import path from 'node:path'
 import * as ts from 'typescript'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { URI } from 'vscode-uri'
 import {
   type LanguageService,
@@ -205,6 +205,37 @@ describe('standalone template diagnostic messages', () => {
       before.some(d => d.message.includes("'__MPX_dollars.missing'")),
     ).toBe(true)
     expect(await fixed.getDiagnostics(uri)).toEqual(before)
+  })
+
+  it('skips source mapping for raw diagnostics that need no formatting', async () => {
+    const uri = URI.file(fixture.file('literal-types.mpx'))
+    await fixed.getDiagnostics(uri)
+    const context = fixed.context
+    const source = context.language.scripts.get(uri)!
+    const code = source.generated!.languagePlugin.typescript!.getServiceScript(
+      source.generated!.root,
+    )!.code
+    const document = context.documents.get(
+      context.encodeEmbeddedDocumentUri(uri, code.id),
+      code.languageId,
+      code.snapshot,
+    )
+    const map = vi.spyOn(context.language.maps, 'get')
+    try {
+      const diagnostics = await context.plugins[0][1].provideDiagnostics!(
+        document,
+        {
+          isCancellationRequested: false,
+          onCancellationRequested: () => ({ dispose() {} }),
+        },
+      )
+      expect(diagnostics?.some(diagnostic => diagnostic.code === 2339)).toBe(
+        true,
+      )
+      expect(map).not.toHaveBeenCalled()
+    } finally {
+      map.mockRestore()
+    }
   })
 
   it.each(['en', 'zh-cn'] as const)(

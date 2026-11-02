@@ -5,6 +5,16 @@ const contextNames = new Set(['__MPX_ctx', '__MPX_dollars'])
 // These diagnostics print an expression, rather than a type or string literal.
 const expressionDiagnosticCodes = new Set([18046, 18047, 18048, 18049])
 
+export function shouldFormatTemplateDiagnosticMessage(
+  message: string,
+  code: number | string | undefined,
+): boolean {
+  return (
+    expressionDiagnosticCodes.has(Number(code)) &&
+    /__MPX_(?:ctx|dollars)\./.test(message)
+  )
+}
+
 export function formatTemplateDiagnosticMessage(
   ts: typeof import('typescript'),
   root: MpxVirtualCode,
@@ -16,10 +26,9 @@ export function formatTemplateDiagnosticMessage(
   const template = root.sfc.template
   if (
     !template ||
-    !expressionDiagnosticCodes.has(Number(code)) ||
+    !shouldFormatTemplateDiagnosticMessage(message, code) ||
     start < template.startTagEnd ||
-    start + length > template.endTagStart ||
-    !/__MPX_(?:ctx|dollars)\./.test(message)
+    start + length > template.endTagStart
   ) {
     return message
   }
@@ -27,10 +36,8 @@ export function formatTemplateDiagnosticMessage(
   const sourceText = root.snapshot.getText(start, start + length)
   const sourceTokens = expressionTokens(sourceText, false)
   if (!sourceTokens.length) return message
-  const edits: [number, number][] = []
   for (const match of message.matchAll(/__MPX_(?:ctx|dollars)\./g)) {
     const expressionStart = match.index!
-    if (expressionStart <= (edits.at(-1)?.[1] ?? -1)) continue
     const generatedTokens = expressionTokens(
       message.slice(expressionStart),
       true,
@@ -49,11 +56,8 @@ export function formatTemplateDiagnosticMessage(
         expressionStart +
         generatedTokens[last].start +
         sourceTokens[last].text.length
-      edits.push([expressionStart, end])
+      return message.slice(0, expressionStart) + sourceText + message.slice(end)
     }
-  }
-  for (const [start, end] of edits.reverse()) {
-    message = message.slice(0, start) + sourceText + message.slice(end)
   }
   return message
 

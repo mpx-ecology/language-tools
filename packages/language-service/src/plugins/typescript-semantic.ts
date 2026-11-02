@@ -3,6 +3,7 @@ import {
   MpxVirtualCode,
   formatTemplateDiagnosticMessage,
   isDiagnosticsEnabled,
+  shouldFormatTemplateDiagnosticMessage,
 } from '@mpxjs/language-core'
 import { create as baseCreate } from 'volar-service-typescript/lib/plugins/semantic'
 import { URI } from 'vscode-uri'
@@ -27,7 +28,7 @@ export function create(
           return diagnostics?.map(diagnostic => ({
             ...diagnostic,
             message: format(
-              URI.parse(document.uri),
+              document.uri,
               diagnostic.range,
               diagnostic.message,
               diagnostic.code,
@@ -36,7 +37,7 @@ export function create(
               relatedInformation: diagnostic.relatedInformation.map(info => ({
                 ...info,
                 message: format(
-                  URI.parse(info.location.uri),
+                  info.location.uri,
                   info.location.range,
                   info.message,
                   diagnostic.code,
@@ -48,11 +49,14 @@ export function create(
       }
 
       function format(
-        uri: URI,
+        uriString: string,
         range: Range,
         message: string,
         diagnosticCode: number | string | undefined,
       ) {
+        if (!shouldFormatTemplateDiagnosticMessage(message, diagnosticCode))
+          return message
+        const uri = URI.parse(uriString)
         const decoded = context.decodeEmbeddedDocumentUri(uri)
         const source = context.language.scripts.get(decoded?.[0] ?? uri)
         const root = source?.generated?.root

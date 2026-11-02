@@ -1,6 +1,6 @@
 import path from 'node:path'
 import * as ts from 'typescript'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import {
   type TestLanguageService,
   createTestLanguageService,
@@ -119,6 +119,43 @@ describe('template diagnostic messages', () => {
     expect(proxy.getSemanticDiagnostics(fileName)).toEqual(original)
   })
 
+  it('does not look up source files for messages that need no formatting', () => {
+    const diagnostics = [
+      ...service.proxyLanguageService.getSemanticDiagnostics(
+        service.file('literal-types.mpx'),
+      ),
+      ...service.proxyLanguageService
+        .getSemanticDiagnostics(fileName)
+        .filter(diagnostic => diagnostic.code === 2322),
+    ]
+    expect(diagnostics.map(diagnostic => diagnostic.code)).toEqual([
+      2339, 2339, 2322,
+    ])
+    const expressionError = service.proxyLanguageService
+      .getSemanticDiagnostics(fileName)
+      .find(diagnostic => diagnostic.code === 18048)!
+    diagnostics.push({
+      ...expressionError,
+      messageText: "'optionalUser' is possibly 'undefined'.",
+    })
+    const lookup = vi.spyOn(service.language.scripts, 'get')
+    try {
+      for (const diagnostic of diagnostics) {
+        expect(
+          transformTemplateDiagnostic(
+            ts,
+            service.language,
+            id => id,
+            diagnostic,
+          ),
+        ).toEqual(diagnostic)
+      }
+      expect(lookup).not.toHaveBeenCalled()
+    } finally {
+      lookup.mockRestore()
+    }
+  })
+
   it.each(['en', 'zh-cn'] as const)(
     'restores real %s TS18049 diagnostics without changing metadata or suppression',
     locale =>
@@ -174,9 +211,10 @@ describe('template diagnostic messages', () => {
       .find(d => d.start === source.indexOf('optionalUser'))!
     const diagnostic: ts.Diagnostic = {
       ...original,
+      code: 2322,
       messageText: {
         category: original.category,
-        code: original.code,
+        code: 2322,
         messageText: 'Outer message',
         next: [
           {
