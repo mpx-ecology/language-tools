@@ -1,0 +1,11 @@
+<template>
+  <view>{{ ctxText.missing }}</view>
+  <view>{{ dollarsText.missing }}</view>
+</template>
+
+<script setup lang="ts">
+const ctxText = "'__MPX_ctx.missing'" as const
+const dollarsText = "'__MPX_dollars.missing'" as const
+
+defineExpose({ ctxText, dollarsText })
+</script>
