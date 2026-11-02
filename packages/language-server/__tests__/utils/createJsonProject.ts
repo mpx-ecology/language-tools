@@ -8,9 +8,9 @@ import type {
 } from '@mpxjs/language-service'
 import {
   createMpxLanguageServicePlugins,
+  createMpxTypeScriptSemanticPlugin,
   createUriMap,
 } from '@mpxjs/language-service'
-import { create as createSemantic } from 'volar-service-typescript/lib/plugins/semantic'
 import { createTypeScriptLS } from '@volar/language-server/lib/project/typescriptProjectLs'
 import { createUriConverter } from '@volar/language-server/lib/project/typescriptProject'
 import * as ts from 'typescript'
@@ -60,6 +60,7 @@ export async function createJsonProject(
   const change = event<{ document: Document }>()
   const save = event<{ document: Document }>()
   const watched = event<DidChangeWatchedFilesParams>()
+  const configuration = new Map<string, unknown>()
   const tsClient = {
     getDocumentHighlights: async () => null,
     getCompletion: async () => undefined,
@@ -71,7 +72,7 @@ export async function createJsonProject(
     jsonOnly ? tsClient : undefined,
     { componentDefinitionProvider: true },
   )
-  if (!jsonOnly) plugins.push(createSemantic(ts))
+  if (!jsonOnly) plugins.push(createMpxTypeScriptSemanticPlugin(ts))
   const server = {
     documents: {
       get: (uri: URI) => documents.get(uri),
@@ -86,6 +87,8 @@ export async function createJsonProject(
   const env: LanguageServiceEnvironment = {
     workspaceFolders: [URI.file(root)],
     onDidChangeWatchedFiles: watched.subscribe,
+    getConfiguration: async <T>(section: string) =>
+      configuration.get(section) as T | undefined,
     fs: {
       stat(uri) {
         try {
@@ -132,6 +135,8 @@ export async function createJsonProject(
     jsonOnly,
     project,
     service,
+    setConfiguration: (section: string, value: unknown) =>
+      configuration.set(section, value),
     uri: (name: string) => URI.file(path.join(root, name)),
     read: (name: string) => fs.readFileSync(path.join(root, name), 'utf8'),
     async edit(name: string, text: string) {

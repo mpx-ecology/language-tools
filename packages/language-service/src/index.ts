@@ -28,6 +28,8 @@ import { create as createMpxPrettierPlugin } from './plugins/mpx-prettier'
 import { create as createMpxComponentDefinitionPlugin } from './plugins/mpx-component-definition'
 import { Commands } from './types'
 
+export { createProject as createMpxTypeScriptSemanticPlugin } from './plugins/mpx-sfc-json-js'
+
 export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
 export * from './types'

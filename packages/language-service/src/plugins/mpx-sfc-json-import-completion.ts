@@ -30,7 +30,7 @@ export function create(
 
           const [documentUri, embeddedCodeId] = decoded
 
-          if (!embeddedCodeId.startsWith('json_')) {
+          if (!/^json_(js|json)$/.test(embeddedCodeId)) {
             return
           }
           const sourceScript = context.language.scripts.get(documentUri)

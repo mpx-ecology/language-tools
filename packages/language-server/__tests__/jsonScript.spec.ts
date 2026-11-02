@@ -69,7 +69,7 @@ describe.each([true, false])(
       expect(host.getCompilationSettings().allowJs).toBe(true)
       expect(
         host.getScriptFileNames().some(file => file.endsWith('business.ts')),
-      ).toBe(!jsonOnly)
+      ).toBe(true)
       expect(host.getCompilationSettings().paths).toEqual({
         '@config/*': ['./*'],
       })

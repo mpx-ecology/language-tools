@@ -166,7 +166,7 @@ export function withMpxJsonServiceScripts<T>(
         : plugin.typescript!.getServiceScript,
       getExtraServiceScripts(fileName, root) {
         for (const code of forEachEmbeddedCode(root)) {
-          if (code.id === 'json_js') {
+          if (code.id === 'json_service') {
             return [
               {
                 fileName: `${fileName}.__json.cjs`,

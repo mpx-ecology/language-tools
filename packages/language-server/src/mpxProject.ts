@@ -3,7 +3,6 @@ import type { URI } from 'vscode-uri'
 import {
   createMpxLanguagePlugin,
   createParsedCommandLine,
-  getAllExtensions,
   getDefaultCompilerOptions,
   withMpxJsonServiceScripts,
 } from '@mpxjs/language-core'
@@ -53,18 +52,9 @@ export function createMpxProject(
     allowJs: true,
     noEmit: true,
   })
-  if (jsonOnly) {
-    const getFileNames = projectHost.getScriptFileNames
-    const extensions = getAllExtensions(commandLine.mpxOptions)
-    // Native business files enter this program only when a JSON module imports
-    // them. Ambient declarations remain roots so project globals are available.
-    projectHost.getScriptFileNames = () =>
-      getFileNames().filter(
-        fileName =>
-          /\.d\.[cm]?ts$/.test(fileName) ||
-          extensions.some(ext => fileName.endsWith(ext)),
-      )
-  }
+  // Preserve tsconfig roots: global augmentations can live in ordinary modules
+  // or be introduced transitively through their imports. jsonOnly disables the
+  // Mpx business service script, not the project's ambient type environment.
   return {
     languagePlugins: [
       withMpxJsonServiceScripts(
