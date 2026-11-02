@@ -1,0 +1,14 @@
+<template>
+  <view>{{ title.length }} {{ count + 1 }}</view>
+</template>
+
+<script setup lang="ts">
+const { title: heading, count } = defineProps({
+  title: { type: String, value: 'hello' },
+  count: { type: Number, value: 1 },
+})
+
+heading.toUpperCase()
+count.toFixed()
+defineExpose({ heading })
+</script>

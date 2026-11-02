@@ -1,0 +1,10 @@
+<script setup lang="ts">
+namespace withDefaults {
+  export const version = 1
+}
+
+withDefaults.version.toFixed()
+const props = defineProps({ title: { type: String, value: 'hello' } })
+props.title.toUpperCase()
+defineExpose({ props })
+</script>

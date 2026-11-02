@@ -1,0 +1,53 @@
+<template>
+  <!-- Expected: static class and 'is-solo' both navigate to their style selectors. -->
+  <!-- Expected: titleText navigates to the script declaration, with string hover. -->
+  <view
+    class="media-preview-indicator"
+    wx:class="{{ { 'is-solo': !titleText, active: enabled } }}"
+  />
+
+  <!-- Expected: each literal class navigates to style; enabled still navigates to script. -->
+  <view
+    wx:class="{{ ['array-class', { 'nested-class': enabled }, enabled ? 'is-solo' : 'fallback-class'] }}"
+  />
+  <view class="media-preview-indicator {{ enabled && 'is-solo' }}" />
+
+  <!-- Expected: invoke completion inside the empty or partially typed quoted key. -->
+  <!-- The suggestions include is-solo, array-class and the other local style classes. -->
+  <view wx:class="{{ { '': enabled } }}" />
+  <view wx:class="{{ { 'is-': enabled } }}" />
+
+  <!-- Expected: runtime class names keep variable navigation; no guessed class target. -->
+  <view wx:class="{{ [dynamicClass, 'prefix-' + titleText] }}" />
+
+  <!-- Intentional error: toFixed does not exist on titleText; one diagnostic only. -->
+  <view wx:class="{{ { 'is-solo': titleText.toFixed() } }}" />
+</template>
+
+<script setup lang="ts">
+const titleText = ''
+const enabled = true
+const dynamicClass = 'runtime-class'
+defineExpose({ titleText, enabled, dynamicClass })
+</script>
+
+<style scoped>
+.media-preview-indicator {
+  display: flex;
+}
+.is-solo {
+  color: blue;
+}
+.active {
+  color: green;
+}
+.array-class {
+  display: block;
+}
+.nested-class {
+  color: black;
+}
+.fallback-class {
+  color: red;
+}
+</style>

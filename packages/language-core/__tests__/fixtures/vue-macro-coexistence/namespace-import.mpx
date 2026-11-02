@@ -1,0 +1,9 @@
+<script setup lang="ts">
+import * as withDefaults from './local-macros'
+
+// A namespace member call is an ordinary function call, not a compiler macro.
+const props = withDefaults.defineProps('local')
+withDefaults.withDefaults(props).localCount.toFixed()
+props.localLabel.toUpperCase()
+defineExpose({ props })
+</script>

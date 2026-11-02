@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@mpxjs/core": "catalog:",
+    "@mpxjs/webpack-plugin": "2.11.1",
     "@types/babel__traverse": "^7.20.7",
     "@types/minimatch": "^5.1.2",
     "@types/node": "catalog:",

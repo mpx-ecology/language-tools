@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16"
+  },
+  "mpxCompilerOptions": {
+    "macros": {
+      "defineProps": ["defineProps", "mpxProps"],
+      "withDefaults": ["withDefaults", "mpxDefaults"]
+    }
+  },
+  "files": [
+    "./vue-first.ts",
+    "./control.vue",
+    "./runtime-props.mpx",
+    "./typed-defaults.mpx",
+    "./explicit-type-imports.mpx",
+    "./explicit-bindings.mpx",
+    "./hoisted-bindings.mpx",
+    "./hoisted-bindings-js.mpx"
+  ],
+  "include": []
+}
