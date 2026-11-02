@@ -14,6 +14,6 @@ const rows = [{ id: 'a' }]
 const privateValue = 'not exposed'
 const onTap = () => {}
 defineExpose({ rows, onTap, outsideTitle: 'outside' })
-// Object.create returns any, as can bindings from untyped third-party Hooks.
+// 故意制造 any，仅验证局部补全兜底
 onReactHooksExec(() => Object.create(null))
 </script>

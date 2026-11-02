@@ -1,12 +1,26 @@
 <template>
+  <!-- 故意 any 的边界用例：✅ 正向检查；❌ 预期退化或禁止项。 -->
+  <!-- ❌ rows 为 any，无字段定义可跳（预期退化）。 -->
   <view wx:for="{{ rows }}" wx:for-item="row" wx:for-index="rowIndex" wx:key="id">
+    <!-- ✅ 起点、中间、末尾：row / rowIndex 均可补全。 -->
+    <!-- ✅ rowIndex：hover 为 number，F12 回到循环别名。 -->
+    <!-- ❌ row.id 为 any，不验收 id 的成员推断和属性跳转。 -->
     <text>{{ rowIndex }} {{ row.id }}</text>
+    <!-- ✅ 事件参数可补全 $event / row / rowIndex。 -->
+    <!-- ❌ 不应有 privateValue 的类型候选。 -->
+    <!-- ❌ onTap 为 any，不验收其类型和定义跳转。 -->
     <button bindtap="onTap($event, rowIndex)" />
+    <!-- ❌ 内层 rows 同样为 any，当前无法定义跳转。 -->
     <view wx:for="{{ rows }}" wx:for-item="nestedRow" wx:for-index="nestedIndex" wx:key="id">
+      <!-- ✅ 内外层局部变量均可补全。 -->
+      <!-- ✅ nestedIndex：hover 为 number，F12 回到内层别名。 -->
       <text>{{ nestedIndex }}</text>
     </view>
   </view>
+  <!-- ❌ outsideTitle 为 any，当前无法定义跳转。 -->
+  <!-- ❌ 此处不应有循环局部变量的类型候选。 -->
   <text>{{ outsideTitle }}</text>
+  <!-- ✅ 普通导航对照见 variables.mpx。 -->
 </template>
 <script setup lang="ts">
 import { onReactHooksExec } from '@mpxjs/core'
@@ -14,6 +28,6 @@ const rows = [{ id: 'a' }]
 const privateValue = 'not exposed'
 const onTap = () => {}
 defineExpose({ rows, onTap, outsideTitle: 'outside' })
-// Object.create returns any, as can bindings from untyped third-party Hooks.
+// 故意制造 any，仅验证局部补全兜底
 onReactHooksExec(() => Object.create(null))
 </script>

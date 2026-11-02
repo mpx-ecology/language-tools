@@ -1,6 +1,6 @@
 <template>
   <view wx:for="{{ rows }}" wx:for-item="row" wx:for-index="rowIndex" wx:key="id">
-    <!-- Expected TS2339: the numeric local remains checked despite an any context. -->
+    <!-- 预期 TS2339：any 上下文仍须检查数字局部变量。 -->
     <text>{{ rowIndex.missing }}</text>
   </view>
 </template>

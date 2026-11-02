@@ -4,12 +4,14 @@
 
 使用 F5 Extension Host；改动后等待 watch 构建并执行 `Mpx: Restart Mpx and TS servers`。所有场景独立放在本目录；自动化 fixtures 位于 language-core 的 `__tests__/fixtures/template-completion`，不依赖本目录。
 
+标记约定：✅ 表示应有行为；❌ 表示刻意反例、预期退化或禁止项，以注释文字为准。出现预期诊断算验收通过，不要删除故意错误。查验类型候选时可临时关闭 `editor.wordBasedSuggestions`，避免普通文本建议混入。
+
 - `variables.mpx`：在模板 `propTitle`、`exposedCount`、`hookTitle` 的第一个字符前、前缀中与末尾触发补全，应包含 props、defineExpose、onReactHooksExec 的字段与公开别名 `publicName`；不含未暴露的 `privateValue`。对 `profile.`、`hookProfile.` 检查成员候选；检查变量 hover 和 F12 回到各自源码声明。
 - `typed-props.mpx`：检查类型式 props / withDefaults、Ref 暴露别名和 Hooks 返回值补全；`publicCount` 的 hover 为 number，`title` 为 string。
 - `editing.mpx`：有意保留未完成的插值、属性表达式及空事件值，用于输入过程的补全检查。应有 propTitle、exposedTap、hookTitle 候选；不要为清理检查工作区而删除这些编辑态场景。
 - `scoped-variables.mpx`：检查显式 / 默认循环变量、嵌套循环和同名别名。变量起点、输入中和末尾应同时包含模板字段与当前局部变量；变量离开作用域后消失，不包含私有脚本变量。循环数据源应使用外层类型，内层别名在循环体内生效；检查 row 的 hover 和 F12。事件表达式补全应包含 `$event` 及当前循环变量。
 - `scoped-editing.mpx`：有意保留空插值、空事件值和未输入完整的 `row.`；分别检查局部变量和成员补全，保留编辑态场景。
-- `loose-hooks.mpx` / `loose-hooks-js.mpx`：Hooks 返回 `any` 时，TS / JS 场景中的循环变量起点、输入中和末尾仍应提供 row / rowIndex；检查嵌套循环和事件参数，私有变量和离开作用域的局部变量不应出现。rowIndex 的补全详情和 hover 应保留 number，F12 回到循环别名。
+- `loose-hooks.mpx` / `loose-hooks-js.mpx`：Hooks 返回 `any` 时，TS / JS 场景中的循环变量起点、输入中和末尾仍应提供 row / rowIndex；检查嵌套循环和事件参数，私有变量和离开作用域的局部变量不应出现。rowIndex 的补全详情和 hover 应保留 number，F12 回到循环别名。 末行是故意构造的 any 边界，rows / outsideTitle 在此例退化为 any、无法定义跳转属于当前预期；普通导航请用 `variables.mpx` 对照，保留本例的 any 条件。
 - `loose-hooks-errors.mpx`：有意保留 `rowIndex.missing`，预期 TS2339；用于确认补全视图的 any 保护不会改变真实类型检查。
 - `capture-events.mpx`：检查 capture-bindtap / capture-catchtap 及带冒号形式的处理器补全、hover 和源码定义；合法绑定不应作为静态字符串。
 - `events.mpx`：将已有事件名改为 `bind:`、`catch`、`capture-bind:` 等前缀并触发补全。接受候选后只替换事件名，已有处理器保留。通用触摸事件支持 catch / capture；input 等非冒泡事件只提供普通 bind 两种拼写。

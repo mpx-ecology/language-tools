@@ -1,6 +1,8 @@
 <template>
+  <!-- ❌ rows 为 any，当前不验收其定义跳转。 -->
   <view wx:for="{{ rows }}" wx:for-item="row" wx:for-index="rowIndex" wx:key="id">
-    <!-- Expected TS2339: the numeric local remains checked despite an any context. -->
+    <!-- ❌ 故意访问不存在的 missing；✅ 应报告 TS2339，范围落在 missing。 -->
+    <!-- ✅ 悬浮 rowIndex 仍为 number，F12 回到循环索引；不要删除此错误。 -->
     <text>{{ rowIndex.missing }}</text>
   </view>
 </template>
@@ -8,5 +10,6 @@
 import { onReactHooksExec } from '@mpxjs/core'
 const rows = [{ id: 'a' }]
 defineExpose({ rows })
+// 故意制造 any，检查局部诊断是否保留
 onReactHooksExec(() => Object.create(null))
 </script>
