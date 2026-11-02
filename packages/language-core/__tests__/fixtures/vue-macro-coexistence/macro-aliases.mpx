@@ -1,0 +1,8 @@
+<script setup lang="ts">
+import { defineProps as mpxProps, withDefaults as mpxDefaults } from './local-macros'
+
+// These configured language-tool aliases have real runtime function bindings.
+const props = mpxDefaults(mpxProps('local'))
+props.localCount.toFixed()
+defineExpose({ props })
+</script>

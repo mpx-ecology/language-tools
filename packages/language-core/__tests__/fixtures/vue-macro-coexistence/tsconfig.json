@@ -1,0 +1,10 @@
+{
+  "extends": "../reference-type-props/tsconfig.json",
+  "mpxCompilerOptions": {
+    "macros": {
+      "defineProps": ["defineProps", "mpxProps"],
+      "withDefaults": ["withDefaults", "mpxDefaults"]
+    }
+  },
+  "include": ["./**/*"]
+}

@@ -1,0 +1,19 @@
+<script setup lang="ts">
+import { defineProps as mpxProps } from './local-macros'
+
+namespace withDefaults {
+  export const version = 1
+}
+
+// Expected: no declaration conflicts; hover gives string and number respectively.
+const props = mpxProps('local')
+props.localLabel.toUpperCase()
+withDefaults.version.toFixed()
+
+// Expected: F12 on mpxProps reaches local-macros.ts; F2 updates its import alias and call.
+// Intentional error: TS2339, string has no missing().
+if (false) {
+  props.localLabel.missing()
+}
+defineExpose({ props })
+</script>
