@@ -9,8 +9,8 @@ defineExpose({ label })
 </script>
 
 <style>
-/* Expected: all four commands get directive scopes; conditions remain comments. */
-/* @mpx-if (__mpx_mode__ === 'wx') */
+/* Expected: all four commands get directive scopes; conditions use JavaScript scopes inside the comment. */
+/* @mpx-if ((__mpx_mode__ === 'wx' || __mpx_mode__ === 'ali') && true && 2 > 1) */
 .style-directive-sample {
   color: green;
 }
@@ -27,7 +27,8 @@ defineExpose({ label })
 /* MARK: Multiline condition */
 /*
   @mpx-if (
-    __mpx_mode__ === 'wx'
+    (__mpx_mode__ === 'wx' || __mpx_mode__ === 'ali') &&
+    !false
   )
 */
 .style-directive-sample::after {

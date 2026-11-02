@@ -46,7 +46,23 @@ beforeAll(async () => {
       parseRawGrammar(fs.readFileSync(filename, 'utf8'), filename),
     )
   }
+  const javascript = fromHere(
+    './fixtures/style-directives/JavaScript.tmLanguage.json',
+  )
+  grammars.set(
+    'source.js',
+    parseRawGrammar(fs.readFileSync(javascript, 'utf8'), javascript),
+  )
   registry = new Registry({
+    theme: {
+      settings: [
+        { settings: { foreground: '#D4D4D4' } },
+        { scope: 'comment', settings: { foreground: '#6A9955' } },
+        { scope: 'meta.embedded', settings: { foreground: '#D4D4D4' } },
+        { scope: 'variable', settings: { foreground: '#9CDCFE' } },
+        { scope: 'string', settings: { foreground: '#CE9178' } },
+      ],
+    },
     onigLib: Promise.resolve({
       createOnigScanner: patterns => new OnigScanner(patterns),
       createOnigString: value => new OnigString(value),
@@ -81,6 +97,163 @@ function tokenAt(line: ReturnType<typeof tokenize>[number], text: string) {
 }
 
 describe('style conditional directive highlighting', () => {
+  it('resets the inherited comment token type and theme inside the condition', () => {
+    const lines = tokenize(
+      "<style>\n/* @mpx-if (__mpx_mode__ === 'wx') */\n</style>",
+    )
+    const metadataAt = (text: string) => {
+      const offset = lines[1].text.indexOf(text)
+      const tokens = lines[1].encoded
+      for (let i = tokens.length - 2; i >= 0; i -= 2)
+        if (tokens[i] <= offset) return tokens[i + 1]
+      throw new Error('Missing token')
+    }
+    const foreground = (text: string) =>
+      registry.getColorMap()[(metadataAt(text) >>> 15) & 0x1ff]
+    expect((metadataAt('__mpx_mode__') >>> 8) & 3).toBe(0)
+    expect((metadataAt("'wx'") >>> 8) & 3).toBe(2)
+    expect((metadataAt('*/') >>> 8) & 3).toBe(1)
+    expect(foreground('__mpx_mode__')).toBe('#9CDCFE')
+    expect(foreground("'wx'")).toBe('#CE9178')
+    expect(foreground('*/')).toBe('#6A9955')
+  })
+
+  it.each([
+    "(__mpx_mode__ === 'wx')",
+    "((__mpx_mode__ === 'wx'",
+    "(__mpx_mode__ === 'wx",
+  ])('bounds Stylus line-comment expression %s at the newline', expression => {
+    const lines = tokenize(
+      `<style lang="stylus">\n// @mpx-if ${expression}\n.x\n  color red\n// @mpx-endif\n</style>`,
+    )
+    expect(tokenAt(lines[1], '__mpx_mode__').scopes).toContain(
+      'variable.other.readwrite.js',
+    )
+    expect(tokenAt(lines[3], 'color').scopes).not.toContain('source.js')
+  })
+
+  it('preserves parentheses in regular expressions and escaped strings', () => {
+    const lines = tokenize(
+      `<style>\n/* @mpx-if (/(wx|ali)/.test(__mpx_mode__) && __mpx_mode__ !== 'w\\\'x)') */\n.x { color: red; }\n</style>`,
+    )
+    expect(tokenAt(lines[1], 'wx|ali').scopes).toContain('string.regexp.js')
+    expect(tokenAt(lines[1], '__mpx_mode__').scopes).toContain(
+      'variable.other.readwrite.js',
+    )
+    expect(tokenAt(lines[1], "w\\'x)").scopes).toContain(
+      'string.quoted.single.js',
+    )
+    expect(tokenAt(lines[2], 'color').scopes).not.toContain('source.js')
+  })
+
+  it('does not create minimap headings inside condition strings', () => {
+    const lines = tokenize(
+      '<style>\n/* @mpx-if (__mpx_mode__ === "MARK: platform") */\n</style>',
+    )
+    expect(tokenAt(lines[1], 'MARK:').scopes).toContain(
+      'string.quoted.double.js',
+    )
+    expect(tokenAt(lines[1], 'MARK:').scopes).not.toContain(
+      'meta.section-header.mpx',
+    )
+  })
+
+  it.each([
+    'style',
+    'style lang="scss"',
+    'style lang="less"',
+    'style lang="postcss"',
+    'style lang="stylus"',
+  ])('uses JavaScript scopes inside <%s> conditions', tag => {
+    const lines = tokenize(
+      `<${tag}>\n/* @mpx-if (__mpx_mode__ === 'wx' && true && version >= 2) */\n/* @mpx-elif (__mpx_mode__ === 'ali') */\n</style>`,
+    )
+    expect(tokenAt(lines[1], '__mpx_mode__').scopes).toContain(
+      'variable.other.readwrite.js',
+    )
+    expect(tokenAt(lines[1], "'wx'").scopes).toContain(
+      'string.quoted.single.js',
+    )
+    expect(tokenAt(lines[1], '===').scopes).toContain(
+      'keyword.operator.comparison.js',
+    )
+    expect(tokenAt(lines[1], 'true').scopes).toContain(
+      'constant.language.boolean.true.js',
+    )
+    expect(tokenAt(lines[1], '2').scopes).toContain(
+      'constant.numeric.decimal.js',
+    )
+    expect(tokenAt(lines[2], '__mpx_mode__').scopes).toContain(
+      'variable.other.readwrite.js',
+    )
+    expect(tokenAt(lines[1], '*/').scopes).not.toContain(
+      'meta.embedded.block.mpx-style-condition',
+    )
+  })
+
+  it('handles multiline expressions, nested parentheses and quoted parentheses', () => {
+    const lines = tokenize(
+      `<style>\n/* @mpx-if (\n  (__mpx_mode__ === 'wx)') ||\n  (__mpx_mode__ === "ali(" && true)\n) ordinary explanation */\n.x { color: red; }\n</style>`,
+    )
+    for (const index of [2, 3]) {
+      expect(tokenAt(lines[index], '__mpx_mode__').scopes).toContain(
+        'variable.other.readwrite.js',
+      )
+    }
+    expect(tokenAt(lines[2], "'wx)'").scopes).toContain(
+      'string.quoted.single.js',
+    )
+    expect(tokenAt(lines[4], 'ordinary').scopes).not.toContain('source.js')
+    expect(tokenAt(lines[5], 'color').scopes).not.toContain('source.js')
+  })
+
+  it.each([
+    "(__mpx_mode__ === 'wx' &&",
+    "((__mpx_mode__ === 'wx' &&",
+    "(__mpx_mode__ === 'wx",
+    '(__mpx_mode__ === "wx',
+    '(__mpx_mode__ === `wx',
+  ])(
+    'does not escape a block comment with unfinished condition %s',
+    expression => {
+      const lines = tokenize(
+        `<style>\n/* @mpx-if ${expression} */ .x { color: red; }\n.y { color: blue; }\n</style>\n<script>\nconst value = 1\n</script>`,
+      )
+      expect(
+        tokenAt(lines[1], '*/').scopes.some(scope =>
+          scope.startsWith('string.'),
+        ),
+      ).toBe(false)
+      for (const index of [1, 2]) {
+        expect(tokenAt(lines[index], 'color').scopes).not.toContain('source.js')
+        expect(
+          tokenAt(lines[index], 'color').scopes.some(scope =>
+            scope.startsWith('comment.'),
+          ),
+        ).toBe(false)
+      }
+      expect(tokenAt(lines[5], 'value').scopes).not.toContain(
+        'meta.embedded.block.mpx-style-condition',
+      )
+    },
+  )
+
+  it('keeps directive-like strings and normal comment text out of expressions', () => {
+    const lines = tokenize(
+      `<style>\n/* @mpx-if (__mpx_mode__ === '@mpx-if (false)') */\n/* ordinary (__mpx_mode__ === 'wx') */\n/* @mpx-else (__mpx_mode__) */\n</style>`,
+    )
+    expect(tokenAt(lines[1], 'false').scopes).toContain(
+      'string.quoted.single.js',
+    )
+    expect(tokenAt(lines[1], 'false').scopes).not.toContain(
+      'keyword.control.directive.mpx',
+    )
+    for (const index of [2, 3])
+      expect(tokenAt(lines[index], '__mpx_mode__').scopes).not.toContain(
+        'source.js',
+      )
+  })
+
   it('keeps PostCSS directives and string boundaries without a PostCSS grammar extension', () => {
     // No source.postcss dependency is registered above: a default VS Code
     // installation still provides the CSS grammar used by this fallback.
