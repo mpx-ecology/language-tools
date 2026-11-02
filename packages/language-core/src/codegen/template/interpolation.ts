@@ -61,7 +61,10 @@ export function* generateInterpolation(
         offset = 0
       }
       const shouldSkip =
-        section.length === 0 && (type === 'startText' || type === 'endText')
+        section.length === 0 &&
+        (type === 'startText' ||
+          type === 'endText' ||
+          type === 'contextBoundary')
       if (!shouldSkip) {
         if (start !== undefined && data) {
           const resolvedData =
@@ -74,7 +77,9 @@ export function* generateInterpolation(
               ? ctx.codeFeatures.verification
               : type === 'completionMappingOnly'
                 ? { completion: resolvedData.completion }
-                : resolvedData,
+                : type === 'contextBoundary'
+                  ? { ...resolvedData, completion: false }
+                  : resolvedData,
           ]
         } else {
           yield section
@@ -101,7 +106,12 @@ interface BracesVar {
 type Segment = [
   fragment: string,
   offset: number | undefined,
-  type?: 'errorMappingOnly' | 'completionMappingOnly' | 'startText' | 'endText',
+  type?:
+    | 'errorMappingOnly'
+    | 'completionMappingOnly'
+    | 'startText'
+    | 'endText'
+    | 'contextBoundary',
 ]
 
 function* forEachInterpolationSegment(
@@ -165,11 +175,25 @@ function* forEachInterpolationSegment(
       const curVar = points[i]
       const lastVarEnd = lastVar ? lastVar.offset + lastVar.text.length : 0
 
+      const precedingEnd =
+        !isBracesVar(curVar) && curVar.offset > lastVarEnd
+          ? curVar.offset - 1
+          : curVar.offset
       yield [
-        code.slice(lastVarEnd, curVar.offset),
+        code.slice(lastVarEnd, precedingEnd),
         lastVarEnd,
         i ? undefined : 'startText',
       ]
+      if (precedingEnd < curVar.offset) {
+        // The trivia/operator immediately before ctx.x shares x's source
+        // boundary. Its lexical completions must not hide ctx's members.
+        // Keep its diagnostic, semantic and navigation mappings unchanged.
+        yield [
+          code.slice(precedingEnd, curVar.offset),
+          precedingEnd,
+          'contextBoundary',
+        ]
+      }
 
       if (isBracesVar(curVar)) {
         // eg: "{{ a }} {{ b }}" -> "( a ) + ' ' + ( b )"

@@ -1,0 +1,9 @@
+<template>
+  <!-- Intentional error: Ref is unwrapped to number, without this member. -->
+  <text>{{ publicCount.missing }}</text>
+</template>
+<script setup lang="ts">
+import { ref } from '@mpxjs/core'
+const localCount = ref(1)
+defineExpose({ publicCount: localCount })
+</script>

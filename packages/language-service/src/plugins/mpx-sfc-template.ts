@@ -9,6 +9,7 @@ import type {
 } from '@mpxjs/typescript-plugin/src/requests'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
 import * as html from 'vscode-html-languageservice'
+import { getAtModeBaseName } from '@mpxjs/language-shared'
 import { create as createHtmlService } from 'volar-service-html'
 import { LanguageServicePlugin, SfcJsonBlockUsingComponents } from '../types'
 import templateBuiltinData from '../data/template'
@@ -191,6 +192,7 @@ export function create(
         return {
           updateId,
           usingComponents,
+          attributeCondition: tagContext?.attributeCondition,
         }
       }
 
@@ -231,13 +233,25 @@ export function create(
           if (!isCustomDataRequestCurrent(customData.updateId, token)) {
             return
           }
-          if (!htmlComplete?.items.length) {
+          if (
+            !htmlComplete?.items.length &&
+            !document.getText().slice(0, document.offsetAt(position)).trim()
+          ) {
             htmlComplete = {
               isIncomplete: false,
               items: mpxBuiltinTagsCompleteItems ?? [],
             }
           }
-          htmlComplete.items.forEach(item => {
+          htmlComplete?.items.forEach(item => {
+            if (
+              customData.attributeCondition &&
+              item.textEdit?.newText.startsWith(item.label)
+            ) {
+              item.textEdit.newText =
+                item.label +
+                customData.attributeCondition +
+                item.textEdit.newText.slice(item.label.length)
+            }
             if (customData.usingComponents?.has(item.label)) {
               const componentPaths = customData.usingComponents.get(item.label)
               if (componentPaths?.length) {
@@ -376,8 +390,29 @@ export function create(
     ) {
       return
     }
+    let attributeCondition: string | undefined
+    const scanner = htmlParser.createScanner(document.getText(), node.start)
+    let token = scanner.scan()
+    while (token !== html.TokenType.EOS && scanner.getTokenOffset() <= offset) {
+      if (
+        token === html.TokenType.AttributeName &&
+        offset <= scanner.getTokenEnd()
+      ) {
+        const name = scanner.getTokenText()
+        const baseName = getAtModeBaseName(name)
+        if (
+          baseName !== name &&
+          offset <= scanner.getTokenOffset() + baseName.length
+        ) {
+          attributeCondition = name.slice(baseName.length)
+        }
+        break
+      }
+      token = scanner.scan()
+    }
     return {
       tag: node.tag,
+      attributeCondition,
       // Component props are only needed for attribute completion / hover. Asking
       // tsserver for them while editing the tag name can repeatedly force project
       // analysis and make tag completion appear to hang.

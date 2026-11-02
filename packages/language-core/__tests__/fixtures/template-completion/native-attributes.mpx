@@ -1,0 +1,18 @@
+<template>
+  <view enable-text-pass-through@_ios|_android|_harmony="{{ true }}">
+    <image src="https://example.com/image.svg" is-svg@_ios|_android|_harmony="{{ true }}" />
+    <input keyboard-type@_ios|_android|_harmony="numeric" />
+    <textarea keyboard-type@_ios|_android|_harmony="numeric" />
+    <text decode="{{ true }}">&amp;</text>
+    <movable-area>
+      <movable-view direction="all" workletChange@_ios|_android|_harmony="{{ handleWorklet }}" />
+    </movable-area>
+  </view>
+</template>
+<script setup lang="ts">
+const handleWorklet = (detail: { x: number; y: number; source: string }) => {
+  'worklet'
+  return detail.x + detail.y
+}
+defineExpose({ handleWorklet })
+</script>

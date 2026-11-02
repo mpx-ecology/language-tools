@@ -1,0 +1,10 @@
+<template>
+  <view>{{ title }} {{ publicCount }} {{ hookTitle }}</view>
+</template>
+<script setup lang="ts">
+import { ref, onReactHooksExec } from '@mpxjs/core'
+withDefaults(defineProps<{ title?: string }>(), { title: 'Mpx' })
+const localCount = ref(1)
+defineExpose({ publicCount: localCount })
+onReactHooksExec(() => ({ hookTitle: 'Hooks' }))
+</script>
