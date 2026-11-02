@@ -21,6 +21,7 @@ import { generateInterpolation } from './interpolation'
 import { generateObjectProperty } from './objectProperty'
 import { generateModifiers } from './elementDirectives'
 import { generateEventArg, generateEventExpression } from './elementEvents'
+import { generateClassAwareInterpolation } from './styleScopedClasses'
 
 export interface FailedPropExpression {
   node: CompilerDOM.SimpleExpressionNode
@@ -537,16 +538,21 @@ export function* generateSingleMustache(
     suffix = `})`
   }
 
-  yield* generateInterpolation(
-    options,
+  yield* generateClassAwareInterpolation(
     ctx,
-    'template',
-    ctx.codeFeatures.all,
-    content,
     offset,
-    attrNodeAst,
-    prefix,
-    suffix,
+    offset + content.length,
+    generateInterpolation(
+      options,
+      ctx,
+      'template',
+      ctx.codeFeatures.all,
+      content,
+      offset,
+      attrNodeAst,
+      prefix,
+      suffix,
+    ),
   )
 }
 

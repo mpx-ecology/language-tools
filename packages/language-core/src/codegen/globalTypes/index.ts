@@ -168,6 +168,7 @@ export function generateGlobalTypes({
   }
 	${defineComponentTypesContents.globalTypes()}
 	${defineComponentTypesContents.runtimePropTypes()}
+	${defineComponentTypesContents.scriptSetupMacroTypes()}
 }
 ` + defineComponentTypesContents.localTypes(lib)
 

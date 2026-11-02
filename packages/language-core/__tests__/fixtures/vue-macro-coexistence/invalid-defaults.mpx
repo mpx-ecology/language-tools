@@ -1,0 +1,5 @@
+<script setup lang="ts">
+// Intentional error: a number prop cannot have a string default.
+const props = withDefaults(defineProps<{ count?: number }>(), { count: 'wrong' })
+defineExpose({ props })
+</script>

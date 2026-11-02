@@ -1,0 +1,34 @@
+<template>
+  <view class="static-class" />
+  <view wx:class="{{ { 'is-solo': !titleText, active: enabled, ['computed-class']: enabled } }}" />
+  <view wx:class="{{ 'string-class' }}" />
+  <view wx:class="{{ ['array-class', { 'nested-class': enabled }, [enabled && 'logical-class'], enabled ? 'true-class' : 'false-class'] }}" />
+  <view class="base-class {{ enabled ? 'interpolated-class' : '' }} tail-class" />
+  <view wx:class="{{ { 'is-': enabled } }}" />
+  <view wx:class="{{ { '': enabled } }}" />
+  <view class="" />
+  <view wx:class="{{ { 'length-class': titleText.length > 0 } }}" />
+</template>
+
+<script setup lang="ts">
+const titleText = 'hello'
+const enabled = true
+defineExpose({ titleText, enabled })
+</script>
+
+<style scoped>
+.static-class {}
+.is-solo {}
+.active {}
+.computed-class {}
+.string-class {}
+.array-class {}
+.nested-class {}
+.logical-class {}
+.true-class {}
+.false-class {}
+.base-class {}
+.interpolated-class {}
+.tail-class {}
+.length-class {}
+</style>
