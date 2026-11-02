@@ -39,6 +39,7 @@ export interface TestLanguageService {
 
 export function createTestLanguageService(
   fixtureRoot = referenceTypePropsFixtureRoot,
+  additionalRootFiles: string[] = [],
 ): TestLanguageService {
   const parsed = createParsedCommandLine(
     ts,
@@ -103,7 +104,11 @@ export function createTestLanguageService(
     )
   }
 
-  const rootFiles = [...mpxFiles, ...virtualFiles.keys()]
+  const rootFiles = [
+    ...additionalRootFiles,
+    ...mpxFiles,
+    ...virtualFiles.keys(),
+  ]
   const moduleResolutionCache = ts.createModuleResolutionCache(
     fixtureRoot,
     fileName => fileName,

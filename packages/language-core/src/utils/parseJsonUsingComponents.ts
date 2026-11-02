@@ -68,9 +68,11 @@ export function parseUsingComponentsWithJs(
   sourceFile: ts.SourceFile,
 ): SfcJsonBlockUsingComponents {
   const usingComponents: SfcJsonBlockUsingComponents = new Map()
-  // 记录对对象变量的补充：例如 const comps = ...;
-  // Object.assign(comps, { classify: './classify' }); { usingComponents: comps }
-  const objectAssignAugments: Map<string, ts.Expression[]> = new Map()
+  const resolveBinding = createBindingResolver(ts, sourceFile)
+  // Only consume writes when their object is reached from usingComponents.
+  const objectAugments = new Map<LocalBinding, ts.Expression[]>()
+  const parsedExpressions = new Set<ts.Expression>()
+  const parsedBindings = new Set<LocalBinding>()
 
   function visit(node: ts.Node) {
     /**
@@ -90,22 +92,7 @@ export function parseUsingComponentsWithJs(
       ts.isIdentifier(node.name) &&
       node.name.text === 'usingComponents'
     ) {
-      const varName = node.name.text
-      const resolved = findVariableInitializerExpression(
-        ts,
-        sourceFile,
-        varName,
-      )
-      if (resolved) {
-        parseObjectFromExpression(resolved)
-      }
-      // 合并通过 Object.assign 收集到的补充
-      const augments = objectAssignAugments.get(varName)
-      if (augments && augments.length) {
-        for (const augmentExp of augments) {
-          parseObjectFromExpression(augmentExp)
-        }
-      }
+      parseObjectFromExpression(node.name)
       return
     }
 
@@ -141,26 +128,54 @@ export function parseUsingComponentsWithJs(
   }
 
   function collectAugments(node: ts.Node) {
-    // 收集 Object.assign(target, ...) 对象补充
+    // Visit assignment expressions directly, including comma expressions and
+    // conditional blocks. Computed component names are intentionally excluded.
     if (
-      ts.isCallExpression(node) &&
-      ts.isPropertyAccessExpression(node.expression) &&
-      ts.isIdentifier(node.expression.expression) &&
-      node.expression.expression.text === 'Object' &&
-      node.expression.name.text === 'assign' &&
-      node.arguments.length >= 2
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      isComponentPathExpression(node.right)
     ) {
+      const property = getStaticObjectProperty(node.left)
+      if (property) {
+        const binding = resolveBinding(property.object)
+        const list = objectAugments.get(binding) ?? []
+        list.push(node)
+        objectAugments.set(binding, list)
+      }
+    }
+    // 收集 Object.assign(target, ...) 对象补充
+    if (isObjectAssignCall(ts, node)) {
       const target = node.arguments[0]
       if (ts.isIdentifier(target)) {
-        const targetName = target.text
-        const list = objectAssignAugments.get(targetName) ?? []
+        const binding = resolveBinding(target)
+        const list = objectAugments.get(binding) ?? []
         for (let i = 1; i < node.arguments.length; i++) {
           list.push(node.arguments[i])
         }
-        objectAssignAugments.set(targetName, list)
+        objectAugments.set(binding, list)
       }
     }
     ts.forEachChild(node, collectAugments)
+  }
+
+  function getStaticObjectProperty(expression: ts.Expression) {
+    if (
+      ts.isPropertyAccessExpression(expression) &&
+      ts.isIdentifier(expression.expression) &&
+      ts.isIdentifier(expression.name)
+    ) {
+      return { object: expression.expression, name: expression.name }
+    }
+    if (
+      ts.isElementAccessExpression(expression) &&
+      ts.isIdentifier(expression.expression) &&
+      ts.isStringLiteral(expression.argumentExpression)
+    ) {
+      return {
+        object: expression.expression,
+        name: expression.argumentExpression,
+      }
+    }
   }
 
   function parseAssignmentExpression(assignment: ts.BinaryExpression) {
@@ -236,9 +251,7 @@ export function parseUsingComponentsWithJs(
       if (
         ts.isPropertyAssignment(prop) &&
         (ts.isIdentifier(prop.name) || ts.isStringLiteral(prop.name)) &&
-        (ts.isStringLiteral(prop.initializer) ||
-          ts.isIdentifier(prop.initializer) ||
-          ts.isPropertyAccessExpression(prop.initializer))
+        isComponentPathExpression(prop.initializer)
       ) {
         parsePropertyAssignment(prop)
       } else if (ts.isSpreadAssignment(prop)) {
@@ -247,28 +260,41 @@ export function parseUsingComponentsWithJs(
     }
   }
 
+  function isComponentPathExpression(expression: ts.Expression) {
+    return (
+      ts.isStringLiteral(expression) ||
+      ts.isIdentifier(expression) ||
+      ts.isPropertyAccessExpression(expression)
+    )
+  }
+
   function parsePropertyAssignment(prop: ts.PropertyAssignment) {
-    const name = (prop.name as ts.Identifier | ts.StringLiteral).text
+    parseComponentPath(
+      prop.name as ts.Identifier | ts.StringLiteral,
+      prop.initializer,
+    )
+  }
+
+  function parseComponentPath(
+    nameNode: ts.Identifier | ts.StringLiteral,
+    initializer: ts.Expression,
+  ) {
+    const name = nameNode.text
     let text = ''
     let _variableOffset: number | undefined = undefined
 
-    if (ts.isStringLiteral(prop.initializer)) {
-      text = prop.initializer.text
-    } else if (ts.isIdentifier(prop.initializer)) {
-      const identifierName = prop.initializer.text
-      const { variableValue, variableOffset } = findVariableValue(
-        ts,
-        sourceFile,
-        identifierName,
-      )
-      if (variableValue) {
-        text = variableValue
-        _variableOffset = variableOffset
+    if (ts.isStringLiteral(initializer)) {
+      text = initializer.text
+    } else if (ts.isIdentifier(initializer)) {
+      const value = resolveBinding(initializer).initializer
+      if (value && ts.isStringLiteral(value)) {
+        text = value.text
+        _variableOffset = value.getStart(sourceFile)
       }
-    } else if (ts.isPropertyAccessExpression(prop.initializer)) {
+    } else if (ts.isPropertyAccessExpression(initializer)) {
       text = sourceFile.text.substring(
-        prop.initializer.getStart(),
-        prop.initializer.getEnd(),
+        initializer.getStart(),
+        initializer.getEnd(),
       )
     }
 
@@ -278,8 +304,8 @@ export function parseUsingComponentsWithJs(
       }
       usingComponents.get(name)!.push({
         text,
-        offset: _variableOffset ?? prop.initializer.getStart(sourceFile),
-        nameOffset: prop.name.getStart(sourceFile),
+        offset: _variableOffset ?? initializer.getStart(sourceFile),
+        nameOffset: nameNode.getStart(sourceFile),
       })
     }
   }
@@ -308,6 +334,23 @@ export function parseUsingComponentsWithJs(
   }
 
   function parseObjectFromExpression(expression: ts.Expression) {
+    // Shared spreads and cyclic object references must not duplicate mappings
+    // or recurse indefinitely.
+    if (parsedExpressions.has(expression)) {
+      return
+    }
+    parsedExpressions.add(expression)
+
+    if (
+      ts.isBinaryExpression(expression) &&
+      expression.operatorToken.kind === ts.SyntaxKind.EqualsToken
+    ) {
+      const property = getStaticObjectProperty(expression.left)
+      if (property) {
+        parseComponentPath(property.name, expression.right)
+      }
+      return
+    }
     // 处理括号包裹的表达式 ({ ... })
     if (ts.isParenthesizedExpression(expression)) {
       expression = expression.expression
@@ -315,17 +358,16 @@ export function parseUsingComponentsWithJs(
 
     // 处理标识符：const components = { ... }; usingComponents: components
     if (ts.isIdentifier(expression)) {
-      const varName = expression.text
-      const resolved = findVariableInitializerExpression(
-        ts,
-        sourceFile,
-        varName,
-      )
-      if (resolved) {
-        parseObjectFromExpression(resolved)
+      const binding = resolveBinding(expression)
+      if (parsedBindings.has(binding)) {
+        return
       }
-      // 合并通过 Object.assign 收集到的补充
-      const augments = objectAssignAugments.get(varName)
+      parsedBindings.add(binding)
+      if (binding.initializer) {
+        parseObjectFromExpression(binding.initializer)
+      }
+      // Merge writes only from this binding, including Object.assign sources.
+      const augments = objectAugments.get(binding)
       if (augments && augments.length) {
         for (const augmentExp of augments) {
           parseObjectFromExpression(augmentExp)
@@ -357,14 +399,7 @@ export function parseUsingComponentsWithJs(
     }
 
     // 处理 Object.assign({}, {...}) 作为一个表达式传入的情况（例如解构或直接传入）
-    if (
-      ts.isCallExpression(expression) &&
-      ts.isPropertyAccessExpression(expression.expression) &&
-      ts.isIdentifier(expression.expression.expression) &&
-      expression.expression.expression.text === 'Object' &&
-      expression.expression.name.text === 'assign' &&
-      expression.arguments.length >= 2
-    ) {
+    if (isObjectAssignCall(ts, expression)) {
       // 合并除第一个 target 之外的参数
       for (let i = 1; i < expression.arguments.length; i++) {
         parseObjectFromExpression(expression.arguments[i])
@@ -380,61 +415,210 @@ export function parseUsingComponentsWithJs(
   return usingComponents
 }
 
-/**
- * 查找变量的初始值（用于解析字符串路径变量）
- */
-function findVariableValue(
-  ts: typeof import('typescript'),
-  sourceFile: ts.SourceFile,
-  identifierName: string,
-) {
-  let variableValue: string | undefined = undefined
-  let variableOffset: number | undefined = undefined
-
-  function findDeclaration(node: ts.Node): boolean | undefined {
-    if (
-      (ts.isVariableDeclaration(node) || ts.isPropertyAssignment(node)) &&
-      ts.isIdentifier(node.name) &&
-      node.name.text === identifierName &&
-      node.initializer &&
-      ts.isStringLiteral(node.initializer)
-    ) {
-      variableValue = node.initializer.text
-      variableOffset = node.initializer.getStart(sourceFile)
-      return true
-    }
-
-    return ts.forEachChild(node, findDeclaration)
-  }
-
-  findDeclaration(sourceFile)
-  return { variableValue, variableOffset }
+type ObjectAssignCall = ts.CallExpression & {
+  expression: ts.PropertyAccessExpression & { expression: ts.Identifier }
 }
 
-/**
- * 查找对象变量的初始表达式（用于解析赋值给 usingComponents 的对象变量）
- */
-function findVariableInitializerExpression(
+function isObjectAssignCall(
+  ts: typeof import('typescript'),
+  node: ts.Node | undefined,
+): node is ObjectAssignCall {
+  return (
+    !!node &&
+    ts.isCallExpression(node) &&
+    ts.isPropertyAccessExpression(node.expression) &&
+    ts.isIdentifier(node.expression.expression) &&
+    node.expression.expression.text === 'Object' &&
+    node.expression.name.text === 'assign' &&
+    node.arguments.length >= 1
+  )
+}
+
+interface LocalBinding {
+  initializer?: ts.Expression
+  isParameter?: boolean
+}
+
+interface LocalScope {
+  parent?: LocalScope
+  bindings: Map<string, LocalBinding>
+  isVarScope: boolean
+}
+
+// The JSON AST has no parent links. Index scopes once, then resolve references
+// after all declarations are known, including hoisted var and shadowing names.
+function createBindingResolver(
   ts: typeof import('typescript'),
   sourceFile: ts.SourceFile,
-  identifierName: string,
 ) {
-  let initExp: ts.Expression | undefined
-
-  function findDeclaration(node: ts.Node): boolean | undefined {
-    if (
-      ts.isVariableDeclaration(node) &&
-      ts.isIdentifier(node.name) &&
-      node.name.text === identifierName &&
-      !!node.initializer
-    ) {
-      initExp = node.initializer
-      return true
-    }
-
-    return ts.forEachChild(node, findDeclaration)
+  const scopes = new Map<ts.Identifier, LocalScope>()
+  const parameterAssigns: {
+    scope: LocalScope
+    name: ts.Identifier
+    initializer: ObjectAssignCall
+  }[] = []
+  let indexed = false
+  const rootScope: LocalScope = {
+    bindings: new Map(),
+    isVarScope: true,
   }
 
-  findDeclaration(sourceFile)
-  return initExp
+  function declare(
+    scope: LocalScope,
+    name: ts.BindingName,
+    initializer?: ts.Expression,
+    isParameter = false,
+  ) {
+    if (ts.isIdentifier(name)) {
+      let binding = scope.bindings.get(name.text)
+      // An initialized var or another declaration replaces a copied parameter.
+      if (!binding || (binding.isParameter && !isParameter)) {
+        scope.bindings.set(name.text, (binding = {}))
+      }
+      binding.initializer ??= initializer
+      if (isParameter) binding.isParameter = true
+    } else {
+      for (const element of name.elements) {
+        if (ts.isBindingElement(element)) {
+          declare(scope, element.name, undefined, isParameter)
+        }
+      }
+    }
+  }
+
+  function visit(node: ts.Node, scope: LocalScope, parent?: ts.Node) {
+    const outerScope = scope
+    if (
+      (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) &&
+      node.name
+    ) {
+      declare(scope, node.name)
+    }
+
+    const isFunction = ts.isFunctionLike(node)
+    const isBlock = ts.isBlock(node)
+    // Body vars cannot shadow names used by parameter initializers.
+    const isVarScope =
+      isFunction ||
+      ts.isClassStaticBlockDeclaration(node) ||
+      (isBlock && !!parent && ts.isFunctionLike(parent))
+    if (
+      isVarScope ||
+      isBlock ||
+      ts.isCatchClause(node) ||
+      ts.isCaseBlock(node) ||
+      ts.isForStatement(node) ||
+      ts.isForInStatement(node) ||
+      ts.isForOfStatement(node) ||
+      ts.isClassDeclaration(node) ||
+      ts.isClassExpression(node)
+    ) {
+      scope = { parent: scope, bindings: new Map(), isVarScope }
+    }
+
+    if (
+      (ts.isFunctionExpression(node) || ts.isClassExpression(node)) &&
+      node.name
+    ) {
+      declare(scope, node.name)
+    }
+
+    if (ts.isVariableDeclarationList(node)) {
+      let declarationScope = scope
+      const isVar = !(node.flags & ts.NodeFlags.BlockScoped)
+      const isIteration =
+        parent && (ts.isForInStatement(parent) || ts.isForOfStatement(parent))
+      if (isVar) {
+        while (!declarationScope.isVarScope && declarationScope.parent) {
+          declarationScope = declarationScope.parent
+        }
+      }
+      for (const declaration of node.declarations) {
+        const { name, initializer } = declaration
+        if (isVar && !isIteration && ts.isIdentifier(name)) {
+          const assign = isObjectAssignCall(ts, initializer)
+            ? initializer
+            : undefined
+          const target = assign?.arguments[0]
+          if (
+            !initializer ||
+            (target && ts.isIdentifier(target) && target.text === name.text)
+          ) {
+            const parameter =
+              declarationScope.bindings.get(name.text) ??
+              declarationScope.parent?.bindings.get(name.text)
+            if (parameter?.isParameter) {
+              // Bare var and Object.assign(var, ...) preserve the parameter object.
+              declarationScope.bindings.set(name.text, parameter)
+              if (assign)
+                parameterAssigns.push({
+                  scope: declarationScope,
+                  name,
+                  initializer: assign,
+                })
+              continue
+            }
+          }
+        }
+        declare(declarationScope, name, initializer)
+      }
+    } else if (ts.isCatchClause(node) && node.variableDeclaration) {
+      declare(scope, node.variableDeclaration.name)
+    } else if (ts.isParameter(node)) {
+      // Parameters and destructuring still shadow outer names even when their
+      // runtime values cannot be resolved to a static object or path.
+      declare(scope, node.name, undefined, true)
+    }
+
+    if (ts.isIdentifier(node)) {
+      scopes.set(node, scope)
+    }
+    if (isFunction) {
+      // Computed method names are evaluated outside the function's bindings.
+      ts.forEachChild(node, child =>
+        visit(
+          child,
+          ts.isComputedPropertyName(child) ? outerScope : scope,
+          node,
+        ),
+      )
+    } else {
+      ts.forEachChild(node, child => visit(child, scope, node))
+    }
+  }
+
+  function findBinding(identifier: ts.Identifier) {
+    let scope = scopes.get(identifier)
+    while (scope) {
+      const binding = scope.bindings.get(identifier.text)
+      if (binding) {
+        return binding
+      }
+      scope = scope.parent
+    }
+  }
+
+  return (identifier: ts.Identifier) => {
+    if (!indexed) {
+      visit(sourceFile, rootScope)
+      // Validate after all declarations are indexed, including later Object
+      // bindings. This checks only candidate calls, without another AST walk.
+      for (const { scope, name, initializer } of parameterAssigns) {
+        if (
+          findBinding(initializer.expression.expression) &&
+          scope.bindings.get(name.text)?.isParameter
+        ) {
+          scope.bindings.set(name.text, { initializer })
+        }
+      }
+      indexed = true
+    }
+    const declared = findBinding(identifier)
+    if (declared) return declared
+    // Mpx injects CommonJS and user-defined globals. Intern unresolved names
+    // at the root so their writes still share an identity, without a whitelist.
+    const binding = rootScope.bindings.get(identifier.text) ?? {}
+    rootScope.bindings.set(identifier.text, binding)
+    return binding
+  }
 }
