@@ -29,11 +29,19 @@ const miniComponents = {}
 if (__mpx_mode__ === 'wx') {
   miniComponents['carpool-hold-panel'] = './component-options.mpx?root=demo'
 }
-module.exports = {
-  usingComponents: {
-    ...miniComponents,
-    'platform-hold-panel': './component-options.mpx',
+const methods = {
+  [(Object.assign(miniComponents, {
     'layout-panel': './component-setup-props.mpx'
-  }
+  }), 'register')](miniComponents) {}
 }
+Object.assign(exports, { 'platform-hold-panel': './component-options.mpx' })
+function build(config = {
+  usingComponents: { ...miniComponents, ...exports }
+}) {
+  var miniComponents = {
+    ghost: './missing-default.mpx'
+  }
+  return config
+}
+module.exports = build()
 </script>

@@ -32,12 +32,23 @@ if (__mpx_mode__ === 'wx') {
   // 路径也应可跳转；query 不影响目标文件解析。
   miniComponents['carpool-hold-panel'] = './panel.mpx?root=demo'
 }
-module.exports = {
-  component: true,
-  usingComponents: {
-    ...miniComponents,
-    'platform-hold-panel': './panel.mpx',
+// 计算方法名在外层求值，不能把这里的 miniComponents 当成方法形参。
+const methods = {
+  [(Object.assign(miniComponents, {
     'layout-panel': './panel.mpx'
-  }
+  }), 'register')](miniComponents) {}
 }
+// exports 是 Mpx 注入的 CommonJS 变量，此路径也应能跳转。
+Object.assign(exports, { 'platform-hold-panel': './panel.mpx' })
+function build(config = {
+  component: true,
+  usingComponents: { ...miniComponents, ...exports }
+}) {
+  // 函数体的 var 不影响默认参数；这里不应报 mpx-json 4001。
+  var miniComponents = {
+    ghost: './missing-default.mpx'
+  }
+  return config
+}
+module.exports = build()
 </script>

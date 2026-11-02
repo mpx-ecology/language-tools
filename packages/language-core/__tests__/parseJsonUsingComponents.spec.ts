@@ -219,4 +219,48 @@ describe('assigned component objects', () => {
     `)
     expect([...result.keys()]).toEqual(['initial', 'panel'])
   })
+
+  it.each([
+    [
+      'parameter initializer',
+      `
+      const components = { panel: './panel.mpx' }
+      function build(config = { usingComponents: components }) {
+        var components = { ghost: './missing.mpx' }
+        return config
+      }
+      module.exports = build()
+    `,
+    ],
+    [
+      'implicit CommonJS binding',
+      `
+      function unrelated(exports) {
+        Object.assign(exports, { ghost: './missing.mpx' })
+      }
+      Object.assign(exports, { panel: './panel.mpx' })
+      module.exports = { usingComponents: { ...exports } }
+    `,
+    ],
+    [
+      'computed method name',
+      `
+      const components = {}
+      const methods = {
+        [(Object.assign(components, { panel: './panel.mpx' }), 'register')](components) {}
+      }
+      module.exports = { usingComponents: components }
+    `,
+    ],
+  ])('keeps the binding and source position for a %s', (_, source) => {
+    const result = parse(source)
+    expect([...result.keys()]).toEqual(['panel'])
+    expect(result.get('panel')).toEqual([
+      {
+        text: './panel.mpx',
+        offset: source.indexOf("'./panel.mpx'"),
+        nameOffset: source.indexOf('panel:'),
+      },
+    ])
+  })
 })

@@ -64,10 +64,34 @@ describe('assigned component object navigation', () => {
     const plugin = createJsonLinks().create!(context)!
     const links = await plugin.provideDocumentLinks!(jsonDocument, token)
     expect(links).toHaveLength(3)
-    expect(links?.map(link => jsonDocument.getText(link.range))).not.toContain(
-      './component-setup-props.mpx',
-    )
+    const shadowedOffset = jsonDocument
+      .getText()
+      .indexOf("'./component-setup-props.mpx'")
+    expect(
+      links?.map(link => jsonDocument.offsetAt(link.range.start)),
+    ).not.toContain(shadowedOffset)
   })
+
+  it.each([
+    ['platform-hold-panel', 'component-options.mpx'],
+    ['layout-panel', 'component-setup-props.mpx'],
+  ])(
+    'navigates %s registered through an implicit binding or computed name',
+    async (name, target) => {
+      const plugin = createComponentDefinition().create!(context)!
+      const offset = templateDocument.getText().indexOf(name)
+      const definitions = await plugin.provideDefinition!(
+        templateDocument,
+        templateDocument.positionAt(offset + 1),
+        token,
+      )
+      expect(definitions).toEqual([
+        expect.objectContaining({
+          targetUri: URI.file(service.file(target)).toString(),
+        }),
+      ])
+    },
+  )
 
   it('provides a document link for the range entry registered by assignment', async () => {
     const plugin = createTemplateLinks().create!(context)!

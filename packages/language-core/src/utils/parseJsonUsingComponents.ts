@@ -134,8 +134,8 @@ export function parseUsingComponentsWithJs(
       node.operatorToken.kind === ts.SyntaxKind.EqualsToken
     ) {
       const property = getStaticObjectProperty(node.left)
-      const binding = property && resolveBinding(property.object)
-      if (binding) {
+      if (property) {
+        const binding = resolveBinding(property.object)
         const list = objectAugments.get(binding) ?? []
         list.push(node)
         objectAugments.set(binding, list)
@@ -151,8 +151,8 @@ export function parseUsingComponentsWithJs(
       node.arguments.length >= 2
     ) {
       const target = node.arguments[0]
-      const binding = ts.isIdentifier(target) && resolveBinding(target)
-      if (binding) {
+      if (ts.isIdentifier(target)) {
+        const binding = resolveBinding(target)
         const list = objectAugments.get(binding) ?? []
         for (let i = 1; i < node.arguments.length; i++) {
           list.push(node.arguments[i])
@@ -285,7 +285,7 @@ export function parseUsingComponentsWithJs(
     if (ts.isStringLiteral(initializer)) {
       text = initializer.text
     } else if (ts.isIdentifier(initializer)) {
-      const value = resolveBinding(initializer)?.initializer
+      const value = resolveBinding(initializer).initializer
       if (value && ts.isStringLiteral(value)) {
         text = value.text
         _variableOffset = value.getStart(sourceFile)
@@ -358,11 +358,11 @@ export function parseUsingComponentsWithJs(
     // 处理标识符：const components = { ... }; usingComponents: components
     if (ts.isIdentifier(expression)) {
       const binding = resolveBinding(expression)
-      if (binding?.initializer) {
+      if (binding.initializer) {
         parseObjectFromExpression(binding.initializer)
       }
       // Merge writes only from this binding, including Object.assign sources.
-      const augments = binding && objectAugments.get(binding)
+      const augments = objectAugments.get(binding)
       if (augments && augments.length) {
         for (const augmentExp of augments) {
           parseObjectFromExpression(augmentExp)
@@ -460,6 +460,7 @@ function createBindingResolver(
   }
 
   function visit(node: ts.Node, scope: LocalScope, parent?: ts.Node) {
+    const outerScope = scope
     if (
       (ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node)) &&
       node.name
@@ -467,11 +468,16 @@ function createBindingResolver(
       declare(scope, node.name)
     }
 
+    const isFunction = ts.isFunctionLike(node)
+    const isBlock = ts.isBlock(node)
+    // Body vars cannot shadow names used by parameter initializers.
     const isVarScope =
-      ts.isFunctionLike(node) || ts.isClassStaticBlockDeclaration(node)
+      isFunction ||
+      ts.isClassStaticBlockDeclaration(node) ||
+      (isBlock && !!parent && ts.isFunctionLike(parent))
     if (
       isVarScope ||
-      ts.isBlock(node) ||
+      isBlock ||
       ts.isCatchClause(node) ||
       ts.isCaseBlock(node) ||
       ts.isForStatement(node) ||
@@ -511,7 +517,18 @@ function createBindingResolver(
     if (ts.isIdentifier(node)) {
       scopes.set(node, scope)
     }
-    ts.forEachChild(node, child => visit(child, scope, node))
+    if (isFunction) {
+      // Computed method names are evaluated outside the function's bindings.
+      ts.forEachChild(node, child =>
+        visit(
+          child,
+          ts.isComputedPropertyName(child) ? outerScope : scope,
+          node,
+        ),
+      )
+    } else {
+      ts.forEachChild(node, child => visit(child, scope, node))
+    }
   }
 
   visit(sourceFile, rootScope)
@@ -525,5 +542,10 @@ function createBindingResolver(
       }
       scope = scope.parent
     }
+    // Mpx injects CommonJS and user-defined globals. Intern unresolved names
+    // at the root so their writes still share an identity, without a whitelist.
+    const binding = rootScope.bindings.get(identifier.text) ?? {}
+    rootScope.bindings.set(identifier.text, binding)
+    return binding
   }
 }
