@@ -148,17 +148,18 @@ describe('template diagnostic messages', () => {
   it('preserves literal type text and supports localized expression quotes', () => {
     const { root } = service.getServiceScript('index.mpx')
     const start = source.indexOf('optionalUser')
-    const format = (message: string) =>
+    const format = (message: string, code: number) =>
       formatTemplateDiagnosticMessage(
         ts,
         root,
         start,
         'optionalUser'.length,
         message,
+        code,
       )
     const literal = `Type '"__MPX_ctx.optionalUser"' is not assignable to type '"allowed"'.`
-    expect(format(literal)).toBe(literal)
-    expect(format('“__MPX_ctx.optionalUser”可能为“未定义”。')).toBe(
+    expect(format(literal, 2322)).toBe(literal)
+    expect(format('“__MPX_ctx.optionalUser”可能为“未定义”。', 18048)).toBe(
       '“optionalUser”可能为“未定义”。',
     )
   })
@@ -183,6 +184,7 @@ describe('template diagnostic messages', () => {
           source.indexOf(expression),
           expression.length,
           message,
+          18046,
         ),
       ).toBe(`'${expression}' is of type 'unknown'.`)
     },

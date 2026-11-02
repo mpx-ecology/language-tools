@@ -16,7 +16,7 @@ export function transformTemplateDiagnostic<T, D extends ts.Diagnostic>(
     language.scripts.get(
       asScriptId(diagnostic.file.fileName.replace(/\\/g, '/')),
     )?.generated?.root
-  const format = (message: string) =>
+  const format = (message: string, code = diagnostic.code) =>
     root instanceof MpxVirtualCode &&
     diagnostic.start !== undefined &&
     diagnostic.length !== undefined
@@ -26,6 +26,7 @@ export function transformTemplateDiagnostic<T, D extends ts.Diagnostic>(
           diagnostic.start,
           diagnostic.length,
           message,
+          code,
         )
       : message
   function formatChain(
@@ -33,7 +34,7 @@ export function transformTemplateDiagnostic<T, D extends ts.Diagnostic>(
   ): ts.DiagnosticMessageChain {
     return {
       ...chain,
-      messageText: format(chain.messageText),
+      messageText: format(chain.messageText, chain.code),
       ...(chain.next && { next: chain.next.map(formatChain) }),
     }
   }

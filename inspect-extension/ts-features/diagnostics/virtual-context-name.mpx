@@ -1,10 +1,14 @@
 <template>
-  <!-- F5 后悬浮在下面三处红线上，或在 Problems 面板查看完整报错文案。 -->
+  <!-- F5 后悬浮在下面四处红线上，或在 Problems 面板查看完整报错文案。 -->
+  <!-- 用 typescript.locale 切换 de/es/ru/cs/pl 后重启 TS Server：文案应保留本地化引号并隐藏 __MPX_ctx。 -->
   <!-- 故意报错 TS18048：'optionalUser' is possibly 'undefined'. 不应包含 __MPX_ctx。 -->
   <view>{{ optionalUser.name }}</view>
 
   <!-- 故意报错 TS18047：'nullableUser' is possibly 'null'. 不应包含 __MPX_ctx。 -->
   <view>{{ nullableUser.name }}</view>
+
+  <!-- 故意报错 TS18049：zh-cn 文案中的 nullishUser 没有引号，仍不应包含 __MPX_ctx。 -->
+  <view>{{ nullishUser.name }}</view>
 
   <!-- 故意报错 TS18046：'unknownValue' is of type 'unknown'. 不应包含 __MPX_ctx。 -->
   <view>{{ unknownValue.name }}</view>
@@ -18,11 +22,13 @@ type User = { name: string }
 
 const optionalUser = { name: 'Mpx' } as User | undefined
 const nullableUser = { name: 'Mpx' } as User | null
+const nullishUser = { name: 'Mpx' } as User | null | undefined
 const unknownValue: unknown = { name: 'Mpx' }
 
 defineExpose({
   optionalUser,
   nullableUser,
+  nullishUser,
   unknownValue
 })
 </script>

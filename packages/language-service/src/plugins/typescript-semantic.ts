@@ -30,6 +30,7 @@ export function create(
               URI.parse(document.uri),
               diagnostic.range,
               diagnostic.message,
+              diagnostic.code,
             ),
             ...(diagnostic.relatedInformation && {
               relatedInformation: diagnostic.relatedInformation.map(info => ({
@@ -38,6 +39,7 @@ export function create(
                   URI.parse(info.location.uri),
                   info.location.range,
                   info.message,
+                  diagnostic.code,
                 ),
               })),
             }),
@@ -45,7 +47,12 @@ export function create(
         },
       }
 
-      function format(uri: URI, range: Range, message: string) {
+      function format(
+        uri: URI,
+        range: Range,
+        message: string,
+        diagnosticCode: number | string | undefined,
+      ) {
         const decoded = context.decodeEmbeddedDocumentUri(uri)
         const source = context.language.scripts.get(decoded?.[0] ?? uri)
         const root = source?.generated?.root
@@ -71,6 +78,7 @@ export function create(
               sourceStart,
               sourceEnd - sourceStart,
               message,
+              diagnosticCode,
             )
           }
           return message
@@ -81,6 +89,7 @@ export function create(
           start,
           end - start,
           message,
+          diagnosticCode,
         )
       }
     },
