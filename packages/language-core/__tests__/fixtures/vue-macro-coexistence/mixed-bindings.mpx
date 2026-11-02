@@ -1,0 +1,9 @@
+<script setup lang="ts">
+import { defineProps as mpxProps, withDefaults as mpxDefaults } from './local-macros'
+
+const props = defineProps({ title: { type: String, value: 'hello' } })
+const summary = mpxDefaults(mpxProps(props.title))
+props.title.toUpperCase()
+summary.localCount.toFixed()
+defineExpose({ props, summary })
+</script>

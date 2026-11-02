@@ -81,6 +81,7 @@ export function parseScriptSetupRanges(
     )?.end ?? 0
 
   let bindings = parseBindingRanges(ts, ast)
+  let localBindingNames: Set<string> | undefined
   let foundNonImportExportNode = false
   let importSectionEndOffset = 0
 
@@ -208,7 +209,7 @@ export function parseScriptSetupRanges(
           comments: getClosestMultiLineCommentRange(ts, node, parents, ast),
           argNode: options,
         })
-      } else if (mpxCompilerOptions.macros.defineProps.includes(callText)) {
+      } else if (isPropsMacro('defineProps', callText)) {
         defineProps = {
           ...parseCallExpressionAssignment(node, parent),
           statement: getStatementRange(ts, parents, node, ast),
@@ -230,16 +231,14 @@ export function parseScriptSetupRanges(
           }
         } else if (
           ts.isCallExpression(parent) &&
-          mpxCompilerOptions.macros.withDefaults.includes(
-            _getNodeText(parent.expression),
-          )
+          isPropsMacro('withDefaults', _getNodeText(parent.expression))
         ) {
           const grand = parents.at(-2)
           if (grand && ts.isVariableDeclaration(grand)) {
             defineProps.name = _getNodeText(grand.name)
           }
         }
-      } else if (mpxCompilerOptions.macros.withDefaults.includes(callText)) {
+      } else if (isPropsMacro('withDefaults', callText)) {
         const [, arg] = node.arguments
         withDefaults = {
           callExp: _getStartEnd(node),
@@ -298,6 +297,19 @@ export function parseScriptSetupRanges(
     }
   }
 
+  function isPropsMacro(macro: 'defineProps' | 'withDefaults', name: string) {
+    // Mpx reserves the canonical names. A configured alias with a local runtime
+    // or type-only binding is an ordinary symbol, not component props metadata.
+    if (!mpxCompilerOptions.macros[macro].includes(name)) return false
+    if (name === macro) return true
+    localBindingNames ??= new Set(
+      parseBindingRanges(ts, ast, true).map(({ range }) =>
+        text.slice(range.start, range.end),
+      ),
+    )
+    return !localBindingNames.has(name)
+  }
+
   function parseCallExpressionAssignment(
     node: ts.CallExpression,
     parent: ts.Node,
@@ -322,6 +334,7 @@ export function parseScriptSetupRanges(
 export function parseBindingRanges(
   ts: typeof import('typescript'),
   ast: ts.SourceFile,
+  includeTypeOnlyImports = false,
 ) {
   const bindings: {
     range: TextRange
@@ -352,12 +365,21 @@ export function parseBindingRanges(
       bindings.push({
         range: _getStartEnd(node.name),
       })
+    } else if (
+      (ts.isModuleDeclaration(node) && ts.isIdentifier(node.name)) ||
+      (ts.isImportEqualsDeclaration(node) &&
+        (includeTypeOnlyImports || !node.isTypeOnly))
+    ) {
+      bindings.push({ range: _getStartEnd(node.name) })
     }
 
     if (ts.isImportDeclaration(node)) {
       const moduleName = _getNodeText(node.moduleSpecifier).slice(1, -1)
 
-      if (node.importClause && !node.importClause.isTypeOnly) {
+      if (
+        node.importClause &&
+        (includeTypeOnlyImports || !node.importClause.isTypeOnly)
+      ) {
         const { name, namedBindings } = node.importClause
 
         if (name) {
@@ -370,7 +392,7 @@ export function parseBindingRanges(
         if (namedBindings) {
           if (ts.isNamedImports(namedBindings)) {
             for (const element of namedBindings.elements) {
-              if (element.isTypeOnly) {
+              if (element.isTypeOnly && !includeTypeOnlyImports) {
                 continue
               }
               bindings.push({
@@ -389,6 +411,9 @@ export function parseBindingRanges(
         }
       }
     }
+    if (!ts.isVariableStatement(node)) {
+      collectHoistedBindings(node)
+    }
   })
 
   return bindings
@@ -403,6 +428,30 @@ export function parseBindingRanges(
 
   function _findBindingVars(left: ts.BindingName) {
     return findBindingVars(ts, left, ast)
+  }
+
+  function collectHoistedBindings(node: ts.Node) {
+    // var escapes statement blocks, but functions, classes (including static
+    // blocks), and namespaces have their own scopes.
+    if (
+      ts.isFunctionLike(node) ||
+      ts.isClassLike(node) ||
+      ts.isModuleDeclaration(node)
+    ) {
+      return
+    }
+    if (
+      ts.isVariableDeclarationList(node) &&
+      !(node.flags & ts.NodeFlags.BlockScoped)
+    ) {
+      for (const declaration of node.declarations) {
+        bindings.push(
+          ..._findBindingVars(declaration.name).map(range => ({ range })),
+        )
+      }
+      return
+    }
+    ts.forEachChild(node, collectHoistedBindings)
   }
 }
 

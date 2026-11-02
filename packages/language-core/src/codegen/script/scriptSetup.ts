@@ -1,5 +1,8 @@
 import { camelize } from '@mpxjs/language-shared'
-import type { ScriptSetupRanges } from '../../parsers/scriptSetupRanges'
+import {
+  type ScriptSetupRanges,
+  parseBindingRanges,
+} from '../../parsers/scriptSetupRanges'
 import type { Code, Sfc, TextRange } from '../../types'
 import { codeFeatures } from '../codeFeatures'
 import { endOfLine, generateSfcBlockSection, newLine } from '../utils'
@@ -36,13 +39,20 @@ export function* generateScriptSetup(
   scriptSetup: NonNullable<Sfc['scriptSetup']>,
   scriptSetupRanges: ScriptSetupRanges,
 ): Generator<Code> {
+  const setupCodes = generateSetupMacros(
+    options,
+    ctx,
+    scriptSetup,
+    scriptSetupRanges,
+    generateSetupFunction(options, ctx, scriptSetup, scriptSetupRanges),
+  )
   if (!options.sfc.script) {
     // no script block, generate script setup code at root
-    yield* generateSetupFunction(options, ctx, scriptSetup, scriptSetupRanges)
+    yield* setupCodes
   } else {
     yield `export default `
     yield `await (async () => {${newLine}`
-    yield* generateSetupFunction(options, ctx, scriptSetup, scriptSetupRanges)
+    yield* setupCodes
     yield `})()`
   }
 }
@@ -251,6 +261,118 @@ function* generateSetupFunction(
   yield* generateComponentProps(ctx, scriptSetup, scriptSetupRanges)
   yield* generateTemplate(options, ctx)
   yield* generateComponentSelf(options)
+}
+
+function* generateSetupMacros(
+  options: ScriptCodegenOptions,
+  ctx: ScriptCodegenContext,
+  scriptSetup: NonNullable<Sfc['scriptSetup']>,
+  scriptSetupRanges: ScriptSetupRanges,
+  codes: Generator<Code>,
+): Generator<Code> {
+  // Template bindings exclude type-only imports, but those imports must still
+  // keep their own symbols (including typeof queries and invalid value uses).
+  const bindingNames = new Set(ctx.bindingNames)
+  for (const block of [options.sfc.script, scriptSetup]) {
+    if (block) {
+      for (const { range } of parseBindingRanges(options.ts, block.ast, true)) {
+        bindingNames.add(block.content.slice(range.start, range.end))
+      }
+    }
+  }
+
+  const calls: { name: string; type: string; exp: TextRange }[] = []
+  for (const [range, type] of [
+    [scriptSetupRanges.defineProps, '__VLS_MpxDefineProps'],
+    [scriptSetupRanges.withDefaults, '__VLS_MpxWithDefaults'],
+  ] as const) {
+    if (range) {
+      const name = scriptSetup.content.slice(range.exp.start, range.exp.end)
+      if (!bindingNames.has(name)) {
+        calls.push({ name, type, exp: range.exp })
+      }
+    }
+  }
+  calls.sort((a, b) => a.exp.start - b.exp.start)
+
+  if (calls.length) {
+    const type = `{ ${calls.map(call => `${call.name}: ${call.type}`).join('; ')} }`
+    yield options.lang === 'js'
+      ? `const __VLS_setupMacros = /** @type {${type}} */ ({})${endOfLine}`
+      : `const __VLS_setupMacros = {} as ${type}${endOfLine}`
+    // Keep navigation on the ambient symbol, independently of the Mpx signature
+    // used for checking/hover. These compiler macros cannot be renamed locally.
+    for (const call of calls) {
+      yield [
+        call.name,
+        scriptSetup.name,
+        call.exp.start,
+        codeFeatures.navigationWithoutRename,
+      ]
+      yield endOfLine
+    }
+    // Complete in a lexical scope with the Mpx signatures and configured aliases.
+    // Its local declarations cannot shadow bindings in the actual setup code.
+    yield `{${newLine}`
+    for (const call of calls) {
+      yield `const ${call.name} = __VLS_setupMacros.${call.name}${endOfLine}`
+    }
+    // Keep the surrounding call context: signature help and completion share a
+    // capability, including at the start of a nested macro argument.
+    for (const statement of scriptSetup.ast.statements) {
+      const start = statement.getStart(scriptSetup.ast)
+      if (
+        calls.some(
+          call => start <= call.exp.start && call.exp.end <= statement.end,
+        )
+      ) {
+        yield generateSfcBlockSection(
+          scriptSetup,
+          start,
+          statement.end,
+          codeFeatures.completion,
+        )
+        yield endOfLine
+      }
+    }
+    yield `}${newLine}`
+  }
+
+  for (const code of codes) {
+    if (typeof code === 'string' || code[1] !== scriptSetup.name) {
+      yield code
+      continue
+    }
+    const [text, source, start, features] = code
+    const end = start + text.length
+    let offset = start
+    for (const call of calls) {
+      if (call.exp.start < start || call.exp.end > end) {
+        continue
+      }
+      if (offset < call.exp.start) {
+        yield [
+          text.slice(offset - start, call.exp.start - start),
+          source,
+          offset,
+          features,
+        ]
+      }
+      yield '__VLS_setupMacros.'
+      yield [
+        call.name,
+        source,
+        call.exp.start,
+        { ...features, completion: false, navigation: false },
+      ]
+      offset = call.exp.end
+    }
+    if (offset === start) {
+      yield code
+    } else if (offset < end) {
+      yield [text.slice(offset - start), source, offset, features]
+    }
+  }
 }
 
 function* generateDefineWithType(
