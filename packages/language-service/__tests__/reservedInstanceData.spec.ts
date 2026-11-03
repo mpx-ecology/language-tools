@@ -73,6 +73,11 @@ defineExpose({ data: localValue })
   })
 
   const setupCases = [
+    ['implicit top-level var', 'var /*warn*/data = 1; defineExpose()'],
+    [
+      'hoisted var is not in compiler implicit bindings',
+      'if (true) { var data = 1 }; defineExpose()',
+    ],
     ['implicit exposed binding', 'const /*warn*/data = 1; defineExpose()'],
     [
       'implicit private alias',
@@ -377,6 +382,7 @@ defineExpose({ data: localValue })
   it('matches actual no-argument expose and generated setup precedence', async () => {
     for (const [source, exposed] of [
       ['<script setup>const data = 1; defineExpose()</script>', { data: 1 }],
+      ['<script setup>if (true) { var data = 1 }; defineExpose()</script>', {}],
       [
         '<script setup>defineOptions({ setup() { return { data: 1 } } }); defineExpose({})</script>',
         {},

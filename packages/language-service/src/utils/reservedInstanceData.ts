@@ -97,7 +97,19 @@ export function getReservedInstanceDataRanges(
             if (
               ast.text.slice(binding.range.start, binding.range.end) ===
                 'data' &&
-              (binding.moduleName !== '@mpxjs/core' || binding.isDefaultImport)
+              (binding.moduleName !== '@mpxjs/core' ||
+                binding.isDefaultImport) &&
+              // The compiler collects declarations directly in the setup
+              // body, not block-hoisted var, enums or namespaces.
+              ast.statements.some(
+                statement =>
+                  (ts.isVariableStatement(statement) ||
+                    ts.isFunctionDeclaration(statement) ||
+                    ts.isClassDeclaration(statement) ||
+                    ts.isImportDeclaration(statement)) &&
+                  binding.range.start >= statement.getStart(ast) &&
+                  binding.range.end <= statement.end,
+              )
             ) {
               returnRanges.push(binding.range)
             }
