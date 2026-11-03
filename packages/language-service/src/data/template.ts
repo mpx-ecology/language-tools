@@ -126,7 +126,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              'RN 环境特有属性，开启后使用 react-native-fast-image 渲染图片。\n- 默认值：false\n- 注意：会带来额外性能开销，请按需开启',
+              'RN 环境特有属性，渲染背景图片时默认使用 @d11/react-native-fast-image；设为布尔值 false 时使用 React Native Image。\n- 默认值：true',
           },
         },
         {
@@ -741,6 +741,14 @@ const data: html.HTMLDataV1 = {
       },
       attributes: [
         {
+          name: 'workletChange',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，位置变化时在 UI 线程执行的 worklet 回调。函数体需包含 worklet 指令，仅接收 { x, y, source }，不是完整 Mpx 事件对象。',
+          },
+        },
+        {
           name: 'direction',
           description: {
             kind: 'markdown',
@@ -955,6 +963,14 @@ const data: html.HTMLDataV1 = {
       },
       attributes: [
         {
+          name: 'is-svg',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，是否强制使用 SVG 方式渲染图片\n- 默认值：false',
+          },
+        },
+        {
           name: 'src',
           description: {
             kind: 'markdown',
@@ -973,7 +989,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              'RN 环境特有属性，开启后使用 react-native-fast-image 渲染图片。\n- 默认值：false',
+              'RN 环境特有属性，默认使用 @d11/react-native-fast-image 渲染非 SVG 图片；设为布尔值 false 时使用 React Native Image。\n- 默认值：true',
           },
         },
         {
@@ -1054,6 +1070,13 @@ const data: html.HTMLDataV1 = {
         value: '文本组件。',
       },
       attributes: [
+        {
+          name: 'decode',
+          description: {
+            kind: 'markdown',
+            value: '是否解码文本中的 HTML 实体\n- 默认值：false\n- RN 环境支持',
+          },
+        },
         {
           name: 'selectable',
           description: {
@@ -1579,6 +1602,13 @@ const data: html.HTMLDataV1 = {
       },
       attributes: [
         {
+          name: 'keyboard-type',
+          description: {
+            kind: 'markdown',
+            value: 'RN 环境特有属性，设置原生输入框的键盘类型。',
+          },
+        },
+        {
           name: 'value',
           description: {
             kind: 'markdown',
@@ -1859,6 +1889,13 @@ const data: html.HTMLDataV1 = {
         value: '多行文本输入框组件。',
       },
       attributes: [
+        {
+          name: 'keyboard-type',
+          description: {
+            kind: 'markdown',
+            value: 'RN 环境特有属性，设置原生多行输入框的键盘类型。',
+          },
+        },
         {
           name: 'value',
           description: {
@@ -2312,6 +2349,14 @@ const data: html.HTMLDataV1 = {
       },
       attributes: [
         {
+          name: 'is-svg',
+          description: {
+            kind: 'markdown',
+            value:
+              'RN 环境特有属性，是否强制使用 SVG 方式渲染图片\n- 默认值：false',
+          },
+        },
+        {
           name: 'src',
           description: {
             kind: 'markdown',
@@ -2353,7 +2398,7 @@ const data: html.HTMLDataV1 = {
           description: {
             kind: 'markdown',
             value:
-              'RN 环境特有属性，开启后使用 react-native-fast-image 渲染图片。\n- 默认值：false',
+              'RN 环境特有属性，默认使用 @d11/react-native-fast-image 渲染非 SVG 图片；设为布尔值 false 时使用 React Native Image。\n- 默认值：true',
           },
         },
         {
@@ -2922,6 +2967,20 @@ const data: html.HTMLDataV1 = {
   ],
   globalAttributes: [
     {
+      name: 'enable-text-pass-through',
+      description: {
+        kind: 'markdown',
+        value:
+          'RN 环境基础组件通用属性，开启文本样式和文本属性透传上下文。动态添加文本样式或文本属性时需开启。\n- 默认值：false',
+      },
+      references: [
+        {
+          name: RNBasicComp,
+          url: `${MpxRNCompUrl}basic-component-common-props`,
+        },
+      ],
+    },
+    {
       name: 'enable-offset',
       description: {
         kind: 'markdown',
@@ -3285,21 +3344,6 @@ const data: html.HTMLDataV1 = {
       ],
     },
     {
-      name: 'catch',
-      description: {
-        kind: 'markdown',
-        value:
-          '事件绑定的基础绑定方式 - **阻止冒泡**。\n\n- 事件绑定的写法同组件的属性，以 key、value 的形式。\n\n  ```html\n  <view catchtap="handleTap">阻止冒泡的点击事件</view>\n  <!-- 也可以写成 -->\n  <view catch:tap="handleTap">阻止冒泡的点击事件</view>\n  ```\n\n)',
-      },
-      references: [
-        { name: MpxDocs, url: MpxRNEventUrl },
-        {
-          name: WxDocs,
-          url: `${WxDocsUrl}/framework/view/wxml/event.html#%E4%BA%8B%E4%BB%B6%E8%AF%A6%E8%A7%A3`,
-        },
-      ],
-    },
-    {
       name: 'slot',
       description: {
         kind: 'markdown',
@@ -3313,6 +3357,49 @@ const data: html.HTMLDataV1 = {
       ],
     },
   ],
+}
+
+// Mpx uses the same event name with compact/colon binding syntax. Only
+// common bubbling events support catch/capture in RN; component-specific
+// non-bubbling events still get both ordinary bind spellings.
+const bubblingEvents = new Set([
+  'tap',
+  'longpress',
+  'touchstart',
+  'touchmove',
+  'touchend',
+  'touchcancel',
+])
+for (const tag of data.tags ?? []) {
+  tag.attributes = withEventBindings(tag.attributes)
+}
+data.globalAttributes = withEventBindings(data.globalAttributes ?? [])
+
+function withEventBindings(attributes: html.IAttributeData[]) {
+  const result = new Map(
+    attributes.map(attribute => [attribute.name, attribute]),
+  )
+  for (const attribute of attributes) {
+    const event = /^bind:?(.+)$/.exec(attribute.name)?.[1]
+    if (!event) continue
+    const prefixes = bubblingEvents.has(event)
+      ? [
+          'bind',
+          'bind:',
+          'catch',
+          'catch:',
+          'capture-bind',
+          'capture-bind:',
+          'capture-catch',
+          'capture-catch:',
+        ]
+      : ['bind', 'bind:']
+    for (const prefix of prefixes) {
+      const name = prefix + event
+      if (!result.has(name)) result.set(name, { ...attribute, name })
+    }
+  }
+  return [...result.values()]
 }
 
 export default data

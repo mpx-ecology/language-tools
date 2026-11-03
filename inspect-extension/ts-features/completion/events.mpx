@@ -1,0 +1,11 @@
+<template>
+  <!-- Expected: complete compact/colon names; preserve the existing handler value. -->
+  <view bind:tap="handleTap" catch:longpress="handleTap" capture-bind:touchstart="handleTap" />
+  <!-- Expected: bindinput / bind:input; do not suggest capture for non-bubbling input. -->
+  <input bind:input="handleInput" />
+</template>
+<script setup lang="ts">
+const handleTap = () => {}
+const handleInput = () => {}
+defineExpose({ handleTap, handleInput })
+</script>
