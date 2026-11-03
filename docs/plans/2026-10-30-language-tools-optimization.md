@@ -1,8 +1,8 @@
 # Mpx Language Tools 用户反馈分析与优化计划
 
-初始分析日期：2026-10-30，基线为本仓库 `84c7cb3`、`vscode/package.json` 版本 `1.24.3`。进度更新至 2026-11-02：T01、T08、T17 已分别通过 [PR #130](https://github.com/mpx-ecology/language-tools/pull/130)、[PR #129](https://github.com/mpx-ecology/language-tools/pull/129)、[PR #120](https://github.com/mpx-ecology/language-tools/pull/120) 合并，编辑器检查与验证范围见第 3.2 节；T10 / T11 及 T13 的相关能力已立项，逐项状态见第 3.1 节。归档与工作流文档已通过 [PR #121](https://github.com/mpx-ecology/language-tools/pull/121) 合并，进度跟踪表已通过 [PR #123](https://github.com/mpx-ecology/language-tools/pull/123) 合并。已合并修复的发布版本尚未在本文登记。
+初始分析日期：2026-10-30，基线为本仓库 `84c7cb3`、`vscode/package.json` 版本 `1.24.3`。进度更新至 2026-11-03：T01 / T08 / T17 已通过 #130 / #129 / #120 合并，T10 / T11 已通过 #143 合并；T14 未复现运行时缺陷，回归与验收 PR #156 已合并。T13 的通用 JSON JS 语义已通过 #142 合并，配置 Schema 提示继续由草稿 PR #160 跟进。其余 11 项实现均已提交 PR，逐项状态、负责会话与依赖见第 3.1 节。归档与跟踪基础文档已通过 [PR #121](https://github.com/mpx-ecology/language-tools/pull/121)、[PR #123](https://github.com/mpx-ecology/language-tools/pull/123) 合并；本轮进度及截图规范集中更新至 [PR #131](https://github.com/mpx-ecology/language-tools/pull/131)。已合并不等于已随版本发布，发布版本尚未在本文登记。
 
-本轮原始 10 条反馈及 8 张截图索引见[反馈归档](../feedback/2026-10-30-user-feedback.md)。本文将它们拆成 18 个可验收工作项，分别记录已有能力、缺口、优先级和成本。反馈中重复出现的补全、自动导入和 class 能力只计一次。
+本轮原始 10 条反馈及 8 张截图索引见[反馈归档](../feedback/2026-10-30-user-feedback.md)。保留 T01–T18 跟踪编号。2026-11-02 用户更正 U06，原 T18“CSS 属性补全”合并至 T10 / T11，形成 17 个独立工作项；T18 只保留合并记录，不另开会话或计入成本。反馈中重复的补全、自动导入和 class 能力只计一次。
 
 ## 1. 判断与建议顺序
 
@@ -10,7 +10,7 @@
 
 1. **Vue 共存修复已通过 PR #120 合并。** 已确认并修复 Vue 2.7 与 Mpx 同名全局宏的绑定冲突，合并前 Extension Host 检查通过。后续类型改动基于该实现补共存回归；其他版本或未覆盖的编辑器组合继续按实际复现跟踪。
 2. **RN 组件注册、多平台解析、refs 是主要基础缺口。** 它们会同时影响补全、hover、诊断、导航和引用，应围绕同一组件身份与类型来源修复。
-3. **动态 class、静态 JSON、CSS 补全和标签编辑适合独立交付。** 多数已有服务入口，先定位覆盖范围或接线问题，避免重做已有能力。
+3. **动态 class、静态 JSON 和标签编辑适合独立交付。** 多数已有服务入口，先定位覆盖范围或接线问题，避免重做已有能力。
 4. **自动注册与反向引用依赖稳定的组件解析。** 先明确平台、别名、全局注册与局部注册规则，再决定是否需要新索引，避免先建一套与现有 TS 解析不一致的系统。
 5. **新增警告要对准真实的实例冲突。** 保留普通局部变量 `data`；不能通过放宽为 `any`、全局关闭诊断或屏蔽导航来消除反馈。
 
@@ -33,7 +33,7 @@
 | E09  | [class 收集](../../packages/language-core/src/codegen/template/styleScopedClasses.ts)对 ATTRIBUTE 的 `class / wx:class` 先屏蔽 Mustache；另有 DIRECTIVE `class` 的对象 / 数组 / 字符串解析。                                                                                                     | S07 的 `wx:class` Mustache 对象不会直接进入后一个 AST 分支，存在遗漏静态类名 key 的明确路径。                                                            |
 | E10  | [模板补全服务](../../packages/language-service/src/plugins/mpx-sfc-template.ts)的自定义 HTML data 主要来自当前 JSON 注册表及组件 props；[组件名请求](../../packages/typescript-plugin/src/requests/getComponentNames.ts)可读取 `__VLS_components`。                                              | 类型侧已考虑全局组件，不等于 HTML 标签补全已覆盖应用全局注册或全工作区候选。需复用并统一来源。                                                           |
 | E11  | [模板数据](../../packages/language-service/src/data/template.ts)已有 Mpx / 微信 / RN 属性和事件说明；[全局类型入口](../../packages/language-core/src/codegen/globalTypes/index.ts)引用[内建组件类型](../../packages/language-core/src/codegen/globalTypes/nativeComponentsTypes.ts)。            | 内建补全与 TS 校验是两套数据面，需检查一致性、目标平台与缺失项，不能仅新增一批补全文案。                                                                 |
-| E12  | [CSS 服务](../../packages/language-service/src/plugins/mpx-sfc-style-css.ts)复用 `volar-service-css`，[Stylus 服务](../../packages/language-service/src/plugins/mpx-sfc-style-stylus.ts)单独处理；[inline CSS](../../packages/language-core/src/plugins/mpx-template-inline-css.ts)也已有入口。  | 标准 CSS 属性补全已接入；缺失可能与 `lang`、内嵌映射、触发位置或平台扩展有关。                                                                           |
+| E12  | [CSS 服务](../../packages/language-service/src/plugins/mpx-sfc-style-css.ts)复用 `volar-service-css`，[Stylus 服务](../../packages/language-service/src/plugins/mpx-sfc-style-stylus.ts)单独处理；[inline CSS](../../packages/language-core/src/plugins/mpx-template-inline-css.ts)也已有入口。  | 标准 CSS 属性补全已接入；2026-11-02 更正后不作为本轮独立需求，模板变量和标签补全分别见 T10 / T11。                                                       |
 | E13  | [JSON 服务](../../packages/language-service/src/plugins/mpx-sfc-json-json.ts)注册 Schema，[Schema](../../packages/language-service/src/data/mpxJsonSchema.ts)含 `component`、`usingComponents` 和部分页面配置；[服务注册](../../packages/language-service/src/index.ts)未启用 JSON-JS 专用插件。 | 静态 JSON 是覆盖与激活排查；动态 JS 配置缺少专用配置类型服务，不等于 JS 语法完全无支持。                                                                 |
 | E14  | [客户端](../../vscode/src/languageClient.ts)调用 `activateAutoInsertion`，模板服务继承 HTML provider。当前安装的 `volar-service-html@0.0.70` 提供 auto insertion 和 linked editing，分别读取 `html.autoClosingTags` 等配置。                                                                     | 标签闭合和联动重命名已有底层能力；需检查协商、映射与 `editor.linkedEditing`，不能只添加括号规则。依赖实现只作为本地只读检查证据。                        |
 | E15  | [上下文生成](../../packages/language-core/src/codegen/script/template.ts)用对象展开合并字段；[全局类型](../../packages/language-core/src/codegen/globalTypes/index.ts)使用 `declare global` 和大量 `__VLS_*` 名称。                                                                              | 展开覆盖不会自动产生业务期望的重名警告；共享全局命名与 Vue 共存是否冲突需要隔离实验。                                                                    |
@@ -47,61 +47,63 @@ P0：已复现且阻断基础编辑的兼容性问题；本轮 T17 的修复已�
 
 成本为熟悉仓库的单名工程师的有效人日，包含对应 fixture、关键自动化断言和手动场景准备；不含等待用户样例、外部依赖修复和大规模架构迁移。区间是初估，完成复现后再调整。影响成本除代码量外，还包括诊断、映射、性能和其他平台回归。
 
-| 工作项 | 范围 / 反馈来源                                               | 判断                                             | 优先级 | 人日 | 主要改动层与影响成本                                                                            |
-| ------ | ------------------------------------------------------------- | ------------------------------------------------ | ------ | ---- | ----------------------------------------------------------------------------------------------- |
-| T01    | 样式条件编译高亮与指令补全（U01、U02）                        | 部分已有；触发覆盖缺口源码确认                   | P2     | 1–2  | vscode grammar、language-service；低。需避免破坏 CSS / Stylus 注释边界。                        |
-| T02    | `mpxTagName` 标签值的语义与高亮（U02）                        | 专用处理缺口源码确认；具体样例待复现             | P1     | 3–5  | language-core、service、TS plugin、grammar；高。标签身份与源码 range 会影响所有模板能力。       |
-| T03    | RN `components` 注册别名、props、事件和导航（U03、U06 / S03） | 注册表与 React 类型接入不足为源码推断            | P1     | 4–7  | language-core、TS plugin、service；高。React 函数 / 类 / forwardRef 类型与 Mpx 类型需兼容。     |
-| T04    | 多平台组件解析与正向跳转（U03 / S04）                         | 后缀自动解析缺口源码确认；两处定义是否异常待复现 | P1     | 4–6  | core resolver、生成 import、definition；高。影响类型候选、路径补全与缓存。                      |
-| T05    | 从组件查使用方及多平台反向引用（U03）                         | TS 映射已有；端到端覆盖待测                      | P2     | 5–8  | core navigation、TS plugin，必要时 service 索引；高。跨文件性能、路径去重和动态配置边界。       |
-| T06    | 模板候选接受后自动写入 `usingComponents`（U03、U06）          | TS import 有基础；JSON 注册链路缺口源码确认      | P2     | 4–7  | completion resolve / code action、配置 AST 编辑；高。跨区块编辑、撤销、动态配置及路径风格。     |
-| T07    | `useContext().refs` 精确实例类型（U04 / S06）                 | refs 生成缺口源码确认；截图方法行为待复现        | P1     | 5–8  | core ref 元数据、组件公开类型、脚本映射；高。空值、数组、RN 与多平台实例类型。                  |
-| T08    | 动态 class 跳转及 class 名补全（U05、U06 / S07）              | Mustache 对象 key 漏收集路径源码确认             | P1     | 2–4  | core class AST 与映射、service links；中。类名和表达式变量必须分别导航。                        |
-| T09    | 已注册全局组件的标签补全（U06）                               | 类型基础已有；全局来源与补全覆盖待测             | P1     | 2–4  | 应用配置 / 类型来源聚合、service；中。应用边界、同名覆盖与缓存。                                |
-| T10    | props / expose / Hooks 变量补全与 hover（U06）                | 已有类型合并；复杂写法待复现                     | P1     | 2–3  | setup 解析、ctx 生成、TS completion；中。Ref 解包、泛型、导航和重复映射。                       |
-| T11    | 内建标签属性、平台属性和事件补全（U06）                       | 已有元数据；具体漏项待复现                       | P2     | 2–4  | template data、内建类型、事件生成；中。平台误提示和补全 / 校验不一致。                          |
-| T12    | 静态组件 JSON Schema 提示（U07 / S08）                        | 能力存在；实际缺项或激活问题待复现               | P1     | 1–2  | JSON Schema、文档匹配、SFC 嵌入；低。保留注释、尾逗号和已有页面提示。                           |
-| T13    | 动态 `<script name="json">` 配置类型提示（U07）               | 专用插件未启用源码确认；具体体验待测             | P2     | 3–5  | JSON-JS 虚拟类型、service；中高。不能执行用户配置来获取类型。                                   |
-| T14    | 自动闭合 / 标签联动重命名（U08）                              | 底层能力已接入；编辑器链路待复现                 | P1     | 1–3  | service capabilities、template mapping、客户端配置；中。半成品标签、自闭合标签与重复插入。      |
-| T15    | props / expose / Hooks 同名警告（U09）                        | 未见专用静态冲突诊断；合并行为源码确认           | P1     | 3–5  | core 元数据、service diagnostics / related info；中高。键来源、spread、类型字段与运行时优先级。 |
-| T16    | 实例暴露字段 `data` 的保留名警告（U09）                       | 框架有保留规则；编辑期诊断缺口为源码推断         | P1     | 1–2  | core 暴露 key 分析、service diagnostics；中。重点防止局部变量误报。                             |
-| T17    | 与 Vue 插件共存时的 `defineProps` 误报（U10）                 | 已确认 Vue 2.7 全局宏冲突；PR #120 已合并        | P0     | 3–7  | 实际修改 language-core 全局 / 文件内宏类型；高。合并前验证及编辑器检查范围见第 3.2 节。         |
-| T18    | `<style>` CSS 属性补全恢复与覆盖（U06）                       | CSS / Stylus 服务已有；具体失效位置待复现        | P1     | 1–2  | style 嵌入映射、服务 selector、配置；低。若是预处理器深层解析问题需重新估算。                   |
+| 工作项 | 范围 / 反馈来源                                               | 判断                                             | 优先级       | 人日   | 主要改动层与影响成本                                                                            |
+| ------ | ------------------------------------------------------------- | ------------------------------------------------ | ------------ | ------ | ----------------------------------------------------------------------------------------------- |
+| T01    | 样式条件编译高亮与指令补全（U01、U02）                        | 部分已有；触发覆盖缺口源码确认                   | P2           | 1–2    | vscode grammar、language-service；低。需避免破坏 CSS / Stylus 注释边界。                        |
+| T02    | `mpxTagName` 标签值的语义与高亮（U02）                        | 专用处理缺口源码确认；具体样例待复现             | P1           | 3–5    | language-core、service、TS plugin、grammar；高。标签身份与源码 range 会影响所有模板能力。       |
+| T03    | RN `components` 注册别名、props、事件和导航（U03、U06 / S03） | 注册表与 React 类型接入不足为源码推断            | P1           | 4–7    | language-core、TS plugin、service；高。React 函数 / 类 / forwardRef 类型与 Mpx 类型需兼容。     |
+| T04    | 多平台组件解析与正向跳转（U03 / S04）                         | 后缀自动解析缺口源码确认；两处定义是否异常待复现 | P1           | 4–6    | core resolver、生成 import、definition；高。影响类型候选、路径补全与缓存。                      |
+| T05    | 从组件查使用方及多平台反向引用（U03）                         | TS 映射已有；端到端覆盖待测                      | P2           | 5–8    | core navigation、TS plugin，必要时 service 索引；高。跨文件性能、路径去重和动态配置边界。       |
+| T06    | 模板候选接受后自动写入 `usingComponents`（U03、U06）          | TS import 有基础；JSON 注册链路缺口源码确认      | P2           | 4–7    | completion resolve / code action、配置 AST 编辑；高。跨区块编辑、撤销、动态配置及路径风格。     |
+| T07    | `useContext().refs` 精确实例类型（U04 / S06）                 | refs 生成缺口源码确认；截图方法行为待复现        | P1           | 5–8    | core ref 元数据、组件公开类型、脚本映射；高。空值、数组、RN 与多平台实例类型。                  |
+| T08    | 动态 class 跳转及 class 名补全（U05、U06 / S07）              | Mustache 对象 key 漏收集路径源码确认             | P1           | 2–4    | core class AST 与映射、service links；中。类名和表达式变量必须分别导航。                        |
+| T09    | 已注册全局组件的标签补全（U06）                               | 类型基础已有；全局来源与补全覆盖待测             | P1           | 2–4    | 应用配置 / 类型来源聚合、service；中。应用边界、同名覆盖与缓存。                                |
+| T10    | props / expose / Hooks 变量补全与 hover（U06）                | 已有类型合并；复杂写法待复现                     | P1           | 2–3    | setup 解析、ctx 生成、TS completion；中。Ref 解包、泛型、导航和重复映射。                       |
+| T11    | 内建标签属性、平台属性和事件补全（U06）                       | 已有元数据；具体漏项待复现                       | P2           | 2–4    | template data、内建类型、事件生成；中。平台误提示和补全 / 校验不一致。                          |
+| T12    | 静态组件 JSON Schema 提示（U07 / S08）                        | 能力存在；实际缺项或激活问题待复现               | P1           | 1–2    | JSON Schema、文档匹配、SFC 嵌入；低。保留注释、尾逗号和已有页面提示。                           |
+| T13    | 动态 `<script name="json">` 配置类型提示（U07）               | 专用插件未启用源码确认；具体体验待测             | P2           | 3–5    | JSON-JS 虚拟类型、service；中高。不能执行用户配置来获取类型。                                   |
+| T14    | 自动闭合 / 标签联动重命名（U08）                              | 底层能力已接入；编辑器链路待复现                 | P1           | 1–3    | service capabilities、template mapping、客户端配置；中。半成品标签、自闭合标签与重复插入。      |
+| T15    | props / expose / Hooks 同名警告（U09）                        | 未见专用静态冲突诊断；合并行为源码确认           | P1           | 3–5    | core 元数据、service diagnostics / related info；中高。键来源、spread、类型字段与运行时优先级。 |
+| T16    | 实例暴露字段 `data` 的保留名警告（U09）                       | 框架有保留规则；编辑期诊断缺口为源码推断         | P1           | 1–2    | core 暴露 key 分析、service diagnostics；中。重点防止局部变量误报。                             |
+| T17    | 与 Vue 插件共存时的 `defineProps` 误报（U10）                 | 已确认 Vue 2.7 全局宏冲突；PR #120 已合并        | P0           | 3–7    | 实际修改 language-core 全局 / 文件内宏类型；高。合并前验证及编辑器检查范围见第 3.2 节。         |
+| T18    | 模板变量、标签内置属性与事件绑定补全（U06，更正汇总）         | 范围合并至 T10 / T11，不独立实施                 | 随 T10 / T11 | 不另计 | 变量来源见 T10；mpx / wx / rn 标签属性与事件绑定见 T11。                                        |
 
-18 项独立粗估合计 **47–84 人日**，仅用于展示完整范围量级；任务间有共用基础，部分待复现项可能只需配置说明或已有修复验证，因此不应直接作为交付承诺。另预留首轮复现 / 设计 2–3 人日及最终集成验收 2–3 人日。T17 如果需要上游 Volar / TS 适配或全局 helper 全面迁移，应单独重估，不包含在 3–7 日局部修复假设里。
+更正后 17 项独立粗估合计 **46–82 人日**（移除原 T18 的 1–2 人日，模板补全成本计入 T10 / T11），仅用于展示完整范围量级；任务间有共用基础，部分待复现项可能只需配置说明或已有修复验证，因此不应直接作为交付承诺。另预留首轮复现 / 设计 2–3 人日及最终集成验收 2–3 人日。T17 如果需要上游 Volar / TS 适配或全局 helper 全面迁移，应单独重估，不包含在 3–7 日局部修复假设里。
 
 ### 3.1 修复进度与并行安排（2026-10-30）
 
-状态核对：2026-11-02。本节与上表的初始源码判断、优先级及成本分开维护。T01 / T08 / T17 均已合并；T10 / T11 及 T13 的相关能力已有 Issue，尚无已交付验证记录。其余条目按下表推进。已有 Issue 不代表实现完成；Issue、分支或 PR 标为“待关联”时，开工前先查找并复用已有记录。
+状态核对：2026-11-03。12 个剩余范围分别由独立会话推进，均已形成 PR；T14 回归 PR 已合并，其他 11 项仍在评审或集成阶段。T01 / T08 / T10 / T11 / T14 / T17 已有合并记录；T13 只完成通用 JS 语义合并，Schema 提示仍未交付。下表是核对时快照，PR 中不等于已合并、已完成 F5 视觉验收或已发布。
 
-| 工作项                  | 当前状态                        | Issue / 分支 / PR                                                                                                                                                          | 下一步                                                                                                              |
-| ----------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| T01：样式指令高亮与补全 | 已合并；F5 视觉验收通过         | [#127](https://github.com/mpx-ecology/language-tools/issues/127)；`codex/fix-t01-style-directives`；[PR #130](https://github.com/mpx-ecology/language-tools/pull/130)      | 2026-11-02 合并；合并前专项 101 项、全量 120 项及五种样式块 F5 复验通过。待登记发布版本。                           |
-| T02：`mpxTagName`       | 待启动                          | 待关联                                                                                                                                                                     | 补最小样例，明确标签身份与源码映射。                                                                                |
-| T03：RN 注册组件        | 待启动                          | 待关联                                                                                                                                                                     | 复现 S03 注册别名、props、事件及定义跳转。                                                                          |
-| T04：多平台解析         | 待启动                          | 待关联                                                                                                                                                                     | 明确平台选择来源及显式 / 自动后缀规则。                                                                             |
-| T05：反向引用           | 待启动                          | 待关联                                                                                                                                                                     | 验证已有 TS 映射；多平台行为依赖 T04。                                                                              |
-| T06：自动注册           | 待启动                          | 待关联                                                                                                                                                                     | 明确候选与编辑边界；依赖 T04 / T09，RN 部分依赖 T03。                                                               |
-| T07：refs 类型          | 待启动                          | 待关联                                                                                                                                                                     | 补子组件公开方法和 `wx:ref` 用例；RN / 多平台部分协调 T03 / T04。                                                   |
-| T08：动态 class         | 已合并；Extension Host 检查通过 | [#126](https://github.com/mpx-ecology/language-tools/issues/126)；`codex/fix-t08-dynamic-class-links`；[PR #129](https://github.com/mpx-ecology/language-tools/pull/129)   | 2026-11-02 合并；合并前专项 31 项、全量 65 项及实际导航 / hover / 补全 provider 验证通过。待登记发布版本。          |
-| T09：全局组件补全       | 待启动                          | 待关联                                                                                                                                                                     | 确认全局组件来源、局部覆盖与应用边界。                                                                              |
-| T10：模板变量类型       | 已立项，待提交 PR               | [#140](https://github.com/mpx-ecology/language-tools/issues/140)；分支 / PR 待关联                                                                                         | 修复变量起始位置遗漏 props / Hooks 返回值、混入未暴露变量的问题；保留成员补全、hover、诊断与导航。                  |
-| T11：内建属性与事件     | 已立项，待提交 PR               | [#141](https://github.com/mpx-ecology/language-tools/issues/141)；分支 / PR 待关联                                                                                         | 补齐合法事件绑定形式与已证实的 RN 内置属性，同步类型数据；直接注册 RN 组件的类型接入仍归 T03。                      |
-| T12：静态 JSON          | 待启动                          | 待关联                                                                                                                                                                     | 确认 S08 实际缺项或服务激活问题。                                                                                   |
-| T13：动态 JSON 配置     | 相关能力已立项，待提交 PR       | [#138](https://github.com/mpx-ecology/language-tools/issues/138)；分支 / PR 待关联                                                                                         | 先补 JSON JS 的导航、hover、引用、重命名与方法补全；配置 Schema 类型提示仍需单独确认覆盖范围。                      |
-| T14：标签闭合与重命名   | 待启动                          | 待关联                                                                                                                                                                     | 验证配置、服务能力及模板映射链路。                                                                                  |
-| T15：实例字段重名       | 待启动                          | 待关联                                                                                                                                                                     | 明确字段来源与冲突规则，协调 T07 / T10 的类型分析。                                                                 |
-| T16：实例保留名 `data`  | 待启动                          | 待关联                                                                                                                                                                     | 验证实际暴露场景与普通局部变量负例，协调 T15 的诊断入口。                                                           |
-| T17：Vue 宏共存         | 已合并；Extension Host 检查通过 | [#119](https://github.com/mpx-ecology/language-tools/issues/119)；`codex/fix-119-vue-macro-coexistence`；[PR #120](https://github.com/mpx-ecology/language-tools/pull/120) | 2026-11-02 合并；合并前最终 165 项测试、build / lint、Extension Host 及 20 项真实编译交叉检查通过。待登记发布版本。 |
-| T18：CSS 属性补全       | 待启动                          | 待关联                                                                                                                                                                     | 明确失效的样式语言、光标位置与触发方式。                                                                            |
+| 工作项                      | 当前状态                            | Issue / 分支 / PR                                                                                                                                                                | 跟进会话                             | 下一步与验证记录                                                                                                               |
+| --------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| T01：样式指令高亮与补全     | 已合并；F5 视觉验收通过             | [#127](https://github.com/mpx-ecology/language-tools/issues/127)；`codex/fix-t01-style-directives`；[PR #130](https://github.com/mpx-ecology/language-tools/pull/130)            | 已交付记录                           | 2026-11-02 合并；专项 101 项 / 全量 120 项。修复前后截图见 PR #130；待登记发布版本。                                           |
+| T02：mpxTagName             | PR 中；F5 UI / 截图待补             | [#145](https://github.com/mpx-ecology/language-tools/issues/145)；`codex/fix-t02-mpx-tag-name`；[PR #166](https://github.com/mpx-ecology/language-tools/pull/166)                | T02：mpxTagName 标签语义与高亮       | 53 项专项、555 项全量通过；补同场景 before/after，评审组件身份和映射边界。                                                     |
+| T03：RN 注册组件            | PR 中；F5 UI / 截图待补             | [#151](https://github.com/mpx-ecology/language-tools/issues/151)；`codex/fix-rn-component-registration`；[PR #159](https://github.com/mpx-ecology/language-tools/pull/159)       | T03：RN 注册组件的类型与导航         | 36 项专项、492 项全量通过；保留 core 对必传 React props 的上游注册诊断，补真实 UI 对比。                                       |
+| T04：多平台解析             | PR 中；宿主 provider 通过，截图待补 | [#148](https://github.com/mpx-ecology/language-tools/issues/148)；`codex/fix-platform-component-paths`；[PR #167](https://github.com/mpx-ecology/language-tools/pull/167)        | T04：多平台组件解析与正向跳转        | 48 项专项、537 项全量及 13 项宿主检查通过；评审平台 fallback / 缓存，并供后续集成。                                            |
+| T05：反向引用               | PR 中；宿主 API 通过，截图待补      | [#149](https://github.com/mpx-ecology/language-tools/issues/149)；`codex/fix-component-references`；[PR #163](https://github.com/mpx-ecology/language-tools/pull/163)            | T05：组件使用方与多平台反向引用      | 23 项专项、496 项全量通过；静态局部注册已覆盖，自动平台选择仍依赖 T04。                                                        |
+| T06：自动注册               | PR 中；宿主交互通过，截图待补       | [#146](https://github.com/mpx-ecology/language-tools/issues/146)；`codex/fix-template-component-registration`；[PR #165](https://github.com/mpx-ecology/language-tools/pull/165) | T06：模板补全后自动注册组件          | 60 项专项、533 项全量通过；JSON / JS / 无区块接受与一次撤销通过；RN 注册另依赖 T03。                                           |
+| T07：refs 类型              | PR 中；宿主 provider 通过，截图待补 | [#155](https://github.com/mpx-ecology/language-tools/issues/155)；`codex/fix-typed-template-refs`；[PR #162](https://github.com/mpx-ecology/language-tools/pull/162)             | T07：useContext refs 精确实例类型    | 16 项专项、489 项全量通过；Mpx 公开方法链路已覆盖，RN 实例和平台选择边界衔接 T03 / T04。                                       |
+| T08：动态 class             | 已合并；Extension Host 检查通过     | [#126](https://github.com/mpx-ecology/language-tools/issues/126)；`codex/fix-t08-dynamic-class-links`；[PR #129](https://github.com/mpx-ecology/language-tools/pull/129)         | 已交付记录                           | 2026-11-02 合并；专项 31 项 / 全量 65 项。待登记发布版本。                                                                     |
+| T09：全局组件补全           | PR 中；宿主 provider 通过，截图待补 | [#150](https://github.com/mpx-ecology/language-tools/issues/150)；`codex/fix-registered-global-components`；[PR #164](https://github.com/mpx-ecology/language-tools/pull/164)    | T09：已注册全局组件的标签补全        | 23 项专项、525 项全量通过；应用 / 类型扩展候选、局部覆盖与刷新通过；跨应用动态入口保留边界。                                   |
+| T10：模板变量补全与类型     | 已合并；F5 验收通过                 | [#140](https://github.com/mpx-ecology/language-tools/issues/140)；`codex/fix-t10-t11-template-completion`；[PR #143](https://github.com/mpx-ecology/language-tools/pull/143)     | 查找尚未跟进的反馈问题               | 2026-11-03 合并；与 T11 共用专项 129 项 / 全量 421 项记录，覆盖作用域和 any Hooks 局部补全兜底。                               |
+| T11：标签内置属性与事件绑定 | 已合并；F5 验收通过                 | [#141](https://github.com/mpx-ecology/language-tools/issues/141)；`codex/fix-t10-t11-template-completion`；[PR #143](https://github.com/mpx-ecology/language-tools/pull/143)     | 查找尚未跟进的反馈问题               | 与 T10 同 PR；补内置属性、事件形式及条件属性编辑。直接注册 RN 组件的类型接入归 T03。                                           |
+| T12：静态 JSON              | PR 中；宿主 API 通过，截图待补      | [#153](https://github.com/mpx-ecology/language-tools/issues/153)；`codex/fix-static-json-schema`；[PR #157](https://github.com/mpx-ecology/language-tools/pull/157)              | T12：静态组件 JSON Schema 提示       | 14 项专项、487 项全量通过；补 componentGenerics 与嵌套值约束，已有 component / 路径能力保留。                                  |
+| T13：动态 JSON 配置         | JS 语义已合并；Schema 草稿 PR 中    | [#154](https://github.com/mpx-ecology/language-tools/issues/154)；`codex/fix-t13-json-config-types`；[PR #160](https://github.com/mpx-ecology/language-tools/pull/160)           | T13：动态 JSON 配置的类型提示        | 通用 JS：#138 → #142 已合并。Schema：595 项全量通过，F5 / 截图待补；当前 base 仍为 #142 分支，需同步 main、复验并转 ready。    |
+| T14：标签闭合与重命名       | 未复现运行时缺陷；回归 PR 已合并    | 不适用（未确认缺陷）；`codex/test-t14-tag-editing`；[PR #156](https://github.com/mpx-ecology/language-tools/pull/156)                                                            | T14：自动闭合与标签联动重命名        | 2026-11-03 合并；29 项专项、502 项全量及真实宿主输入 / provider 通过。仅测试与验收，无修复前后差异；原用户环境仍需按配置复现。 |
+| T15：实例字段重名           | PR 中；F5 UI / 截图待补             | [#147](https://github.com/mpx-ecology/language-tools/issues/147)；`codex/fix-instance-field-collisions`；[PR #158](https://github.com/mpx-ecology/language-tools/pull/158)       | T15：props expose Hooks 字段重名警告 | 20 项专项、493 项全量通过；仅比较静态可确认的 setup 公开字段及最终有效 Hooks，评审精确范围与误报边界。                         |
+| T16：实例保留名 data        | PR 中；F5 UI / 截图待补             | [#152](https://github.com/mpx-ecology/language-tools/issues/152)；`codex/fix-t16-reserved-instance-data`；[PR #161](https://github.com/mpx-ecology/language-tools/pull/161)      | T16：实例暴露 data 保留名警告        | 85 项专项、558 项全量及构建产物冒烟通过；不误报普通局部 / 模块导出 data。诊断码统一 #168 独立跟进，不计入本项完成范围。        |
+| T17：Vue 宏共存             | 已合并；Extension Host 检查通过     | [#119](https://github.com/mpx-ecology/language-tools/issues/119)；`codex/fix-119-vue-macro-coexistence`；[PR #120](https://github.com/mpx-ecology/language-tools/pull/120)       | 已交付记录                           | 2026-11-02 合并；最终 165 项测试、20 项真实编译交叉检查通过。待登记发布版本。                                                  |
+| T18：模板补全（更正汇总）   | 范围合并至 T10 / T11                | 同 T10 / T11；[PR #143](https://github.com/mpx-ecology/language-tools/pull/143)                                                                                                  | 不另开会话                           | 原 CSS 补全反馈已更正，不独立排期、实现或计费。                                                                                |
 
-并行安排建议：
+所有本轮修复 PR 均报告 build / test / lint 通过；表中数字引用各 PR 的独立提交基线，不能相加或当作当前 main 测试总数。真实 Extension Host API / provider 检查与人工视觉、截图证据分别记录；未捕获截图的条目没有因此被标记为已完成视觉验收。
 
-- **独立体验问题继续推进：** T01 / T08 已交付；T12、T14、T18 按具体复现启动。涉及样式服务时基于已合并的 T01 实现，保留指令补全与高亮回归。
-- **组件基础可以并行分析：** T02、T03、T04 分别补最小用例，但组件身份、平台解析与公共类型接口应先对齐。T05 / T06 及 T07 的 RN、多平台部分按表中依赖接入。
-- **类型与诊断改动协调落点：** T07、T10、T15、T16 共享上下文或字段来源分析，开工时登记修改范围；若触及 T17 修改的全局类型或 setup 宏绑定，基于其最终实现衔接并补共存回归。
+并行集成与截图要求：
 
-每项开工时，将状态改为“复现中”或“修复中”，补上关联 Issue、实际分支及负责的会话 / 人员；提交 PR 后记录 PR 链接和验证结果。合并后记录合并结果，F5 验收与发布版本分别补记。依赖暂未具备时写清具体依赖，避免仅按排期将条目标为已开始或已完成。
+- 每个会话保留自己的工作目录与分支，按实际组件身份、平台解析和公开类型接口衔接；T05 / T06 / T07 的多平台增强依赖 T04，RN 扩展依赖 T03，自动注册全局去重衔接 T09。
+- T13 的 #142 已合并；#160 仍是 dependent Draft，需同步主分支、触发适用 CI、完成真实 UI 与截图后再转 ready，不能因依赖已合并直接登记完成。
+- 2026-11-03 起，Issue 默认附最小 `inspect-extension` 场景的真实问题复现截图；修复 PR 默认附同场景、设置、主题及可比较视图的 F5 修复前后截图。图片上传 GitHub 附件，不提交到仓库，不公开原始内部截图。
+- 只有无法或无需通过 F5 验证的变更可以省略，需在 Issue 的 `复现截图` 和 PR 的 `效果对比` 写清原因及替代证据。代码 / 测试充分本身不构成豁免；待补截图保持待补。T14 无运行时修复，修复前后对比不适用；本次纯文档 / 规范更新也无需 F5 截图。
+- 截图补充要求已同步本轮修复会话；共享总表由 PR #131 集中维护，避免并行改写。后续合并、视觉验收及发布按实际证据分别补记。
 
 ### 3.2 T01 / T08 / T17 交付与验证（2026-11-02）
 
@@ -125,7 +127,7 @@ T01 的 2026-10-30 初轮记录为专项 68 项、全量 102 项，当时仅验�
 
 ## 4. 分组分析与修复边界
 
-### 4.1 样式高亮、CSS 与标签编辑：T01、T14、T18
+### 4.1 样式高亮与标签编辑：T01、T14
 
 样式指令补全已存在，但“新行输入 `@` 自动包成注释”与“在 `/* @` 中继续输入”是两个交互。补齐注释内指令名、前缀过滤与光标位置，不重复生成 `/* */`。`__ISRN__` 先作为用户项目条件变量保留，不假设它是框架固定内建宏；第一期可只补指令，条件变量来源另核对。
 
@@ -203,13 +205,13 @@ T16 首期满足用户要求的 `data`，仅在暴露为实例字段时警告。
 | 阶段                              | 工作内容                                                                                                        | 完成出口                                                                                                       |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | A：复现与口径，2–3 人日           | 建立 U10 最小共存环境；补齐 S03 / S06 / S07 的独立样例；核对 S05 必传属性与 S08 JSON 失效点；明确平台选择来源。 | 每个待修项具备版本、输入、实际 / 期望行为和可重复步骤。T17 若证实阻断立即进入修复，局部修复预算为表中 3–7 日。 |
-| B：独立体验修复，7–15 人日粗估    | T01、T08、T12、T14、T16、T18；只做已证实的覆盖与接线问题。                                                      | 样式指令、动态类名、JSON、标签编辑、保留字段有对应回归用例和 F5 验收。无需等待整套组件系统才能交付。           |
+| B：独立体验修复，6–13 人日粗估    | T01、T08、T12、T14、T16；只做已证实的覆盖与接线问题。                                                           | 样式指令、动态类名、JSON、标签编辑、保留字段有对应回归用例和 F5 验收。无需等待整套组件系统才能交付。           |
 | C：组件与类型基础，23–38 人日粗估 | T02、T03、T04、T07、T09、T10、T15；先定组件元信息与平台解析，再接 RN / refs / 变量和冲突诊断。                  | 组件标签、props、事件、实例公开面、平台定义使用一致来源；诊断 / hover / 导航分别通过。                         |
 | D：跨文件增强，14–24 人日粗估     | T05、T06、T11、T13；在稳定解析上补反向引用、自动注册、平台属性与动态配置。                                      | 查找结果完整且去重；注册编辑可撤销、幂等；大项目响应速度无明显退化。                                           |
 
 阶段 B 中修改范围独立的小修可以与阶段 C 的复现 / 设计并行推进，具体安排见第 3.1 节；涉及共享组件与类型接口的实现先对齐设计。以上仍为人日粗估，并行安排不直接换算成确定交付日期。T17 修复和 A 的复现预算不包含在 B–D 合计中。
 
-关键依赖：T04 → T05 / T06 / T07 的多平台行为；T03 → RN props / refs 与 RN 自动注册；T09 → T06 的全局去重；T10 / T07 的类型来源分析可供 T15 复用。T17 若证明需要类型命名迁移，应在 C 的大规模类型改动前解决，避免重复返工。
+关键依赖：T04 → T05 / T06 / T07 的多平台行为；T03 → RN props / refs 与 RN 自动注册；T09 → T06 的全局去重；T10 / T07 的类型来源分析可供 T15 复用。T17 已合并，后续类型改动基于其文件内宏绑定方案回归，避免重复返工。
 
 ## 6. 回归与验收计划
 
