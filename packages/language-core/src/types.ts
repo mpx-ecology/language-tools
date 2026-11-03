@@ -149,8 +149,11 @@ export type SfcBlockAttr =
 
 export interface UsingComponentInfo {
   text: string
+  // Legacy node start (the opening quote for a statically resolved string).
   offset: number
   nameOffset: number
+  // Exact source span for unquoted expressions; do not apply quote padding.
+  sourceRange?: [start: number, end: number]
 }
 export interface ResolvedUsingComponentInfo extends UsingComponentInfo {
   realFilename?: string
