@@ -22,6 +22,10 @@ export interface MpxCodeInformation extends CodeInformation {
 export type Code = Segment<MpxCodeInformation>
 
 export interface MpxCompilerOptions {
+  /** File condition compilation target; omitted means show all supported candidates. */
+  mode?: string
+  /** File condition compilation environment; not inferred from resource query. */
+  env?: string
   lib: string
   extensions: string[]
   petiteMpxExtensions: string[]
@@ -109,6 +113,7 @@ export type MpxLanguagePluginReturn = {
     sfc: Sfc,
     embeddedFile: MpxEmbeddedCode,
   ): void
+  getExternalDependencyVersion?(fileName: string): number
   resolveUsingComponentsPath?(
     usingComponentsPath: SfcJsonBlockUsingComponents,
     uri: string,
@@ -157,6 +162,8 @@ export interface UsingComponentInfo {
 }
 export interface ResolvedUsingComponentInfo extends UsingComponentInfo {
   realFilename?: string
+  mode?: string
+  env?: string
 }
 export type SfcJsonBlockUsingComponents = Map<string, UsingComponentInfo[]>
 export type SfcJsonBlockResolvedUsingComponents = {

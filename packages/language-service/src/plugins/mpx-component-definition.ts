@@ -5,7 +5,9 @@ import { URI } from 'vscode-uri'
 import { MpxVirtualCode, tsCodegen } from '@mpxjs/language-core'
 import { isMpPluginComponentPath } from '../utils'
 
-export function create(): LanguageServicePlugin {
+export function create(
+  options: { template?: boolean } = {},
+): LanguageServicePlugin {
   return {
     name: 'mpx-component-definition',
 
@@ -34,7 +36,7 @@ export function create(): LanguageServicePlugin {
 
           const virtualCode =
             sourceScript?.generated?.embeddedCodes.get(embeddedCodeId)
-          if (virtualCode?.id === 'template') {
+          if (options.template !== false && virtualCode?.id === 'template') {
             return provideTemplateDefinition(root, document, position)
           }
         },
@@ -55,37 +57,23 @@ export function create(): LanguageServicePlugin {
           return
         }
 
-        for (const [_, componentsArray] of resolvedUsingComponents) {
+        const definitions: vscode.LocationLink[] = []
+        for (const componentsArray of resolvedUsingComponents.values()) {
           for (const {
             text,
             offset: compOffset,
             realFilename,
           } of componentsArray) {
-            if (!realFilename || isMpPluginComponentPath(text)) {
-              continue
-            }
+            if (!realFilename || isMpPluginComponentPath(text)) continue
             const pathStart = compOffset + 1
             if (offset >= pathStart && offset <= pathStart + text.length) {
-              return [
-                {
-                  targetUri: URI.file(realFilename).toString(),
-                  targetRange: {
-                    start: { line: 0, character: 0 },
-                    end: { line: 0, character: 0 },
-                  },
-                  targetSelectionRange: {
-                    start: { line: 0, character: 0 },
-                    end: { line: 0, character: 0 },
-                  },
-                  originSelectionRange: {
-                    start: document.positionAt(pathStart),
-                    end: document.positionAt(pathStart + text.length),
-                  },
-                },
-              ]
+              definitions.push(
+                definition(realFilename, document, pathStart, text.length),
+              )
             }
           }
         }
+        return uniqueDefinitions(definitions)
       }
 
       async function provideTemplateDefinition(
@@ -119,32 +107,53 @@ export function create(): LanguageServicePlugin {
             continue
           }
 
-          const componentsArray = usingComponents.get(name)!
-          for (const { text, realFilename } of componentsArray) {
-            if (!realFilename || isMpPluginComponentPath(text)) {
-              continue
-            }
-            const tagOffset = onStartTag ? startTagOffset : endTagOffset!
-            return [
-              {
-                targetUri: URI.file(realFilename).toString(),
-                targetRange: {
-                  start: { line: 0, character: 0 },
-                  end: { line: 0, character: 0 },
-                },
-                targetSelectionRange: {
-                  start: { line: 0, character: 0 },
-                  end: { line: 0, character: 0 },
-                },
-                originSelectionRange: {
-                  start: document.positionAt(tagOffset),
-                  end: document.positionAt(tagOffset + name.length),
-                },
-              },
-            ]
-          }
+          const tagOffset = onStartTag ? startTagOffset : endTagOffset!
+          return uniqueDefinitions(
+            usingComponents
+              .get(name)!
+              .filter(
+                info =>
+                  info.realFilename && !isMpPluginComponentPath(info.text),
+              )
+              .map(info =>
+                definition(
+                  info.realFilename!,
+                  document,
+                  tagOffset,
+                  name.length,
+                ),
+              ),
+          )
         }
       }
     },
   }
+}
+
+function definition(
+  fileName: string,
+  document: TextDocument,
+  offset: number,
+  length: number,
+): vscode.LocationLink {
+  const start = { line: 0, character: 0 }
+  return {
+    targetUri: URI.file(fileName).toString(),
+    targetRange: { start, end: start },
+    targetSelectionRange: { start, end: start },
+    originSelectionRange: {
+      start: document.positionAt(offset),
+      end: document.positionAt(offset + length),
+    },
+  }
+}
+
+function uniqueDefinitions(definitions: vscode.LocationLink[]) {
+  const unique = new Map(
+    definitions.map(item => [
+      item.targetUri + JSON.stringify(item.targetSelectionRange),
+      item,
+    ]),
+  )
+  return unique.size ? [...unique.values()] : undefined
 }

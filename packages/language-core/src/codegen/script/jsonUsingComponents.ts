@@ -1,8 +1,4 @@
-import type {
-  Code,
-  SfcJsonBlockResolvedUsingComponents,
-  UsingComponentInfo,
-} from '../../types'
+import type { Code, ResolvedUsingComponentInfo } from '../../types'
 import type { ScriptCodegenOptions } from './index'
 import type { ScriptCodegenContext } from './context'
 import { camelize, capitalize } from '@mpxjs/language-shared'
@@ -14,7 +10,7 @@ export function* generateJsonUsingComponents(
   options: ScriptCodegenOptions,
   _ctx: ScriptCodegenContext,
 ): Generator<Code> {
-  const usingComponents = options.sfc.json?.usingComponents
+  const usingComponents = getComponentCandidates(options)
 
   if (!usingComponents?.size) {
     yield `const __MPX_jsonComponents = {}${endOfLine}`
@@ -75,7 +71,7 @@ export function* generateJsonPathCompletionImports(
   _ctx: ScriptCodegenContext,
 ): Generator<Code> {
   const usingComponents = options.sfc.json?.usingComponents
-  const resolvedUsingComponents = getResolvedUsingComponents(options)
+  const candidates = getComponentCandidates(options)
   const jsonStart = (options.sfc.json?.startTagEnd || 0) + 1
   const pages = options.sfc.json?.pages
 
@@ -87,53 +83,15 @@ export function* generateJsonPathCompletionImports(
     for (const [componentIndex, [componentName, componentPaths]] of [
       ...usingComponents,
     ].entries()) {
-      for (let i = 0; i < componentPaths.length; i++) {
-        const componentPathInfo = componentPaths[i]!
-        const importName = getUsingComponentImportName(componentIndex, i)
-        const resolvedImportPath = getResolvedImportPath(
-          options.fileName,
-          componentName,
-          componentPathInfo,
-          resolvedUsingComponents,
-        )
-
-        if (
-          resolvedImportPath &&
-          resolvedImportPath !== componentPathInfo.text
-        ) {
-          // Keep a source-mapped side-effect import for JSON path completion.
-          // The separately generated named import points at the resolved Mpx
-          // file and supplies the component type used by template codegen.
-          yield `import '`
-          yield [
-            componentPathInfo.text,
-            'json_import',
-            jsonStart + componentPathInfo.offset,
-            {
-              completion: true,
-              navigation: false,
-              semantic: false,
-              verification: false,
-              structure: false,
-              format: false,
-            },
-          ]
-          yield `'${newLine}`
-          yield `import ${importName} from ${JSON.stringify(resolvedImportPath)}${newLine}`
-          continue
-        }
-
-        // Keep generated imports in a reserved internal namespace so a JSON
-        // component name cannot collide with user script bindings.
-        yield `import ${importName} from '`
-
-        // 传递原始路径及位置信息
+      // One completion mapping for each original request, independent of how
+      // many platform files supply types. Never duplicate semantic/navigation maps.
+      for (const componentPathInfo of componentPaths) {
+        yield `import '`
         yield [
           componentPathInfo.text,
           'json_import',
           jsonStart + componentPathInfo.offset,
           {
-            // 仅启用补全功能，不参与语义分析等
             completion: true,
             navigation: false,
             semantic: false,
@@ -142,8 +100,15 @@ export function* generateJsonPathCompletionImports(
             format: false,
           },
         ]
-
         yield `'${newLine}`
+      }
+      const componentCandidates = candidates?.get(componentName) ?? []
+      for (let i = 0; i < componentCandidates.length; i++) {
+        const candidate = componentCandidates[i]!
+        const importName = getUsingComponentImportName(componentIndex, i)
+        const importPath =
+          getResolvedImportPath(options.fileName, candidate) ?? candidate.text
+        yield `import ${importName} from ${JSON.stringify(importPath)}${newLine}`
       }
     }
   }
@@ -175,28 +140,39 @@ export function* generateJsonPathCompletionImports(
   yield `${newLine}`
 }
 
-function getResolvedUsingComponents(
-  options: ScriptCodegenOptions,
-): SfcJsonBlockResolvedUsingComponents['result'] | undefined {
-  return options.sfc.json?.resolvedUsingComponents?.result
+/** Keep source registrations intact, but import each actual type source once. */
+function getComponentCandidates(options: ScriptCodegenOptions) {
+  const usingComponents = options.sfc.json?.usingComponents
+  if (!usingComponents) return
+  const resolved = options.sfc.json?.resolvedUsingComponents?.result
+  return new Map(
+    [...usingComponents].map(([name, paths]) => {
+      const candidates = new Map<string, ResolvedUsingComponentInfo>()
+      for (const info of paths) {
+        const matches = resolved
+          ?.get(name)
+          ?.filter(
+            candidate =>
+              candidate.offset === info.offset && candidate.text === info.text,
+          )
+        const sources: ResolvedUsingComponentInfo[] = matches?.length
+          ? matches
+          : [info]
+        for (const candidate of sources) {
+          const key = candidate.realFilename ?? candidate.text
+          if (!candidates.has(key)) candidates.set(key, candidate)
+        }
+      }
+      return [name, [...candidates.values()]] as const
+    }),
+  )
 }
 
 function getResolvedImportPath(
   importer: string,
-  componentName: string,
-  componentPathInfo: UsingComponentInfo,
-  resolvedUsingComponents:
-    | SfcJsonBlockResolvedUsingComponents['result']
-    | undefined,
+  info: ResolvedUsingComponentInfo,
 ) {
-  const resolvedInfo = resolvedUsingComponents
-    ?.get(componentName)
-    ?.find(
-      info =>
-        info.offset === componentPathInfo.offset &&
-        info.text === componentPathInfo.text,
-    )
-  const realFilename = resolvedInfo?.realFilename
+  const realFilename = info.realFilename
 
   if (!realFilename || realFilename.startsWith('plugin://')) {
     return

@@ -35,6 +35,29 @@ export = createLanguageServicePlugin((ts, info) => {
   return {
     languagePlugins: [languagePlugin],
     setup: language => {
+      const getLanguageService = info.project.getLanguageService.bind(
+        info.project,
+      )
+      info.project.getLanguageService = ensureSynchronized => {
+        let changed = false
+        languagePlugin.getExternalFilesVersion(undefined, fileName => {
+          const source = language.scripts.get(fileName)
+          if (source) source.isAssociationDirty = true
+          changed = true
+        })
+        // tsserver's clean-project fast path bypasses getProjectVersion. A new
+        // platform file can sit outside include, so no root-file watcher fires.
+        if (changed) info.project.updateGraph()
+        return getLanguageService(ensureSynchronized)
+      }
+      mpx.decorateMpxLanguageServiceHost(
+        info.languageServiceHost,
+        languagePlugin,
+        fileName => {
+          const source = language.scripts.get(fileName)
+          if (source) source.isAssociationDirty = true
+        },
+      )
       project2Service.set(info.project, [
         language,
         info.languageServiceHost,
@@ -214,6 +237,7 @@ export = createLanguageServicePlugin((ts, info) => {
       file: ts.server.NormalizedPath
       project: ts.server.Project
     }
+    fileAndProject.project.getLanguageService()
     const service = project2Service.get(fileAndProject.project)
     if (!service) {
       throw 'No RequestContext'

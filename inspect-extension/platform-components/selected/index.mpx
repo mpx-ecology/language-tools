@@ -1,0 +1,13 @@
+<template>
+  <!-- ✅ android 无专用文件，回退 panel.ios.mpx；value hover 为 number，只跳到 ios 文件。 -->
+  <demo-panel value="{{ numeric }}" />
+  <!-- ❌ 故意传 string，应报 TS2322；不得改用普通 panel.mpx 的 string 类型隐藏诊断。 -->
+  <demo-panel value="bad" />
+</template>
+<script setup lang="ts">
+const numeric = 42
+defineExpose({ numeric })
+</script>
+<script name="json">
+module.exports = { usingComponents: { 'demo-panel': '../panel' } }
+</script>

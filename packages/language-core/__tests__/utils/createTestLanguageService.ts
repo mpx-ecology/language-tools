@@ -8,8 +8,10 @@ import {
 } from '@volar/typescript'
 import {
   MpxVirtualCode,
+  type RawMpxCompilerOptions,
   createMpxLanguagePlugin,
   createParsedCommandLine,
+  decorateMpxLanguageServiceHost,
   generateGlobalTypes,
   getGlobalTypesFileName,
   nativeComponentsTypesContents,
@@ -40,6 +42,7 @@ export interface TestLanguageService {
 export function createTestLanguageService(
   fixtureRoot = referenceTypePropsFixtureRoot,
   additionalRootFiles: string[] = [],
+  mpxOptionsOverrides: RawMpxCompilerOptions = {},
 ): TestLanguageService {
   const parsed = createParsedCommandLine(
     ts,
@@ -47,6 +50,7 @@ export function createTestLanguageService(
     path.join(fixtureRoot, 'tsconfig.json'),
     true,
   )
+  Object.assign(parsed.mpxOptions, mpxOptionsOverrides)
   const globalTypesFile = path.join(
     fixtureRoot,
     'node_modules/.mpx-global-types',
@@ -81,17 +85,29 @@ export function createTestLanguageService(
     id => id,
   )
 
+  const snapshots = new Map<
+    string,
+    { content: string; snapshot: ts.IScriptSnapshot }
+  >()
+  function getSnapshot(fileName: string, content: string) {
+    const previous = snapshots.get(fileName)
+    if (previous?.content === content) return previous.snapshot
+    const snapshot = ts.ScriptSnapshot.fromString(content)
+    snapshots.set(fileName, { content, snapshot })
+    return snapshot
+  }
+  const scriptRegistry = new Map<string, SourceScript<string>>()
   const language: Language<string> = createLanguage(
     [languagePlugin],
-    new Map<string, SourceScript<string>>(),
+    scriptRegistry,
     id => {
+      languagePlugin.getExternalFilesVersion(id, fileName => {
+        const source = scriptRegistry.get(fileName)
+        if (source) source.isAssociationDirty = true
+      })
       const content = readFile(id)
       if (content !== undefined) {
-        language.scripts.set(
-          id,
-          ts.ScriptSnapshot.fromString(content),
-          getLanguageId(id),
-        )
+        language.scripts.set(id, getSnapshot(id, content), getLanguageId(id))
       }
     },
   )
@@ -117,6 +133,7 @@ export function createTestLanguageService(
   const host: ts.LanguageServiceHost = {
     getScriptFileNames: () => rootFiles,
     getScriptVersion: () => '0',
+    getProjectVersion: () => '0',
     getScriptSnapshot(fileName) {
       const content = readFile(fileName)
       return content === undefined
@@ -154,6 +171,10 @@ export function createTestLanguageService(
   }
 
   decorateLanguageServiceHost(ts, language, host)
+  decorateMpxLanguageServiceHost(host, languagePlugin, fileName => {
+    const source = language.scripts.get(fileName)
+    if (source) source.isAssociationDirty = true
+  })
   const languageService = ts.createLanguageService(host)
   const { initialize, proxy } = createProxyLanguageService(languageService)
   initialize(language)

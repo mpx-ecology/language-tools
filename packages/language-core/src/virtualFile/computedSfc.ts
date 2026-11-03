@@ -19,6 +19,7 @@ export function computedSfc(
   fileName: string,
   getSnapshot: () => ts.IScriptSnapshot,
   getParseResult: () => SFCParseResult | undefined,
+  getExternalDependencyVersion: () => string,
 ): Sfc {
   const getUntrackedSnapshot = () => {
     pauseTracking()
@@ -131,6 +132,7 @@ export function computedSfc(
         parseUsingComponents(ts, getAst(), base.lang),
       )
       const getResolvedUsingComponents = computed(() => {
+        getExternalDependencyVersion()
         for (const plugin of plugins) {
           if (typeof plugin.resolveUsingComponentsPath === 'function') {
             return plugin.resolveUsingComponentsPath(
@@ -142,6 +144,7 @@ export function computedSfc(
       })
       const getPages = computed(() => parsePages(ts, getAst(), base.lang))
       const getResolvedPages = computed(() => {
+        getExternalDependencyVersion()
         for (const plugin of plugins) {
           if (typeof plugin.resolvePagesPath === 'function') {
             return plugin.resolvePagesPath(getPages(), fileName)

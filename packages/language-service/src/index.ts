@@ -90,9 +90,9 @@ function getCommonLanguageServicePlugins(
     createMpxJsonLinksPlugin(),
     createMpxJsonImportCompletionPlugin(getTsPluginClient),
     createMpxPrettierPlugin(),
-    ...(options.componentDefinitionProvider
-      ? [createMpxComponentDefinitionPlugin()]
-      : []),
+    createMpxComponentDefinitionPlugin({
+      template: options.componentDefinitionProvider ?? false,
+    }),
     createEmmetPlugin({
       mappedLanguages: {
         'mpx-root-tags': 'html',

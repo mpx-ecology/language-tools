@@ -126,10 +126,11 @@ export function create(): LanguageServicePlugin {
               )
               const uniqueComponentCount = uniqueComponentMap.size
 
-              for (const [
+              for (const {
                 componentPath,
-                { targetFilePath, id },
-              ] of uniqueComponentMap.entries()) {
+                targetFilePath,
+                id,
+              } of uniqueComponentMap.values()) {
                 if (isMpPluginComponentPath(componentPath)) {
                   // Fix #70 plugin 组件路径不处理
                   continue
@@ -146,7 +147,7 @@ export function create(): LanguageServicePlugin {
                       (uniqueComponentCount > 1
                         ? `（来源 ${id}/${uniqueComponentCount}）`
                         : '') +
-                      `：${componentPath}`,
+                      `：${componentPath} → ${targetFilePath}`,
                   })
                 }
                 addLink(startTagOffset)
@@ -192,10 +193,10 @@ export function create(): LanguageServicePlugin {
             const uniqueComponentMap = dedupeComponentPaths(
               usingComponents.get(componentTag)!,
             )
-            for (const [
+            for (const {
               componentPath,
-              { targetFilePath },
-            ] of uniqueComponentMap) {
+              targetFilePath,
+            } of uniqueComponentMap.values()) {
               if (isMpPluginComponentPath(componentPath)) continue
               definitions.push({
                 originSelectionRange: {
@@ -292,7 +293,7 @@ function getTagHitOffset(
 }
 
 /**
- * 按 text 去重,丢弃没有 realFilename 的项,并记录序号便于 tooltip 标注来源。
+ * 按实际文件去重,丢弃没有 realFilename 的项,并记录序号便于 tooltip 标注来源。
  */
 function dedupeComponentPaths(
   rawComponentPaths: { text: string; realFilename?: string }[],
@@ -303,8 +304,8 @@ function dedupeComponentPaths(
   >()
   let id = 1
   for (const path of rawComponentPaths) {
-    if (!path.realFilename || map.has(path.text)) continue
-    map.set(path.text, {
+    if (!path.realFilename || map.has(path.realFilename)) continue
+    map.set(path.realFilename, {
       componentPath: path.text,
       targetFilePath: path.realFilename,
       id: id++,

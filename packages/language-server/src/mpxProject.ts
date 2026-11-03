@@ -3,6 +3,7 @@ import type { URI } from 'vscode-uri'
 import {
   createMpxLanguagePlugin,
   createParsedCommandLine,
+  decorateMpxLanguageServiceHost,
   getDefaultCompilerOptions,
   withMpxJsonServiceScripts,
 } from '@mpxjs/language-core'
@@ -71,24 +72,32 @@ export function createMpxProject(
   // Preserve tsconfig roots: global augmentations can live in ordinary modules
   // or be introduced transitively through their imports. jsonOnly disables the
   // Mpx business service script, not the project's ambient type environment.
+  const languagePlugin = createMpxLanguagePlugin(
+    ts,
+    commandLine.options,
+    commandLine.mpxOptions,
+    (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
+  )
   return {
-    languagePlugins: [
-      withMpxJsonServiceScripts(
-        createMpxLanguagePlugin(
-          ts,
-          commandLine.options,
-          commandLine.mpxOptions,
-          (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
-        ),
-        jsonOnly,
-      ),
-    ],
+    languagePlugins: [withMpxJsonServiceScripts(languagePlugin, jsonOnly)],
     setup({
       project,
+      language,
     }: {
       project: import('@mpxjs/language-service').ProjectContext
+      language: import('@mpxjs/language-service').Language
     }) {
       project.mpx = { compilerOptions: commandLine.mpxOptions }
+      if (project.typescript) {
+        decorateMpxLanguageServiceHost(
+          project.typescript.languageServiceHost,
+          languagePlugin,
+          fileName => {
+            const source = language.scripts.get(uriConverter.asUri(fileName))
+            if (source) source.isAssociationDirty = true
+          },
+        )
+      }
     },
   }
 }

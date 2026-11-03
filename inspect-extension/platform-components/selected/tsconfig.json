@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.json",
+  "mpxCompilerOptions": {
+    "mode": "android"
+  },
+  "include": ["./*.mpx"]
+}

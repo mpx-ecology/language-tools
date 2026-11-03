@@ -1,0 +1,22 @@
+<template>
+  <demo-panel value="{{ numeric }}"></demo-panel>
+  <!-- Intentional error for mode=ios: value must be a number. -->
+  <demo-panel value="bad" />
+  <explicit-panel value="{{ numeric }}" />
+  <only-ios value="{{ numeric }}" />
+</template>
+<script setup lang="ts">
+const numeric = 42
+defineExpose({ numeric })
+</script>
+<script name="json">
+const components = { 'demo-panel': './panel' }
+if (__mpx_mode__ === 'ali') components['demo-panel'] = '@components/panel.mpx?root=demo'
+module.exports = {
+  usingComponents: {
+    ...components,
+    'explicit-panel': './panel.ios.mpx?mode=ali&env=other',
+    'only-ios': './only-ios'
+  }
+}
+</script>
