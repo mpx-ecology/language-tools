@@ -1,0 +1,9 @@
+<template><options-child wx:ref="child" /></template>
+<script setup lang="ts">
+const { refs } = useContext()
+const result = refs.child?.find('Mpx')
+refs.child?.find(1)
+</script>
+<script type="application/json">
+{ "usingComponents": { "options-child": "./options-setup-child.mpx" } }
+</script>

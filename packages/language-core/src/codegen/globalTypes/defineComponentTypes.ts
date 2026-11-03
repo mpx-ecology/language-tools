@@ -3,6 +3,9 @@ import { MpxCompilerOptions } from '../../types'
 // Capture raw options independently from Mpx's constrained inference so IDE
 // metadata remains available even when ComponentIns contains conflicting fields.
 const globalTypes = () => `
+  type __VLS_MpxPublicFields<T> = __VLS_RemoveIndexSignature<T>
+  type __VLS_MpxPublicOptions<RawO extends Record<string, any>> =
+    __VLS_RemoveIndexSignature<__VLS_TemplateContext<RawO>>
   function __VLS_CaptureOptions<
     P extends Properties = {},
     Mi extends Array<any> = [],

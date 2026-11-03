@@ -1,0 +1,44 @@
+<template>
+  <exposed-child wx:if="{{ visible }}" wx:ref="conditional" />
+  <block wx:for="{{ rows }}" wx:key="id">
+    <exposed-child wx:ref="children" />
+    <view wx:ref="nodes" />
+  </block>
+  <exposed-child wx:ref="shared" />
+  <options-child wx:ref="shared" />
+  <exposed-child wx:ref="mixed" />
+  <options-child wx:for="{{ rows }}" wx:key="id" wx:ref="mixed" />
+  <view wx:ref="node" />
+  <view wx:ref="" />
+  <exposed-child wx:ref="{{ dynamicName }}" />
+  <exposed-child wx:ref="load-more" />
+  <exposed-child wx:ref="default" />
+</template>
+<script setup lang="ts">
+const visible = true
+const rows = [{ id: 1 }]
+const dynamicName = 'dynamic'
+const context = useContext()
+const refs = context.refs
+const childResult = refs.children[0].loadMore(1)
+const shared = refs.shared
+const mixed = refs.mixed
+const node = refs.node
+const nodes = refs.nodes
+const namedResult = refs['load-more']?.loadMore(1)
+const keywordResult = refs.default?.loadMore(1)
+refs.conditional.loadMore(1)
+refs.children.loadMore(1)
+refs.children[0].loadMore('bad')
+refs.node.loadMore(1)
+refs.shared.loadMore(1)
+defineExpose({ visible, rows, dynamicName, refs })
+</script>
+<script type="application/json">
+{
+  "usingComponents": {
+    "exposed-child": "./exposed-child.mpx",
+    "options-child": "./options-child.mpx"
+  }
+}
+</script>

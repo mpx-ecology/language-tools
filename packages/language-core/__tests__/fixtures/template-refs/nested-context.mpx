@@ -1,0 +1,20 @@
+<template><exposed-child wx:ref="child" /></template>
+<script setup lang="ts">
+import { onMounted } from '@mpxjs/core'
+onMounted(() => {
+  const { refs } = useContext()
+  const result = refs.child?.loadMore(1)
+  refs.child?.loadMore('bad')
+})
+function local(useContext: () => { value: string }) {
+  const localResult = useContext().value
+  localResult.toFixed()
+}
+if (true) {
+  const useContext = () => ({ local: 1 })
+  useContext().local.toUpperCase()
+}
+</script>
+<script type="application/json">
+{ "usingComponents": { "exposed-child": "./exposed-child.mpx" } }
+</script>

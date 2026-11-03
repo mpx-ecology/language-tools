@@ -1,0 +1,12 @@
+<template><view>{{ title }}</view></template>
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+createComponent({
+  data: { title: 'Mpx' },
+  methods: {
+    /** 按名称查找。 */
+    find(name: string): number { return name.length },
+  },
+})
+</script>
+<script type="application/json">{ "component": true }</script>
