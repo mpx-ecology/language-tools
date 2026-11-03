@@ -1,0 +1,17 @@
+<template><view><panel /></view></template>
+<script lang="ts">
+import { createPage } from '@mpxjs/core'
+createPage({})
+</script>
+<script type="application/json">
+{
+  // ✅ 页面配置无需 component；hover 仍有说明。
+  "navigationBarTitleText": "页面配置回归",
+  // ✅ 值补全 black / white，合法值无诊断。
+  "navigationBarTextStyle": "white",
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": true,
+  // ✅ 现有路径补全、链接继续可用。
+  "usingComponents": { "panel": "./panel.mpx" },
+}
+</script>

@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import os from 'node:os'
 import {
   createLanguage,
   createLanguageService,
@@ -22,12 +23,15 @@ const fixtureRoot = path.join(__dirname, 'fixtures/static-json')
 const services: ReturnType<typeof createLanguageService>[] = []
 afterEach(() => services.splice(0).forEach(service => service.dispose()))
 
-function setup(json: string, options: { language?: 'json' | 'js' } = {}) {
+function setup(
+  json: string,
+  options: { language?: 'json' | 'js'; links?: boolean; uri?: URI } = {},
+) {
   // | denotes the cursor in an intentionally incomplete editor document.
   const marked = `<template><view /></template>\n<script ${options.language === 'js' ? 'name="json"' : 'type="application/json"'}>\n${json}\n</script>`
   const offset = marked.indexOf('|')
   const text = marked.replace('|', '')
-  const uri = URI.file(path.join(fixtureRoot, 'test.mpx'))
+  const uri = options.uri ?? URI.file(path.join(fixtureRoot, 'test.mpx'))
   const document = TextDocument.create(uri.toString(), 'mpx', 0, text)
   const language = createLanguage(
     [
@@ -44,7 +48,7 @@ function setup(json: string, options: { language?: 'json' | 'js' } = {}) {
   language.scripts.set(uri, ts.ScriptSnapshot.fromString(text), 'mpx')
   const service = createLanguageService(
     language,
-    [createJson(), createLinks()],
+    [createJson(), ...(options.links === false ? [] : [createLinks()])],
     { workspaceFolders: [] },
     {},
   )
@@ -200,6 +204,112 @@ describe('static JSON in mapped Mpx SFCs', () => {
     expect(
       diagnosticTexts(fixture.document, await fixture.diagnostics()),
     ).toContain('"red"')
+  })
+
+  it('accepts Mpx string path forms without adding Schema format restrictions', async () => {
+    const fixture = setup(
+      JSON.stringify({
+        usingComponents: {
+          relative: './panel.mpx?root=async&placeholder=view',
+          npm: '@scope/native-panel/index',
+          plugin: 'plugin://demo/panel',
+          alias: '@/panel',
+          theme: '@themeComponent',
+          binding: '{{themeComponent}}',
+        },
+        componentPlaceholder: {
+          relative: 'view',
+          npm: 'text',
+          alias: 'registered-panel',
+        },
+      }),
+      { links: false },
+    )
+    // This isolates new Schema constraints from the pre-existing path resolver.
+    expect(await fixture.diagnostics()).toEqual([])
+  })
+
+  it('keeps generic extension keys and optional defaults open', async () => {
+    const fixture = setup(
+      JSON.stringify({
+        componentGenerics: {
+          enabled: true,
+          disabled: false,
+          empty: {},
+          extended: {
+            default: 'plugin://demo/panel',
+            customNativeOption: { enabled: true },
+          },
+        },
+      }),
+    )
+    expect(await fixture.diagnostics()).toEqual([])
+  })
+
+  it.each([
+    ['navigationStyle', ['default', 'custom']],
+    ['backgroundTextStyle', ['dark', 'light']],
+    ['pageOrientation', ['auto', 'portrait', 'landscape']],
+    ['renderer', ['webview', 'skyline', 'xr-frame']],
+  ])('preserves existing %s page completion values', async (field, values) => {
+    const result = await setup(`{ "${field}": | }`).complete()
+    expect(result.items.map(item => item.label)).toEqual(
+      expect.arrayContaining(values.map(value => JSON.stringify(value))),
+    )
+    for (const value of values) {
+      expect(
+        await setup(JSON.stringify({ [field]: value })).diagnostics(),
+      ).toEqual([])
+    }
+  })
+
+  it('accepts app/page fields without requiring a component declaration', async () => {
+    const fixture = setup(
+      JSON.stringify({
+        pages: ['./panel.mpx'],
+        window: {
+          navigationBarTitleText: 'Mpx',
+          navigationBarTextStyle: 'white',
+        },
+        navigationBarTitleText: 'Mpx page',
+        enablePullDownRefresh: true,
+        usingComponents: { panel: './panel.mpx' },
+        styleIsolation: 'apply-shared',
+        customPlatformOption: { enabled: true },
+      }),
+    )
+    expect(await fixture.diagnostics()).toEqual([])
+  })
+
+  it('keeps npm component path links and diagnostics working', async () => {
+    const temporaryRoot = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'mpx-static-json-npm-'),
+    )
+    try {
+      fs.mkdirSync(path.join(temporaryRoot, 'node_modules/@demo'), {
+        recursive: true,
+      })
+      fs.symlinkSync(
+        path.join(fixtureRoot, 'native'),
+        path.join(temporaryRoot, 'node_modules/@demo/panel'),
+        'dir',
+      )
+      const fixture = setup(
+        '{ "usingComponents": { "panel": "@demo/panel/index" } }',
+        { uri: URI.file(path.join(temporaryRoot, 'page.mpx')) },
+      )
+      expect(await fixture.diagnostics()).toEqual([])
+      const links = await fixture.service.getDocumentLinks(fixture.uri)
+      expect(links).toHaveLength(1)
+      expect(fixture.document.getText(links[0].range)).toContain(
+        '@demo/panel/index',
+      )
+      expect(URI.parse(links[0].target!).fsPath).toBe(
+        path.join(fixtureRoot, 'native/index.js'),
+      )
+    } finally {
+      fs.rmSync(temporaryRoot, { recursive: true, force: true })
+    }
   })
 
   it('does not apply static Schema diagnostics to JSON JS', async () => {
