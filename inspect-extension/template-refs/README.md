@@ -6,6 +6,8 @@
 
 ✅ 为正例，❌ 为故意错误；出现注释描述的诊断即通过，不要删除反例。
 
+`screenshot.mpx` 是用于 before/after 的最小场景：在 result 上显示 hover，并打开 Problems 面板。修复前应退化为 any 且 string 参数无诊断；修复后应为 Promise<number> | undefined，并在 'bad' 上报告 TS2345。场景及全部 script-setup 自动化 fixtures 已通过真实 Mpx 编译器检查。
+
 - `useContext().refs` 补全模板中的静态具名 ref；其余 context API（如 triggerEvent）保留原类型。
 - setup 子组件保留 defineExpose、props、defineOptions 公开字段；不补全未公开的私有 setup 变量。Ref 在公开实例中解包。
 - `loadMore` 参数为 number，返回 Promise<number>；Options 的 `find` 参数为 string，返回 number。hover、签名帮助与 F12 指向子组件源码。
@@ -28,4 +30,4 @@
 - shared 定义跳到两处 wx:ref。
 - 故意错误恰好产生 5 条诊断：TS2345、3 条 TS2339、TS18049；范围分别落在错误参数/成员/未判空表达式。
 
-16 项专项测试（含 wx / ios 真实编译器元数据）、全量 489 项测试、pnpm build、pnpm lint、扩展 bundle 均通过。自动化分别检查 verification、completion、semantic、navigation 映射。未执行人工 F5 主题颜色/截图检查及 RN 设备运行；编辑器类型行为由隔离宿主中的实际 providers 验证。
+23 项专项测试（含 wx / ios 真实编译器元数据与 7 份 script-setup fixture 编译）、全量 496 项测试、pnpm build、pnpm lint、扩展 bundle 均通过。自动化分别检查 verification、completion、semantic、navigation 映射。RN 设备运行未执行。真实 UI 截图待补：独立 ff1d26d 基线与修复扩展已构建，相同场景、主题和设置已准备。基线宿主当前处于 Restricted Mode，TypeScript 服务未启动，已释放桌面锁；待用户手动完成临时基线工作区信任后，再申请锁采集并上传 GitHub attachments。设置检查图不作为问题证据，provider 输出不代替截图。
