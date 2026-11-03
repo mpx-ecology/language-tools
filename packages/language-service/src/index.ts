@@ -31,6 +31,7 @@ import { Commands } from './types'
 export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
 export * from './types'
+export { componentNavigationRanges } from './utils/componentNavigation'
 export { createProject as createTypeScriptSemanticPlugin } from './plugins/mpx-sfc-json-js'
 
 export interface MpxLanguageServicePluginOptions {

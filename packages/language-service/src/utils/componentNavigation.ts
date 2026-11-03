@@ -4,6 +4,7 @@ import type {
   UsingComponentInfo,
 } from '@mpxjs/language-core'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
+import { MpxVirtualCode, tsCodegen } from '@mpxjs/language-core'
 import type { Hover, Range } from 'vscode-languageserver-protocol'
 import { URI, Utils } from 'vscode-uri'
 import { isMpPluginComponentPath } from './index'
@@ -81,4 +82,77 @@ export function componentTargetsHover(
       value: `${title}（${files.length} 个目标）：\n\n${links.join('\n')}`,
     },
   }
+}
+
+/** Source ranges whose native DocumentLinks are omitted for multi-definition navigation. */
+export function componentNavigationRanges(
+  context: import('@volar/language-service').LanguageServiceContext,
+  uri: URI,
+): Range[] {
+  let source = context.language.scripts.get(uri)
+  let root = source?.generated?.root
+  if (!(root instanceof MpxVirtualCode)) return []
+  // External file changes need Volar to re-register mappings before reading them.
+  if (root.externalDependencyVersion !== root.getExternalDependencyVersion()) {
+    source!.isAssociationDirty = true
+    source = context.language.scripts.get(uri)
+    root = source?.generated?.root
+    if (!(root instanceof MpxVirtualCode)) return []
+  }
+  const snapshot = source!.snapshot
+  const document = context.documents.get(uri, source!.languageId, snapshot)
+  const ranges = new Map<string, Range>()
+  function add(start: number, end: number) {
+    if (start < end) {
+      const range = {
+        start: document.positionAt(start),
+        end: document.positionAt(end),
+      }
+      ranges.set(JSON.stringify(range), range)
+    }
+  }
+  const { sfc } = root
+  const jsonCode = source?.generated?.embeddedCodes.get(
+    `json_${sfc.json?.lang}`,
+  )
+  if (sfc.json && jsonCode) {
+    const jsonDocument = context.documents.get(
+      context.encodeEmbeddedDocumentUri(uri, jsonCode.id),
+      jsonCode.languageId,
+      jsonCode.snapshot,
+    )
+    for (const group of jsonPathTargets(jsonDocument, sfc.json)) {
+      if (group.files.length > 1)
+        add(
+          sfc.json.startTagEnd + jsonDocument.offsetAt(group.range.start),
+          sfc.json.startTagEnd + jsonDocument.offsetAt(group.range.end),
+        )
+    }
+  }
+  if (sfc.template) {
+    const components = sfc.json?.resolvedUsingComponents?.result
+    const tags =
+      tsCodegen.get(sfc)?.getGeneratedTemplate()?.templateNodeTags ?? []
+    for (const tag of tags) {
+      const targets = new Set(
+        (components?.get(tag.name) ?? [])
+          .filter(
+            info => info.realFilename && !isMpPluginComponentPath(info.text),
+          )
+          .map(info => URI.file(info.realFilename!).toString()),
+      )
+      if (targets.size < 2) continue
+      for (const offset of [tag.startTagOffset, tag.endTagOffset]) {
+        if (offset != null)
+          add(
+            sfc.template.startTagEnd + offset,
+            sfc.template.startTagEnd + offset + tag.name.length,
+          )
+      }
+    }
+  }
+  return [...ranges.values()].sort(
+    (a, b) =>
+      a.start.line - b.start.line || a.start.character - b.start.character,
+  )
 }

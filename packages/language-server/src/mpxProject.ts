@@ -89,14 +89,16 @@ export function createMpxProject(
     }) {
       project.mpx = { compilerOptions: commandLine.mpxOptions }
       if (project.typescript) {
-        decorateMpxLanguageServiceHost(
-          project.typescript.languageServiceHost,
-          languagePlugin,
-          fileName => {
-            const source = language.scripts.get(uriConverter.asUri(fileName))
-            if (source) source.isAssociationDirty = true
-          },
-        )
+        const host = project.typescript.languageServiceHost
+        const getProjectVersion = host.getProjectVersion?.bind(host)
+        // Volar may suppress its TS version when only non-TS virtual metadata
+        // changes. A native dependency edit in the same update still matters.
+        host.getProjectVersion = () =>
+          `${getProjectVersion?.() ?? ''}:${projectHost.getProjectVersion?.() ?? ''}`
+        decorateMpxLanguageServiceHost(host, languagePlugin, fileName => {
+          const source = language.scripts.get(uriConverter.asUri(fileName))
+          if (source) source.isAssociationDirty = true
+        })
       }
     },
   }

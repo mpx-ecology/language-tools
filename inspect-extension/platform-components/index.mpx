@@ -1,5 +1,5 @@
 <template>
-  <!-- ✅ hover 显示 panel.mpx / panel.ios.mpx 的真实文件名，可点击明确目标。 -->
+  <!-- ✅ 多目标标签及 JSON 路径保持下划线；hover 显示真实文件名，可点选明确目标。 -->
   <!-- ✅ Ctrl/Cmd+单击或 F12：默认出现两个文件的定义选择面板，不直接打开第一个链接。 -->
   <demo-panel value="{{ numeric }}"></demo-panel>
   <!-- ✅ 显式平台路径只跳到 panel.ios.mpx，query 中的 mode 不改变文件选择。 -->
