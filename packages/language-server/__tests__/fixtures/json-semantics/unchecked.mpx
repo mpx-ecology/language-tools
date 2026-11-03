@@ -1,0 +1,5 @@
+<script name="json">
+/** @type {string} */
+const invalidTitle = 42
+module.exports = { navigationBarTitleText: invalidTitle }
+</script>
