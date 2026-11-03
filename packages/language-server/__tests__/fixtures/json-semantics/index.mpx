@@ -1,0 +1,25 @@
+<template><view>{{ runtimeTitle }}</view></template>
+<script setup lang="ts">
+const runtimeTitle = '业务脚本'
+const config = { title: 'runtime' }
+const businessOnly = 123
+defineExpose({ runtimeTitle, config, businessOnly })
+</script>
+<script name="json">
+const shared = require('./shared')
+const alias = shared
+const config = { title: shared.title, count: alias.count }
+/**
+ * @param {string} title
+ * @param {number} count
+ */
+function formatTitle(title, count) {
+  return title + count.toFixed()
+}
+const title = formatTitle(config.title, config.count)
+module.exports = {
+  navigationBarTitleText: title,
+  usingComponents: { panel: './panel.mpx' },
+  customBuildFlag: __json_build_flag__,
+}
+</script>
