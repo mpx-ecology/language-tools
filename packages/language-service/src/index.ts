@@ -22,6 +22,7 @@ import { create as createMpxStyleStylusPlugin } from './plugins/mpx-sfc-style-st
 import { create as createMpxStyleDirectiveCommentsPlugin } from './plugins/mpx-sfc-style-directive-comments'
 import { create as createMpxJsonJsPlugin } from './plugins/mpx-sfc-json-js'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
+import { create as createMpxJsonConfigPlugin } from './plugins/mpx-sfc-json-config'
 import { create as createMpxJsonLinksPlugin } from './plugins/mpx-sfc-json-links'
 import { create as createMpxJsonImportCompletionPlugin } from './plugins/mpx-sfc-json-import-completion'
 import { create as createMpxPrettierPlugin } from './plugins/mpx-prettier'
@@ -86,6 +87,7 @@ function getCommonLanguageServicePlugins(
     createMpxStyleStylusPlugin(),
     createMpxStyleDirectiveCommentsPlugin(),
     createMpxJsonJsonPlugin(),
+    createMpxJsonConfigPlugin(ts),
     createMpxTemplateLinksPlugin(),
     createMpxJsonLinksPlugin(),
     createMpxJsonImportCompletionPlugin(getTsPluginClient),
