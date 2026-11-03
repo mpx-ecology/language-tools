@@ -1,0 +1,5 @@
+<script setup>
+defineProps({ title: String })
+const key = 'title'
+defineExpose({ [key]: 'javascript' })
+</script>
