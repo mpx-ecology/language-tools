@@ -1,0 +1,8 @@
+<template>
+  <!-- ❌ 故意未注册；✅ Quick Fix 禁用并说明动态配置需要手动处理。 -->
+  <demo-card />
+</template>
+<script name="json">
+const shared = require('./shared-config')
+module.exports = { ...shared, usingComponents: {} }
+</script>

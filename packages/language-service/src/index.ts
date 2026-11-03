@@ -76,7 +76,7 @@ function getCommonLanguageServicePlugins(
     createTypeScriptSyntacticPlugin(ts),
     createTypeScriptDocCommentTemplatePlugin(ts),
     createMpxSfcPlugin(),
-    createMpxTemplatePlugin(getTsPluginClient),
+    createMpxTemplatePlugin(getTsPluginClient, ts),
     createMpxTemplateCompilerErrorsPlugin(),
     createMpxTemplateDirectiveCommentsPlugin(),
     createMpxTemplateAutoinsertSpacePlugin(),

@@ -1,0 +1,4 @@
+<template>
+  <!-- ❌ 故意无配置且未注册；✅ 接受候选后新建 JSON 区块，一次撤销同时恢复标签。 -->
+  <demo-card title="新建配置" />
+</template>

@@ -1,0 +1,4 @@
+<template><view>卡片</view></template>
+<script type="application/json">
+{ "component": true }
+</script>

@@ -12,6 +12,7 @@ declare module '@volar/language-service' {
   export interface ProjectContext {
     mpx?: {
       compilerOptions: MpxCompilerOptions
+      typescriptCompilerOptions?: import('typescript').CompilerOptions
     }
   }
 }

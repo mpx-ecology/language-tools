@@ -25,6 +25,10 @@ import {
 const connection = createConnection()
 const server = createServer(connection)
 
+server.onInitialized(() => {
+  void server.fileWatcher.watchFiles(['**/*.mpx', '**/tsconfig*.json'])
+})
+
 const tsserverRequestHandlers = new Map<number, (response: any) => void>()
 let tsserverRequestId = 0
 
@@ -257,7 +261,12 @@ function initializeForIDE(params: InitializeParams) {
       createLanguageServiceEnvironment(server, [
         ...server.workspaceFolders.all,
       ]),
-      { mpx: { compilerOptions: commonLine.mpxOptions } },
+      {
+        mpx: {
+          compilerOptions: commonLine.mpxOptions,
+          typescriptCompilerOptions: commonLine.options,
+        },
+      },
     )
   }
 }

@@ -13,11 +13,13 @@ import { getAtModeBaseName } from '@mpxjs/language-shared'
 import { create as createHtmlService } from 'volar-service-html'
 import { LanguageServicePlugin, SfcJsonBlockUsingComponents } from '../types'
 import templateBuiltinData from '../data/template'
+import { create as createComponentRegistration } from './mpx-component-registration'
 import { templateCodegenHelper } from '../utils/templateCodegenHelper'
 import { formatWithBracketSpacing, prettierEnabled } from '../utils/formatter'
 
 export function create(
   getTsClient: (context: LanguageServiceContext) => IRequests | undefined,
+  ts?: typeof import('typescript'),
 ): LanguageServicePlugin {
   const mpxBuiltinData = html.newHTMLDataProvider(
     'mpx-template-built-in',
@@ -88,7 +90,12 @@ export function create(
 
     capabilities: {
       ...baseService.capabilities,
+      codeActionProvider: {
+        codeActionKinds: ['quickfix'],
+        resolveProvider: true,
+      },
       completionProvider: {
+        resolveProvider: true,
         triggerCharacters: [
           ...(baseService.capabilities.completionProvider?.triggerCharacters ??
             []),
@@ -99,6 +106,10 @@ export function create(
 
     create(context) {
       const baseServiceInstance = baseService.create(context)
+      // Share the HTML completion call: a separate provider would be skipped
+      // after Volar chooses the main mapped completion document.
+      const registration =
+        ts && createComponentRegistration(ts, getTsClient).create(context)
       let customDataUpdateId = 0
       const isCustomDataRequestCurrent = (
         updateId: number,
@@ -201,6 +212,7 @@ export function create(
 
         dispose() {
           baseServiceInstance.dispose?.()
+          registration?.dispose?.()
         },
 
         async provideCompletionItems(
@@ -261,8 +273,36 @@ export function create(
               }
             }
           })
+          const components = await registration?.provideCompletionItems?.(
+            document,
+            position,
+            completionContext,
+            token,
+          )
+          if (!isCustomDataRequestCurrent(customData.updateId, token)) return
+          if (components) {
+            return {
+              isIncomplete: true,
+              items: [...(htmlComplete?.items ?? []), ...components.items],
+            }
+          }
           return htmlComplete
         },
+
+        resolveCompletionItem(item, token) {
+          if (item.data?.kind === 'mpx-component-registration')
+            return registration!.resolveCompletionItem!(item, token)
+          return (
+            baseServiceInstance.resolveCompletionItem?.(item, token) ?? item
+          )
+        },
+        transformCompletionItem(item) {
+          if (item.data?.kind === 'mpx-component-registration') return item
+          return baseServiceInstance.transformCompletionItem?.(item)
+        },
+        provideCodeActions: registration?.provideCodeActions,
+        resolveCodeAction: registration?.resolveCodeAction,
+        transformCodeAction: registration?.transformCodeAction,
 
         async provideHover(document, position, token) {
           if (document.languageId !== 'html') {
