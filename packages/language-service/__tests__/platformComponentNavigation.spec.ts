@@ -1,6 +1,10 @@
 import path from 'node:path'
 import type { LanguageServiceContext } from '@volar/language-service'
-import type { LocationLink } from 'vscode-languageserver-protocol'
+import type {
+  Hover,
+  LocationLink,
+  MarkupContent,
+} from 'vscode-languageserver-protocol'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { URI } from 'vscode-uri'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -11,6 +15,7 @@ import {
 import { create as createTemplateLinks } from '../src/plugins/mpx-sfc-template-links'
 import { create as createComponentDefinition } from '../src/plugins/mpx-component-definition'
 import { create as createJsonLinks } from '../src/plugins/mpx-sfc-json-links'
+import { componentTargetsHover } from '../src/utils/componentNavigation'
 
 const fixtureRoot = path.resolve(
   __dirname,
@@ -83,7 +88,7 @@ describe('platform component forward navigation', () => {
       }
     },
   )
-  it('keeps all JSON path definitions and links with their original source ranges', async () => {
+  it('keeps all JSON definitions but leaves multi-target Ctrl/Cmd+click to the definition provider', async () => {
     const { context, json } = setup()
     const plugin = createComponentDefinition({ template: false }).create!(
       context,
@@ -110,23 +115,70 @@ describe('platform component forward navigation', () => {
     const links = await jsonPlugin.provideDocumentLinks!(json, token)
     expect(
       links?.filter(link => json.getText(link.range) === './panel'),
-    ).toHaveLength(3)
+    ).toHaveLength(0)
     expect(
       links?.filter(
         link => json.getText(link.range) === '@components/panel.mpx?root=demo',
       ),
-    ).toHaveLength(3)
+    ).toHaveLength(0)
+    const hover = await jsonPlugin.provideHover!(
+      json,
+      json.positionAt(offset + 2),
+      token,
+    )
+    expect(json.getText((hover as Hover).range)).toBe('./panel')
+    expectRealFileLinks(hover as Hover, [
+      'panel.mpx',
+      'panel.ali.mpx',
+      'panel.ios.mpx',
+    ])
   })
-  it('does not merge distinct files that originated from the same path text', async () => {
+  it('uses explicit hover links for real files without overlapping template DocumentLinks', async () => {
     const { context, template } = setup()
     const plugin = createTemplateLinks().create!(context)!
     const links = await plugin.provideDocumentLinks!(template, token)
     const start = template.getText().indexOf('demo-panel')
-    const tagLinks =
-      links?.filter(link => template.offsetAt(link.range.start) === start) ?? []
-    expect(tagLinks).toHaveLength(3)
-    expect(new Set(tagLinks.map(link => link.target)).size).toBe(3)
-    expect(tagLinks.every(link => link.tooltip?.includes('→'))).toBe(true)
+    expect(
+      links?.filter(link => template.offsetAt(link.range.start) === start),
+    ).toEqual([])
+    for (const offset of [
+      start + 1,
+      template.getText().indexOf('</demo-panel') + 3,
+    ]) {
+      const hover = await plugin.provideHover!(
+        template,
+        template.positionAt(offset),
+        token,
+      )
+      expect(template.getText((hover as Hover).range)).toBe('demo-panel')
+      expectRealFileLinks(hover as Hover, [
+        'panel.mpx',
+        'panel.ali.mpx',
+        'panel.ios.mpx',
+      ])
+    }
+  })
+  it('keeps direct single-target links and shows the real filename instead of the request or query', async () => {
+    const { context, template, json } = setup()
+    for (const [document, create] of [
+      [json, createJsonLinks],
+      [template, createTemplateLinks],
+    ] as const) {
+      const plugin = create().create!(context)!
+      const links = await plugin.provideDocumentLinks!(document, token)
+      const link = links?.find(link =>
+        document
+          .getText(link.range)
+          .includes(document === json ? './panel.ios.mpx?' : 'explicit-panel'),
+      )
+      expect(link?.tooltip).toBe('自定义组件：panel.ios.mpx')
+      expect(link?.target).toBe(
+        URI.file(path.join(fixtureRoot, 'panel.ios.mpx')).toString(),
+      )
+      expect(
+        await plugin.provideHover!(document, link!.range.start, token),
+      ).toBeUndefined()
+    }
   })
   it('keeps explicit source-file navigation independent from resource query', async () => {
     const { context, template, json } = setup()
@@ -153,4 +205,33 @@ describe('platform component forward navigation', () => {
       ),
     ).toEqual(['panel.ios.mpx'])
   })
+})
+
+function expectRealFileLinks(hover: Hover, files: string[]) {
+  const markdown = (hover.contents as MarkupContent).value
+  for (const file of files) {
+    expect(markdown).toContain(
+      `[${file}](<${URI.file(path.join(fixtureRoot, file)).toString()}>)`,
+    )
+  }
+  expect(markdown.match(/^- \[/gm)).toHaveLength(files.length)
+  expect(markdown).not.toContain('[./panel]')
+}
+
+it('disambiguates same-name files and escapes special characters in hover link labels', () => {
+  const files = [
+    '/components/a/panel.mpx',
+    '/components/b/panel.mpx',
+    '/components/panel[legacy].mpx',
+  ]
+  const hover = componentTargetsHover(
+    { start: { line: 0, character: 0 }, end: { line: 0, character: 5 } },
+    files,
+  )
+  const markdown = (hover.contents as MarkupContent).value
+  expect(markdown).toContain('[/components/a/panel.mpx]')
+  expect(markdown).toContain('[/components/b/panel.mpx]')
+  expect(markdown).toContain('[panel\\[legacy\\].mpx]')
+  for (const file of files)
+    expect(markdown).toContain(`(<${URI.file(file).toString()}>)`)
 })

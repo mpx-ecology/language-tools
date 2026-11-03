@@ -4,7 +4,7 @@
 
 在本 worktree 的独立 Extension Host 打开本目录，等待构建并执行 `Mpx: Restart Server`。自动化 fixtures 位于 language-core 的 `__tests__/fixtures/platform-components`，不依赖本目录。无需配置 IDE 活动平台。
 
-- `index.mpx`：模板标签开闭位置 F12 / Cmd 点击应列出普通、ios 两个真实文件，由用户选择；alias / query 不增加重复文件。JSON 路径 F12 返回同一组候选。显式 `.ios.mpx?mode=ali` 只跳到该 ios 文件；仅有 ios 的组件无路径 4001。boolean 是故意的 props 错误。
+- `index.mpx`：hover 应显示可点击的 `panel.mpx` / `panel.ios.mpx`，不显示两个相同的 `./panel`；模板标签开闭位置 F12 / Ctrl/Cmd+单击应列出普通、ios 两个真实文件，由用户选择；alias / query 不增加重复文件。JSON 路径 F12 / Ctrl/Cmd+单击返回同一组候选；单目标链接的 tooltip 也显示真实文件名。显式 `.ios.mpx?mode=ali` 只跳到该 ios 文件；仅有 ios 的组件无路径 4001。boolean 是故意的 props 错误。
 - `explicit.mpx`：显式引用 ios 文件，hover 保留 number；`value="bad"` 为故意的 TS2322。query 不改变类型和导航目标。
 - 在本目录临时复制 `panel.mpx` 为 `panel.android.mpx`：`index.mpx` 的定义列表应新增 Android 文件，保留普通 / ios 文件；重命名或删除后同步更新，无需编辑父文件。验收后删除临时文件。
 
@@ -18,4 +18,12 @@ usingComponents 的 `?root=` 等 query 保留在原始注册和补全映射中�
 
 本项不执行 JSON JS 分支、不筛选 SFC 区块、不读取或执行 webpack 配置；自定义 webpack alias / fileConditionRules / miniprogram 包入口重写不在本项。plugin:// 组件没有本地源码。反向查找与自动注册由后续任务处理。
 
-验证记录见修复 PR；上述更新场景需重新验证，不沿用旧的活动平台配置验收结果。未进行截图或主题视觉验收。
+## 点击和 Peek 验收
+
+使用 VS Code 原有 `editor.gotoLocation.multipleDefinitions` 设置；默认 `peek` 时显示内嵌定义列表。如果用户改成 `goto`，遵循该偏好，不由扩展改写全局设置。
+
+多目标注册路径 / 标签不再生成重叠 DocumentLink，以免源码 Ctrl/Cmd+单击被“打开首个链接”接管。hover 中仍保留指向各真实文件的显式链接；单目标保持直接链接，样式 class 等其他链接不受影响。
+
+在 JSON 的 `./panel` 上实际 Ctrl/Cmd+单击，确认出现定义列表；不能只运行 F12 或 `executeDefinitionProvider` 就将鼠标手势验收记为通过。hover 链接点选应打开对应的具体文件。
+
+验证记录见修复 PR；本轮 hover / 鼠标手势需重新做真实 UI 验收并补截图，不沿用旧 provider 结果。

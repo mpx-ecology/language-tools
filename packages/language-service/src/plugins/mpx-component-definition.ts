@@ -4,6 +4,7 @@ import type { TextDocument } from 'vscode-languageserver-textdocument'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode, tsCodegen } from '@mpxjs/language-core'
 import { isMpPluginComponentPath } from '../utils'
+import { jsonPathTargets } from '../utils/componentNavigation'
 
 export function create(
   options: { template?: boolean } = {},
@@ -51,26 +52,13 @@ export function create(
           return
         }
         const offset = document.offsetAt(position)
-        const { result: resolvedUsingComponents } =
-          (await root.sfc.json.resolvedUsingComponents) || {}
-        if (!resolvedUsingComponents?.size) {
-          return
-        }
-
         const definitions: vscode.LocationLink[] = []
-        for (const componentsArray of resolvedUsingComponents.values()) {
-          for (const {
-            text,
-            offset: compOffset,
-            realFilename,
-          } of componentsArray) {
-            if (!realFilename || isMpPluginComponentPath(text)) continue
-            const pathStart = compOffset + 1
-            if (offset >= pathStart && offset <= pathStart + text.length) {
-              definitions.push(
-                definition(realFilename, document, pathStart, text.length),
-              )
-            }
+        for (const group of jsonPathTargets(document, root.sfc.json)) {
+          const start = document.offsetAt(group.range.start)
+          const end = document.offsetAt(group.range.end)
+          if (offset >= start && offset <= end) {
+            for (const file of group.files)
+              definitions.push(definition(file, document, start, end - start))
           }
         }
         return uniqueDefinitions(definitions)
