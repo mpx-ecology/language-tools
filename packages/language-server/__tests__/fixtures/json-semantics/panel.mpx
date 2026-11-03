@@ -1,0 +1,2 @@
+<template><view /></template>
+<script setup>defineExpose({})</script>

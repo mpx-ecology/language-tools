@@ -1,0 +1,18 @@
+<script name="json">
+const panelPath = './panel.mpx'
+// 预期 4001：只覆盖下面字符串引号内的路径，不覆盖 missingPath 使用处。
+const missingPath = './missing-bound.mpx'
+const config = { panel: './missing-property.mpx' }
+module.exports = {
+  usingComponents: {
+    // 两个链接均只覆盖对应字符串引号内的路径；bound 的链接在 panelPath 声明处。
+    quoted: './panel.mpx',
+    bound: panelPath,
+    // 预期 4001：只覆盖字符串引号内的路径。
+    missing: './missing-quoted.mpx',
+    missingBound: missingPath,
+    // 属性访问仍沿用既有的未求值处理；预期 4001 完整覆盖 config.panel，不偏移首尾。
+    expression: config.panel,
+  },
+}
+</script>
