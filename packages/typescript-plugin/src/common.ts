@@ -11,6 +11,7 @@ import {
 import { capitalize } from '@mpxjs/language-shared'
 import { _getComponentNames } from './requests/getComponentNames'
 import { _getElementNames } from './requests/getElementNames'
+import { transformTemplateDiagnostic } from './utils/diagnostics'
 
 const windowsPathReg = /\\/g
 
@@ -30,6 +31,13 @@ export function proxyLanguageServiceForMpx<T>(
     p: string | symbol,
   ): ((...args: any[]) => any) | undefined => {
     switch (p) {
+      case 'getSemanticDiagnostics':
+      case 'getSyntacticDiagnostics':
+      case 'getSuggestionDiagnostics':
+        return (fileName: string) =>
+          target[p](fileName).map(diagnostic =>
+            transformTemplateDiagnostic(ts, language, asScriptId, diagnostic),
+          )
       case 'getCompletionsAtPosition':
         return getCompletionsAtPosition(mpxOptions, target[p])
       case 'getCompletionEntryDetails':
