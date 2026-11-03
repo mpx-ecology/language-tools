@@ -1,0 +1,7 @@
+<template><view /></template>
+<script setup>
+defineExpose({})
+</script>
+<script type="application/json">
+{ "component": "wrong" }
+</script>
