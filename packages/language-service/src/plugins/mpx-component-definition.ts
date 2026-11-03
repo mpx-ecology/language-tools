@@ -64,7 +64,8 @@ export function create(): LanguageServicePlugin {
             if (!realFilename || isMpPluginComponentPath(text)) {
               continue
             }
-            if (offset >= compOffset && offset <= compOffset + text.length) {
+            const pathStart = compOffset + 1
+            if (offset >= pathStart && offset <= pathStart + text.length) {
               return [
                 {
                   targetUri: URI.file(realFilename).toString(),
@@ -77,8 +78,8 @@ export function create(): LanguageServicePlugin {
                     end: { line: 0, character: 0 },
                   },
                   originSelectionRange: {
-                    start: document.positionAt(compOffset),
-                    end: document.positionAt(compOffset + text.length),
+                    start: document.positionAt(pathStart),
+                    end: document.positionAt(pathStart + text.length),
                   },
                 },
               ]
