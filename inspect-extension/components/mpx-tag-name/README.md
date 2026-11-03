@@ -1,6 +1,6 @@
 # mpxTagName（U02 / T02）
 
-用本 worktree 启动独立 Extension Host，等待 watch 完成后运行 `Mpx: Restart Server`，打开 `index.mpx`。两处 ❌ 是故意保留的类型错误。
+用本 worktree 启动独立 Extension Host，等待 watch 完成后运行 `Mpx: Restart Server`，打开 `index.mpx`。两处 ❌ 是故意保留的类型错误。本目录使用局部 `tsconfig.json`，只包含本场景的两个 Mpx 文件；`env.d.ts` 引用真实 `@mpxjs/core` 类型，避免 TypeScript 将纯 Mpx 项目误报为无输入文件。
 
 - 检查静态标签值的语义高亮、props hover、属性和事件补全；在 `mpxTagName=""` 内触发补全应包含内置标签与 JSON 注册的 `tag-panel`，接受补全只替换引号中的值。
 - 在 `tag-panel` 值上 F12 / Cmd 点击应打开本目录 `panel.mpx`。`title` 类型及定义仍来自子组件。
