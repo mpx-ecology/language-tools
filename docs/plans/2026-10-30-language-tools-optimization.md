@@ -72,13 +72,13 @@ P0：已复现且阻断基础编辑的兼容性问题；本轮 T17 的修复已�
 
 ### 3.1 修复进度与并行安排（2026-10-30）
 
-状态核对：2026-11-03 15:43（Asia/Shanghai）。12 个剩余范围分别由独立会话推进，均已形成 PR；T14 回归 PR 已合并，其他 11 项仍在评审或集成阶段。T01 / T08 / T10 / T11 / T14 / T17 已有合并记录；T13 只完成通用 JS 语义合并，Schema 提示仍未交付。下表是核对时快照，PR 中不等于已合并、已完成 F5 视觉验收或已发布。
+初轮核对：2026-11-03 15:43（Asia/Shanghai）；此后按单项证据逐行更新，最新交付见第 3.4 节。12 个剩余范围分别由独立会话推进，均已形成 PR；T14 回归 PR 已合并，其他 11 项仍在评审或集成阶段。T01 / T08 / T10 / T11 / T14 / T17 已有合并记录；T13 只完成通用 JS 语义合并，Schema 提示仍未交付。下表是核对时快照，PR 中不等于已合并、已完成 F5 视觉验收或已发布。
 
 | 工作项                      | 当前状态                                 | Issue / 分支 / PR                                                                                                                                                                | 跟进会话                             | 下一步与验证记录                                                                                                                                            |
 | --------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | T01：样式指令高亮与补全     | 已合并；F5 视觉验收通过                  | [#127](https://github.com/mpx-ecology/language-tools/issues/127)；`codex/fix-t01-style-directives`；[PR #130](https://github.com/mpx-ecology/language-tools/pull/130)            | 已交付记录                           | 2026-11-02 合并；专项 101 项 / 全量 120 项。修复前后截图见 PR #130；待登记发布版本。                                                                        |
-| T02：mpxTagName             | PR 中；前后图已拍，上传待补              | [#145](https://github.com/mpx-ecology/language-tools/issues/145)；`codex/fix-t02-mpx-tag-name`；[PR #166](https://github.com/mpx-ecology/language-tools/pull/166)                | T02：mpxTagName 标签语义与高亮       | 53 项专项、555 项全量通过；已持锁核验同场景错误数 0 → 2。两张有效图在本地，Issue / PR 尚未嵌入附件。                                                        |
-| T03：RN 注册组件            | PR 中；正在持锁进行 F5 截图              | [#151](https://github.com/mpx-ecology/language-tools/issues/151)；`codex/fix-rn-component-registration`；[PR #159](https://github.com/mpx-ecology/language-tools/pull/159)       | T03：RN 注册组件的类型与导航         | 36 项专项、492 项全量通过；保留 core 对必传 React props 的上游注册诊断。当前持有桌面锁，欢迎浮层遮挡图已作废。                                              |
+| T02：mpxTagName             | PR 中；F5 证据已上传并嵌入               | [#145](https://github.com/mpx-ecology/language-tools/issues/145)；`codex/fix-t02-mpx-tag-name`；[PR #166](https://github.com/mpx-ecology/language-tools/pull/166)                | T02：mpxTagName 标签语义与高亮       | 2026-11-03 16:42 核验交付；Issue 复现图与 PR 同场景前后图均已嵌入，0 → 2 个错误。head 39d85ef 的 Test / autofix 通过；待评审合并。                          |
+| T03：RN 注册组件            | PR 中；有效基线图已拍，后图/上传待补     | [#151](https://github.com/mpx-ecology/language-tools/issues/151)；`codex/fix-rn-component-registration`；[PR #159](https://github.com/mpx-ecology/language-tools/pull/159)       | T03：RN 注册组件的类型与导航         | 36 项专项、492 项全量记录保留；有效基线图已保存，欢迎页遮挡图作废，修复后同视图与附件仍待补。                                                               |
 | T04：多平台解析             | PR 中；最新方案 F5 / 截图待补            | [#148](https://github.com/mpx-ecology/language-tools/issues/148)；`codex/fix-platform-component-paths`；[PR #167](https://github.com/mpx-ecology/language-tools/pull/167)        | T04：多平台组件解析与正向跳转        | 已移除活动平台配置，改为无需配置聚合实际文件候选；最新 72 项专项、609 项全量通过。旧方案宿主检查不计入本版本 UI 验收。                                      |
 | T05：反向引用               | PR 中；宿主 API 通过，截图待补           | [#149](https://github.com/mpx-ecology/language-tools/issues/149)；`codex/fix-component-references`；[PR #163](https://github.com/mpx-ecology/language-tools/pull/163)            | T05：组件使用方与多平台反向引用      | 23 项专项、496 项全量通过；静态局部注册已覆盖，自动平台选择仍依赖 T04。                                                                                     |
 | T06：自动注册               | PR 中；宿主交互通过，截图待补            | [#146](https://github.com/mpx-ecology/language-tools/issues/146)；`codex/fix-template-component-registration`；[PR #165](https://github.com/mpx-ecology/language-tools/pull/165) | T06：模板补全后自动注册组件          | 60 项专项、533 项全量通过；JSON / JS / 无区块接受与一次撤销通过；RN 注册另依赖 T03。                                                                        |
@@ -90,7 +90,7 @@ P0：已复现且阻断基础编辑的兼容性问题；本轮 T17 的修复已�
 | T12：静态 JSON              | PR 中；宿主 API 通过，截图待补           | [#153](https://github.com/mpx-ecology/language-tools/issues/153)；`codex/fix-static-json-schema`；[PR #157](https://github.com/mpx-ecology/language-tools/pull/157)              | T12：静态组件 JSON Schema 提示       | 补充提交 9679af1：22 项专项、495 项全量通过；新增 npm 路径、泛型扩展、页面枚举与应用配置兼容性回归，截图排队。                                              |
 | T13：动态 JSON 配置         | JS 语义已合并；Schema 草稿以 main 为基线 | [#154](https://github.com/mpx-ecology/language-tools/issues/154)；`codex/fix-t13-json-config-types`；[PR #160](https://github.com/mpx-ecology/language-tools/pull/160)           | T13：动态 JSON 配置的类型提示        | 通用 JS：#138 → #142 已合并。#160 已同步 main 并改 base；624 项全量通过，最新 Test / autofix 均通过，仍为 Draft；真实 F5 及截图待补。                       |
 | T14：标签闭合与重命名       | 未复现运行时缺陷；回归 PR 已合并         | 不适用（未确认缺陷）；`codex/test-t14-tag-editing`；[PR #156](https://github.com/mpx-ecology/language-tools/pull/156)                                                            | T14：自动闭合与标签联动重命名        | 2026-11-03 合并；29 项专项、502 项全量及真实宿主输入 / provider 通过。仅测试与验收，无修复前后差异；原用户环境仍需按配置复现。                              |
-| T15：实例字段重名           | PR 中；499 项全量通过，F5 图待补         | [#147](https://github.com/mpx-ecology/language-tools/issues/147)；`codex/fix-instance-field-collisions`；[PR #158](https://github.com/mpx-ecology/language-tools/pull/158)       | T15：props expose Hooks 字段重名警告 | 已增加性能 / 增量回归并推送 0534404；先前本地全量 499 项及独立性能基准通过；集成问题已修复，最新 Test / autofix 均通过。F5 及附件仍待补，不把性能表当截图。 |
+| T15：实例字段重名           | PR 中；有效前后图已拍，上传待补          | [#147](https://github.com/mpx-ecology/language-tools/issues/147)；`codex/fix-instance-field-collisions`；[PR #158](https://github.com/mpx-ecology/language-tools/pull/158)       | T15：props expose Hooks 字段重名警告 | 已增加性能 / 增量回归并推送 0534404；先前本地全量 499 项及独立性能基准通过；集成问题已修复，最新 Test / autofix 均通过。F5 及附件仍待补，不把性能表当截图。 |
 | T16：实例保留名 data        | PR 中；保留名与诊断码迁移分开验收        | [#152](https://github.com/mpx-ecology/language-tools/issues/152)；`codex/fix-t16-reserved-instance-data`；[PR #161](https://github.com/mpx-ecology/language-tools/pull/161)      | T16：实例暴露 data 保留名警告        | 本项 #161 保留 85 项专项、558 项全量记录。#168 → #169 为独立诊断码草稿，31 项专项、615 项全量通过；两组 F5 截图均待补。                                     |
 | T17：Vue 宏共存             | 已合并；Extension Host 检查通过          | [#119](https://github.com/mpx-ecology/language-tools/issues/119)；`codex/fix-119-vue-macro-coexistence`；[PR #120](https://github.com/mpx-ecology/language-tools/pull/120)       | 已交付记录                           | 2026-11-02 合并；最终 165 项测试、20 项真实编译交叉检查通过。待登记发布版本。                                                                               |
 | T18：模板补全（更正汇总）   | 范围合并至 T10 / T11                     | 同 T10 / T11；[PR #143](https://github.com/mpx-ecology/language-tools/pull/143)                                                                                                  | 不另开会话                           | 原 CSS 补全反馈已更正，不独立排期、实现或计费。                                                                                                             |
@@ -128,6 +128,8 @@ T01 的 2026-10-30 初轮记录为专项 68 项、全量 102 项，当时仅验�
 
 ### 3.3 F5 截图与上传快照（2026-11-03）
 
+本节保留初轮历史快照，后续单项交付以[逐项证据交付记录](#34-逐项证据交付记录)为准；不把初轮“待补”覆盖为当时已经完成。
+
 核对时间：2026-11-03 15:43（Asia/Shanghai）。用户已亲自为 Code - Insiders 选择 Always allow，继续推进指令已送达 12 个相关会话；核对时未再观察到这 12 个会话的旧审批等待标记。当前桌面锁由 T03 持有，其他会话继续锁外工作。F5 操作、截图及所有截图附件上传使用同一把锁串行执行；应用授权不代替互斥，也不代表其他应用或系统权限已获批。
 
 “本地有效图”“附件已上传”“图片已嵌入 Issue / PR”分别登记。下表依据各负责会话和 GitHub 正文核对，不把准备好环境、provider 通过或草稿图片计为截图交付。
@@ -150,9 +152,19 @@ T01 的 2026-10-30 初轮记录为专项 68 项、全量 102 项，当时仅验�
 
 后续核对（2026-11-03 15:49，Asia/Shanghai）：T15 此前的 [GitHub Test 失败](https://github.com/mpx-ecology/language-tools/actions/runs/41597191371/job/125787192453) 已修复，最新 [Test](https://github.com/mpx-ecology/language-tools/actions/runs/41598197558/job/125790436021) / [autofix](https://github.com/mpx-ecology/language-tools/actions/runs/41598193189/job/125790423099) 均成功；T13 的 [Test](https://github.com/mpx-ecology/language-tools/actions/runs/41597537394/job/125788291856) / [autofix](https://github.com/mpx-ecology/language-tools/actions/runs/41597534285/job/125788282746) 也已成功。两项仍需 F5 图片交付。
 
-本批次已启用持续跟进：每项满足交付条件即同步 PR #131，保留完成链接和验证版本；普通排队与进度变化不提醒用户，只有确实需要用户亲自操作时才说明具体动作。同一未变化阻塞不重复提醒。
+本批次持续跟进：每项满足交付条件即同步 PR #131，保留完成链接和验证版本。执行协调每 2 分钟检查，只有确需用户亲自操作时即时提醒；按用户后续要求，另每 5 分钟只读汇报各会话进度。同一未变化阻塞不重复催问。
 
 后续只有取得真实附件 URL 并确认嵌入对应正文，才改为“已上传并嵌入”；被其他窗口抢焦点、受限模式或欢迎浮层遮挡的图片不作为交付证据。截图排队是待办状态，不能作为免截图理由。
+
+### 3.4 逐项证据交付记录
+
+每条记录代表本项修复与所需证据已提交评审，不代表 PR 已合并或随版本发布。完成一项即单独同步，不等待其余项目。原始截图不纳入 Git。
+
+| 范围            | 核验时间（Asia/Shanghai） | Issue / PR                                                                                                                        | 验证版本                                                                                   | 公开附件                                                                                                                                                                                    | 交付与剩余状态                                                                                                                                                                                       |
+| --------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T02：mpxTagName | 2026-11-03 16:42          | [#145](https://github.com/mpx-ecology/language-tools/issues/145) → [#166](https://github.com/mpx-ecology/language-tools/pull/166) | before 60ebb13；修复 3fd141c；场景配置及当前 head 39d85ef53c75acc23cfe59f5f45e2cb290443d6b | [复现 / 修复前](https://github.com/user-attachments/assets/d7919e93-5a47-447b-bf8f-9e42218341a3)、[修复后](https://github.com/user-attachments/assets/d8dfe805-6f03-48c9-9ea5-4fff4e40e08c) | Issue 正文已嵌入复现图，PR 正文已嵌入同场景前后图；0 → 2 个属性错误及标签值高亮变化可见。上传内容与本地已核准原图字节一致，GET 返回 image/png；当前 head 的 Test / autofix 均成功。PR 仍待评审合并。 |
+
+同一场景文件逐字节一致，主题、字号与检查位置保持可比较；两图均为真实 Extension Development Host 窗口，不包含内部业务信息。HEAD 请求曾返回 403，但两附件的实际 GET 均为 200；没有把 HEAD 失败误判为图片未交付，也没有用测试日志替代截图。
 
 ## 4. 分组分析与修复边界
 
