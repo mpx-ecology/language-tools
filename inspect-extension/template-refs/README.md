@@ -30,4 +30,8 @@
 - shared 定义跳到两处 wx:ref。
 - 故意错误恰好产生 5 条诊断：TS2345、3 条 TS2339、TS18049；范围分别落在错误参数/成员/未判空表达式。
 
-23 项专项测试（含 wx / ios 真实编译器元数据与 7 份 script-setup fixture 编译）、全量 496 项测试、pnpm build、pnpm lint、扩展 bundle 均通过。自动化分别检查 verification、completion、semantic、navigation 映射。RN 设备运行未执行。真实 UI 截图待补：独立 ff1d26d 基线与修复扩展已构建，相同场景、主题和设置已准备。基线宿主当前处于 Restricted Mode，TypeScript 服务未启动，已释放桌面锁；待用户手动完成临时基线工作区信任后，再申请锁采集并上传 GitHub attachments。设置检查图不作为问题证据，provider 输出不代替截图。
+23 项专项测试（含 wx / ios 真实编译器元数据与 7 份 script-setup fixture 编译）、全量 496 项测试、pnpm build、pnpm lint、扩展 bundle 均通过。自动化分别检查 verification、completion、semantic、navigation 映射。RN 设备运行未执行。
+
+真实 inspect Extension Development Host 最小前后图已采集，GitHub attachments 待上传。两图复用同一临时工作区、profile、Dark Modern 主题、18px 字体与 28px 行高；采图前通过实际宿主 API 确认工作区已受信任、TS 扩展激活，日志确认 TS server 启动。前图显示 result 为 any，错误 string 实参没有诊断，Problems 为 0；后图显示同一实参触发 TS2345，Problems 为 1。图片保留在仓库外，上传后在关联 Issue / PR 中嵌入，不以日志或 provider 输出替代真实截图。
+
+本目录的 `env.d.ts` 为独立检查项目提供 TypeScript 入口，避免只包含 .mpx 文件时出现无关的“No inputs”配置诊断。
