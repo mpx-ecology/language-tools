@@ -1,13 +1,19 @@
 <template>
   <demo-panel value="{{ numeric }}"></demo-panel>
-  <!-- Intentional error for mode=ios: value must be a number. -->
+  <!-- Valid across the available component candidates. -->
   <demo-panel value="bad" />
+  <demo-panel value="{{ true }}" />
+  <!-- Intentional error: the object matches none of the candidate value types. -->
+  <demo-panel value="{{ invalidValue }}" />
   <explicit-panel value="{{ numeric }}" />
+  <!-- Intentional error: this explicit file accepts a number only. -->
+  <explicit-panel value="bad" />
   <only-ios value="{{ numeric }}" />
 </template>
 <script setup lang="ts">
 const numeric = 42
-defineExpose({ numeric })
+const invalidValue = { invalid: true }
+defineExpose({ numeric, invalidValue })
 </script>
 <script name="json">
 const components = { 'demo-panel': './panel' }

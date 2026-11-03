@@ -8,7 +8,6 @@ import {
 } from '@volar/typescript'
 import {
   MpxVirtualCode,
-  type RawMpxCompilerOptions,
   createMpxLanguagePlugin,
   createParsedCommandLine,
   decorateMpxLanguageServiceHost,
@@ -42,7 +41,6 @@ export interface TestLanguageService {
 export function createTestLanguageService(
   fixtureRoot = referenceTypePropsFixtureRoot,
   additionalRootFiles: string[] = [],
-  mpxOptionsOverrides: RawMpxCompilerOptions = {},
 ): TestLanguageService {
   const parsed = createParsedCommandLine(
     ts,
@@ -50,7 +48,6 @@ export function createTestLanguageService(
     path.join(fixtureRoot, 'tsconfig.json'),
     true,
   )
-  Object.assign(parsed.mpxOptions, mpxOptionsOverrides)
   const globalTypesFile = path.join(
     fixtureRoot,
     'node_modules/.mpx-global-types',

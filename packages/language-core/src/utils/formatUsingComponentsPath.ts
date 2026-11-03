@@ -30,20 +30,18 @@ export const componentFileModes = [
   'ks',
 ] as const
 
-export interface ComponentResolutionOptions {
-  mode?: string
-  env?: string
-}
-
 export type ComponentPathCandidate = Pick<
   ResolvedUsingComponentInfo,
-  'realFilename' | 'mode' | 'env'
+  'realFilename' | 'mode'
 > & { realFilename: string }
 
-/** The same project-scoped result supplies imports, links and definitions. */
+/**
+ * Aggregate the targets of possible Mpx builds. The IDE has no active build
+ * platform: candidates are choices for navigation, not a platform selection.
+ * The same project-scoped result supplies imports, links and definitions.
+ */
 export function createUsingComponentsPathResolver(
   compilerOptions: ts.CompilerOptions,
-  options: ComponentResolutionOptions = {},
 ) {
   type Result = {
     result?: string
@@ -77,19 +75,16 @@ export function createUsingComponentsPathResolver(
       // variants need another package/alias traversal; a generic fallback is
       // already represented by the first resolution.
       for (const candidateMode of componentFileModes) {
-        for (const infix of options.env ? ['.' + options.env, ''] : ['']) {
-          const candidate = `${stem}.${candidateMode}${infix}${ext}`
-          trackDependency(candidate)
-          try {
-            if (fs.statSync(candidate).isFile())
-              availableModes.add(candidateMode)
-          } catch {
-            /* Missing platform siblings still share the dependency directory. */
-          }
+        const candidate = `${stem}.${candidateMode}${ext}`
+        trackDependency(candidate)
+        try {
+          if (fs.statSync(candidate).isFile()) availableModes.add(candidateMode)
+        } catch {
+          /* Missing siblings still share the dependency directory. */
         }
       }
     }
-    for (const candidate of platformFiles(fileName, mode, options.env)) {
+    for (const candidate of platformFiles(fileName, mode)) {
       trackDependency(candidate)
       try {
         if (fs.statSync(candidate).isFile()) return candidate
@@ -159,11 +154,11 @@ export function createUsingComponentsPathResolver(
     }
     const candidates = new Map<string, ComponentPathCandidate>()
     const explicitMode = fileMode(request)
-    const modes: (string | undefined)[] = [options.mode]
+    const modes: (string | undefined)[] = [undefined]
     availableModes = new Set()
     for (let index = 0; index < modes.length; index++) {
       mode = modes[index]
-      discoverModes = index === 0 && !options.mode && !explicitMode
+      discoverModes = index === 0 && !explicitMode
       const result =
         resolveByTsConfig(request) || resolvePackage(request, importer)
       if (discoverModes) modes.push(...availableModes)
@@ -178,13 +173,6 @@ export function createUsingComponentsPathResolver(
         candidates.set(realFilename, {
           realFilename,
           mode: fileMode(realFilename),
-          env:
-            options.env &&
-            realFilename.endsWith(
-              '.' + options.env + path.extname(realFilename),
-            )
-              ? options.env
-              : undefined,
         })
       }
     }
@@ -222,7 +210,7 @@ function fingerprint(fileName: string) {
   }
 }
 
-function platformFiles(fileName: string, mode?: string, env?: string) {
+function platformFiles(fileName: string, mode?: string) {
   const ext = path.extname(fileName)
   if (!['.mpx', '.js'].includes(ext)) return [fileName]
   const basename = path.basename(fileName, ext).split('.').slice(1)
@@ -239,11 +227,7 @@ function platformFiles(fileName: string, mode?: string, env?: string) {
       stems.push(fileName.slice(0, -ext.length) + '.' + fallbackMode)
   }
   stems.push(fileName.slice(0, -ext.length))
-  return stems.flatMap(stem =>
-    env && !stem.endsWith('.' + env)
-      ? [stem + '.' + env + ext, stem + ext]
-      : [stem + ext],
-  )
+  return stems.map(stem => stem + ext)
 }
 
 function fileMode(fileName: string) {

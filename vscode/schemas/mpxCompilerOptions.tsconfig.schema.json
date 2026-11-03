@@ -5,29 +5,6 @@
       "markdownDescription": "Mpx 插件编译选项。\n\n- 该配置选项只会用于插件使用，不会影响项目实际的编译时和运行时。\n\n详见：[文档](https://github.com/mpx-ecology/language-tools/wiki/Mpx-Compiler-Options)",
       "additionalProperties": false,
       "properties": {
-        "mode": {
-          "type": "string",
-          "enum": [
-            "wx",
-            "ali",
-            "swan",
-            "tt",
-            "qq",
-            "web",
-            "qa",
-            "jd",
-            "dd",
-            "ios",
-            "android",
-            "harmony",
-            "ks"
-          ],
-          "markdownDescription": "组件与页面路径的文件条件编译目标。与 MpxWebpackPlugin.mode 保持一致；不配置时保留普通及支持平台的实际文件候选。android / harmony 在缺少专用文件时回退 ios。仅影响语言工具的路径、类型来源与导航，不筛选 JSON JS 分支或 SFC 区块。"
-        },
-        "env": {
-          "type": "string",
-          "markdownDescription": "组件与页面路径的文件条件编译环境。与 MpxWebpackPlugin.env 保持一致；选择平台.env、平台、普通.env、普通文件。不会从 usingComponents 路径的 query 推断。"
-        },
         "optionsComponentCtor": {
           "type": ["array", "null"],
           "default": ["createComponent"],

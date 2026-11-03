@@ -24,8 +24,8 @@ const services: TestLanguageService[] = []
 afterEach(() => {
   for (const service of services.splice(0)) service.dispose()
 })
-function setup(mode?: string) {
-  const service = createTestLanguageService(fixtureRoot, [], { mode })
+function setup() {
+  const service = createTestLanguageService(fixtureRoot)
   services.push(service)
   const fileName = service.file('index.mpx')
   const { root } = service.getServiceScript('index.mpx')
@@ -128,31 +128,29 @@ describe('platform component forward navigation', () => {
     expect(new Set(tagLinks.map(link => link.target)).size).toBe(3)
     expect(tagLinks.every(link => link.tooltip?.includes('→'))).toBe(true)
   })
-  it.each(['android', 'harmony', 'ios', 'ali'])(
-    'keeps JSON and template selection identical for %s',
-    async mode => {
-      const { context, template, json } = setup(mode)
-      const expected = mode === 'ali' ? 'panel.ali.mpx' : 'panel.ios.mpx'
-      const jsonProvider = createComponentDefinition().create!(context)!
-      const templateProvider = createTemplateLinks().create!(context)!
-      expect(
-        targetNames(
-          await jsonProvider.provideDefinition!(
-            json,
-            json.positionAt(json.getText().indexOf('./panel') + 2),
-            token,
+  it('keeps explicit source-file navigation independent from resource query', async () => {
+    const { context, template, json } = setup()
+    const jsonProvider = createComponentDefinition().create!(context)!
+    const templateProvider = createTemplateLinks().create!(context)!
+    expect(
+      targetNames(
+        await jsonProvider.provideDefinition!(
+          json,
+          json.positionAt(
+            json.getText().indexOf('./panel.ios.mpx?mode=ali') + 2,
           ),
+          token,
         ),
-      ).toEqual([expected])
-      expect(
-        targetNames(
-          await templateProvider.provideDefinition!(
-            template,
-            template.positionAt(template.getText().indexOf('demo-panel') + 1),
-            token,
-          ),
+      ),
+    ).toEqual(['panel.ios.mpx'])
+    expect(
+      targetNames(
+        await templateProvider.provideDefinition!(
+          template,
+          template.positionAt(template.getText().indexOf('explicit-panel') + 1),
+          token,
         ),
-      ).toEqual([expected])
-    },
-  )
+      ),
+    ).toEqual(['panel.ios.mpx'])
+  })
 })

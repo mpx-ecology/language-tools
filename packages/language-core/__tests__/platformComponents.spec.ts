@@ -7,7 +7,10 @@ import { compileMpxSource } from './utils/compileMpxFixture'
 import { getComponentProps } from '../../typescript-plugin/src/requests/getComponentProps'
 import * as enhancedResolve from 'enhanced-resolve'
 import { afterEach, describe, expect, it } from 'vitest'
-import { createUsingComponentsPathResolver } from '../src/utils/formatUsingComponentsPath'
+import {
+  componentFileModes,
+  createUsingComponentsPathResolver,
+} from '../src/utils/formatUsingComponentsPath'
 import {
   type TestLanguageService,
   createTestLanguageService,
@@ -19,7 +22,6 @@ export const fixtureRoot = path.resolve(
 )
 const require = createRequire(__filename)
 const AddModePlugin = require('@mpxjs/webpack-plugin/lib/resolver/AddModePlugin')
-const AddEnvPlugin = require('@mpxjs/webpack-plugin/lib/resolver/AddEnvPlugin')
 const temporaryDirectories: string[] = []
 const services: TestLanguageService[] = []
 afterEach(() => {
@@ -36,18 +38,15 @@ function temporaryFixture() {
   fs.cpSync(fixtureRoot, directory, { recursive: true })
   return fs.realpathSync(directory)
 }
-function resolver(directory = fixtureRoot, options = {}) {
-  return createUsingComponentsPathResolver(
-    {
-      baseUrl: directory,
-      paths: {
-        '@components/*': ['./*'],
-        '@panel': ['./panel.mpx'],
-        '@fallback': ['./missing', './panel'],
-      },
+function resolver(directory = fixtureRoot) {
+  return createUsingComponentsPathResolver({
+    baseUrl: directory,
+    paths: {
+      '@components/*': ['./*'],
+      '@panel': ['./panel.mpx'],
+      '@fallback': ['./missing', './panel'],
     },
-    options,
-  )
+  })
 }
 function files(
   resolve: ReturnType<typeof resolver>,
@@ -77,27 +76,33 @@ describe('platform component resolution', () => {
     },
   )
   it('resolves paths relative to their declaring tsconfig without baseUrl', () => {
-    const resolve = createUsingComponentsPathResolver(
-      {
-        configFilePath: path.join(fixtureRoot, 'tsconfig.json'),
-        paths: { '@panel': ['./panel'] },
-      },
-      { mode: 'ios' },
-    )
-    expect(files(resolve, '@panel')).toEqual(['panel.ios.mpx'])
-    const inherited = createUsingComponentsPathResolver(
-      {
-        configFilePath: path.join(fixtureRoot, 'nested/tsconfig.json'),
-        pathsBasePath: fixtureRoot,
-        paths: { '@panel': ['./panel'] },
-      },
-      { mode: 'ios' },
-    )
-    expect(files(inherited, '@panel')).toEqual(['panel.ios.mpx'])
+    const resolve = createUsingComponentsPathResolver({
+      configFilePath: path.join(fixtureRoot, 'tsconfig.json'),
+      paths: { '@panel': ['./panel'] },
+    })
+    expect(files(resolve, '@panel')).toEqual([
+      'panel.mpx',
+      'panel.ali.mpx',
+      'panel.ios.mpx',
+    ])
+    const inherited = createUsingComponentsPathResolver({
+      configFilePath: path.join(fixtureRoot, 'nested/tsconfig.json'),
+      pathsBasePath: fixtureRoot,
+      paths: { '@panel': ['./panel'] },
+    })
+    expect(files(inherited, '@panel')).toEqual([
+      'panel.mpx',
+      'panel.ali.mpx',
+      'panel.ios.mpx',
+    ])
   })
   it('supports platform-only components, explicit files, resource queries and plugin URLs', () => {
     const resolve = resolver()
     expect(files(resolve, './only-ios')).toEqual(['only-ios.ios.mpx'])
+    expect(files(resolve, './panel.ios.demo.mpx')).toEqual([
+      'panel.ios.demo.mpx',
+    ])
+    expect(files(resolve, './panel')).not.toContain('panel.ios.demo.mpx')
     expect(
       files(resolve, './panel.ios.mpx?mode=ali&env=demo&root=other'),
     ).toEqual(['panel.ios.mpx'])
@@ -112,50 +117,33 @@ describe('platform component resolution', () => {
       resolve('./missing', path.join(fixtureRoot, 'index.mpx'))?.error,
     ).toBe(true)
   })
-  it.each([
-    ['ios', undefined, 'panel.ios.mpx'],
-    ['android', undefined, 'panel.ios.mpx'],
-    ['harmony', undefined, 'panel.ios.mpx'],
-    ['ali', undefined, 'panel.ali.mpx'],
-    ['wx', undefined, 'panel.mpx'],
-    ['ios', 'demo', 'panel.ios.demo.mpx'],
-    ['android', 'demo', 'panel.ios.demo.mpx'],
-    ['ali', 'demo', 'panel.ali.mpx'],
-  ])('matches the real Mpx resolver for %s / %s', (mode, env, expected) => {
-    const actual = enhancedResolve.create.sync({
-      fileSystem: fs,
-      extensions: ['.mpx', '.js'],
-      plugins: [
-        new AddModePlugin(
-          'before-file',
-          mode,
-          {
-            fileConditionRules: { include: () => true },
-            defaultMode: ['android', 'harmony'].includes(mode)
-              ? 'ios'
-              : undefined,
-          },
-          'file',
-        ),
-        ...(env
-          ? [
-              new AddEnvPlugin(
-                'before-file',
-                env,
-                { include: () => true },
-                'file',
-              ),
-            ]
-          : []),
-      ],
-    })
-    const built = actual({}, fixtureRoot, './panel')
-    expect(
-      typeof built === 'string' && path.basename(built.split('?')[0]!),
-    ).toBe(expected)
-    expect(files(resolver(fixtureRoot, { mode, env }), './panel')).toEqual([
-      expected,
-    ])
+  it('aggregates the real Mpx targets across supported build platforms', () => {
+    const actualTargets = new Set<string>()
+    for (const mode of componentFileModes) {
+      const actual = enhancedResolve.create.sync({
+        fileSystem: fs,
+        extensions: ['.mpx', '.js'],
+        plugins: [
+          new AddModePlugin(
+            'before-file',
+            mode,
+            {
+              fileConditionRules: { include: () => true },
+              defaultMode: ['android', 'harmony'].includes(mode)
+                ? 'ios'
+                : undefined,
+            },
+            'file',
+          ),
+        ],
+      })
+      const built = actual({}, fixtureRoot, './panel')
+      if (typeof built === 'string')
+        actualTargets.add(path.basename(built.split('?')[0]!))
+    }
+    expect(files(resolver(), './panel')?.sort()).toEqual(
+      [...actualTargets].sort(),
+    )
   })
   it('preserves file/index/extension order and package main across relative, alias and package requests', () => {
     const directory = temporaryFixture()
@@ -179,12 +167,19 @@ describe('platform component resolution', () => {
       path.join(directory, 'node_modules/test-platform/entry.ios.js'),
       'module.exports = {}',
     )
-    const resolve = resolver(directory, { mode: 'android' })
-    expect(files(resolve, './panel', directory)).toEqual(['panel.ios.mpx'])
+    const resolve = resolver(directory)
+    expect(files(resolve, './panel', directory)).toEqual([
+      'panel.mpx',
+      'panel.ali.mpx',
+      'panel.ios.mpx',
+    ])
     expect(files(resolve, '@components/panel', directory)).toEqual([
+      'panel.mpx',
+      'panel.ali.mpx',
       'panel.ios.mpx',
     ])
     expect(files(resolve, 'test-platform', directory)).toEqual([
+      'node_modules/test-platform/entry.js',
       'node_modules/test-platform/entry.ios.js',
     ])
     expect(files(resolve, './panel/index', directory)).toEqual([
@@ -193,7 +188,7 @@ describe('platform component resolution', () => {
   })
   it('refreshes successful and missing results immediately after create, delete, rename and package-main edits', () => {
     const directory = temporaryFixture()
-    const resolve = resolver(directory, { mode: 'android' })
+    const resolve = resolver(directory)
     expect(files(resolve, './changing', directory)).toEqual([])
     fs.writeFileSync(
       path.join(directory, 'changing.ios.mpx'),
@@ -267,83 +262,86 @@ describe('platform component type sources', () => {
       verification: false,
     })
   })
-  it('uses the selected platform for diagnostics and prop hover', () => {
-    const service = createTestLanguageService(fixtureRoot, [], { mode: 'ios' })
+  it('preserves candidate prop types, explicit-file checks and hover without an active platform', () => {
+    const service = createTestLanguageService(fixtureRoot)
     services.push(service)
     const fileName = service.file('index.mpx')
     const source = service.read('index.mpx')
-    const diagnostics =
-      service.proxyLanguageService.getSemanticDiagnostics(fileName)
+    const diagnostics = service.proxyLanguageService
+      .getSemanticDiagnostics(fileName)
+      .filter(diagnostic => diagnostic.code === 2322)
+    expect(diagnostics).toHaveLength(2)
     expect(
-      diagnostics
-        .filter(diagnostic => diagnostic.code === 2322)
-        .map(diagnostic =>
-          ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
-        ),
-    ).toEqual(["Type 'string' is not assignable to type 'number'."])
-    const props = getComponentProps.apply(
-      {
-        typescript: ts,
-        language: service.language,
-        languageService: service.languageService,
-        languageServiceHost: service.languageServiceHost,
-        isTsPlugin: false,
-        getFileId: fileName => fileName,
-      },
-      [fileName, 'demo-panel'],
-    )
-    expect(props?.find(prop => prop.name === 'value')?.type).toBe(
-      'number | undefined',
-    )
+      diagnostics.map(diagnostic =>
+        ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+      ),
+    ).toContain("Type 'string' is not assignable to type 'number'.")
+    const valueType = propsFor(service)?.find(
+      prop => prop.name === 'value',
+    )?.type
+    expect(valueType?.split(' | ').sort()).toEqual([
+      'false',
+      'number',
+      'string',
+      'true',
+      'undefined',
+    ])
     const { code } = service.getServiceScript('index.mpx')
-    const hover = service.languageService.getQuickInfoAtPosition(
-      fileName,
-      source.length + code.indexOf('DemoPanel:') + 1,
+    const hover = ts.displayPartsToString(
+      service.languageService.getQuickInfoAtPosition(
+        fileName,
+        source.length + code.indexOf('DemoPanel:') + 1,
+        10_000,
+      )?.displayParts,
     )
-    expect(ts.displayPartsToString(hover?.displayParts)).toContain(
-      'value: NumberConstructor',
-    )
+    for (const constructor of [
+      'StringConstructor',
+      'NumberConstructor',
+      'BooleanConstructor',
+    ])
+      expect(hover).toContain(constructor)
   })
-  it('updates generated imports and host script versions with unchanged parent text', () => {
+  it('updates candidates, prop metadata and host versions with unchanged parent text', () => {
     const directory = temporaryFixture()
-    const service = createTestLanguageService(directory, [], {
-      mode: 'android',
-    })
+    const service = createTestLanguageService(directory)
     services.push(service)
-    expect(service.getServiceScript('index.mpx').code).toContain(
-      'from "./panel.ios.mpx"',
-    )
-    const previousVersion = service.languageServiceHost.getScriptVersion(
-      service.file('index.mpx'),
-    )
-    fs.copyFileSync(
-      path.join(directory, 'panel.mpx'),
-      path.join(directory, 'panel.android.mpx'),
-    )
-    const nextVersion = service.languageServiceHost.getScriptVersion(
-      service.file('index.mpx'),
-    )
-    expect(nextVersion).not.toBe(previousVersion)
-    expect(service.getServiceScript('index.mpx').code).toContain(
-      'from "./panel.android.mpx"',
-    )
+    const parent = service.file('index.mpx')
     expect(
       service
         .getServiceScript('index.mpx')
-        .root.sfc.json?.resolvedUsingComponents?.result.get('demo-panel')?.[0]
-        ?.realFilename,
-    ).toBe(path.join(directory, 'panel.android.mpx'))
+        .code.match(/import __MPX_jsonComponent_0_\d from/g),
+    ).toHaveLength(3)
+    expect(propsFor(service)?.some(prop => prop.name === 'androidOnly')).toBe(
+      false,
+    )
+    const previousVersion = service.languageServiceHost.getScriptVersion(parent)
+    fs.writeFileSync(
+      path.join(directory, 'panel.android.mpx'),
+      `<template><text>{{ androidOnly }}</text></template>
+<script setup lang="ts">
+defineProps({ value: Number, androidOnly: Number })
+defineExpose({})
+</script>`,
+    )
+    expect(service.languageServiceHost.getScriptVersion(parent)).not.toBe(
+      previousVersion,
+    )
+    const { code, root } = service.getServiceScript('index.mpx')
+    expect(code.match(/import __MPX_jsonComponent_0_\d from/g)).toHaveLength(4)
     expect(
-      service.proxyLanguageService
-        .getSemanticDiagnostics(service.file('index.mpx'))
-        .filter(diagnostic => diagnostic.code === 2322)
-        .map(diagnostic =>
-          ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
-        ),
-    ).toEqual(["Type 'number' is not assignable to type 'string'."])
+      root.sfc.json?.resolvedUsingComponents?.result
+        .get('demo-panel')
+        ?.map(info => path.basename(info.realFilename!)),
+    ).toContain('panel.android.mpx')
+    expect(
+      propsFor(service)?.find(prop => prop.name === 'androidOnly')?.type,
+    ).toBe('number | undefined')
     fs.unlinkSync(path.join(directory, 'panel.android.mpx'))
-    expect(service.getServiceScript('index.mpx').code).toContain(
-      'from "./panel.ios.mpx"',
+    expect(service.getServiceScript('index.mpx').code).not.toContain(
+      'from "./panel.android.mpx"',
+    )
+    expect(propsFor(service)?.some(prop => prop.name === 'androidOnly')).toBe(
+      false,
     )
   })
 })
@@ -363,3 +361,17 @@ it.each([
   )
   expect(result.code).toContain('createComponent')
 })
+
+function propsFor(service: TestLanguageService) {
+  return getComponentProps.apply(
+    {
+      typescript: ts,
+      language: service.language,
+      languageService: service.languageService,
+      languageServiceHost: service.languageServiceHost,
+      isTsPlugin: false,
+      getFileId: fileName => fileName,
+    },
+    [service.file('index.mpx'), 'demo-panel'],
+  )
+}
