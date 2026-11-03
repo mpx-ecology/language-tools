@@ -1,7 +1,7 @@
 import type * as vscode from 'vscode-languageserver-protocol'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
-import { MpxVirtualCode } from '@mpxjs/language-core'
+import { MpxVirtualCode, type UsingComponentInfo } from '@mpxjs/language-core'
 import { isMpPluginComponentPath } from '../utils'
 
 export function create(): LanguageServicePlugin {
@@ -42,11 +42,9 @@ export function create(): LanguageServicePlugin {
 
           if (resolvedUsingComponents?.size) {
             for (const [_, componentsArray] of resolvedUsingComponents) {
-              for (const {
-                text: componentPath,
-                offset: componentPathOffset,
-                realFilename: targetFilePath,
-              } of componentsArray) {
+              for (const info of componentsArray) {
+                const { text: componentPath, realFilename: targetFilePath } =
+                  info
                 if (!targetFilePath) {
                   continue
                 }
@@ -55,12 +53,7 @@ export function create(): LanguageServicePlugin {
                   continue
                 }
                 result.push({
-                  range: {
-                    start: document.positionAt(componentPathOffset + 1),
-                    end: document.positionAt(
-                      componentPathOffset + 1 + componentPath.length,
-                    ),
-                  },
+                  range: pathRange(document, info),
                   // fix: 兼容 Windows 路径协议 eg: file:///d:/{you_path}/list.mpx
                   target: URI.file(targetFilePath).toString(),
                   tooltip: `自定义组件：${componentPath}`,
@@ -71,21 +64,12 @@ export function create(): LanguageServicePlugin {
 
           if (resolvedPages?.length) {
             for (const page of resolvedPages) {
-              const {
-                text: pagePath,
-                offset: pagePathOffset,
-                realFilename: targetFilePath,
-              } = page
+              const { text: pagePath, realFilename: targetFilePath } = page
               if (!targetFilePath) {
                 continue
               }
               result.push({
-                range: {
-                  start: document.positionAt(pagePathOffset + 1),
-                  end: document.positionAt(
-                    pagePathOffset + 1 + pagePath.length,
-                  ),
-                },
+                range: pathRange(document, page),
                 target: URI.file(targetFilePath).toString(),
                 tooltip: `页面路径：${pagePath}`,
               })
@@ -126,19 +110,16 @@ export function create(): LanguageServicePlugin {
           }
 
           // 收集路径错误
-          for (const { text, offset } of [
+          for (const info of [
             ...resolvedUsingComponentsErrors,
             ...resolvedPagesErrors,
           ]) {
             diagnostics.push({
-              range: {
-                start: document.positionAt(offset + 1),
-                end: document.positionAt(offset + 1 + text.length),
-              },
+              range: pathRange(document, info),
               severity: 1 satisfies typeof vscode.DiagnosticSeverity.Error,
               code: '4001',
               source: 'mpx-json',
-              message: `找不到对应路径文件：'${text}'，请检查文件路径是否正确。`,
+              message: `找不到对应路径文件：'${info.text}'，请检查文件路径是否正确。`,
             })
           }
 
@@ -147,4 +128,15 @@ export function create(): LanguageServicePlugin {
       }
     },
   }
+}
+
+function pathRange(
+  document: import('vscode-languageserver-textdocument').TextDocument,
+  info: UsingComponentInfo,
+) {
+  const [start, end] = info.sourceRange ?? [
+    info.offset + 1,
+    info.offset + 1 + info.text.length,
+  ]
+  return { start: document.positionAt(start), end: document.positionAt(end) }
 }

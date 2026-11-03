@@ -20,6 +20,21 @@ const hoverText = (
   hover: Awaited<ReturnType<Project['service']['getHover']>>,
 ) => JSON.stringify(hover?.contents ?? '')
 
+it('refreshes imported JSON types through the existing project file watcher', async () => {
+  const p = (project = await createJsonProject(true, {
+    resolveJsonModule: true,
+  }))
+  await p.write('data.json', '{"title":"initial"}')
+  const source =
+    '<script name="json">\nconst data = require("./data.json")\nmodule.exports = { navigationBarTitleText: data.title }\n</script>'
+  await p.edit('index.mpx', source)
+  const uri = p.uri('index.mpx')
+  const at = position(p, source, 'title }')
+  expect(hoverText(await p.service.getHover(uri, at))).toContain('string')
+  await p.write('data.json', '{"title":42}')
+  expect(hoverText(await p.service.getHover(uri, at))).toContain('number')
+})
+
 for (const jsonOnly of [true, false]) {
   describe('JSON module environment (JSON-only host: ' + jsonOnly + ')', () => {
     it('types injected CommonJS names without Node types or business-script leakage', async () => {

@@ -18,9 +18,25 @@ export function createMpxProject(
   { configFileName, projectHost, sys, uriConverter }: ProjectExposeContext,
   jsonOnly = false,
   documents?: DocumentState,
+  onConfigFileAccess?: (fileName: string) => void,
 ) {
+  // Track the actual config/extends reads, including custom config names and
+  // failed reads that may become valid after a file is created.
+  const configHost = onConfigFileAccess
+    ? {
+        ...ts.sys,
+        readFile(fileName: string) {
+          onConfigFileAccess(fileName)
+          return ts.sys.readFile(fileName)
+        },
+        fileExists(fileName: string) {
+          onConfigFileAccess(fileName)
+          return ts.sys.fileExists(fileName)
+        },
+      }
+    : ts.sys
   const commandLine = configFileName
-    ? createParsedCommandLine(ts, ts.sys, configFileName, jsonOnly)
+    ? createParsedCommandLine(ts, configHost, configFileName, jsonOnly)
     : {
         options: ts.getDefaultCompilerOptions(),
         mpxOptions: getDefaultCompilerOptions(),

@@ -4,6 +4,7 @@
     "module": "Node16",
     "moduleResolution": "Node16",
     "checkJs": true,
+    "resolveJsonModule": true,
     "types": []
   },
   "include": ["./**/*"]

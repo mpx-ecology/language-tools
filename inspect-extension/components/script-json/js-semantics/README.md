@@ -11,6 +11,8 @@
 
 7. 打开 `environment.mpx`，JSON 中 `__dirname`、`__filename`、`__json_project_label__` 应为 string，且没有未定义错误；注入的两个变量 F2 应提示不可重命名，用户自己声明的局部变量仍可改名；后者 F12 应跳到 `project-globals.ts`。本目录显式使用 `types: []` 验证无需整套 Node 类型。
 8. 分别格式化 `format-js.mpx` 和 `format-json.mpx`。开始标签与代码应分行，连续格式化结果一致；切换 LF / CRLF 后重复检查。完成后撤销测试改动。
+9. 打开 `ranges.mpx`，核对注释中的三个 4001 范围：两个字符串仅标记引号内路径，属性访问完整标记 `config.panel`；两个有效路径链接均只覆盖各自字符串内容。
+10. 打开 `json-import.mpx`，按注释修改并保存 `data.json`，hover 应在 string / number 间刷新。普通业务 JSON 文件变更不销毁语义工程；根 tsconfig/jsconfig 与 package.json 仍保守清空工程缓存；自定义命名的继承配置按实际解析依赖失效，共享该配置的工程均应刷新。
 
 连续编辑回归：在 `errors.mpx` 的逻辑 `<script setup>` 上加上 `lang="ts"`，等待诊断出现后再去掉，再加回。整个过程中 JSON 内预期的 4 个错误都应保留，JSON 中局部变量的定义跳转也应正常，无需刷新窗口。
 

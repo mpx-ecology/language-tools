@@ -55,6 +55,11 @@ for (const leadingSpace of ['', ' \t'])
             TextDocument.create(uri.toString(), 'mpx', 1, source),
             edits ?? [],
           )
+          expect(edits?.length).toBeGreaterThan(0)
+          expect(formatted).not.toContain(body)
+          expect(formatted).toMatch(
+            /navigationBarTitleText["']?:\s+["']标题["']/,
+          )
           expect(formatted).toMatch(/^<script[^>]*>[\t ]*\r?\n/)
           expect(formatted).toMatch(/\r?\n<\/script>/)
           expect(formatted).not.toMatch(/<script[^>]*>\r?\n\r?\n/)

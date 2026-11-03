@@ -73,19 +73,34 @@ function initializeForAgent(params: InitializeParams) {
  */
 function initializeForIDE(params: InitializeParams) {
   const tsconfigProjects = createUriMap<Promise<TypeScriptProjectLS>>()
+  const configDependencies =
+    createUriMap<ReturnType<typeof createUriMap<boolean>>>()
   const file2ProjectInfo = new Map<
     string,
     Promise<ts.server.protocol.ProjectInfo | null>
   >()
 
-  // Invalidate inherited configs and package resolution settings as well as
-  // the root tsconfig; each project disposes its document and file watchers.
+  // Root config discovery and package resolution can affect project ownership
+  // or imports globally. Other config reads are tracked per project; ordinary
+  // imported JSON files use Volar's watched-file cache updates in place.
   server.fileWatcher.onDidChangeWatchedFiles(({ changes }) => {
-    const configChanged = changes.some(change =>
-      URI.parse(change.uri).path.endsWith('.json'),
+    const globalChange = changes.some(change =>
+      /\/(?:tsconfig|jsconfig|package)\.json$/.test(URI.parse(change.uri).path),
     )
-    if (configChanged) {
+    let configChanged = globalChange
+    if (globalChange) {
       disposeProjects()
+    } else {
+      for (const [config, dependencies] of configDependencies) {
+        if (changes.some(change => dependencies.has(URI.parse(change.uri)))) {
+          configChanged = true
+          const project = tsconfigProjects.get(config)
+          tsconfigProjects.delete(config)
+          configDependencies.delete(config)
+          void project?.then(project => project.dispose())
+        }
+      }
+      if (configChanged) file2ProjectInfo.clear()
     }
     server.languageFeatures.requestRefresh(configChanged)
   })
@@ -97,6 +112,7 @@ function initializeForIDE(params: InitializeParams) {
       void project?.then(project => project.dispose())
     }
     tsconfigProjects.clear()
+    configDependencies.clear()
     file2ProjectInfo.clear()
     simpleLs = undefined
   }
@@ -222,6 +238,11 @@ function initializeForIDE(params: InitializeParams) {
   }
 
   function createLs(tsconfig: string | undefined) {
+    const dependencies = createUriMap<boolean>()
+    if (tsconfig) {
+      dependencies.set(URI.file(tsconfig), true)
+      configDependencies.set(URI.file(tsconfig), dependencies)
+    }
     const workspaceFolder = getWorkspaceFolder(
       tsconfig
         ? URI.file(tsconfig)
@@ -239,7 +260,10 @@ function initializeForIDE(params: InitializeParams) {
       ]),
       workspaceFolder,
       createUriConverter([...server.workspaceFolders.all]),
-      context => createMpxProject(ts, context, true, documentState),
+      context =>
+        createMpxProject(ts, context, true, documentState, fileName =>
+          dependencies.set(URI.file(fileName), true),
+        ),
     )
   }
 }
