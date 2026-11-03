@@ -1,0 +1,14 @@
+<template><view>{{ count }}</view></template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+createComponent({
+  // ✅ 配置容器本身叫 data 合法。
+  data: {
+    // ❌ 容器内的实例字段 data 应出现一条 warning。
+    data: 1,
+    count: 2,
+  },
+})
+</script>

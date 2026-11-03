@@ -1,0 +1,16 @@
+<template><view>{{ hookTitle }}</view></template>
+
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+
+// RN 场景：✅ hookTitle 保持 string 类型及源码跳转。
+onReactHooksExec(() => {
+  const data = 'local'
+  return {
+    // ❌ Hooks 返回的公开 key data 应出现一条 warning。
+    data,
+    hookTitle: 'Hooks',
+  }
+})
+defineExpose({})
+</script>

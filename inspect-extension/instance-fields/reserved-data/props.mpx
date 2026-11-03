@@ -1,0 +1,12 @@
+<template><view>{{ title }}</view></template>
+
+<script setup lang="ts">
+interface Props {
+  // ❌ 实例 prop data 应出现 warning，定位此属性名。
+  data?: string
+  title?: string
+}
+// ✅ 默认值里的 data 不应再报告一次；title 保持 string 类型。
+withDefaults(defineProps<Props>(), { data: '', title: 'Mpx' })
+defineExpose({})
+</script>

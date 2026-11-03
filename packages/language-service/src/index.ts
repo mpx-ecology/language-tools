@@ -12,6 +12,7 @@ import { create as createTypeScriptDocCommentTemplatePlugin } from 'volar-servic
 import { create as createTypeScriptSyntacticPlugin } from './plugins/typescript-syntactic'
 import { create as creatempxDocumentHighlightsPlugin } from './plugins/mpx-document-highlights'
 import { create as createMpxSfcPlugin } from './plugins/mpx-sfc'
+import { create as createMpxReservedInstanceDataPlugin } from './plugins/mpx-reserved-instance-data'
 import { create as createMpxTemplatePlugin } from './plugins/mpx-sfc-template'
 import { create as createMpxTemplateAutoinsertSpacePlugin } from './plugins/mpx-sfc-template-autoinsert-space'
 import { create as createMpxTemplateCompilerErrorsPlugin } from './plugins/mpx-sfc-template-compiler-errors'
@@ -76,6 +77,7 @@ function getCommonLanguageServicePlugins(
     createTypeScriptSyntacticPlugin(ts),
     createTypeScriptDocCommentTemplatePlugin(ts),
     createMpxSfcPlugin(),
+    createMpxReservedInstanceDataPlugin(ts),
     createMpxTemplatePlugin(getTsPluginClient),
     createMpxTemplateCompilerErrorsPlugin(),
     createMpxTemplateDirectiveCommentsPlugin(),

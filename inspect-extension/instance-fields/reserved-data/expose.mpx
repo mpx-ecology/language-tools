@@ -1,0 +1,20 @@
+<template>
+  <!-- ✅ publicCount / renamed 保持 number 类型和源码跳转。 -->
+  <view>{{ publicCount }} {{ renamed }}</view>
+</template>
+
+<script setup lang="ts">
+import { ref } from '@mpxjs/core'
+
+// ✅ 普通局部变量名 data 合法；对外改名为 renamed 也合法。
+const data = ref(1)
+const publicCount = ref(2)
+const fields = {
+  // ❌ 这里的公开 key data 应出现一条 Mpx 保留名 warning。
+  data: publicCount,
+  publicCount,
+  renamed: data,
+}
+// ✅ spread 使用原始 key 的位置；不要在展开处重复报告。
+defineExpose({ ...fields })
+</script>
