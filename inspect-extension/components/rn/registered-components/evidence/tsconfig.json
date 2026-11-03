@@ -3,5 +3,8 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["*.mpx"]
+  "include": [
+    "*.mpx",
+    "*.d.ts"
+  ]
 }
