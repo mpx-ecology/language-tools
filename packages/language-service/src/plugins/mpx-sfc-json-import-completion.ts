@@ -30,7 +30,7 @@ export function create(
 
           const [documentUri, embeddedCodeId] = decoded
 
-          if (!embeddedCodeId.startsWith('json_')) {
+          if (!/^json_(js|json)$/.test(embeddedCodeId)) {
             return
           }
           const sourceScript = context.language.scripts.get(documentUri)
@@ -47,11 +47,9 @@ export function create(
             absoluteOffset,
           )
 
-          /**
-           * todo: 出现重复。具体原因待排查.
-           * 但是打印completions 为没有重复的
-           */
-          const completions = tsCompletions?.map((item: ts.CompletionEntry) => {
+          if (!tsCompletions?.length) return
+
+          const completions = tsCompletions.map((item: ts.CompletionEntry) => {
             return {
               label: item.name,
               kind:
@@ -63,7 +61,9 @@ export function create(
 
           return {
             isIncomplete: true,
-            items: new Set(completions) as unknown as vscode.CompletionItem[],
+            items: [
+              ...new Map(completions.map(item => [item.label, item])).values(),
+            ],
           }
         },
       }

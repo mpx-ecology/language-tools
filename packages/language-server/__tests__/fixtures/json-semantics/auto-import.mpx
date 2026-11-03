@@ -1,0 +1,4 @@
+<script name="json">
+const title = jsonTitleFactory()
+module.exports = { navigationBarTitleText: title }
+</script>

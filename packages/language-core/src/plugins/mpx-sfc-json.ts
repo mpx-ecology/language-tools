@@ -6,6 +6,7 @@ import type {
   SfcJsonBlockResolvedUsingComponents,
   SfcJsonBlockUsingComponents,
 } from '../types'
+import { generateJsonService } from '../codegen/script/jsonService'
 import { allCodeFeatures } from './shared'
 import { createUsingComponentsPathResolver } from '../utils/formatUsingComponentsPath'
 
@@ -99,18 +100,23 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
           id: `json_${lang}`,
           lang: lang,
         })
+        if (lang === 'js') {
+          result.push({ id: 'json_service', lang: 'js' })
+        }
       }
       return result
     },
 
     resolveEmbeddedCode(_fileName, sfc, embeddedFile) {
-      const json = /json_(js|json)/.test(embeddedFile.id) ? sfc.json : undefined
-      if (json) {
-        let content = json.content
-        if (content.startsWith('\n')) {
-          content = content.slice(1)
-        }
-        embeddedFile.content.push([content, json.name, 1, allCodeFeatures])
+      const json = sfc.json
+      if (!json) return
+      if (embeddedFile.id === 'json_service' && json.lang === 'js') {
+        embeddedFile.content.push(
+          ...generateJsonService(modules.typescript, json),
+        )
+      } else if (/^json_(js|json)$/.test(embeddedFile.id)) {
+        // Keep every offset relative to the unmodified block, including CRLF.
+        embeddedFile.content.push([json.content, json.name, 0, allCodeFeatures])
       }
     },
 
