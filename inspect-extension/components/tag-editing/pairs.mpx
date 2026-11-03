@@ -1,0 +1,19 @@
+<template>
+  <!-- ✅ 嵌套同名 view：编辑内层标签，仅内层开闭标签同步。 -->
+  <view class="outer">
+    <view class="inner"><text>标签联动</text></view>
+    <!-- ✅ 连字符 / 自定义标签：从开标签或闭标签编辑，均只同步这一对。 -->
+    <my-card title="Mpx"><customOutputComp></customOutputComp></my-card>
+    <!-- ❌ 同名兄弟标签和自闭合标签不应随上面一对变化。 -->
+    <my-card></my-card>
+    <my-card />
+  </view>
+</template>
+<script type="application/json">
+{
+  "usingComponents": {
+    "my-card": "./child.mpx",
+    "customOutputComp": "./child.mpx"
+  }
+}
+</script>

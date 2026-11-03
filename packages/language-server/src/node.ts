@@ -1,4 +1,3 @@
-import type { LanguageServer } from '@volar/language-server'
 import type { InitializeParams } from '@volar/language-server'
 import * as ts from 'typescript'
 import { URI } from 'vscode-uri'
@@ -9,21 +8,29 @@ import {
 } from '@volar/language-server/node'
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject'
 import {
-  createLanguage,
-  createMpxLanguagePlugin,
-  createParsedCommandLine,
-  getDefaultCompilerOptions,
-} from '@mpxjs/language-core'
-import {
-  LanguageService,
-  createLanguageService,
   createMpxLanguageServicePlugins,
   createTypeScriptSemanticPlugin,
   createUriMap,
 } from '@mpxjs/language-service'
+import {
+  type TypeScriptProjectLS,
+  createTypeScriptLS,
+} from '@volar/language-server/lib/project/typescriptProjectLs'
+import {
+  createUriConverter,
+  getWorkspaceFolder,
+} from '@volar/language-server/lib/project/typescriptProject'
+import { createMpxProject } from './mpxProject'
 
 const connection = createConnection()
 const server = createServer(connection)
+
+let closedDocumentVersion = 0
+server.documents.onDidClose(() => closedDocumentVersion++)
+const documentState = {
+  isOpen: (uri: URI) => !!server.documents.get(uri),
+  getClosedVersion: () => closedDocumentVersion,
+}
 
 const tsserverRequestHandlers = new Map<number, (response: any) => void>()
 let tsserverRequestId = 0
@@ -54,27 +61,9 @@ function initializeForAgent(params: InitializeParams) {
 
   return server.initialize(
     params,
-    createTypeScriptProject(ts, undefined, ({ configFileName }) => {
-      const commandLine = configFileName
-        ? createParsedCommandLine(ts, ts.sys, configFileName)
-        : {
-            options: ts.getDefaultCompilerOptions(),
-            mpxOptions: getDefaultCompilerOptions(),
-          }
-      return {
-        languagePlugins: [
-          {
-            getLanguageId: (uri: any) => server.documents.get(uri)?.languageId,
-          },
-          createMpxLanguagePlugin(
-            ts,
-            commandLine.options,
-            commandLine.mpxOptions,
-            (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
-          ),
-        ],
-      }
-    }),
+    createTypeScriptProject(ts, undefined, context =>
+      createMpxProject(ts, context, false, documentState),
+    ),
     plugins,
   )
 }
@@ -83,24 +72,50 @@ function initializeForAgent(params: InitializeParams) {
  * IDE mode: delegates TypeScript semantics to IDE's tsserver via notifications.
  */
 function initializeForIDE(params: InitializeParams) {
-  const tsconfigProjects = createUriMap<LanguageService>()
+  const tsconfigProjects = createUriMap<Promise<TypeScriptProjectLS>>()
+  const configDependencies =
+    createUriMap<ReturnType<typeof createUriMap<boolean>>>()
   const file2ProjectInfo = new Map<
     string,
     Promise<ts.server.protocol.ProjectInfo | null>
   >()
 
+  // Root config discovery and package resolution can affect project ownership
+  // or imports globally. Other config reads are tracked per project; ordinary
+  // imported JSON files use Volar's watched-file cache updates in place.
   server.fileWatcher.onDidChangeWatchedFiles(({ changes }) => {
-    for (const change of changes) {
-      const changeUri = URI.parse(change.uri)
-      if (tsconfigProjects.has(changeUri)) {
-        tsconfigProjects.get(changeUri)!.dispose()
-        tsconfigProjects.delete(changeUri)
-        file2ProjectInfo.clear()
+    const globalChange = changes.some(change =>
+      /\/(?:tsconfig|jsconfig|package)\.json$/.test(URI.parse(change.uri).path),
+    )
+    let configChanged = globalChange
+    if (globalChange) {
+      disposeProjects()
+    } else {
+      for (const [config, dependencies] of configDependencies) {
+        if (changes.some(change => dependencies.has(URI.parse(change.uri)))) {
+          configChanged = true
+          const project = tsconfigProjects.get(config)
+          tsconfigProjects.delete(config)
+          configDependencies.delete(config)
+          void project?.then(project => project.dispose())
+        }
       }
+      if (configChanged) file2ProjectInfo.clear()
     }
+    server.languageFeatures.requestRefresh(configChanged)
   })
 
-  let simpleLs: LanguageService | undefined
+  let simpleLs: Promise<TypeScriptProjectLS> | undefined
+
+  function disposeProjects() {
+    for (const project of [...tsconfigProjects.values(), simpleLs]) {
+      void project?.then(project => project.dispose())
+    }
+    tsconfigProjects.clear()
+    configDependencies.clear()
+    file2ProjectInfo.clear()
+    simpleLs = undefined
+  }
 
   return server.initialize(
     params,
@@ -125,26 +140,26 @@ function initializeForIDE(params: InitializeParams) {
             const { configFileName } = projectInfo || {}
             let ls = tsconfigProjects.get(URI.file(configFileName))
             if (!ls) {
-              ls = createLs(server, configFileName)
+              ls = createLs(configFileName)
               tsconfigProjects.set(URI.file(configFileName), ls)
             }
-            return ls
+            const project = await ls
+            project.tryAddFile(fileName)
+            return project.languageService
           }
         }
-        return (simpleLs ??= createLs(server, undefined))
+        const project = await (simpleLs ??= createLs(undefined))
+        if (uri.scheme === 'file')
+          project.tryAddFile(uri.fsPath.replace(/\\/g, '/'))
+        return project.languageService
       },
-      getExistingLanguageServices() {
-        return Promise.all(
-          [...tsconfigProjects.values(), simpleLs].filter(promise => !!promise),
+      async getExistingLanguageServices() {
+        const projects = await Promise.all(
+          [...tsconfigProjects.values(), simpleLs].filter(project => !!project),
         )
+        return projects.map(project => project!.languageService)
       },
-      reload() {
-        for (const ls of [...tsconfigProjects.values(), simpleLs]) {
-          ls?.dispose()
-        }
-        tsconfigProjects.clear()
-        simpleLs = undefined
-      },
+      reload: disposeProjects,
     },
     createMpxLanguageServicePlugins(ts, {
       collectExtractProps(...args: any[]) {
@@ -222,46 +237,45 @@ function initializeForIDE(params: InitializeParams) {
     })
   }
 
-  function createLs(server: LanguageServer, tsconfig: string | undefined) {
-    const commonLine = tsconfig
-      ? createParsedCommandLine(ts, ts.sys, tsconfig)
-      : {
-          options: ts.getDefaultCompilerOptions(),
-          mpxOptions: getDefaultCompilerOptions(),
-        }
-    const language = createLanguage<URI>(
-      [
-        {
-          getLanguageId: uri => server.documents.get(uri)?.languageId,
-        },
-        createMpxLanguagePlugin(
-          ts,
-          commonLine.options,
-          commonLine.mpxOptions,
-          (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
-        ),
-      ],
-      createUriMap(),
-      uri => {
-        const document = server.documents.get(uri)
-        if (document) {
-          language.scripts.set(uri, document.getSnapshot(), document.languageId)
-        } else {
-          language.scripts.delete(uri)
-        }
-      },
+  function createLs(tsconfig: string | undefined) {
+    const dependencies = createUriMap<boolean>()
+    if (tsconfig) {
+      dependencies.set(URI.file(tsconfig), true)
+      configDependencies.set(URI.file(tsconfig), dependencies)
+    }
+    const workspaceFolder = getWorkspaceFolder(
+      tsconfig
+        ? URI.file(tsconfig)
+        : ([...server.workspaceFolders.all][0] ??
+            URI.file(ts.sys.getCurrentDirectory())),
+      server.workspaceFolders,
     )
-    return createLanguageService(
-      language,
-      server.languageServicePlugins,
+    return createTypeScriptLS(
+      ts,
+      undefined,
+      tsconfig ?? { allowJs: true, noEmit: true },
+      server,
       createLanguageServiceEnvironment(server, [
         ...server.workspaceFolders.all,
       ]),
-      { mpx: { compilerOptions: commonLine.mpxOptions } },
+      workspaceFolder,
+      createUriConverter([...server.workspaceFolders.all]),
+      context =>
+        createMpxProject(ts, context, true, documentState, fileName =>
+          dependencies.set(URI.file(fileName), true),
+        ),
     )
   }
 }
 
-connection.onInitialized(server.initialized)
+connection.onInitialized(() => {
+  server.initialized()
+  // Volar's FS/TypeScript caches consume these events, but merely subscribing
+  // does not register a watcher with the editor. Include config/package JSON
+  // and all native TS/JS extensions used by the JSON semantic project.
+  void server.fileWatcher.watchFiles([
+    '**/*.{mpx,js,jsx,cjs,mjs,ts,tsx,cts,mts,json}',
+  ])
+})
 
 connection.onShutdown(server.shutdown)
