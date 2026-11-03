@@ -3,6 +3,7 @@
 const { refs } = useContext()
 const result = refs.child?.find('Mpx')
 refs.child?.find(1)
+defineExpose({})
 </script>
 <script type="application/json">
 { "usingComponents": { "options-child": "./options-setup-child.mpx" } }

@@ -12,6 +12,7 @@ const title: string = refs.child.title
 refs.child.loadMore('bad')
 refs.child.privateMethod()
 triggerEvent('done', { result, found, count })
+defineExpose({})
 </script>
 <script type="application/json">
 {

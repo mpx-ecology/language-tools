@@ -4,5 +4,6 @@ defineOptions({
   data: { title: 'Mpx' },
   methods: { find(name: string): number { return name.length } },
 })
+defineExpose({})
 </script>
 <script type="application/json">{ "component": true }</script>

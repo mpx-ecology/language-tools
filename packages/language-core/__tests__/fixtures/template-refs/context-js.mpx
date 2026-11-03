@@ -5,6 +5,7 @@ const again = useContext()
 const result = context.refs.child?.loadMore(1)
 context.refs.child?.loadMore('bad')
 again.triggerEvent('done')
+defineExpose({})
 </script>
 <script type="application/json">
 { "usingComponents": { "exposed-child": "./exposed-child.mpx" } }

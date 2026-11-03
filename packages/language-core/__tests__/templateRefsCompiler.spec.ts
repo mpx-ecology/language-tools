@@ -1,5 +1,7 @@
 import { createRequire } from 'node:module'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { compileMpxFixture } from './utils/compileMpxFixture'
 
 const requireFromTest = createRequire(__filename)
 const compiler = requireFromTest(
@@ -14,6 +16,21 @@ const compiler = requireFromTest(
 }
 
 describe('Mpx runtime ref metadata', () => {
+  it.each([
+    'context-js.mpx',
+    'exposed-child.mpx',
+    'index.mpx',
+    'nested-context.mpx',
+    'options-setup-child.mpx',
+    'setup-options-parent.mpx',
+    'shapes.mpx',
+  ])('compiles the actual script-setup fixture %s', async file => {
+    await expect(
+      compileMpxFixture(
+        path.resolve(__dirname, 'fixtures/template-refs', file),
+      ),
+    ).resolves.toBeDefined()
+  })
   it.each(['wx', 'ios'])(
     'preserves component/node and loop distinctions for %s',
     mode => {
