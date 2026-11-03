@@ -293,7 +293,7 @@ export function parseUsingComponentsWithJs(
       }
     } else if (ts.isPropertyAccessExpression(initializer)) {
       text = sourceFile.text.substring(
-        initializer.getStart(),
+        initializer.getStart(sourceFile),
         initializer.getEnd(),
       )
     }
@@ -306,6 +306,14 @@ export function parseUsingComponentsWithJs(
         text,
         offset: _variableOffset ?? initializer.getStart(sourceFile),
         nameOffset: nameNode.getStart(sourceFile),
+        ...(ts.isPropertyAccessExpression(initializer)
+          ? {
+              sourceRange: [
+                initializer.getStart(sourceFile),
+                initializer.getEnd(),
+              ] as [number, number],
+            }
+          : {}),
       })
     }
   }

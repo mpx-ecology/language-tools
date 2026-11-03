@@ -1,0 +1,5 @@
+<script name="json">
+// 此文件没有业务 script。hover / F12 / F2 都应正常；与 index 同名不冲突。
+const config = { title: '只有 JSON 脚本' }
+module.exports = { navigationBarTitleText: config.title }
+</script>
