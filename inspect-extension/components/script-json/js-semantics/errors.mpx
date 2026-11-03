@@ -1,0 +1,18 @@
+<script setup lang="ts">
+const businessOnly = '只属于业务脚本'
+defineExpose({ businessOnly })
+</script>
+<script name="json">
+// 预期 TS2322，JSDoc 的 string 不能接收 number；应只出现一次。
+/** @type {string} */
+const invalidTitle = 42
+// 预期 TS2304：JSON 不能访问另一个 script 的 businessOnly。
+businessOnly.toUpperCase()
+// 预期 TS2339：string 没有 missing 方法。
+invalidTitle.missing()
+module.exports = {
+  navigationBarTitleText: invalidTitle,
+  // 预期 mpx-json 4001，范围只覆盖引号内路径。
+  usingComponents: { missing: './missing.mpx' },
+}
+</script>

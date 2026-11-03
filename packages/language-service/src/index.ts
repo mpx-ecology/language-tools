@@ -21,6 +21,7 @@ import { create as createMpxTemplateLinksPlugin } from './plugins/mpx-sfc-templa
 import { create as createMpxStyleCSSPlugin } from './plugins/mpx-sfc-style-css'
 import { create as createMpxStyleStylusPlugin } from './plugins/mpx-sfc-style-stylus'
 import { create as createMpxStyleDirectiveCommentsPlugin } from './plugins/mpx-sfc-style-directive-comments'
+import { create as createMpxJsonJsPlugin } from './plugins/mpx-sfc-json-js'
 import { create as createMpxJsonJsonPlugin } from './plugins/mpx-sfc-json-json'
 import { create as createMpxJsonLinksPlugin } from './plugins/mpx-sfc-json-links'
 import { create as createMpxJsonImportCompletionPlugin } from './plugins/mpx-sfc-json-import-completion'
@@ -31,7 +32,7 @@ import { Commands } from './types'
 export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
 export * from './types'
-export { create as createTypeScriptSemanticPlugin } from './plugins/typescript-semantic'
+export { createProject as createTypeScriptSemanticPlugin } from './plugins/mpx-sfc-json-js'
 
 export interface MpxLanguageServicePluginOptions {
   componentDefinitionProvider?: boolean
@@ -57,6 +58,7 @@ export function createMpxLanguageServicePlugins(
 
   if (tsPluginClient) {
     plugins.push(
+      createMpxJsonJsPlugin(ts),
       creatempxDocumentHighlightsPlugin(tsPluginClient.getDocumentHighlights),
     )
   }
@@ -85,7 +87,6 @@ function getCommonLanguageServicePlugins(
     createMpxStyleCSSPlugin(),
     createMpxStyleStylusPlugin(),
     createMpxStyleDirectiveCommentsPlugin(),
-    // createMpxJsonJsPlugin(ts, getTsPluginClient),
     createMpxJsonJsonPlugin(),
     createMpxTemplateLinksPlugin(),
     createMpxJsonLinksPlugin(),

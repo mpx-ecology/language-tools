@@ -4,6 +4,7 @@ import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
 import { create as baseCreate } from 'volar-service-prettier'
 import { formatWithBracketSpacing, prettierEnabled } from '../utils/formatter'
+import { preserveJsonLeadingNewline } from '../utils/jsonFormatting'
 
 export function create(): LanguageServicePlugin {
   // <script> 缩进大小
@@ -173,7 +174,9 @@ export function create(): LanguageServicePlugin {
               res[0].newText = newText
             }
 
-            return res
+            return embeddedCodeId === 'json_js'
+              ? preserveJsonLeadingNewline(document, res)
+              : res
           } finally {
             document.getText = originalGetText
           }

@@ -7,6 +7,10 @@ export default defineConfig({
   resolve: {
     alias: [
       {
+        find: '@mpxjs/language-service',
+        replacement: fromRoot('./packages/language-service/src/index.ts'),
+      },
+      {
         find: '@mpxjs/language-core',
         replacement: fromRoot('./packages/language-core/src/index.ts'),
       },

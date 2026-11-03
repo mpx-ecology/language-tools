@@ -1,0 +1,8 @@
+<template>
+  <!-- ❌ 故意保留半成品标签；预期可有未闭合诊断，不要为清理诊断补全它。 -->
+  <!-- ✅ 在 my-card 后输入 >，应只插入一次 </my-card>。 -->
+  <my-card
+</template>
+<script type="application/json">
+{ "usingComponents": { "my-card": "./child.mpx" } }
+</script>
