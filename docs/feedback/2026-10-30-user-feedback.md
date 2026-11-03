@@ -23,7 +23,7 @@
 
 15:43（Asia/Shanghai）恢复快照：用户已亲自为 Code - Insiders 选择 Always allow，继续推进指令已送达 12 个相关会话。F5 截图及所有截图附件上传继续通过共享锁串行执行；其他会话在锁外测试与整理正文。截图的本地采集、附件上传和正文嵌入分别登记，详见[截图与上传快照](../plans/2026-10-30-language-tools-optimization.md#33-f5-截图与上传快照2026-11-03)。#142 原有四张修复后图不等于完整 before/after。
 
-最新单项交付：T02 的 [Issue #145](https://github.com/mpx-ecology/language-tools/issues/145) 已嵌入[复现图](https://github.com/user-attachments/assets/d7919e93-5a47-447b-bf8f-9e42218341a3)，[PR #166](https://github.com/mpx-ecology/language-tools/pull/166) 已嵌入同场景[修复后图](https://github.com/user-attachments/assets/d8dfe805-6f03-48c9-9ea5-4fff4e40e08c)与前图。协调核验两附件与已核准原图字节一致、错误数 0 → 2、当前 head 39d85ef 的 Test / autofix 成功；PR 仍待评审合并。完整版本与时间见[逐项证据交付记录](../plans/2026-10-30-language-tools-optimization.md#34-逐项证据交付记录)。每完成一项继续单独更新，另按用户要求每 5 分钟汇报各会话进度。
+最新单项交付：T02 的 [Issue #145](https://github.com/mpx-ecology/language-tools/issues/145) 已嵌入[复现图](https://github.com/user-attachments/assets/d7919e93-5a47-447b-bf8f-9e42218341a3)，[PR #166](https://github.com/mpx-ecology/language-tools/pull/166) 已嵌入同场景[修复后图](https://github.com/user-attachments/assets/d8dfe805-6f03-48c9-9ea5-4fff4e40e08c)与前图。协调核验两附件与已核准原图字节一致、错误数 0 → 2、拍摄配置 head 39d85ef 的 Test / autofix 成功；2026-11-03 21:39 另核验主线集成 head 18ab7cc2142c144038c1eb9e764018d42f0b2b86 的 Test / autofix 成功，115 项专项、637 项全量及 build / lint / 扩展构建通过。本次未重拍 F5，原截图保留真实拍摄版本；PR 仍待评审批准。完整版本与时间见[逐项证据交付记录](../plans/2026-10-30-language-tools-optimization.md#34-逐项证据交付记录)。每完成一项继续单独更新，另按用户要求每 5 分钟汇报各会话进度。
 
 截图默认要求已同步各修复会话并写入仓库规范：Issue 附实际 F5 最小 inspect 场景的复现截图，PR 附同场景、设置和主题的修复前后截图。只有无法或无需 F5 验证时可省略，需在 Issue / PR 说明具体原因及替代证据；本轮待补项仍按待补跟进。截图上传 GitHub 附件，原始内部截图继续只保留本地。
 

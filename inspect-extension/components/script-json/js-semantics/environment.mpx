@@ -1,0 +1,12 @@
+<script setup lang="ts">
+const runtimeTitle = '业务脚本'
+defineExpose({ runtimeTitle })
+</script>
+<script name="json">
+// hover 应为 string；无需额外安装或启用 Node 全局类型。
+const directory = __dirname
+const filename = __filename
+// hover 应为 string，F12 应跳转 project-globals.ts 中的声明。
+const label = __json_project_label__
+module.exports = { navigationBarTitleText: label, directory, filename }
+</script>

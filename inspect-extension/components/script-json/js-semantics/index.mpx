@@ -1,0 +1,37 @@
+<template>
+  <view>{{ runtimeTitle }}</view>
+  <json-panel />
+</template>
+
+<script setup lang="ts">
+const runtimeTitle = '业务脚本仍使用原有 TypeScript 服务'
+// 与 JSON 中的 config 同名：F2 重命名 JSON 变量不应修改这里。
+const config = { title: 'runtime' }
+const businessOnly = '只属于业务脚本'
+defineExpose({ runtimeTitle, config, businessOnly })
+</script>
+
+<script name="json">
+// F12 路径应跳转 shared.js；hover shared.title 应为 string。
+const shared = require('./shared')
+const config = { title: shared.title, count: shared.count }
+
+/**
+ * JSON 内的 JSDoc 生效，调用处应显示签名提示。
+ * @param {string} title
+ * @param {number} count
+ */
+function formatTitle(title, count) {
+  return title + count.toFixed()
+}
+
+// 在 config 上 F12 / Shift+F12 / F2：只关联此 JSON 块的声明与使用。
+// 在 config.title. 后触发补全应包含 toUpperCase；输入后撤销即可。
+const title = formatTitle(config.title, config.count)
+module.exports = {
+  navigationBarTitleText: title,
+  // Ctrl/Cmd+点击路径和模板组件 F12 应保持原有组件导航行为。
+  usingComponents: { 'json-panel': './panel.mpx' },
+  customBuildFlag: __json_build_flag__,
+}
+</script>

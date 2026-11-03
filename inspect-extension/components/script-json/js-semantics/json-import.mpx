@@ -1,0 +1,6 @@
+<script name="json">
+const data = require('./data.json')
+// hover data.title 应为 string。将 data.json 的 title 改为数字并保存后，
+// hover 应变为 number；撤销并保存后恢复，无需重启服务。
+module.exports = { navigationBarTitleText: data.title }
+</script>

@@ -1,0 +1,2 @@
+<!-- JSON 紧跟开始标签：F12 config 应准确选中声明，路径链接不含引号。 -->
+<script name="json">const config = { title: '中文偏移' }; module.exports = { navigationBarTitleText: config.title, usingComponents: { 'json-panel': './panel.mpx' } }</script>
