@@ -10,6 +10,7 @@ import {
   onDeactivate,
 } from 'reactive-vscode'
 import { createLabsInfo } from '@volar/vscode'
+import { activate as activateComponentReferences } from './features/componentReferences'
 import { config, displayName } from './config'
 import {
   activate as activateLanguageClient,
@@ -41,6 +42,8 @@ export const { activate, deactivate } = defineExtension(async () => {
         }
       })
   }
+
+  activateComponentReferences()
 
   // Legacy plugins
   const legacyExtensions = [

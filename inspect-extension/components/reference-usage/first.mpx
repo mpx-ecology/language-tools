@@ -1,0 +1,17 @@
+<template>
+  <!-- ✅ 开闭标签 F12 均到 panel；查找引用应包含 second 的 other-name。 -->
+  <demo-panel title="first"></demo-panel>
+  <!-- ✅ 不同别名、paths 路径与 query 仍是同一组件身份。 -->
+  <PanelAlias />
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script type="application/json">
+{
+  "usingComponents": {
+    "demo-panel": "./panel.mpx",
+    "PanelAlias": "@/reference-usage/panel.mpx?root=demo"
+  }
+}
+</script>
