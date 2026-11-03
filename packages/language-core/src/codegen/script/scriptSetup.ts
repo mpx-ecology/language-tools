@@ -101,12 +101,15 @@ function* generateSetupFunction(
     if (arg) {
       setupCodeModifies.push([
         [
-          `const __VLS_defineOptions = DefineComponent(`,
+          `const __VLS_rawOptions = __VLS_CaptureOptions(`,
           generateSfcBlockSection(scriptSetup, arg.start, arg.end, {
             ...codeFeatures.all,
             verification: false, // 避免重复报错
+            semantic: false, // 原始 defineOptions 调用保留语义映射
+            completion: false, // 补全和诊断仅使用原始调用
           }),
           `)${endOfLine}`,
+          `const __VLS_defineOptions = DefineComponent(__VLS_rawOptions)${endOfLine}`,
         ],
         callExp.start,
         callExp.start,
