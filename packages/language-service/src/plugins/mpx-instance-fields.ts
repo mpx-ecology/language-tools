@@ -25,6 +25,14 @@ export function create(ts: typeof import('typescript')): LanguageServicePlugin {
           const source = context.language.scripts.get(decoded[0])
           const root = source?.generated?.root
           if (!(root instanceof MpxVirtualCode) || !root.sfc.scriptSetup) return
+          // Hybrid JSON-only hosts deliberately omit the business TS script.
+          // Do not start their separate Program for an ordinary setup request.
+          if (
+            !source?.generated?.languagePlugin.typescript?.getServiceScript(
+              root,
+            )
+          )
+            return
           const scriptOffset = root.sfc.scriptSetup.startTagEnd
           // In hybrid mode tsserver owns semantic diagnostics; this provider is
           // active only when the standalone TypeScript service is available.

@@ -12,6 +12,8 @@ MPX_INSTANCE_FIELD_BENCHMARK=1 pnpm exec vitest run packages/language-core/__tes
 
 环境：macOS，Node v24.11.0、TypeScript 6.0.3。每个规模保留一组 props/expose 重名，加入 100 / 500 / 1000 次无关普通函数调用。两套独立服务使用相同当前宿主、解析器与虚拟代码生成器，分别调用旧/新诊断函数；轮换采样顺序，每组预热 2 次、记录 8 次中位数。
 
+测试宿主保留未编辑文档的 snapshot identity，文本改变后才更新版本，与真实编辑器一致。
+
 “热缓存”表示文档未编辑；“编辑后”每轮只改变第一条普通调用的数值参数，复用同一服务重新诊断。“额外诊断”只计自定义分析器；“编辑总计”包含内存更新、标准 TS 诊断及额外诊断，不包含编辑器 UI、网络或 F5 时间。
 
 | 普通调用数 | 热缓存额外：旧 → 新（ms） | 编辑后额外：旧 → 新（ms） | 编辑总计：旧 → 新（ms） |
@@ -27,7 +29,7 @@ MPX_INSTANCE_FIELD_BENCHMARK=1 pnpm exec vitest run packages/language-core/__tes
 `instanceFieldIncremental.spec.ts` 约束实际工作量并验证编辑行为：
 
 - 10 与 1000 次无关调用均不触发 Hooks 的符号查询。
-- 1000 次真实 Hooks 注册的 AST 子节点遍历量保持线性；同一 Program 再次诊断不重新遍历，导入别名只解析一次。
+- 1000 次真实 Hooks 注册的 AST 子节点遍历量保持线性；同一 Program 再次诊断不重新遍历，单轮诊断的导入别名只解析一次。
 - 字段重命名、删除和源码位移后，warning 与 related information 刷新且没有残留。
 - 外部类型修改时 setup AST 和生成 SourceFile 保持复用，类型查询仍刷新；恢复声明及移动声明位置后，冲突与关联位置恢复。
 - Hooks 的局部遮蔽、常量别名、最后一次注册及条件注册经过编辑后重新判断。
