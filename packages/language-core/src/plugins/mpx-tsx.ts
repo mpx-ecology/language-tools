@@ -203,7 +203,7 @@ function createTsx(
       compilerOptions: ctx.compilerOptions,
       mpxCompilerOptions: getResolvedOptions(),
       template: sfc.template,
-      usingComponents: sfc.json?.usingComponents,
+      usingComponents: sfc.usingComponents,
       scriptSetupBindingNames: getSetupBindingNames(),
       scriptSetupImportComponentNames: getSetupImportComponentNames(),
       destructuredPropNames: getSetupDestructuredPropNames(),

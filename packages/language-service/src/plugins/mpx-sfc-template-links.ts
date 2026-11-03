@@ -255,7 +255,7 @@ async function resolveTemplateContext(
   const templateNodeTags: TemplateNodeTag[] =
     codegen?.getGeneratedTemplate()?.templateNodeTags ?? []
   const { result: usingComponents } =
-    (await root.sfc.json?.resolvedUsingComponents) || {}
+    (await root.sfc.resolvedUsingComponents) || {}
 
   return {
     decoded,

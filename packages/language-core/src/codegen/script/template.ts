@@ -65,16 +65,9 @@ function* generateTemplateElements(): Generator<Code> {
 }
 
 function* generateTemplateComponents(): Generator<Code> {
-  const types: Code[] = [`typeof __MPX_ctx`, `typeof __MPX_jsonComponents`]
-
-  yield `type __VLS_LocalComponents =`
-  for (const type of types) {
-    yield ` & `
-    yield type
-  }
-  yield endOfLine
-
-  yield `let __VLS_components!: __VLS_LocalComponents & __VLS_GlobalComponents${endOfLine}`
+  yield `type __VLS_LocalComponents = __VLS_SpreadMerge<__VLS_PickNotAny<typeof __MPX_ctx, {}>, typeof __MPX_jsonComponents>${endOfLine}`
+  yield `let __VLS_registeredComponents!: __VLS_SpreadMerge<__VLS_PickNotAny<__VLS_GlobalComponents, {}>, typeof __MPX_jsonComponents>${endOfLine}`
+  yield `let __VLS_components!: __VLS_SpreadMerge<typeof __VLS_registeredComponents, __VLS_LocalComponents>${endOfLine}`
 }
 
 export function* generateTemplateDirectives(

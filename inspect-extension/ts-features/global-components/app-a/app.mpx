@@ -1,0 +1,3 @@
+<script type="application/json">
+{"pages":["./pages/index"],"packages":["./sub/app.mpx?root=sub"],"usingComponents":{"app-panel":"./panel.mpx"}}
+</script>

@@ -40,6 +40,7 @@ export interface TestLanguageService {
 export function createTestLanguageService(
   fixtureRoot = referenceTypePropsFixtureRoot,
   additionalRootFiles: string[] = [],
+  fileOverrides = new Map<string, string | undefined>(),
 ): TestLanguageService {
   const parsed = createParsedCommandLine(
     ts,
@@ -81,19 +82,29 @@ export function createTestLanguageService(
     id => id,
   )
 
+  const snapshots = new Map<string, ts.IScriptSnapshot>()
+  const associationVersions = new Map<string, number>()
   const language: Language<string> = createLanguage(
     [languagePlugin],
     new Map<string, SourceScript<string>>(),
     id => {
       const content = readFile(id)
       if (content !== undefined) {
-        language.scripts.set(
-          id,
-          ts.ScriptSnapshot.fromString(content),
-          getLanguageId(id),
-        )
+        let snapshot = snapshots.get(id)
+        if (
+          !snapshot ||
+          snapshot.getText(0, snapshot.getLength()) !== content
+        ) {
+          snapshot = ts.ScriptSnapshot.fromString(content)
+          snapshots.set(id, snapshot)
+        }
+        language.scripts.set(id, snapshot, getLanguageId(id))
+      } else {
+        snapshots.delete(id)
+        language.scripts.delete(id)
       }
     },
+    id => associationVersions.set(id, (associationVersions.get(id) ?? 0) + 1),
   )
 
   for (const fileName of mpxFiles) {
@@ -116,7 +127,8 @@ export function createTestLanguageService(
   )
   const host: ts.LanguageServiceHost = {
     getScriptFileNames: () => rootFiles,
-    getScriptVersion: () => '0',
+    getScriptVersion: fileName =>
+      `${fileOverrides.has(fileName) ? (fileOverrides.get(fileName) ?? 'missing') : '0'}:${associationVersions.get(fileName) ?? 0}`,
     getScriptSnapshot(fileName) {
       const content = readFile(fileName)
       return content === undefined
@@ -194,7 +206,9 @@ export function createTestLanguageService(
   }
 
   function readFile(fileName: string) {
-    return virtualFiles.get(fileName) ?? ts.sys.readFile(fileName)
+    return fileOverrides.has(fileName)
+      ? fileOverrides.get(fileName)
+      : (virtualFiles.get(fileName) ?? ts.sys.readFile(fileName))
   }
 }
 

@@ -9,7 +9,6 @@ import {
 } from '@volar/language-server/node'
 import { createLanguageServiceEnvironment } from '@volar/language-server/lib/project/simpleProject'
 import {
-  createLanguage,
   createMpxLanguagePlugin,
   createParsedCommandLine,
   getDefaultCompilerOptions,
@@ -21,6 +20,8 @@ import {
   createTypeScriptSemanticPlugin,
   createUriMap,
 } from '@mpxjs/language-service'
+
+import { createHybridMpxLanguage } from './hybridMpxLanguage'
 
 const connection = createConnection()
 const server = createServer(connection)
@@ -71,6 +72,7 @@ function initializeForAgent(params: InitializeParams) {
             commandLine.options,
             commandLine.mpxOptions,
             (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
+            fileName => URI.file(fileName),
           ),
         ],
       }
@@ -83,6 +85,9 @@ function initializeForAgent(params: InitializeParams) {
  * IDE mode: delegates TypeScript semantics to IDE's tsserver via notifications.
  */
 function initializeForIDE(params: InitializeParams) {
+  server.onInitialized(() => {
+    void server.fileWatcher.watchFiles(['**/*.mpx'])
+  })
   const tsconfigProjects = createUriMap<LanguageService>()
   const file2ProjectInfo = new Map<
     string,
@@ -229,29 +234,18 @@ function initializeForIDE(params: InitializeParams) {
           options: ts.getDefaultCompilerOptions(),
           mpxOptions: getDefaultCompilerOptions(),
         }
-    const language = createLanguage<URI>(
-      [
-        {
-          getLanguageId: uri => server.documents.get(uri)?.languageId,
-        },
-        createMpxLanguagePlugin(
-          ts,
-          commonLine.options,
-          commonLine.mpxOptions,
-          (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
-        ),
-      ],
-      createUriMap(),
-      uri => {
-        const document = server.documents.get(uri)
-        if (document) {
-          language.scripts.set(uri, document.getSnapshot(), document.languageId)
-        } else {
-          language.scripts.delete(uri)
-        }
+    const { language, syncFileChange } = createHybridMpxLanguage(
+      ts,
+      commonLine.options,
+      commonLine.mpxOptions,
+      uri => server.documents.get(uri),
+    )
+    const watcher = server.fileWatcher.onDidChangeWatchedFiles(
+      ({ changes }) => {
+        for (const change of changes) syncFileChange(URI.parse(change.uri))
       },
     )
-    return createLanguageService(
+    const service = createLanguageService(
       language,
       server.languageServicePlugins,
       createLanguageServiceEnvironment(server, [
@@ -259,6 +253,12 @@ function initializeForIDE(params: InitializeParams) {
       ]),
       { mpx: { compilerOptions: commonLine.mpxOptions } },
     )
+    const dispose = service.dispose
+    service.dispose = () => {
+      watcher.dispose()
+      dispose()
+    }
+    return service
   }
 }
 

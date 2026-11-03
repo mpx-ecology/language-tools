@@ -1,0 +1,11 @@
+<template>
+  <other-panel title="ok" />
+  <local-panel count="{{ 123 }}" />
+  <TypedPanel title="ok" />
+</template>
+<script setup lang="ts">
+defineExpose({ privateField: 'not a component' })
+</script>
+<script type="application/json">
+{"usingComponents":{"local-panel":"../local.mpx"}}
+</script>

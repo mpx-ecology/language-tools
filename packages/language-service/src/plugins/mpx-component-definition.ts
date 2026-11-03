@@ -97,7 +97,7 @@ export function create(): LanguageServicePlugin {
         const templateNodeTags =
           codegen?.getGeneratedTemplate()?.templateNodeTags ?? []
         const { result: usingComponents } =
-          (await sfc.json?.resolvedUsingComponents) || {}
+          (await sfc.resolvedUsingComponents) || {}
         if (!usingComponents?.size) {
           return
         }

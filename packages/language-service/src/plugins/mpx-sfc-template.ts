@@ -9,7 +9,8 @@ import type {
 } from '@mpxjs/typescript-plugin/src/requests'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
 import * as html from 'vscode-html-languageservice'
-import { getAtModeBaseName } from '@mpxjs/language-shared'
+import { camelize, capitalize, getAtModeBaseName } from '@mpxjs/language-shared'
+import { hyphenateTag } from '@mpxjs/language-core'
 import { create as createHtmlService } from 'volar-service-html'
 import { LanguageServicePlugin, SfcJsonBlockUsingComponents } from '../types'
 import templateBuiltinData from '../data/template'
@@ -109,6 +110,8 @@ export function create(
         usingComponents?: SfcJsonBlockUsingComponents,
         componentProps?: Map<string, ComponentPropInfo[]>,
         mode: 'completion' | 'hover' = 'completion',
+        typeComponents: string[] = [],
+        applicationComponents?: SfcJsonBlockUsingComponents,
       ) => {
         const getAttributes = (componentTag: string) =>
           (componentProps?.get(componentTag) ?? [])
@@ -135,9 +138,24 @@ export function create(
                   name: componentTag,
                   description: {
                     kind: 'markdown',
-                    value: `自定义组件：\n- ${componentPaths.map(p => p.text).join('\n- ')}`,
+                    value: `自定义组件（${applicationComponents?.get(componentTag) === componentPaths ? '应用全局' : '局部注册'}）：\n- ${componentPaths.map(p => p.text).join('\n- ')}`,
                   },
                   attributes: getAttributes(componentTag),
+                })
+              }
+            }
+            const jsonNames = new Set(
+              [...(usingComponents?.keys() ?? [])].map(name =>
+                capitalize(camelize(name)),
+              ),
+            )
+            for (const name of typeComponents) {
+              if (jsonNames.has(capitalize(camelize(name)))) continue
+              for (const tag of new Set([name, hyphenateTag(name)])) {
+                tags.push({
+                  name: tag,
+                  description: '类型声明组件',
+                  attributes: getAttributes(tag),
                 })
               }
             }
@@ -158,7 +176,15 @@ export function create(
       ) => {
         const updateId = ++customDataUpdateId
         const helper = templateCodegenHelper(context, document.uri)
-        const usingComponents = helper?.sfc.json?.usingComponents
+        const usingComponents =
+          helper?.sfc.usingComponents ?? helper?.sfc.json?.usingComponents
+        const typeComponents =
+          helper && mode === 'completion' && !token?.isCancellationRequested
+            ? ((await getTsClient(context)?.getComponentNames?.(
+                helper.documentUri.fsPath,
+              )) ?? [])
+            : []
+        if (!isCustomDataRequestCurrent(updateId, token)) return
         const tagContext = getTagContextAtPosition(document, position)
         const componentTag = tagContext?.tag
         const componentProps = new Map<string, ComponentPropInfo[]>()
@@ -171,7 +197,11 @@ export function create(
           helper &&
           componentTag &&
           tagContext.isAfterTagName &&
-          usingComponents?.has(componentTag) &&
+          (usingComponents?.has(componentTag) ||
+            typeComponents.some(
+              name =>
+                name === componentTag || hyphenateTag(name) === componentTag,
+            )) &&
           (mode === 'completion' || hasMultipleComponentCandidates) &&
           !token?.isCancellationRequested
         ) {
@@ -188,10 +218,18 @@ export function create(
           return
         }
 
-        runUpdateExtraCustomData(usingComponents, componentProps, mode)
+        runUpdateExtraCustomData(
+          usingComponents,
+          componentProps,
+          mode,
+          typeComponents,
+          helper?.sfc.application?.json.usingComponents,
+        )
         return {
           updateId,
           usingComponents,
+          applicationComponents: helper?.sfc.application?.json.usingComponents,
+          typeComponents,
           attributeCondition: tagContext?.attributeCondition,
         }
       }
@@ -239,7 +277,17 @@ export function create(
           ) {
             htmlComplete = {
               isIncomplete: false,
-              items: mpxBuiltinTagsCompleteItems ?? [],
+              items: [
+                ...mpxBuiltinTagsCompleteItems,
+                ...extraCustomData
+                  .flatMap(provider => provider.provideTags())
+                  .map(tag => ({
+                    label: tag.name,
+                    insertText: `<${tag.name}>$1</${tag.name}>`,
+                    insertTextFormat: 2 as const,
+                    kind: 10 as const,
+                  })),
+              ],
             }
           }
           htmlComplete?.items.forEach(item => {
@@ -256,7 +304,11 @@ export function create(
               const componentPaths = customData.usingComponents.get(item.label)
               if (componentPaths?.length) {
                 item.labelDetails = {
-                  description: `自定义组件`,
+                  description:
+                    customData.applicationComponents?.get(item.label) ===
+                    componentPaths
+                      ? '应用全局组件'
+                      : '局部注册组件',
                 }
               }
             }
