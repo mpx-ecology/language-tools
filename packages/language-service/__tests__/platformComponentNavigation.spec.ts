@@ -41,7 +41,7 @@ function setup() {
     `${sourceUri}.__json.js`,
     'javascript',
     0,
-    root.sfc.json!.content.replace(/^\n/, ''),
+    root.sfc.json!.content,
   )
   const context = {
     decodeEmbeddedDocumentUri: (uri: URI) => [
