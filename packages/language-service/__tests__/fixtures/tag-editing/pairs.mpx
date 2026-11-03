@@ -1,0 +1,19 @@
+<script setup lang="ts">
+const title = '标签映射'
+defineExpose({ title })
+</script>
+<template>
+  <view class="outer">
+    <view class="inner"><text>{{ title }}</text></view>
+    <my-card title="{{ title }}"><customOutputComp></customOutputComp></my-card>
+    <my-card />
+  </view>
+</template>
+<script type="application/json">
+{
+  "usingComponents": {
+    "my-card": "./child.mpx",
+    "customOutputComp": "./child.mpx"
+  }
+}
+</script>
