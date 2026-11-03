@@ -1,6 +1,7 @@
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { create as baseCreate } from 'volar-service-json'
 import mpxJsonSchema from '../data/mpxJsonSchema'
+import { preserveJsonLeadingNewline } from '../utils/jsonFormatting'
 
 export function create(): LanguageServicePlugin {
   const base = baseCreate({
@@ -33,5 +34,29 @@ export function create(): LanguageServicePlugin {
   return {
     ...base,
     name: 'mpx-json-json',
+    create(context) {
+      const instance = base.create(context)
+      return {
+        ...instance,
+        async provideDocumentFormattingEdits(
+          document,
+          range,
+          options,
+          embeddedCodeContext,
+          token,
+        ) {
+          return preserveJsonLeadingNewline(
+            document,
+            await instance.provideDocumentFormattingEdits?.(
+              document,
+              range,
+              options,
+              embeddedCodeContext,
+              token,
+            ),
+          )
+        },
+      }
+    },
   }
 }

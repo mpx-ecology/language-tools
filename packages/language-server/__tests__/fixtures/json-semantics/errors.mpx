@@ -1,0 +1,11 @@
+<script setup lang="ts">
+const businessOnly = 'runtime'
+defineExpose({ businessOnly })
+</script>
+<script name="json">
+/** @type {string} */
+const invalidTitle = 42
+businessOnly.toUpperCase()
+invalidTitle.missing()
+module.exports = { navigationBarTitleText: invalidTitle }
+</script>

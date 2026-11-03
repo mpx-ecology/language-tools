@@ -11,6 +11,7 @@ import {
 } from 'reactive-vscode'
 import { createLabsInfo } from '@volar/vscode'
 import { config, displayName } from './config'
+import { registerJsonDependencySync } from './features/jsonDependencySync'
 import {
   activate as activateLanguageClient,
   deactivate as deactivateLanguageClient,
@@ -105,6 +106,7 @@ export const { activate, deactivate } = defineExtension(async () => {
       outputChannel,
     }
     const client = new _LanguageClient(id, name, serverOptions, clientOptions)
+    registerJsonDependencySync(client)
 
     /**
      * Proxy command request from mpx-lsp-server to builtin tsserver

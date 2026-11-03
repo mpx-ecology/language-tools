@@ -1,0 +1,4 @@
+<script name="json">
+// 格式化后代码应继续位于开始标签下一行；再格式化一次不应新增空行。
+module.exports={navigationBarTitleText:"JSON JS 格式化"}
+</script>
