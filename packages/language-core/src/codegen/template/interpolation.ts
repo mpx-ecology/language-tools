@@ -61,11 +61,25 @@ export function* generateInterpolation(
         offset = 0
       }
       const shouldSkip =
-        section.length === 0 && (type === 'startText' || type === 'endText')
+        section.length === 0 &&
+        (type === 'startText' ||
+          type === 'endText' ||
+          type === 'contextBoundary')
       if (!shouldSkip) {
         if (start !== undefined && data) {
           const resolvedData =
             typeof data === 'function' ? data(start + offset) : data
+          const localCompletion =
+            type === 'localCompletion' && resolvedData.completion
+          if (localCompletion) {
+            ctx.addLocalCompletion(
+              source,
+              start + offset,
+              section || code.slice(offset).match(/^\s*/)?.[0] || '',
+              segment[3]!,
+              resolvedData.completion,
+            )
+          }
           yield [
             section,
             source,
@@ -74,7 +88,9 @@ export function* generateInterpolation(
               ? ctx.codeFeatures.verification
               : type === 'completionMappingOnly'
                 ? { completion: resolvedData.completion }
-                : resolvedData,
+                : type === 'contextBoundary' || localCompletion
+                  ? { ...resolvedData, completion: false }
+                  : resolvedData,
           ]
         } else {
           yield section
@@ -89,6 +105,7 @@ interface CtxVar {
   text: string
   offset: number
   isShorthand?: boolean
+  isLocal?: boolean
 }
 
 interface BracesVar {
@@ -101,7 +118,14 @@ interface BracesVar {
 type Segment = [
   fragment: string,
   offset: number | undefined,
-  type?: 'errorMappingOnly' | 'completionMappingOnly' | 'startText' | 'endText',
+  type?:
+    | 'errorMappingOnly'
+    | 'completionMappingOnly'
+    | 'startText'
+    | 'endText'
+    | 'contextBoundary'
+    | 'localCompletion',
+  locals?: string[],
 ]
 
 function* forEachInterpolationSegment(
@@ -119,25 +143,29 @@ function* forEachInterpolationSegment(
   const code = prefix + originalCode + suffix
   const offset = start !== undefined ? start - prefix.length : undefined
   const ctxVars: CtxVar[] = []
+  const locals = ctx.getLocalVariables()
 
   if (
     identifierRegex.test(originalCode) &&
-    !shouldIdentifierSkipped(
-      ctx,
-      originalCode,
-      destructuredPropNames,
-      options.templateGlobalDefs,
-    )
+    (locals.includes(originalCode) ||
+      !shouldIdentifierSkipped(
+        ctx,
+        originalCode,
+        destructuredPropNames,
+        options.templateGlobalDefs,
+      ))
   ) {
     ctxVars.push({
       text: originalCode,
       offset: prefix.length,
+      isLocal: locals.includes(originalCode),
     })
   } else {
     const ast = createTsAst(ts, astHolder, code)
     const varCb = (id: ts.Identifier, isShorthand = false) => {
       const text = getNodeText(ts, id, ast)
       if (
+        locals.includes(text) ||
         !shouldIdentifierSkipped(
           ctx,
           text,
@@ -149,6 +177,7 @@ function* forEachInterpolationSegment(
           text,
           offset: getStartEnd(ts, id, ast).start,
           isShorthand,
+          isLocal: locals.includes(text),
         })
       }
     }
@@ -159,17 +188,74 @@ function* forEachInterpolationSegment(
     .concat(ctxVars)
     .sort((a, b) => a.offset - b.offset)
 
+  function hasLocalCompletion(variable: BracesVar | CtxVar | undefined) {
+    return (
+      !!variable &&
+      !isBracesVar(variable) &&
+      !!locals.length &&
+      !variable.isShorthand &&
+      !templateRefNames?.has(variable.text) &&
+      !isMpxGlobalDollarsWhitelisted(variable.text) &&
+      !ctx.dollarVars.has(variable.text)
+    )
+  }
+
+  function* generateText(
+    start: number,
+    end: number,
+    type: 'startText' | 'endText' | undefined,
+    previous: BracesVar | CtxVar | undefined,
+    next?: BracesVar | CtxVar,
+  ): Generator<Segment> {
+    if (hasLocalCompletion(previous) && !originalCode.trim()) {
+      yield [code.slice(start, end), start, 'contextBoundary']
+      return
+    }
+    // Do not let the following character reclaim completion at a root's end.
+    // Restore its far boundary so member completion after a dot still works.
+    const split =
+      hasLocalCompletion(previous) &&
+      start < end &&
+      start < prefix.length + originalCode.length
+    if (split) {
+      yield [code.slice(start, start + 1), start, 'contextBoundary']
+      start++
+      if (!next || start < next.offset) {
+        yield ['', start, 'completionMappingOnly']
+      }
+    }
+    if (!split || start < end) {
+      yield [code.slice(start, end), start, type]
+    }
+  }
+
   if (points.length) {
     for (let i = 0; i < points.length; i++) {
       const lastVar = points[i - 1]
       const curVar = points[i]
       const lastVarEnd = lastVar ? lastVar.offset + lastVar.text.length : 0
 
-      yield [
-        code.slice(lastVarEnd, curVar.offset),
+      const precedingEnd =
+        !isBracesVar(curVar) && curVar.offset > lastVarEnd
+          ? curVar.offset - 1
+          : curVar.offset
+      yield* generateText(
         lastVarEnd,
+        precedingEnd,
         i ? undefined : 'startText',
-      ]
+        lastVar,
+        curVar,
+      )
+      if (precedingEnd < curVar.offset) {
+        // The trivia/operator immediately before ctx.x shares x's source
+        // boundary. Its lexical completions must not hide ctx's members.
+        // Keep its diagnostic, semantic and navigation mappings unchanged.
+        yield [
+          code.slice(precedingEnd, curVar.offset),
+          precedingEnd,
+          'contextBoundary',
+        ]
+      }
 
       if (isBracesVar(curVar)) {
         // eg: "{{ a }} {{ b }}" -> "( a ) + ' ' + ( b )"
@@ -184,17 +270,26 @@ function* forEachInterpolationSegment(
           yield [curVar.text, curVar.offset, 'completionMappingOnly']
           yield [`: `, undefined]
         }
-        yield* generateVar(templateRefNames, ctx, code, offset, curVar)
+        yield* generateVar(
+          templateRefNames,
+          ctx,
+          code,
+          offset,
+          curVar,
+          locals,
+          hasLocalCompletion(curVar),
+        )
       }
     }
 
     const lastVar = points.at(-1)!
     if (lastVar.offset + lastVar.text.length < code.length) {
-      yield [
-        code.slice(lastVar.offset + lastVar.text.length),
+      yield* generateText(
         lastVar.offset + lastVar.text.length,
+        code.length,
         'endText',
-      ]
+        lastVar,
+      )
     }
   } else {
     yield [code, 0]
@@ -226,10 +321,20 @@ function* generateVar(
   code: string,
   offset: number | undefined,
   curVar: CtxVar,
+  locals: string[],
+  localCompletion: boolean,
 ): Generator<Segment> {
   yield ['', curVar.offset, 'errorMappingOnly']
 
   const isTemplateRef = templateRefNames?.has(curVar.text) ?? false
+  const isDollar =
+    isMpxGlobalDollarsWhitelisted(curVar.text) ||
+    ctx.dollarVars.has(curVar.text)
+  const completionType = localCompletion ? 'localCompletion' : undefined
+  if (curVar.isLocal) {
+    yield [curVar.text, curVar.offset, completionType, locals]
+    return
+  }
   if (isTemplateRef) {
     yield [`__VLS_unref(`, undefined]
     yield [
@@ -244,10 +349,7 @@ function* generateVar(
       ctx.accessExternalVariable(curVar.text)
     }
 
-    if (
-      isMpxGlobalDollarsWhitelisted(curVar.text) ||
-      ctx.dollarVars.has(curVar.text)
-    ) {
+    if (isDollar) {
       yield [`__MPX_dollars.`, undefined]
     } else {
       yield [`__MPX_ctx.`, undefined]
@@ -255,6 +357,8 @@ function* generateVar(
     yield [
       code.slice(curVar.offset, curVar.offset + curVar.text.length),
       curVar.offset,
+      completionType,
+      locals,
     ]
   }
 }

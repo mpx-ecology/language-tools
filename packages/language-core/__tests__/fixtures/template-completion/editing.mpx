@@ -1,0 +1,11 @@
+<template>
+  <!-- Intentional unfinished expressions: completion should use the template context. -->
+  <view title="{{  }}" bindtap=""><text>{{  }}</text></view>
+</template>
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+defineProps({ propTitle: String })
+const exposedTap = () => {}
+defineExpose({ exposedTap })
+onReactHooksExec(() => ({ hookTitle: 'Hooks' }))
+</script>

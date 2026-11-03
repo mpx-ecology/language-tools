@@ -1,0 +1,24 @@
+<template>
+  <view wx:if="{{ optionalUser }}">
+    <view wx:for="{{ rows }}" wx:for-item="row" wx:for-index="rowIndex" wx:key="id">
+      <text>{{ propTitle }} {{ row.id }} {{ optionalUser.name }}</text>
+      <button bindtap="handleTap($event, row)" />
+      <view wx:for="{{ row.children }}" wx:for-item="child" wx:for-index="childIndex" wx:key="id">
+        <text>{{ nestedTitle }} {{ child.id }}</text>
+      </view>
+      <view wx:for="{{ row.children }}" wx:for-item="row" wx:for-index="innerIndex" wx:key="id">
+        <text>{{ shadowTitle }} {{ row.id }}</text>
+      </view>
+    </view>
+  </view>
+  <text>{{ outsideTitle }}</text>
+  <view wx:for="{{ rows }}" wx:key="id"><text>{{ defaultTitle }} {{ item.id }} {{ index }}</text></view>
+</template>
+<script setup lang="ts">
+defineProps({ propTitle: { type: String, value: 'Mpx' } })
+const rows = [{ id: 'parent', children: [{ id: 'child' }] }]
+const privateValue = 'private'
+const handleTap = (event: unknown, item: { id: string }) => item.id
+const optionalUser = { name: 'Mpx' } as { name: string } | undefined
+defineExpose({ rows, row: 'outside', handleTap, nestedTitle: 'nested', shadowTitle: 'shadow', outsideTitle: 'outside', defaultTitle: 'default', optionalUser })
+</script>
