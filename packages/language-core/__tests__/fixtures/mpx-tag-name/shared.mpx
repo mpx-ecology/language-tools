@@ -1,0 +1,10 @@
+<template>
+  <view mpxTagName@swan="input" mpxTagName@ios|android="textarea" maxlength="{{ lengthLimit }}" class="box"><text>{{ caption }}</text></view>
+  <view mpxTagName="scroll-view" scroll-y="{{ 'wrong' }}" />
+</template>
+<script setup lang="ts">
+const lengthLimit = 10
+const caption = 'Mpx'
+defineExpose({ lengthLimit, caption })
+</script>
+<style>.box { color: red; }</style>

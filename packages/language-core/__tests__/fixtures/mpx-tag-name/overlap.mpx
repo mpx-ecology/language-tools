@@ -1,0 +1,10 @@
+<template>
+  <view mpxTagName@swan="input" mpxTagName@(swan|ali)="tag-panel" maxlength@swan="{{ 10 }}" title@ali="Mpx" />
+  <view @ios|android mpxTagName@ios|android="tag-panel" title="Mpx" />
+  <view mpxTagName="" mpxTagName@swan="tag-panel" />
+  <view mpxTagName@:demo="tag-panel" title@:demo="Mpx" />
+</template>
+<script setup lang="ts">defineExpose({})</script>
+<script name="json">
+export default { usingComponents: { 'tag-panel': './panel.mpx' } }
+</script>

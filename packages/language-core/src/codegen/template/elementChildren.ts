@@ -4,6 +4,7 @@ import type { TemplateCodegenOptions } from './index'
 
 import * as CompilerDOM from '@vue/compiler-dom'
 import { generateTemplateChild } from './templateChild'
+import { getTemplateTagIdentities } from './tagIdentity'
 
 export function* generateElementChildren(
   options: TemplateCodegenOptions,
@@ -31,6 +32,9 @@ function isTemplateImport(
     const { tag, props } = node
     if (
       tag === 'template' &&
+      getTemplateTagIdentities(node).every(
+        identity => identity.name === 'template',
+      ) &&
       props.some(prop => ['name', 'is'].includes(prop.name))
     ) {
       return true

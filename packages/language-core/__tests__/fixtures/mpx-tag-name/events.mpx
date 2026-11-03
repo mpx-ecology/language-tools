@@ -1,0 +1,8 @@
+<template>
+  <view mpxTagName="input" bindinput="wrongHandler" />
+  <view mpxTagName@swan="input" bindinput@swan="wrongHandler" />
+</template>
+<script setup lang="ts">
+const wrongHandler = 42
+defineExpose({ wrongHandler })
+</script>

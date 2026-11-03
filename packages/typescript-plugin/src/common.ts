@@ -6,6 +6,7 @@ import {
   MpxCompilerOptions,
   MpxVirtualCode,
   forEachElementNode,
+  getTemplateTagIdentities,
   hyphenateTag,
 } from '@mpxjs/language-core'
 import { capitalize } from '@mpxjs/language-shared'
@@ -34,10 +35,17 @@ export function proxyLanguageServiceForMpx<T>(
       case 'getSemanticDiagnostics':
       case 'getSyntacticDiagnostics':
       case 'getSuggestionDiagnostics':
-        return (fileName: string) =>
-          target[p](fileName).map(diagnostic =>
+        return (fileName: string) => {
+          const diagnostics = target[p](fileName).map(diagnostic =>
             transformTemplateDiagnostic(ts, language, asScriptId, diagnostic),
           )
+          const root = language.scripts.get(
+            asScriptId(fileName.replace(windowsPathReg, '/')),
+          )?.generated?.root
+          return root instanceof MpxVirtualCode
+            ? deduplicateTagCandidateDiagnostics(diagnostics, root)
+            : diagnostics
+        }
       case 'getCompletionsAtPosition':
         return getCompletionsAtPosition(mpxOptions, target[p])
       case 'getCompletionEntryDetails':
@@ -84,6 +92,77 @@ export function proxyLanguageServiceForMpx<T>(
       return Reflect.set(target, p, value, receiver)
     },
   })
+}
+
+function deduplicateTagCandidateDiagnostics(
+  diagnostics: ts.Diagnostic[],
+  root: MpxVirtualCode,
+) {
+  const template = root.sfc.template
+  if (!template?.ast || !template.content.includes('mpxTagName'))
+    return diagnostics
+  const ranges = [...forEachElementNode(template.ast)]
+    .filter(node => getTemplateTagIdentities(node).length > 1)
+    .map(node => [
+      node.loc.start.offset + template.startTagEnd,
+      node.loc.end.offset + template.startTagEnd,
+    ])
+  const seen = new Map<string, number>()
+  const result: ts.Diagnostic[] = []
+  for (const diagnostic of diagnostics) {
+    if (
+      diagnostic.file?.fileName !== root.fileName ||
+      diagnostic.start === undefined ||
+      !ranges.some(
+        ([start, end]) =>
+          diagnostic.start! >= start &&
+          diagnostic.start! + (diagnostic.length ?? 0) <= end,
+      )
+    ) {
+      result.push(diagnostic)
+      continue
+    }
+    // Match the reported error, retaining distinct expected types. Merge related
+    // declarations from different candidate types instead of repeating the error.
+    const key = JSON.stringify([
+      diagnostic.start,
+      diagnostic.length,
+      diagnostic.category,
+      diagnostic.code,
+      diagnostic.source,
+      diagnostic.messageText,
+      diagnostic.reportsUnnecessary,
+      diagnostic.reportsDeprecated,
+    ])
+    const previous = seen.get(key)
+    if (previous === undefined) {
+      seen.set(key, result.length)
+      result.push(diagnostic)
+    } else {
+      const related = new Map<string, ts.DiagnosticRelatedInformation>()
+      for (const info of [
+        ...(result[previous].relatedInformation ?? []),
+        ...(diagnostic.relatedInformation ?? []),
+      ]) {
+        related.set(
+          JSON.stringify([
+            info.file?.fileName,
+            info.start,
+            info.length,
+            info.code,
+            info.messageText,
+          ]),
+          info,
+        )
+      }
+      if (related.size)
+        result[previous] = {
+          ...result[previous],
+          relatedInformation: [...related.values()],
+        }
+    }
+  }
+  return result
 }
 
 function getCompletionsAtPosition(
@@ -408,8 +487,19 @@ function getEncodedSemanticClassifications<T>(
             length: span.length,
           },
         )) {
+          const start = componentSpan.start + template.startTagEnd
+          // A mapped TS property can already classify an mpxTagName value.
+          // Replace that token with the same class classification as real tags.
+          for (let i = result.spans.length - 3; i >= 0; i -= 3) {
+            if (
+              result.spans[i] === start &&
+              result.spans[i + 1] === componentSpan.length
+            ) {
+              result.spans.splice(i, 3)
+            }
+          }
           result.spans.push(
-            componentSpan.start + template.startTagEnd,
+            start,
             componentSpan.length,
             256, // class
           )
@@ -443,21 +533,17 @@ function getComponentSpans(
       ) {
         continue
       }
-      if (components.has(node.tag) && !elements.has(node.tag)) {
-        let start = node.loc.start.offset
-        if (template.lang === 'html') {
-          start += '<'.length
-        }
-        result.push({
-          start,
-          length: node.tag.length,
-        })
-        if (template.lang === 'html' && !node.isSelfClosing) {
-          result.push({
-            start:
-              node.loc.start.offset + node.loc.source.lastIndexOf(node.tag),
-            length: node.tag.length,
-          })
+      for (const identity of getTemplateTagIdentities(node)) {
+        if (!components.has(identity.name) || elements.has(identity.name))
+          continue
+        for (const start of [identity.startTagOffset, identity.endTagOffset]) {
+          if (
+            start === undefined ||
+            start >= spanTemplateRange.start + spanTemplateRange.length ||
+            start + identity.name.length <= spanTemplateRange.start
+          )
+            continue
+          result.push({ start, length: identity.name.length })
         }
       }
     }
