@@ -1,0 +1,4 @@
+<script name="json">
+const config = { title: 'json only' }
+module.exports = { navigationBarTitleText: config.title }
+</script>

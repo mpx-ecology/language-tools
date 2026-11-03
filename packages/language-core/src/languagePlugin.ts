@@ -149,3 +149,36 @@ export function getAllExtensions(options: MpxCompilerOptions) {
   }
   return [...result]
 }
+
+/** Enable standalone JSON JS scripts only in hosts that support extra scripts.
+ * The IDE tsserver plugin must keep using the default single service script.
+ */
+export function withMpxJsonServiceScripts<T>(
+  plugin: LanguagePlugin<T, MpxVirtualCode>,
+  jsonOnly = false,
+): LanguagePlugin<T, MpxVirtualCode> {
+  return {
+    ...plugin,
+    typescript: {
+      ...plugin.typescript!,
+      getServiceScript: jsonOnly
+        ? () => undefined
+        : plugin.typescript!.getServiceScript,
+      getExtraServiceScripts(fileName, root) {
+        for (const code of forEachEmbeddedCode(root)) {
+          if (code.id === 'json_service') {
+            return [
+              {
+                fileName: `${fileName}.__json.cjs`,
+                code,
+                extension: '.cjs',
+                scriptKind: 1 satisfies ts.ScriptKind.JS,
+              },
+            ]
+          }
+        }
+        return []
+      },
+    },
+  }
+}

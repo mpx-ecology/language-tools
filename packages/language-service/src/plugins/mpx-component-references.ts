@@ -27,6 +27,14 @@ export function create(ts: typeof import('typescript')): LanguageServicePlugin {
           !(source.generated?.root instanceof MpxVirtualCode)
         )
           return
+        // The IDE JSON-only project has no business service script. Component
+        // references belong to its tsserver plugin, not the extra JSON Program.
+        if (
+          !source.generated.languagePlugin.typescript?.getServiceScript(
+            source.generated.root,
+          )
+        )
+          return
         return { source, code }
       }
       function locations(
