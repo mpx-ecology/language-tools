@@ -1,8 +1,18 @@
 import type * as ts from 'typescript'
 import type { Language } from '@volar/language-core'
+import { tsCodegen } from '../plugins/mpx-tsx'
 import { MpxVirtualCode } from '../virtualFile/mpxFile'
 
 export const duplicateInstanceFieldCode = 5001
+
+// Cache syntax only. Types and diagnostics must follow the current Program,
+// including changes in imported declarations when the SFC itself is unchanged.
+const nodeChildren = new WeakMap<ts.Node, ts.Node[]>()
+const originals = new WeakMap<
+  MpxVirtualCode,
+  { snapshot: ts.IScriptSnapshot; file: ts.SourceFile }
+>()
+const guards = new WeakMap<ts.SourceFile, [number, number][]>()
 
 // Analyze existing service types without changing generated declarations.
 // Diagnostic adapters own the warning mapping; normal TS errors stay intact.
@@ -20,51 +30,38 @@ export function getInstanceFieldDiagnostics<T>(
   const service =
     source.generated!.languagePlugin.typescript?.getServiceScript(root)
   const file = program.getSourceFile(root.fileName)
-  if (!setup || !service || !file) return []
+  const ranges = tsCodegen.get(root.sfc)?.getScriptSetupRanges()
+  if (!setup || !service || !file || !ranges) return []
   const checker = program.getTypeChecker()
   const map = language.maps.get(service.code, source)
   // tsserver prefixes virtual code with a source-length padding; standalone
   // Volar uses the service snapshot directly. Both share the same source map.
   const offset = file.text.length - service.code.snapshot.getLength()
   if (offset !== 0 && offset !== source.snapshot.getLength()) return []
-  const text = source.snapshot.getText(0, source.snapshot.getLength())
-  const original = ts.createSourceFile(
-    root.fileName,
-    text,
-    ts.ScriptTarget.Latest,
-  )
-  const conditionalRanges: [number, number][] = []
-  let conditionalStart: number | undefined
-  let depth = 0
-  // Build guards from comments only, so strings containing directives are inert.
-  const scanner = ts.createScanner(
-    ts.ScriptTarget.Latest,
-    false,
-    ts.LanguageVariant.Standard,
-    setup.content,
-  )
-  for (
-    let token = scanner.scan();
-    token !== ts.SyntaxKind.EndOfFileToken;
-    token = scanner.scan()
-  ) {
-    if (
-      token !== ts.SyntaxKind.SingleLineCommentTrivia &&
-      token !== ts.SyntaxKind.MultiLineCommentTrivia
+  let originalFile = originals.get(root)
+  if (originalFile?.snapshot !== source.snapshot) {
+    const file = ts.createSourceFile(
+      root.fileName,
+      source.snapshot.getText(0, source.snapshot.getLength()),
+      ts.ScriptTarget.Latest,
     )
-      continue
-    const directive = scanner
-      .getTokenText()
-      .match(/^\/[/\*]\s*@mpx-(if|endif)\b/)
-    if (directive?.[1] === 'if' && depth++ === 0)
-      conditionalStart = scanner.getTokenPos()
-    if (directive?.[1] === 'endif' && depth && --depth === 0) {
-      conditionalRanges.push([conditionalStart!, scanner.getTextPos()])
-    }
+    originalFile = { snapshot: source.snapshot, file }
+    originals.set(root, originalFile)
   }
-  if (depth) conditionalRanges.push([conditionalStart!, setup.content.length])
+  const original = originalFile.file
+  const conditionalRanges = getGuards(ts, setup.ast)
   const guarded = (start: number) =>
     conditionalRanges.some(([a, b]) => start >= a && start < b)
+  const hookNames = new Set([
+    ...options.reactHooks,
+    ...ranges.instanceFieldAliases,
+    ...ranges.bindings
+      .filter(binding => binding.moduleName)
+      .map(binding =>
+        setup.content.slice(binding.range.start, binding.range.end),
+      ),
+  ])
+  const hookSymbols = new Map<ts.Symbol, boolean>()
 
   type Site = { file: ts.SourceFile; start: number; length: number }
   type Field = { name: string; owner: string; site: Site; origin: Site }
@@ -75,7 +72,21 @@ export function getInstanceFieldDiagnostics<T>(
   let hooks: ts.CallExpression | undefined
   let uncertainHooks = false
 
-  for (const statement of setup.ast.statements) visit(statement, true)
+  for (const { node, conditional } of ranges.instanceFieldCalls) {
+    const start = node.getStart(setup.ast)
+    const direct = !conditional && !guarded(start)
+    if (direct) {
+      if (start === ranges.defineProps?.callExp.start) props = node
+      if (start === ranges.defineOptions?.callExp.start) defineOptions = node
+      if (start === ranges.defineExpose?.callExp.start) expose = node
+    }
+    if (isHooks(node)) {
+      if (direct) {
+        hooks = node
+        uncertainHooks = false
+      } else uncertainHooks = true
+    }
+  }
   if (props) collect(props, 'props', false)
   else collect(defineOptions, 'props', false, 'properties')
   collect(expose, 'defineExpose', false)
@@ -109,38 +120,16 @@ export function getInstanceFieldDiagnostics<T>(
   }
   return result
 
-  function visit(node: ts.Node, unconditional: boolean) {
-    if (ts.isFunctionLike(node) || ts.isClassLike(node)) return
-    if (ts.isCallExpression(node)) {
-      const name = ts.isIdentifier(node.expression) ? node.expression.text : ''
-      const direct = unconditional && !guarded(node.getStart(setup!.ast))
-      if (options.macros.defineProps.includes(name) && direct) props = node
-      if (options.macros.defineOptions.includes(name) && direct)
-        defineOptions = node
-      if (options.macros.defineExpose.includes(name) && direct) expose = node
-      if (isHooks(node)) {
-        if (direct) {
-          hooks = node
-          uncertainHooks = false
-        } else uncertainHooks = true
-      }
-    }
-    const nested =
-      ts.isIfStatement(node) ||
-      ts.isSwitchStatement(node) ||
-      ts.isTryStatement(node) ||
-      ts.isIterationStatement(node, false) ||
-      ts.isConditionalExpression(node) ||
-      (ts.isBinaryExpression(node) &&
-        [
-          ts.SyntaxKind.AmpersandAmpersandToken,
-          ts.SyntaxKind.BarBarToken,
-          ts.SyntaxKind.QuestionQuestionToken,
-        ].includes(node.operatorToken.kind))
-    ts.forEachChild(node, child => visit(child, unconditional && !nested))
-  }
-
   function isHooks(call: ts.CallExpression) {
+    const expression = call.expression
+    if (
+      !(ts.isIdentifier(expression) && hookNames.has(expression.text)) &&
+      !(
+        ts.isPropertyAccessExpression(expression) &&
+        expression.name.text === 'onReactHooksExec'
+      )
+    )
+      return false
     const node = generated(call.expression)
     if (!node) return false
     const symbol = checker.getSymbolAtLocation(
@@ -179,7 +168,12 @@ export function getInstanceFieldDiagnostics<T>(
         }) ?? false
       )
     }
-    if (isMpxHook(symbol)) return true
+    let knownHook = symbol && hookSymbols.get(symbol)
+    if (knownHook === undefined) {
+      knownHook = isMpxHook(symbol)
+      if (symbol) hookSymbols.set(symbol, knownHook)
+    }
+    if (knownHook) return true
     // Custom composable names are an explicit project opt-in.
     return (
       ts.isIdentifier(call.expression) &&
@@ -193,11 +187,29 @@ export function getInstanceFieldDiagnostics<T>(
     const start = setup!.startTagEnd + node.getStart(setup!.ast)
     const end = setup!.startTagEnd + node.end
     for (const [a, b] of map.toGeneratedRange(start, end, true)) {
+      // Cache only the visited sibling lists, then binary-search their ranges.
+      // Ordinary call arguments and function bodies do not need indexing.
       const find = (current: ts.Node): ts.Node | undefined => {
         if (current.getStart(file) === a + offset && current.end === b + offset)
           return current
-        if (current.pos <= a + offset && current.end >= b + offset)
-          return ts.forEachChild(current, find)
+        let children = nodeChildren.get(current)
+        if (!children) {
+          children = []
+          ts.forEachChild(current, child => {
+            children!.push(child)
+          })
+          nodeChildren.set(current, children)
+        }
+        let low = 0
+        let high = children.length
+        while (low < high) {
+          const middle = (low + high) >>> 1
+          if (children[middle].end < b + offset) low = middle + 1
+          else high = middle
+        }
+        const child = children[low]
+        if (child && child.pos <= a + offset && child.end >= b + offset)
+          return find(child)
       }
       const found = find(file!)
       if (found) return found
@@ -285,4 +297,41 @@ export function getInstanceFieldDiagnostics<T>(
       })
     }
   }
+}
+
+function getGuards(ts: typeof import('typescript'), ast: ts.SourceFile) {
+  const cached = guards.get(ast)
+  if (cached) return cached
+  const conditionalRanges: [number, number][] = []
+  let conditionalStart: number | undefined
+  let depth = 0
+  // Build guards from comments only, so strings containing directives are inert.
+  const scanner = ts.createScanner(
+    ts.ScriptTarget.Latest,
+    false,
+    ts.LanguageVariant.Standard,
+    ast.text,
+  )
+  for (
+    let token = scanner.scan();
+    token !== ts.SyntaxKind.EndOfFileToken;
+    token = scanner.scan()
+  ) {
+    if (
+      token !== ts.SyntaxKind.SingleLineCommentTrivia &&
+      token !== ts.SyntaxKind.MultiLineCommentTrivia
+    )
+      continue
+    const directive = scanner
+      .getTokenText()
+      .match(/^\/[/\*]\s*@mpx-(if|endif)\b/)
+    if (directive?.[1] === 'if' && depth++ === 0)
+      conditionalStart = scanner.getTokenPos()
+    if (directive?.[1] === 'endif' && depth && --depth === 0) {
+      conditionalRanges.push([conditionalStart!, scanner.getTextPos()])
+    }
+  }
+  if (depth) conditionalRanges.push([conditionalStart!, ast.text.length])
+  guards.set(ast, conditionalRanges)
+  return conditionalRanges
 }

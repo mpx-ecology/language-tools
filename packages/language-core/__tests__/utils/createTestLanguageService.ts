@@ -30,6 +30,7 @@ export interface TestLanguageService {
   proxyLanguageService: ts.LanguageService
   file(relativePath: string): string
   read(relativePath: string): string
+  updateFile(relativePath: string, content: string): void
   getServiceScript(relativePath: string): {
     code: string
     root: MpxVirtualCode
@@ -67,6 +68,8 @@ export function createTestLanguageService(
     ],
     [nativeComponentsFile, nativeComponentsTypesContents],
   ])
+  const versions = new Map<string, number>()
+  let projectVersion = 0
   const compilerOptions: ts.CompilerOptions = {
     ...parsed.options,
     allowNonTsExtensions: true,
@@ -116,7 +119,8 @@ export function createTestLanguageService(
   )
   const host: ts.LanguageServiceHost = {
     getScriptFileNames: () => rootFiles,
-    getScriptVersion: () => '0',
+    getScriptVersion: fileName => String(versions.get(fileName) ?? 0),
+    getProjectVersion: () => String(projectVersion),
     getScriptSnapshot(fileName) {
       const content = readFile(fileName)
       return content === undefined
@@ -165,8 +169,18 @@ export function createTestLanguageService(
     languageServiceHost: host,
     proxyLanguageService: proxy,
     file: relativePath => path.join(fixtureRoot, relativePath),
-    read: relativePath =>
-      fs.readFileSync(path.join(fixtureRoot, relativePath), 'utf8'),
+    read: relativePath => readFile(path.join(fixtureRoot, relativePath))!,
+    updateFile(relativePath, content) {
+      const fileName = path.join(fixtureRoot, relativePath)
+      virtualFiles.set(fileName, content)
+      versions.set(fileName, (versions.get(fileName) ?? 0) + 1)
+      projectVersion++
+      language.scripts.set(
+        fileName,
+        ts.ScriptSnapshot.fromString(content),
+        getLanguageId(fileName),
+      )
+    },
     getServiceScript(relativePath) {
       const fileName = path.join(fixtureRoot, relativePath)
       const sourceScript = language.scripts.get(fileName)
