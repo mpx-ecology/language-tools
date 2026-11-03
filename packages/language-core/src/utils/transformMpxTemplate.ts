@@ -191,7 +191,9 @@ const eventPrefixList = [
   'bind:',
   'catch',
   'catch:',
+  'capture-bind',
   'capture-bind:',
+  'capture-catch',
   'capture-catch:',
 ]
 // const stripBindPrefix = stripListSourceLocationText(eventPrefixList)

@@ -21,6 +21,7 @@ type MpxPickerRangeItem = object | number | string
 interface MpxRnCommonAttrs {
   'enable-offset'?: boolean
   'enable-var'?: boolean
+  'enable-text-pass-through'?: boolean
   'parent-font-size'?: number
   'parent-width'?: number
   'parent-height'?: number
@@ -98,6 +99,7 @@ interface MpxMovableView {
   'simultaneous-handlers'?: Array<object>
   'wait-for'?: Array<object>
   'disable-event-passthrough'?: boolean
+  workletChange?: (detail: { x: number; y: number; source: '' | 'touch' | 'touch-out-of-bounds' | 'out-of-bounds' | 'friction' }) => void
   x?: number | string
   y?: number | string
   damping?: number
@@ -515,6 +517,7 @@ interface MpxChannelVideo {
   binderror?: EventHandler
 }
 interface MpxImage {
+  'is-svg'?: boolean
   src?: string
   mode?: string
   'enable-fast-image'?: boolean

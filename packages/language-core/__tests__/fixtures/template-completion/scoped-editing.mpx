@@ -1,0 +1,14 @@
+<template>
+  <view wx:for="{{ rows }}" wx:for-item="row" wx:for-index="rowIndex" wx:key="id">
+    <!-- Intentional incomplete expressions: preserve root and member completion. -->
+    <text>{{  }}</text>
+    <view title="{{row.}}" />
+    <button bindtap="handleTap(row.)" />
+    <button bindtap="" />
+  </view>
+</template>
+<script setup lang="ts">
+const rows = [{ id: 'parent', children: [{ id: 'child' }] }]
+const handleTap = (item: { id: string }) => item.id
+defineExpose({ rows, handleTap })
+</script>

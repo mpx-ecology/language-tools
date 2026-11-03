@@ -1,0 +1,16 @@
+<template>
+  <view title="{{ propTitle }}" bindtap="exposedTap">
+    <text>{{ propTitle }} {{ exposedCount }} {{ hookTitle }} {{ propTitle + hookTitle }} {{propTitle}} {{propTitle+hookTitle}}</text>
+    <text>{{ profile.name }} {{ hookProfile.age }}</text>
+  </view>
+</template>
+<script setup lang="ts">
+import { ref, onReactHooksExec } from '@mpxjs/core'
+const props = defineProps({ propTitle: { type: String, value: 'Mpx' } })
+const exposedCount = ref(1)
+const profile = ref({ name: 'Mpx' })
+const exposedTap = () => {}
+const privateValue = 'not exposed'
+defineExpose({ exposedCount, profile, exposedTap, publicName: privateValue })
+onReactHooksExec(() => ({ hookTitle: 'Hooks', hookProfile: { age: 2 } }))
+</script>

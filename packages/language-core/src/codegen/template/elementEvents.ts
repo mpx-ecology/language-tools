@@ -152,9 +152,9 @@ export function* generateEventExpression(
     )
 
     if (_isCompoundExpression) {
-      ctx.removeLocalVariable('$event')
-
       yield endOfLine
+      yield* ctx.generateLocalCompletions()
+      ctx.removeLocalVariable('$event')
       yield `}`
     }
   } else {
