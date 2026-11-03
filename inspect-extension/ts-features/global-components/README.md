@@ -21,3 +21,13 @@
 2026-11-03，Code Insiders 1.145.0-insider，独立用户数据目录与扩展目录，仅加载本 worktree 开发扩展，通过真实 VS Code providers 验证：已注册标签候选、string props hover、应用标签 F12、两处预期 TS2322，以及未保存应用注册改名后的候选刷新。测试缓冲区恢复原文并关闭宿主。此轮执行的是 Extension Host API 验收，未做人工逐项视觉检查或截图。
 
 IDE 服务回归另外覆盖未打开 app.mpx 的磁盘读取、打开缓冲区优先、关闭后回到磁盘，以及已跟踪应用文件的磁盘变更；无关文件事件不加载到项目。
+
+## 真实截图最小场景
+
+`screenshot-case` 为独立 tsconfig 下的同一组源码：app.mpx 只注册 app-badge，globals.d.ts 只声明 TypedBadge，页面只局部注册 local-badge，避免同名类型声明掩盖应用注册缺失。左右并排打开 app.mpx 与 pages/index.mpx；使用 Default Dark Modern、17px 字号，关闭文字建议及自动补全触发。
+
+1. 在 app-badge 上方临时输入 `<app-` 并手动触发建议：基线缺少已注册的 app-badge，修复后出现“应用全局组件”。截图后撤销临时输入。
+2. 保持完整页面并打开 Problems：故意的 number title 在基线未被应用组件类型检查，修复后出现 TS2322；TypedBadge 与 local-badge 的合法值不报错。
+3. 修复前使用独立基线 60ebb13，修复后使用本 PR；每侧使用独立用户数据/扩展目录，截图和原生上传全程遵守共享桌面锁。图片仅作 GitHub attachments，不纳入 Git。
+
+截图上传状态以 Issue #150 / PR #164 正文为准；此前 API 验收记录不能替代这些真实 UI 图。
