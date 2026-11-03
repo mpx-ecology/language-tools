@@ -130,7 +130,7 @@ describe('component navigation underlines', () => {
     const request = start()
     await vi.advanceTimersByTimeAsync(100)
     expect(vscode.window.createTextEditorDecorationType).toHaveBeenCalledWith({
-      textDecoration: 'underline',
+      textDecoration: 'underline; text-underline-position: under;',
       rangeBehavior: 1,
     })
     expect(request).toHaveBeenCalledTimes(1)

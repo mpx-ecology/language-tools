@@ -9,7 +9,9 @@ export function activate(
   client: BaseLanguageClient,
 ) {
   const decoration = vscode.window.createTextEditorDecorationType({
-    textDecoration: 'underline',
+    // Match VS Code's detected-link CSS: place the line below descenders.
+    // The decoration API emits this static CSS declaration string verbatim.
+    textDecoration: 'underline; text-underline-position: under;',
     rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
   })
   let generation = 0
