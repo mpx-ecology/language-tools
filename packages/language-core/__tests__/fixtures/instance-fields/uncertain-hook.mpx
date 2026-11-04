@@ -1,0 +1,7 @@
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+defineProps({ title: String })
+defineExpose({})
+onReactHooksExec(() => ({ title: 'earlier' }))
+if (Math.random() > 0.5) onReactHooksExec(() => ({ other: 'later' }))
+</script>

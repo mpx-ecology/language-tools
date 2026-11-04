@@ -63,6 +63,13 @@ export function parseScriptSetupRanges(
   ast: ts.SourceFile,
   mpxCompilerOptions: MpxCompilerOptions,
 ) {
+  // Reuse this walk for instance-field diagnostics, including aliases and
+  // conditional registrations that are not part of template code generation.
+  const instanceFieldCalls: {
+    node: ts.CallExpression
+    conditional: boolean
+  }[] = []
+  const instanceFieldAliases = new Set<string>()
   const defineProp: DefineProp[] = []
   let defineProps: DefineProps | undefined
   let withDefaults: WithDefaults | undefined
@@ -117,6 +124,8 @@ export function parseScriptSetupRanges(
   return {
     leadingCommentEndOffset,
     importSectionEndOffset,
+    instanceFieldCalls,
+    instanceFieldAliases,
     bindings,
     defineProp,
     defineProps,
@@ -130,6 +139,36 @@ export function parseScriptSetupRanges(
 
   function visitNode(node: ts.Node, parents: ts.Node[]) {
     const parent = parents[parents.length - 1]
+    if (ts.isCallExpression(node) && !parents.some(ts.isClassLike)) {
+      instanceFieldCalls.push({
+        node,
+        conditional: parents.some(
+          parent =>
+            ts.isIfStatement(parent) ||
+            ts.isSwitchStatement(parent) ||
+            ts.isTryStatement(parent) ||
+            ts.isIterationStatement(parent, false) ||
+            ts.isConditionalExpression(parent) ||
+            (ts.isBinaryExpression(parent) &&
+              [
+                ts.SyntaxKind.AmpersandAmpersandToken,
+                ts.SyntaxKind.BarBarToken,
+                ts.SyntaxKind.QuestionQuestionToken,
+              ].includes(parent.operatorToken.kind)),
+        ),
+      })
+    }
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      ts.isVariableDeclarationList(parent) &&
+      parent.flags & ts.NodeFlags.Const &&
+      node.initializer &&
+      (ts.isIdentifier(node.initializer) ||
+        ts.isPropertyAccessExpression(node.initializer))
+    ) {
+      instanceFieldAliases.add(node.name.text)
+    }
     if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
       const callText = _getNodeText(node.expression)
       const isDefineModel =

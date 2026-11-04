@@ -1,0 +1,5 @@
+<script setup lang="ts">
+defineOptions({ properties: { title: { type: String, value: 'options' } } })
+// ❌ title 与 defineOptions.properties 重名，应有 warning 并关联 props key。
+defineExpose({ title: 'exposed' })
+</script>
