@@ -12,3 +12,7 @@
 截图复现使用独立的修复前基线目录与本分支开发扩展，分别打开同一份 `errors.mpx` / `index.mpx`，保持编辑器主题、字号、窗口大小和视图一致。Issue 正文附真实复现图，PR 正文附修复前后对比；截图上传为 GitHub attachments，不提交图片文件。
 
 此目录提供手动场景；是否完成真实 Extension Host UI 验收以 PR 验证表为准，语言服务自动化不代替 UI 截图。
+
+## 覆盖后的配置诊断回归
+
+打开 `overwritten.mpx`：旧导出及被覆盖的 `component` 字符串不应出现 warning；仅最后 `navigationBarTitleText = 42` 出现 `mpx-json-schema(4002)`，范围为 `42`。导出对象中的字段补全与 hover 继续可用。

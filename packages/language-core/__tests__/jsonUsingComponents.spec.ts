@@ -61,7 +61,7 @@ describe('JSON usingComponents codegen', () => {
       'import __MPX_jsonComponent_0_0 from "./component-candidate-options.mpx"',
     )
     expect(code).toContain(
-      "import __MPX_jsonComponent_0_1 from './component-candidate-setup.mpx'",
+      'import __MPX_jsonComponent_0_1 from "./component-candidate-setup.mpx"',
     )
     expect(code).toContain(
       'MultiCandidate: __MPX_jsonComponent_0_0 as ' +

@@ -1,0 +1,9 @@
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+defineProps({ title: String })
+// @mpx-if (__ISRN__)
+defineExpose({ title: 'rn' })
+// @mpx-else
+onReactHooksExec(() => ({ title: 'other' }))
+// @mpx-endif
+</script>

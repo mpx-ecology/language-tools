@@ -220,4 +220,94 @@ describe('dynamic JSON config schema guidance', () => {
       p.service.dispose()
     }
   })
+
+  it.each([
+    "module.exports = { component: 'bad' }; module.exports = { component: true }",
+    "module.exports = { component: 'bad' }; module.exports.component = true",
+    "module.exports = { component: 'bad' }; module['exports']['component'] = true",
+    "module.exports = { component: 'bad' }; module.exports = build()",
+    "module.exports = { component: 'bad' }; delete module.exports.component",
+    "module.exports = { component: 'bad' }; module.exports[key] = value",
+    "module.exports = { component: 'bad' }; if (flag) module.exports.component = true",
+    "module.exports = { component: 'bad' }; change(module.exports)",
+    "module.exports = { component: 'bad' }; const alias = module.exports; module.exports.component = 'bad'; alias.component = true",
+    "module.exports = { component: 'bad' }; function rewrite() { module.exports.component = true }; rewrite()",
+  ])('does not diagnose superseded or uncertain exports: %s', async text => {
+    const p = setup(text)
+    try {
+      expect(
+        (await p.service.getDiagnostics(p.uri)).filter(
+          d => d.source === 'mpx-json-schema',
+        ),
+      ).toEqual([])
+    } finally {
+      p.service.dispose()
+    }
+  })
+
+  it.each([
+    [
+      "module.exports = { component: true }; module.exports = { component: 'last' }",
+      "'last'",
+    ],
+    [
+      "module.exports = { component: true }; module.exports.component = 'last'",
+      "'last'",
+    ],
+    [
+      "module['exports'] = { component: true }; module['exports']['component'] = 'last'",
+      "'last'",
+    ],
+    [
+      "module.exports = flag ? { component: true } : { component: false }; module.exports.component = 'last'",
+      "'last'",
+    ],
+    [
+      "module.exports = { component: 'kept' }; module.exports.navigationBarTitleText = 'valid'",
+      "'kept'",
+    ],
+    [
+      "module.exports = { component: true }; module.exports[key] = value; module.exports.component = 'last'",
+      "'last'",
+    ],
+    [
+      "module.exports = { component: true }; change(module.exports); module.exports = { component: 'fresh' }",
+      "'fresh'",
+    ],
+  ])(
+    'diagnoses the final reliable write at its source range: %s',
+    async (text, expected) => {
+      const p = setup(text)
+      try {
+        const diagnostics = (await p.service.getDiagnostics(p.uri)).filter(
+          d => d.source === 'mpx-json-schema',
+        )
+        expect(diagnostics).toHaveLength(1)
+        expect(diagnostics[0]).toMatchObject({ code: 4002, severity: 2 })
+        expect(p.document.getText(diagnostics[0].range)).toBe(expected)
+      } finally {
+        p.service.dispose()
+      }
+    },
+  )
+
+  it('retains completion and hover in an overwritten configuration object', async () => {
+    const p = setup(
+      "module.exports = { component: 'bad', nav| }; module.exports = { component: true }",
+    )
+    try {
+      expect(
+        (await p.service.getCompletionItems(p.uri, p.position)).items.map(
+          item => item.label,
+        ),
+      ).toContain('navigationBarTitleText')
+      const hover = await p.service.getHover(
+        p.uri,
+        p.document.positionAt(p.document.getText().indexOf('component') + 1),
+      )
+      expect(JSON.stringify(hover?.contents)).toContain('自定义组件声明')
+    } finally {
+      p.service.dispose()
+    }
+  })
 })

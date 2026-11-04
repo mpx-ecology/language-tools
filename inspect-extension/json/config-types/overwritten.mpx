@@ -1,0 +1,12 @@
+<template>
+  <view>配置覆盖与终态诊断回归</view>
+</template>
+<script name="json">
+// 旧导出的错误值已失效，不应出现 4002。
+module.exports = { component: 'superseded' }
+module.exports = { component: 'overwritten', navigationBarTitleText: 'valid' }
+// 此写入覆盖 component 的错误值，不应再警告前面的字符串。
+module.exports.component = true
+// 预期：仅这里出现 mpx-json-schema(4002)，范围为数字 42。
+module.exports.navigationBarTitleText = 42
+</script>

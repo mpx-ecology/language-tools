@@ -1,0 +1,6 @@
+<template><view>{{ title }}</view></template>
+<script setup lang="ts">
+defineProps({ title: { type: String, value: 'panel' } })
+defineExpose({})
+</script>
+<script type="application/json">{ "component": true }</script>

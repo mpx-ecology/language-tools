@@ -23,7 +23,7 @@ export function* generateTemplate(
   })
   yield* generateTemplateCtx(options)
   yield* generateTemplateElements()
-  yield* generateTemplateComponents()
+  yield* generateTemplateComponents(options)
   yield* generateTemplateDirectives(options)
   yield* generateTemplateBody(options, templateCodegenCtx)
   return templateCodegenCtx
@@ -64,17 +64,17 @@ function* generateTemplateElements(): Generator<Code> {
   yield `let __VLS_elements!: __VLS_NativeComponents${endOfLine}`
 }
 
-function* generateTemplateComponents(): Generator<Code> {
-  const types: Code[] = [`typeof __MPX_ctx`, `typeof __MPX_jsonComponents`]
-
-  yield `type __VLS_LocalComponents =`
-  for (const type of types) {
-    yield ` & `
-    yield type
-  }
-  yield endOfLine
-
-  yield `let __VLS_components!: __VLS_LocalComponents & __VLS_GlobalComponents${endOfLine}`
+function* generateTemplateComponents(
+  options: ScriptCodegenOptions,
+): Generator<Code> {
+  const hasRawOptions = options.sfc.scriptSetup
+    ? !!options.scriptSetupRanges?.defineOptions?.arg
+    : !!options.scriptRanges?.createComponentObj
+  yield `const __MPX_scriptComponents = ${hasRawOptions ? '__VLS_GetRawComponents(__VLS_rawOptions)' : '{}'}${endOfLine}`
+  yield `type __VLS_RegisteredLocalComponents = __VLS_SpreadMerge<typeof __MPX_jsonComponents, typeof __MPX_scriptComponents>${endOfLine}`
+  yield `type __VLS_LocalComponents = __VLS_SpreadMerge<__VLS_KnownProperties<typeof __MPX_ctx>, __VLS_RegisteredLocalComponents>${endOfLine}`
+  yield `let __VLS_registeredComponents!: __VLS_SpreadMerge<__VLS_PickNotAny<__VLS_GlobalComponents, {}>, __VLS_RegisteredLocalComponents>${endOfLine}`
+  yield `let __VLS_components!: __VLS_SpreadMerge<typeof __VLS_registeredComponents, __VLS_LocalComponents>${endOfLine}`
 }
 
 export function* generateTemplateDirectives(
@@ -108,7 +108,6 @@ function* generateTemplateBody(
       yield `type __VLS_Slots = {}${endOfLine}`
     }
     yield `type __VLS_InheritedAttrs = {}${endOfLine}`
-    yield `type __VLS_TemplateRefs = {}${endOfLine}`
     yield `type __VLS_RootEl = any${endOfLine}`
   }
 }

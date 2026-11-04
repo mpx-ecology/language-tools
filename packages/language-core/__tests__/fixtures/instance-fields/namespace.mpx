@@ -1,0 +1,6 @@
+<script setup lang="ts">
+import * as mpx from '@mpxjs/core'
+defineProps({ title: String })
+defineExpose({})
+mpx.onReactHooksExec(() => ({ title: 'namespace' }))
+</script>

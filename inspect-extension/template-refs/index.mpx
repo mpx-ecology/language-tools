@@ -1,0 +1,59 @@
+<template>
+  <exposed-child wx:ref="child" />
+  <options-child wx:ref="options" />
+  <exposed-child wx:if="{{ visible }}" wx:ref="conditional" />
+  <block wx:for="{{ rows }}" wx:key="id">
+    <exposed-child wx:ref="children" />
+    <view wx:ref="nodes" />
+  </block>
+  <exposed-child wx:ref="shared" />
+  <options-child wx:ref="shared" />
+  <view wx:ref="node" />
+</template>
+<script setup lang="ts">
+import { onMounted } from '@mpxjs/core'
+const visible = true
+const rows = [{ id: 1 }]
+const { refs, triggerEvent } = useContext()
+
+onMounted(() => {
+  // ✅ 补全 child/options/conditional/children/shared/node/nodes。
+  // ✅ 单个组件可能尚未挂载或被移除，使用可选链或判空。
+  // ✅ 悬浮 result 为 Promise<number> | undefined，loadMore 参数为 number。
+  // ✅ F12 到子组件 loadMore 声明/公开字段；补全不含 privateMethod。
+  const result = refs.child?.loadMore(1)
+  const found = refs.options?.find('Mpx')
+  // ✅ 暴露的 Ref 已解包，count 为 number | undefined。
+  const count = refs.child?.count
+  // ✅ 循环中的组件为实例数组，元素不额外包含 null。
+  refs.children.forEach(child => child.loadMore(1))
+  // ✅ 节点及循环节点均为 NodesRef 查询对象，不是实例数组。
+  refs.node.boundingClientRect(() => {})
+  refs.nodes.boundingClientRect(() => {})
+  triggerEvent('done', { result, found, count })
+
+  // ❌ 故意传错参数，预期 TS2345 落在 'bad'。
+  refs.child?.loadMore('bad')
+  // ❌ 未通过 defineExpose 公开，预期 TS2339。
+  refs.child?.privateMethod()
+  // ❌ 条件组件未判空，预期 TS18049。
+  refs.conditional.loadMore(1)
+  // ❌ 循环 ref 是数组，预期 TS2339，须遍历后调用。
+  refs.children.loadMore(1)
+  // ❌ NodesRef 没有子组件方法，预期 TS2339。
+  refs.node.loadMore(1)
+  // ❌ 普通同名 ref 是可能实例的联合，不能当成数组或确定的子组件。
+  // ✅ 悬浮 shared 包含两类实例与空值，F12 shared 到两处 wx:ref。
+  const shared = refs.shared
+})
+// ✅ refs 可暴露回模板，不应发生循环类型或退化为 any。
+defineExpose({ visible, rows, refs })
+</script>
+<script type="application/json">
+{
+  "usingComponents": {
+    "exposed-child": "./exposed-child.mpx",
+    "options-child": "./options-child.mpx"
+  }
+}
+</script>

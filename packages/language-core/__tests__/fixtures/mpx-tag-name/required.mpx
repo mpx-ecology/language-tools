@@ -1,0 +1,5 @@
+<template><view mpxTagName="tag-panel" /></template>
+<script setup lang="ts">defineExpose({})</script>
+<script name="json">
+export default { usingComponents: { 'tag-panel': './panel.mpx' } }
+</script>

@@ -1,0 +1,26 @@
+<template><view /></template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script type="application/json">
+{
+  // ❌ 故意错误：应提示 boolean 类型 / true 值。
+  "component": "wrong",
+  "usingComponents": {
+    // ❌ 故意错误：值应为字符串路径。
+    "panel": 123,
+    // ❌ 故意错误：mpx-json 4001，找不到文件。
+    "missing-panel": "./missing.mpx"
+  },
+  // ❌ 故意错误：占位组件名应为字符串。
+  "componentPlaceholder": { "panel": 123 },
+  "componentGenerics": {
+    // ❌ 故意错误：应为布尔值或默认组件对象。
+    "selectable": 123,
+    // ❌ 故意错误：default 路径应为字符串。
+    "with-default": { "default": 123 }
+  },
+  // ❌ 故意错误：仅支持 black / white。
+  "navigationBarTextStyle": "red"
+}
+</script>

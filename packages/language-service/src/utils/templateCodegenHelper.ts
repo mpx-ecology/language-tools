@@ -12,7 +12,7 @@ export const templateCodegenHelper = (
     return
   }
   const [documentUri, embeddedCodeId] = decoded
-  const sourceScript = context.language.scripts.get(documentUri)
+  const sourceScript = getMpxSourceScript(context, documentUri)
   const virtualCode = sourceScript?.generated?.embeddedCodes.get(embeddedCodeId)
   if (!sourceScript?.generated || virtualCode?.id !== 'template') {
     return
@@ -27,5 +27,36 @@ export const templateCodegenHelper = (
     codegen,
     documentUri,
     sfc,
+  }
+}
+
+/** Refresh known source/application dependencies without opening a TS Program.
+ * JSON-only IDE projects intentionally do not analyze ordinary template requests.
+ */
+export function getMpxSourceScript(context: LanguageServiceContext, uri: URI) {
+  let source = refresh(uri)
+  const root = source?.generated?.root
+  const application =
+    root instanceof MpxVirtualCode ? root.sfc.application : undefined
+  if (application) {
+    const applicationUri =
+      context.project?.typescript?.uriConverter.asUri(application.fileName) ??
+      URI.file(application.fileName)
+    refresh(applicationUri)
+    source = refresh(uri)
+  }
+  return source
+
+  function refresh(uri: URI) {
+    let source = context.language.scripts.get(uri)
+    const root = source?.generated?.root
+    if (
+      root instanceof MpxVirtualCode &&
+      root.externalDependencyVersion !== root.getExternalDependencyVersion()
+    ) {
+      source!.isAssociationDirty = true
+      source = context.language.scripts.get(uri)
+    }
+    return source
   }
 }

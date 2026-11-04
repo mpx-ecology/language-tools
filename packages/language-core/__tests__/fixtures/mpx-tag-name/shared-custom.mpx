@@ -1,0 +1,7 @@
+<template>
+  <view mpxTagName@swan="tag-panel" mpxTagName@ali="count-panel" title="{{ 123 }}" />
+</template>
+<script setup lang="ts">defineExpose({})</script>
+<script name="json">
+export default { usingComponents: { 'tag-panel': './panel.mpx', 'count-panel': './count-panel.mpx' } }
+</script>

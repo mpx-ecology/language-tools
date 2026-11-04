@@ -1,0 +1,4 @@
+<template>
+  <view mpxTagName@swan="input" mpxTagName@ios|android="textarea" maxlength="{{ 'wrong' }}" />
+</template>
+<script setup lang="ts">defineExpose({})</script>

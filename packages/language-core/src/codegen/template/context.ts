@@ -85,11 +85,7 @@ export function createTemplateCodegenContext(
     propsVar: string
   }[] = []
   const blockConditions: string[] = []
-  const templateNodeTags: {
-    name: string
-    startTagOffset: number
-    endTagOffset?: number
-  }[] = []
+  const templateNodeTags: import('./tagIdentity').TemplateTagIdentity[] = []
   const scopedClasses: {
     source: string
     className: string
@@ -134,6 +130,7 @@ export function createTemplateCodegenContext(
     accessExternalVariables,
     blockConditions,
     templateNodeTags,
+    multiTagNodes: new WeakSet<CompilerDOM.ElementNode>(),
     scopedClasses,
     emptyClassOffsets,
     bindingAttrLocs,

@@ -26,12 +26,16 @@ import { create as createMpxJsonConfigPlugin } from './plugins/mpx-sfc-json-conf
 import { create as createMpxJsonLinksPlugin } from './plugins/mpx-sfc-json-links'
 import { create as createMpxJsonImportCompletionPlugin } from './plugins/mpx-sfc-json-import-completion'
 import { create as createMpxPrettierPlugin } from './plugins/mpx-prettier'
+import { create as createMpxComponentReferencesPlugin } from './plugins/mpx-component-references'
 import { create as createMpxComponentDefinitionPlugin } from './plugins/mpx-component-definition'
+import { create as createInstanceFieldPlugin } from './plugins/mpx-instance-fields'
 import { Commands } from './types'
+import { withNumericMpxDiagnosticCodes } from './utils/diagnosticCodes'
 
 export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
 export * from './types'
+export { componentNavigationRanges } from './utils/componentNavigation'
 export { createProject as createTypeScriptSemanticPlugin } from './plugins/mpx-sfc-json-js'
 
 export interface MpxLanguageServicePluginOptions {
@@ -67,7 +71,7 @@ export function createMpxLanguageServicePlugins(
     delete plugin.capabilities.semanticTokensProvider
   }
 
-  return plugins
+  return plugins.map(withNumericMpxDiagnosticCodes)
 }
 
 function getCommonLanguageServicePlugins(
@@ -79,6 +83,8 @@ function getCommonLanguageServicePlugins(
     createTypeScriptSyntacticPlugin(ts),
     createTypeScriptDocCommentTemplatePlugin(ts),
     createMpxSfcPlugin(),
+    createMpxComponentReferencesPlugin(ts),
+    createInstanceFieldPlugin(ts),
     createMpxTemplatePlugin(getTsPluginClient),
     createMpxTemplateCompilerErrorsPlugin(),
     createMpxTemplateDirectiveCommentsPlugin(),
@@ -92,9 +98,9 @@ function getCommonLanguageServicePlugins(
     createMpxJsonLinksPlugin(),
     createMpxJsonImportCompletionPlugin(getTsPluginClient),
     createMpxPrettierPlugin(),
-    ...(options.componentDefinitionProvider
-      ? [createMpxComponentDefinitionPlugin()]
-      : []),
+    createMpxComponentDefinitionPlugin({
+      template: options.componentDefinitionProvider ?? false,
+    }),
     createEmmetPlugin({
       mappedLanguages: {
         'mpx-root-tags': 'html',

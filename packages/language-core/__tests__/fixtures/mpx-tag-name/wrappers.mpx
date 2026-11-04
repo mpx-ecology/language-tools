@@ -1,0 +1,8 @@
+<template>
+  <slot mpxTagName="tag-panel" title="{{ 123 }}" />
+  <template mpxTagName="tag-panel" is="ignored" title="{{ 123 }}" />
+</template>
+<script setup lang="ts">defineExpose({})</script>
+<script name="json">
+export default { usingComponents: { 'tag-panel': './panel.mpx' } }
+</script>

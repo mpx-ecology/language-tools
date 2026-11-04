@@ -1,0 +1,27 @@
+<template>
+  <!-- ✅ 多目标标签及 JSON 路径保持下划线；hover 显示真实文件名，可点选明确目标。 -->
+  <!-- ✅ Ctrl/Cmd+单击或 F12：默认出现两个文件的定义选择面板，不直接打开第一个链接。 -->
+  <demo-panel value="{{ numeric }}"></demo-panel>
+  <!-- ✅ 显式平台路径只跳到 panel.ios.mpx，query 中的 mode 不改变文件选择。 -->
+  <explicit-panel value="{{ numeric }}" />
+  <!-- ✅ 仅有 ios 文件时仍有类型和跳转，无 4001。 -->
+  <only-ios value="{{ numeric }}" />
+  <!-- ❌ 故意传 boolean；demo-panel 的候选只接受 string / number，应报 TS2322。 -->
+  <demo-panel value="{{ true }}" />
+</template>
+<script setup lang="ts">
+const numeric = 42
+defineExpose({ numeric })
+</script>
+<script name="json">
+// ✅ 两处注册的相对路径 / alias / query 对应相同真实文件，模板定义每个真实文件只出现一次。
+const components = { 'demo-panel': './panel' }
+if (__mpx_mode__ === 'ali') components['demo-panel'] = '@components/panel.mpx?root=demo'
+module.exports = {
+  usingComponents: {
+    ...components,
+    'explicit-panel': './panel.ios.mpx?mode=ali&env=other',
+    'only-ios': './only-ios'
+  }
+}
+</script>

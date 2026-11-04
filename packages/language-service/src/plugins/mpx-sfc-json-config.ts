@@ -1,6 +1,7 @@
 import type * as ts from 'typescript'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
+import { MpxDiagnosticCode } from '@mpxjs/language-shared'
 import {
   CompletionItemKind,
   DiagnosticSeverity,
@@ -207,52 +208,30 @@ export function create(ts: typeof import('typescript')): LanguageServicePlugin {
           const data = get(document)
           if (!data) return
           const diagnostics: Diagnostic[] = []
-          for (const { node, validate } of data.objects) {
-            if (!validate) continue
-            node.properties.forEach((property, index) => {
-              if (!ts.isPropertyAssignment(property)) return
-              const name = key(property.name)
-              const schema = propertySchema(name)
-              if (!schema) return
-              // Later spreads/duplicate keys may replace the apparent value.
-              if (
-                node.properties
-                  .slice(index + 1)
-                  .some(
-                    p =>
-                      ts.isSpreadAssignment(p) ||
-                      (p.name &&
-                        (ts.isComputedPropertyName(p.name) ||
-                          key(p.name) === name)),
-                  )
-              )
-                return
-              const value = property.initializer
-              const type = literalType(ts, value)
-              if (type === undefined) return
-              const actual = literalValue(ts, value)
-              // Unknown file roles must not turn a boolean component switch
-              // into a required literal true declaration.
-              const enumValues = name === 'component' ? undefined : schema.enum
-              const expected =
-                enumValues?.map(v => JSON.stringify(v)).join(' | ') ??
-                schema.type
-              if (
-                type !== schema.type ||
-                (enumValues && !enumValues.includes(actual))
-              ) {
-                diagnostics.push({
-                  range: {
-                    start: document.positionAt(value.getStart(data.ast)),
-                    end: document.positionAt(value.end),
-                  },
-                  severity: DiagnosticSeverity.Warning,
-                  source: 'mpx-json-schema',
-                  code: 'config-value',
-                  message: `配置 ${name} 应为 ${expected}。`,
-                })
-              }
-            })
+          for (const { name, value } of data.values) {
+            const schema = propertySchema(name)
+            if (!schema) continue
+            const type = literalType(ts, value)
+            if (type === undefined) continue
+            const actual = literalValue(ts, value)
+            const enumValues = name === 'component' ? undefined : schema.enum
+            const expected =
+              enumValues?.map(v => JSON.stringify(v)).join(' | ') ?? schema.type
+            if (
+              type !== schema.type ||
+              (enumValues && !enumValues.includes(actual))
+            ) {
+              diagnostics.push({
+                range: {
+                  start: document.positionAt(value.getStart(data.ast)),
+                  end: document.positionAt(value.end),
+                },
+                severity: DiagnosticSeverity.Warning,
+                source: 'mpx-json-schema',
+                code: MpxDiagnosticCode.JsonConfigValue,
+                message: `配置 ${name} 应为 ${expected}。`,
+              })
+            }
           }
           return diagnostics
         },
@@ -309,6 +288,7 @@ function analyze(ts: typeof import('typescript'), text: string) {
     ts.ScriptKind.JS,
   )
   const objects: { node: ts.ObjectLiteralExpression; validate: boolean }[] = []
+  const values: { name: string; value: ts.Expression }[] = []
   const constants = new Map<string, ts.VariableDeclaration>()
   let shadowed = false
   function checkModule(node: ts.Node) {
@@ -345,7 +325,7 @@ function analyze(ts: typeof import('typescript'), text: string) {
     ts.forEachChild(node, checkModule)
   }
   checkModule(ast)
-  if (shadowed) return { ast, objects }
+  if (shadowed) return { ast, objects, values }
   for (const statement of ast.statements) {
     if (ts.isVariableStatement(statement)) {
       for (const declaration of statement.declarationList.declarations) {
@@ -356,42 +336,196 @@ function analyze(ts: typeof import('typescript'), text: string) {
       }
     }
   }
-  const exportValues: ts.Expression[] = []
+  const exportValues = ast.statements.flatMap(statement => {
+    if (!ts.isExpressionStatement(statement)) return []
+    const expression = unwrap(statement.expression)
+    return ts.isBinaryExpression(expression) &&
+      expression.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      isExports(expression.left)
+      ? [expression.right]
+      : []
+  })
+  const objectHints = new Map<
+    ts.ObjectLiteralExpression,
+    (typeof objects)[number]
+  >()
+  let current: { validate: boolean; fields: Map<string, ts.Expression> }[] = []
   for (const statement of ast.statements) {
+    const expression = ts.isExpressionStatement(statement)
+      ? unwrap(statement.expression)
+      : undefined
+    if (expression && ts.isBinaryExpression(expression)) {
+      if (
+        expression.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+        isExports(expression.left)
+      ) {
+        current = collect(expression.right).map(({ node, validate }) => ({
+          validate,
+          fields: fieldsOf(node),
+        }))
+        continue
+      }
+      const field = exportField(expression.left)
+      if (
+        field &&
+        expression.operatorToken.kind >= ts.SyntaxKind.FirstAssignment &&
+        expression.operatorToken.kind <= ts.SyntaxKind.LastAssignment
+      ) {
+        if (
+          contains(
+            expression,
+            node => ts.isCallExpression(node) || ts.isNewExpression(node),
+          ) ||
+          contains(expression.right, isExports)
+        ) {
+          current.forEach(state => (state.validate = false))
+        } else {
+          for (const state of current) {
+            if (field.name === undefined) state.fields.clear()
+            else if (
+              expression.operatorToken.kind === ts.SyntaxKind.EqualsToken
+            )
+              state.fields.set(field.name, expression.right)
+            else state.fields.delete(field.name)
+          }
+        }
+        continue
+      }
+    }
+    if (expression && ts.isDeleteExpression(expression)) {
+      const field = exportField(expression.expression)
+      if (field) {
+        for (const state of current) {
+          if (field.name === undefined) state.fields.clear()
+          else state.fields.delete(field.name)
+        }
+        continue
+      }
+    }
+    // Aliases, conditional writes and calls can mutate the final object. A later
+    // fresh export can reestablish a known value; do not execute arbitrary JS.
     if (
-      !ts.isExpressionStatement(statement) ||
-      !ts.isBinaryExpression(statement.expression)
-    )
-      continue
-    const { left, right, operatorToken } = statement.expression
-    if (operatorToken.kind !== ts.SyntaxKind.EqualsToken) continue
-    if (ts.isIdentifier(left) && left.text === 'module') return { ast, objects }
-    if (
-      ts.isPropertyAccessExpression(left) &&
-      ts.isIdentifier(left.expression) &&
-      left.expression.text === 'module' &&
-      left.name.text === 'exports'
-    )
-      exportValues.push(right)
+      contains(
+        statement,
+        node =>
+          isExports(node) ||
+          ts.isCallExpression(node) ||
+          ts.isNewExpression(node),
+      )
+    ) {
+      current.forEach(state => (state.validate = false))
+    }
   }
-  const seen = new Set<ts.Node>()
-  function collect(expression: ts.Expression, validate = true) {
-    if (seen.has(expression)) return
+  const emitted = new Set<string>()
+  for (const state of current) {
+    if (!state.validate) continue
+    for (const [name, value] of state.fields) {
+      const id = `${name}:${value.pos}:${value.end}`
+      if (!emitted.has(id)) {
+        emitted.add(id)
+        values.push({ name, value })
+      }
+    }
+  }
+  return { ast, objects, values }
+
+  function unwrap(expression: ts.Expression): ts.Expression {
+    while (ts.isParenthesizedExpression(expression))
+      expression = expression.expression
+    return expression
+  }
+  function staticName(expression: ts.Expression) {
+    expression = unwrap(expression)
+    return ts.isStringLiteralLike(expression) ? expression.text : undefined
+  }
+  function isExports(node: ts.Node): boolean {
+    if (ts.isParenthesizedExpression(node)) return isExports(node.expression)
+    if (
+      !ts.isPropertyAccessExpression(node) &&
+      !ts.isElementAccessExpression(node)
+    )
+      return false
+    const owner = unwrap(node.expression)
+    return (
+      ts.isIdentifier(owner) &&
+      owner.text === 'module' &&
+      (ts.isPropertyAccessExpression(node)
+        ? node.name.text === 'exports'
+        : !!node.argumentExpression &&
+          staticName(node.argumentExpression) === 'exports')
+    )
+  }
+  function exportField(expression: ts.Expression) {
+    expression = unwrap(expression)
+    if (
+      ts.isPropertyAccessExpression(expression) &&
+      isExports(expression.expression)
+    )
+      return { name: expression.name.text as string | undefined }
+    if (
+      ts.isElementAccessExpression(expression) &&
+      isExports(expression.expression)
+    )
+      return {
+        name:
+          expression.argumentExpression &&
+          staticName(expression.argumentExpression),
+      }
+  }
+  function contains(
+    node: ts.Node,
+    predicate: (node: ts.Node) => boolean,
+  ): boolean {
+    if (ts.isFunctionLike(node)) return false
+    return (
+      predicate(node) ||
+      !!ts.forEachChild(node, child => contains(child, predicate) || undefined)
+    )
+  }
+  function fieldsOf(node: ts.ObjectLiteralExpression) {
+    const fields = new Map<string, ts.Expression>()
+    for (const property of node.properties) {
+      if (
+        ts.isSpreadAssignment(property) ||
+        (property.name && ts.isComputedPropertyName(property.name))
+      )
+        fields.clear()
+      else if (property.name) {
+        const name = key(property.name)
+        if (ts.isPropertyAssignment(property))
+          fields.set(name, property.initializer)
+        else fields.delete(name)
+      }
+    }
+    return fields
+  }
+  function collect(
+    expression: ts.Expression,
+    validate = true,
+    seen = new Set<ts.Node>(),
+  ): typeof objects {
+    expression = unwrap(expression)
+    if (seen.has(expression)) return []
     seen.add(expression)
-    if (ts.isParenthesizedExpression(expression))
-      return collect(expression.expression, validate)
-    if (ts.isConditionalExpression(expression)) {
-      collect(expression.whenTrue, validate)
-      collect(expression.whenFalse, validate)
-    } else if (ts.isObjectLiteralExpression(expression))
-      objects.push({ node: expression, validate })
-    else if (ts.isIdentifier(expression)) {
+    if (ts.isConditionalExpression(expression))
+      return [
+        ...collect(expression.whenTrue, validate, new Set(seen)),
+        ...collect(expression.whenFalse, validate, new Set(seen)),
+      ]
+    if (ts.isObjectLiteralExpression(expression)) {
+      let hint = objectHints.get(expression)
+      if (!hint) {
+        hint = { node: expression, validate }
+        objectHints.set(expression, hint)
+        objects.push(hint)
+      }
+      return [{ node: expression, validate }]
+    }
+    if (ts.isIdentifier(expression)) {
       const declaration = constants.get(expression.text)
-      const name = expression.text
-      if (!declaration?.initializer) return
-      // A const object can still be mutated or escape to arbitrary JS. Keep
-      // hints, but validate only objects used exclusively as direct exports.
+      if (!declaration?.initializer) return []
       let safe = true
+      const name = expression.text
       function visit(node: ts.Node) {
         if (
           ts.isIdentifier(node) &&
@@ -403,9 +537,8 @@ function analyze(ts: typeof import('typescript'), text: string) {
         ts.forEachChild(node, visit)
       }
       visit(ast)
-      collect(declaration.initializer, validate && safe)
+      return collect(declaration.initializer, validate && safe, seen)
     }
+    return []
   }
-  exportValues.forEach(value => collect(value))
-  return { ast, objects }
 }
