@@ -79,6 +79,9 @@ export function createMpxProject(
           commandLine.options,
           commandLine.mpxOptions,
           (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
+          // Application registrations use the same URI identity and filesystem
+          // snapshots as JSON dependencies in both IDE and agent projects.
+          uriConverter.asUri,
         ),
         jsonOnly,
       ),
@@ -89,6 +92,16 @@ export function createMpxProject(
       project: import('@mpxjs/language-service').ProjectContext
     }) {
       project.mpx = { compilerOptions: commandLine.mpxOptions }
+      if (jsonOnly && project.typescript) {
+        const host = project.typescript.languageServiceHost
+        const getVersion = host.getProjectVersion
+        // Volar can suppress a TS version bump when only non-service virtual
+        // snapshots changed. Application associations add such snapshots; do
+        // not let them hide a concurrent native JS/TS document update. This
+        // host is queried only by JSON semantics, never ordinary templates.
+        host.getProjectVersion = () =>
+          `${getVersion?.() ?? ''}:${projectHost.getProjectVersion?.() ?? ''}`
+      }
     },
   }
 }

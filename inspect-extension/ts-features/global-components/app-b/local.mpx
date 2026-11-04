@@ -1,0 +1,6 @@
+<template><view>{{ count }}</view></template>
+<script setup lang="ts">
+defineProps<{ count: number }>()
+defineExpose({})
+</script>
+<script type="application/json">{"component":true}</script>

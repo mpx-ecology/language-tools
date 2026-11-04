@@ -40,6 +40,7 @@ export interface TestLanguageService {
 export function createTestLanguageService(
   fixtureRoot = referenceTypePropsFixtureRoot,
   additionalRootFiles: string[] = [],
+  fileOverrides = new Map<string, string | undefined>(),
 ): TestLanguageService {
   const parsed = createParsedCommandLine(
     ts,
@@ -87,13 +88,19 @@ export function createTestLanguageService(
     id => id,
   )
 
+  const associationVersions = new Map<string, number>()
   const language: Language<string> = createLanguage(
     [languagePlugin],
     new Map<string, SourceScript<string>>(),
     id => {
       const snapshot = getSnapshot(id)
       if (snapshot) language.scripts.set(id, snapshot, getLanguageId(id))
+      else {
+        snapshots.delete(id)
+        language.scripts.delete(id)
+      }
     },
+    id => associationVersions.set(id, (associationVersions.get(id) ?? 0) + 1),
   )
 
   for (const fileName of mpxFiles) {
@@ -112,8 +119,10 @@ export function createTestLanguageService(
   )
   const host: ts.LanguageServiceHost = {
     getScriptFileNames: () => rootFiles,
-    getScriptVersion: fileName => String(versions.get(fileName) ?? 0),
-    getProjectVersion: () => String(projectVersion),
+    getScriptVersion: fileName =>
+      `${versions.get(fileName) ?? 0}:${fileOverrides.has(fileName) ? (fileOverrides.get(fileName) ?? 'missing') : '0'}:${associationVersions.get(fileName) ?? 0}`,
+    getProjectVersion: () =>
+      `${projectVersion}:${JSON.stringify([...fileOverrides])}:${JSON.stringify([...associationVersions])}`,
     getScriptSnapshot: getSnapshot,
     getScriptKind,
     getCurrentDirectory: () => fixtureRoot,
@@ -196,7 +205,9 @@ export function createTestLanguageService(
   }
 
   function readFile(fileName: string) {
-    return virtualFiles.get(fileName) ?? ts.sys.readFile(fileName)
+    return fileOverrides.has(fileName)
+      ? fileOverrides.get(fileName)
+      : (virtualFiles.get(fileName) ?? ts.sys.readFile(fileName))
   }
 
   // Real editor documents retain snapshot identity until their text changes.

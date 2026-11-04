@@ -1,0 +1,14 @@
+<template>
+  <!-- ✅ app-panel 来自应用 JSON；local-panel 来自本页；TypedPanel 来自类型扩展。 -->
+  <!-- ✅ 输入标签前缀时补全；属性 hover / F12 回到对应组件的 props。 -->
+  <!-- ❌ 以下两个 title 故意传 number，预期各一条 TS2322；local-panel 的 count 合法。 -->
+  <app-panel title="{{ 123 }}" />
+  <local-panel count="{{ 123 }}" />
+  <TypedPanel title="{{ 123 }}" />
+</template>
+<script setup lang="ts">
+defineExpose({ privateField: 'not a component' })
+</script>
+<script type="application/json">
+{"usingComponents":{"local-panel":"../local.mpx"}}
+</script>

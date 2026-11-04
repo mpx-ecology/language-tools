@@ -71,19 +71,10 @@ function* generateTemplateComponents(
     ? !!options.scriptSetupRanges?.defineOptions?.arg
     : !!options.scriptRanges?.createComponentObj
   yield `const __MPX_scriptComponents = ${hasRawOptions ? '__VLS_GetRawComponents(__VLS_rawOptions)' : '{}'}${endOfLine}`
-  const types: Code[] = [
-    `__VLS_KnownProperties<typeof __MPX_ctx>`,
-    `__VLS_SpreadMerge<typeof __MPX_jsonComponents, typeof __MPX_scriptComponents>`,
-  ]
-
-  yield `type __VLS_LocalComponents =`
-  for (const type of types) {
-    yield ` & `
-    yield type
-  }
-  yield endOfLine
-
-  yield `let __VLS_components!: __VLS_SpreadMerge<__VLS_GlobalComponents, __VLS_LocalComponents>${endOfLine}`
+  yield `type __VLS_RegisteredLocalComponents = __VLS_SpreadMerge<typeof __MPX_jsonComponents, typeof __MPX_scriptComponents>${endOfLine}`
+  yield `type __VLS_LocalComponents = __VLS_SpreadMerge<__VLS_KnownProperties<typeof __MPX_ctx>, __VLS_RegisteredLocalComponents>${endOfLine}`
+  yield `let __VLS_registeredComponents!: __VLS_SpreadMerge<__VLS_PickNotAny<__VLS_GlobalComponents, {}>, __VLS_RegisteredLocalComponents>${endOfLine}`
+  yield `let __VLS_components!: __VLS_SpreadMerge<typeof __VLS_registeredComponents, __VLS_LocalComponents>${endOfLine}`
 }
 
 export function* generateTemplateDirectives(

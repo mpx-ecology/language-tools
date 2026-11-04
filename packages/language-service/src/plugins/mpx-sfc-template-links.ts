@@ -10,6 +10,7 @@ import {
   tsCodegen,
 } from '@mpxjs/language-core'
 import { isMpPluginComponentPath } from '../utils'
+import { getMpxSourceScript } from '../utils/templateCodegenHelper'
 
 export function create(): LanguageServicePlugin {
   return {
@@ -242,7 +243,7 @@ async function resolveTemplateContext(
   const decoded = context.decodeEmbeddedDocumentUri(uri)
   if (!decoded) return null
   const [documentUri, embeddedCodeId] = decoded
-  const sourceScript = context.language.scripts.get(documentUri)
+  const sourceScript = getMpxSourceScript(context, documentUri)
   const virtualCode = sourceScript?.generated?.embeddedCodes.get(embeddedCodeId)
   if (!sourceScript?.generated || virtualCode?.id !== 'template') {
     return null
@@ -255,7 +256,7 @@ async function resolveTemplateContext(
   const templateNodeTags: TemplateNodeTag[] =
     codegen?.getGeneratedTemplate()?.templateNodeTags ?? []
   const { result: usingComponents } =
-    (await root.sfc.json?.resolvedUsingComponents) || {}
+    (await root.sfc.resolvedUsingComponents) || {}
 
   return {
     decoded,
