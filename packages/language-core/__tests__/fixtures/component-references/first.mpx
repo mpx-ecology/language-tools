@@ -1,0 +1,10 @@
+<template>
+  <demo-panel title="first"></demo-panel>
+  <PanelAlias />
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script type="application/json">
+{ "usingComponents": { "demo-panel": "./panel.mpx", "PanelAlias": "@/panel.mpx?root=demo" } }
+</script>

@@ -1,0 +1,10 @@
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+defineProps({ title: String, earlierOnly: String })
+const title = 'local'
+const dynamic = 'anything' as string
+const value: Record<string, string> = {}
+defineExpose({ renamed: title, [dynamic]: 'unknown', ...value })
+onReactHooksExec(() => ({ earlierOnly: 1 }))
+onReactHooksExec(() => ({ finalOnly: 1 }))
+</script>

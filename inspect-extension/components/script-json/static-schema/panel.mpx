@@ -1,0 +1,7 @@
+<template><view>静态 JSON 子组件</view></template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script type="application/json">
+{ "component": true }
+</script>

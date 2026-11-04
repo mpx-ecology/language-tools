@@ -1,0 +1,11 @@
+<template><view>{{ title }} {{ count }}</view></template>
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+defineProps({ title: { type: String, value: 'prop' }, count: Number })
+const title = 'local'
+// ❌ title/count 与 props 重名：defineExpose 的来源 key 应有 warning。
+const shared = { title, count: 1 }
+defineExpose({ ...shared })
+// ❌ Hooks 的 title/count 应有 warning，关联信息指向 props 和 expose 来源。
+onReactHooksExec(() => ({ title: 'hooks', count: 2 }))
+</script>

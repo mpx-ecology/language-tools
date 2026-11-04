@@ -1,0 +1,10 @@
+<template>
+  <!-- ✅ 此处是 panel 的另一使用方；查找引用应包含 first 的两种别名。 -->
+  <other-name />
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script name="json">
+module.exports = { usingComponents: { 'other-name': './panel' } }
+</script>

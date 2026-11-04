@@ -1,0 +1,17 @@
+<template>
+  <exposed-child wx:ref="child" />
+</template>
+<script setup lang="ts">
+import { onMounted } from '@mpxjs/core'
+const { refs } = useContext()
+onMounted(() => {
+  // ✅ hover result 应为 Promise<number> | undefined。
+  const result = refs.child?.loadMore(1)
+  // ❌ 故意传入 string：应诊断 TS2345，不要删除。
+  refs.child?.loadMore('bad')
+})
+defineExpose({})
+</script>
+<script type="application/json">
+{ "usingComponents": { "exposed-child": "./exposed-child.mpx" } }
+</script>

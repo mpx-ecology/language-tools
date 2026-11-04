@@ -1,0 +1,2 @@
+<template>
+  <!-- ✅ 普通 packages 分包继承宿主 app-panel；❌ package-only 不应成为全局候选。 --><app-panel title="package" /></template>

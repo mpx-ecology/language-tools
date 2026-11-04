@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import path from 'node:path'
 import type { Language } from '@volar/language-core'
 import { type SourceScript, createLanguage } from '@volar/language-core'
@@ -30,6 +29,7 @@ export interface TestLanguageService {
   proxyLanguageService: ts.LanguageService
   file(relativePath: string): string
   read(relativePath: string): string
+  updateFile(relativePath: string, content: string): void
   getServiceScript(relativePath: string): {
     code: string
     root: MpxVirtualCode
@@ -40,6 +40,7 @@ export interface TestLanguageService {
 export function createTestLanguageService(
   fixtureRoot = referenceTypePropsFixtureRoot,
   additionalRootFiles: string[] = [],
+  fileOverrides = new Map<string, string | undefined>(),
 ): TestLanguageService {
   const parsed = createParsedCommandLine(
     ts,
@@ -67,6 +68,12 @@ export function createTestLanguageService(
     ],
     [nativeComponentsFile, nativeComponentsTypesContents],
   ])
+  const versions = new Map<string, number>()
+  const snapshots = new Map<
+    string,
+    { content: string; snapshot: ts.IScriptSnapshot }
+  >()
+  let projectVersion = 0
   const compilerOptions: ts.CompilerOptions = {
     ...parsed.options,
     allowNonTsExtensions: true,
@@ -81,27 +88,23 @@ export function createTestLanguageService(
     id => id,
   )
 
+  const associationVersions = new Map<string, number>()
   const language: Language<string> = createLanguage(
     [languagePlugin],
     new Map<string, SourceScript<string>>(),
     id => {
-      const content = readFile(id)
-      if (content !== undefined) {
-        language.scripts.set(
-          id,
-          ts.ScriptSnapshot.fromString(content),
-          getLanguageId(id),
-        )
+      const snapshot = getSnapshot(id)
+      if (snapshot) language.scripts.set(id, snapshot, getLanguageId(id))
+      else {
+        snapshots.delete(id)
+        language.scripts.delete(id)
       }
     },
+    id => associationVersions.set(id, (associationVersions.get(id) ?? 0) + 1),
   )
 
   for (const fileName of mpxFiles) {
-    language.scripts.set(
-      fileName,
-      ts.ScriptSnapshot.fromString(fs.readFileSync(fileName, 'utf8')),
-      'mpx',
-    )
+    language.scripts.set(fileName, getSnapshot(fileName)!, 'mpx')
   }
 
   const rootFiles = [
@@ -116,13 +119,11 @@ export function createTestLanguageService(
   )
   const host: ts.LanguageServiceHost = {
     getScriptFileNames: () => rootFiles,
-    getScriptVersion: () => '0',
-    getScriptSnapshot(fileName) {
-      const content = readFile(fileName)
-      return content === undefined
-        ? undefined
-        : ts.ScriptSnapshot.fromString(content)
-    },
+    getScriptVersion: fileName =>
+      `${versions.get(fileName) ?? 0}:${fileOverrides.has(fileName) ? (fileOverrides.get(fileName) ?? 'missing') : '0'}:${associationVersions.get(fileName) ?? 0}`,
+    getProjectVersion: () =>
+      `${projectVersion}:${JSON.stringify([...fileOverrides])}:${JSON.stringify([...associationVersions])}`,
+    getScriptSnapshot: getSnapshot,
     getScriptKind,
     getCurrentDirectory: () => fixtureRoot,
     getCompilationSettings: () => compilerOptions,
@@ -172,8 +173,18 @@ export function createTestLanguageService(
     languageServiceHost: host,
     proxyLanguageService: proxy,
     file: relativePath => path.join(fixtureRoot, relativePath),
-    read: relativePath =>
-      fs.readFileSync(path.join(fixtureRoot, relativePath), 'utf8'),
+    read: relativePath => readFile(path.join(fixtureRoot, relativePath))!,
+    updateFile(relativePath, content) {
+      const fileName = path.join(fixtureRoot, relativePath)
+      virtualFiles.set(fileName, content)
+      versions.set(fileName, (versions.get(fileName) ?? 0) + 1)
+      projectVersion++
+      language.scripts.set(
+        fileName,
+        getSnapshot(fileName)!,
+        getLanguageId(fileName),
+      )
+    },
     getServiceScript(relativePath) {
       const fileName = path.join(fixtureRoot, relativePath)
       const sourceScript = language.scripts.get(fileName)
@@ -201,7 +212,21 @@ export function createTestLanguageService(
   }
 
   function readFile(fileName: string) {
-    return virtualFiles.get(fileName) ?? ts.sys.readFile(fileName)
+    return fileOverrides.has(fileName)
+      ? fileOverrides.get(fileName)
+      : (virtualFiles.get(fileName) ?? ts.sys.readFile(fileName))
+  }
+
+  // Real editor documents retain snapshot identity until their text changes.
+  function getSnapshot(fileName: string) {
+    const content = readFile(fileName)
+    if (content === undefined) return
+    let cached = snapshots.get(fileName)
+    if (cached?.content !== content) {
+      cached = { content, snapshot: ts.ScriptSnapshot.fromString(content) }
+      snapshots.set(fileName, cached)
+    }
+    return cached.snapshot
   }
 }
 

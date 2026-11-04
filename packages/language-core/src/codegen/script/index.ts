@@ -9,6 +9,7 @@ import { generateSrc } from './src'
 import { generateTemplate } from './template'
 import { codeFeatures } from '../codeFeatures'
 import { generateComponentSelf } from './componentSelf'
+import { generateTemplateRefs } from './templateRefs'
 import {
   generateJsonPathCompletionImports,
   generateJsonUsingComponents,
@@ -86,6 +87,7 @@ export function* generateScript(
   // generated script layout stays close to vue-language-tools.
   yield* generateJsonPathCompletionImports(options, ctx)
   yield* generateJsonUsingComponents(options, ctx)
+  yield* generateTemplateRefs(options)
   if (options.sfc.script && options.scriptRanges) {
     const { createComponentObj } = options.scriptRanges
     const isCreateComponentRawObject =

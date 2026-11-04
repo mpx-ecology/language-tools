@@ -74,7 +74,10 @@ function tryRequest(
 /** Create a project-scoped resolver for tsconfig `baseUrl` / `paths`. */
 export function createTsConfigPathResolver(compilerConfig: ts.CompilerOptions) {
   const matcher = createMatchPath(
-    compilerConfig.baseUrl ?? path.join(process.cwd(), './'),
+    compilerConfig.baseUrl ??
+      (typeof compilerConfig.pathsBasePath === 'string'
+        ? compilerConfig.pathsBasePath
+        : process.cwd()),
     compilerConfig.paths ?? {},
   )
 
@@ -88,6 +91,9 @@ export function createTsConfigPathResolver(compilerConfig: ts.CompilerOptions) {
 export function createPackagePathResolver() {
   const resolver = enhancedResolve.create.sync({
     extensions: ['.mpx', '.js'],
+    // enhanced-resolve's default filesystem caches misses globally for 4s.
+    // Project updates must observe newly created/deleted component files now.
+    fileSystem: fs,
   })
 
   return (uri: string, baseUri: string) => {
