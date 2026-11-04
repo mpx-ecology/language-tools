@@ -65,7 +65,12 @@ export function createMpxLanguagePlugin<T>(
   mpxCompilerOptions: MpxCompilerOptions,
   asFileName: (scriptId: T) => string,
   asScriptId?: (fileName: string) => T,
-): LanguagePlugin<T, MpxVirtualCode> {
+): LanguagePlugin<T, MpxVirtualCode> & {
+  getExternalFilesVersion(
+    fileName?: string,
+    onChange?: (fileName: string) => void,
+  ): string
+} {
   const pluginContext: Parameters<MpxLanguagePlugin>[0] = {
     modules: {
       '@vue/compiler-dom': CompilerDOM,
@@ -82,6 +87,27 @@ export function createMpxLanguagePlugin<T>(
   )
 
   return {
+    getExternalFilesVersion(fileName, onChange) {
+      const files = fileName
+        ? [fileRegistry.get(fileName)].filter(code => !!code)
+        : [...fileRegistry.values()]
+      if (fileName) {
+        const application = files[0]?.sfc.application
+        const applicationCode =
+          application && fileRegistry.get(application.fileName)
+        // Global registrations affect the consuming page's generated imports.
+        // Refresh their owner before reading the page's dependency version.
+        if (applicationCode) files.unshift(applicationCode)
+      }
+      return files
+        .map(code => {
+          const version = code.getExternalDependencyVersion()
+          if (code.externalDependencyVersion !== version)
+            onChange?.(code.fileName)
+          return version
+        })
+        .join(';')
+    },
     getLanguageId(scriptId) {
       const fileName = asFileName(scriptId)
       for (const plugin of plugins) {
@@ -215,5 +241,26 @@ export function withMpxJsonServiceScripts<T>(
         return []
       },
     },
+  }
+}
+
+/** Keep Volar/TypeScript snapshot caches in step with file resolution changes. */
+export function decorateMpxLanguageServiceHost(
+  host: ts.LanguageServiceHost,
+  plugin: {
+    getExternalFilesVersion(
+      fileName?: string,
+      onChange?: (fileName: string) => void,
+    ): string
+  },
+  onDependencyChange?: (fileName: string) => void,
+) {
+  const getScriptVersion = host.getScriptVersion.bind(host)
+  host.getScriptVersion = fileName =>
+    `${getScriptVersion(fileName)}:${plugin.getExternalFilesVersion(fileName, onDependencyChange)}`
+  const getProjectVersion = host.getProjectVersion?.bind(host)
+  if (getProjectVersion) {
+    host.getProjectVersion = () =>
+      `${getProjectVersion()}:${plugin.getExternalFilesVersion(undefined, onDependencyChange)}`
   }
 }

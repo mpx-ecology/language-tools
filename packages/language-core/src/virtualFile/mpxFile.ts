@@ -10,6 +10,8 @@ import { computedEmbeddedCodes } from './computedEmbeddedCodes'
 export class MpxVirtualCode implements VirtualCode {
   id = 'main'
 
+  private _externalDependencyVersion = signal('')
+
   private _snapshot = signal<ts.IScriptSnapshot>(undefined!)
   private _application = signal<Sfc['application']>(undefined)
 
@@ -26,6 +28,7 @@ export class MpxVirtualCode implements VirtualCode {
     this._snapshot,
     this._mpxSfc,
     this._application,
+    this._externalDependencyVersion,
   )
   private _embeddedCodes = computedEmbeddedCodes(
     this.plugins,
@@ -69,6 +72,17 @@ export class MpxVirtualCode implements VirtualCode {
     public ts: typeof import('typescript'),
   ) {
     this._snapshot(initSnapshot)
+    this._externalDependencyVersion(this.getExternalDependencyVersion())
+  }
+
+  get externalDependencyVersion() {
+    return this._externalDependencyVersion()
+  }
+
+  getExternalDependencyVersion() {
+    return this.plugins
+      .map(plugin => plugin.getExternalDependencyVersion?.(this.fileName) ?? 0)
+      .join(',')
   }
 
   setApplication(application: Sfc['application']) {
@@ -76,6 +90,8 @@ export class MpxVirtualCode implements VirtualCode {
   }
 
   update(newSnapshot: ts.IScriptSnapshot) {
+    // Change embedded identities only while Volar re-registers their mappings.
+    this._externalDependencyVersion(this.getExternalDependencyVersion())
     this._snapshot(newSnapshot)
   }
 }

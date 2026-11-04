@@ -3,6 +3,7 @@ import type { URI } from 'vscode-uri'
 import {
   createMpxLanguagePlugin,
   createParsedCommandLine,
+  decorateMpxLanguageServiceHost,
   getDefaultCompilerOptions,
   withMpxJsonServiceScripts,
 } from '@mpxjs/language-core'
@@ -71,36 +72,34 @@ export function createMpxProject(
   // Preserve tsconfig roots: global augmentations can live in ordinary modules
   // or be introduced transitively through their imports. jsonOnly disables the
   // Mpx business service script, not the project's ambient type environment.
+  const languagePlugin = createMpxLanguagePlugin(
+    ts,
+    commandLine.options,
+    commandLine.mpxOptions,
+    (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
+    uriConverter.asUri,
+  )
   return {
-    languagePlugins: [
-      withMpxJsonServiceScripts(
-        createMpxLanguagePlugin(
-          ts,
-          commandLine.options,
-          commandLine.mpxOptions,
-          (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
-          // Application registrations use the same URI identity and filesystem
-          // snapshots as JSON dependencies in both IDE and agent projects.
-          uriConverter.asUri,
-        ),
-        jsonOnly,
-      ),
-    ],
+    languagePlugins: [withMpxJsonServiceScripts(languagePlugin, jsonOnly)],
     setup({
       project,
+      language,
     }: {
       project: import('@mpxjs/language-service').ProjectContext
+      language: import('@mpxjs/language-service').Language
     }) {
       project.mpx = { compilerOptions: commandLine.mpxOptions }
-      if (jsonOnly && project.typescript) {
+      if (project.typescript) {
         const host = project.typescript.languageServiceHost
-        const getVersion = host.getProjectVersion
-        // Volar can suppress a TS version bump when only non-service virtual
-        // snapshots changed. Application associations add such snapshots; do
-        // not let them hide a concurrent native JS/TS document update. This
-        // host is queried only by JSON semantics, never ordinary templates.
+        const getProjectVersion = host.getProjectVersion?.bind(host)
+        // Volar may suppress its TS version when only non-TS virtual metadata
+        // changes. A native dependency edit in the same update still matters.
         host.getProjectVersion = () =>
-          `${getVersion?.() ?? ''}:${projectHost.getProjectVersion?.() ?? ''}`
+          `${getProjectVersion?.() ?? ''}:${projectHost.getProjectVersion?.() ?? ''}`
+        decorateMpxLanguageServiceHost(host, languagePlugin, fileName => {
+          const source = language.scripts.get(uriConverter.asUri(fileName))
+          if (source) source.isAssociationDirty = true
+        })
       }
     },
   }

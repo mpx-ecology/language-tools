@@ -10,6 +10,10 @@ import {
   tsCodegen,
 } from '@mpxjs/language-core'
 import { isMpPluginComponentPath } from '../utils'
+import {
+  componentFileName,
+  componentTargetsHover,
+} from '../utils/componentNavigation'
 import { getMpxSourceScript } from '../utils/templateCodegenHelper'
 
 export function create(): LanguageServicePlugin {
@@ -19,6 +23,7 @@ export function create(): LanguageServicePlugin {
     capabilities: {
       documentLinkProvider: {},
       definitionProvider: true,
+      hoverProvider: true,
     },
 
     create(context) {
@@ -125,12 +130,14 @@ export function create(): LanguageServicePlugin {
               const uniqueComponentMap = dedupeComponentPaths(
                 usingComponents.get(componentTag)!,
               )
-              const uniqueComponentCount = uniqueComponentMap.size
+              // Let Ctrl/Cmd+click reach the multi-definition provider instead
+              // of the first overlapping DocumentLink.
+              if (uniqueComponentMap.size !== 1) continue
 
-              for (const [
+              for (const {
                 componentPath,
-                { targetFilePath, id },
-              ] of uniqueComponentMap.entries()) {
+                targetFilePath,
+              } of uniqueComponentMap.values()) {
                 if (isMpPluginComponentPath(componentPath)) {
                   // Fix #70 plugin 组件路径不处理
                   continue
@@ -142,12 +149,7 @@ export function create(): LanguageServicePlugin {
                       end: document.positionAt(offset + componentTag.length),
                     },
                     target: URI.file(targetFilePath).toString(),
-                    tooltip:
-                      '自定义组件' +
-                      (uniqueComponentCount > 1
-                        ? `（来源 ${id}/${uniqueComponentCount}）`
-                        : '') +
-                      `：${componentPath}`,
+                    tooltip: `自定义组件：${componentFileName(targetFilePath)}`,
                   })
                 }
                 addLink(startTagOffset)
@@ -160,6 +162,32 @@ export function create(): LanguageServicePlugin {
           // #endregion
 
           return result
+        },
+
+        async provideHover(document, position) {
+          const tplCtx = await resolveTemplateContext(context, document.uri)
+          if (!tplCtx) return
+          const offset = document.offsetAt(position)
+          for (const nodeTag of tplCtx.templateNodeTags) {
+            const hit = getTagHitOffset(nodeTag, offset)
+            if (hit == null) continue
+            const targets = [
+              ...dedupeComponentPaths(
+                tplCtx.usingComponents?.get(nodeTag.name) ?? [],
+              ).values(),
+            ]
+              .filter(target => !isMpPluginComponentPath(target.componentPath))
+              .map(target => target.targetFilePath)
+            if (targets.length > 1) {
+              return componentTargetsHover(
+                {
+                  start: document.positionAt(hit),
+                  end: document.positionAt(hit + nodeTag.name.length),
+                },
+                targets,
+              )
+            }
+          }
         },
 
         /**
@@ -193,10 +221,10 @@ export function create(): LanguageServicePlugin {
             const uniqueComponentMap = dedupeComponentPaths(
               usingComponents.get(componentTag)!,
             )
-            for (const [
+            for (const {
               componentPath,
-              { targetFilePath },
-            ] of uniqueComponentMap) {
+              targetFilePath,
+            } of uniqueComponentMap.values()) {
               if (isMpPluginComponentPath(componentPath)) continue
               definitions.push({
                 originSelectionRange: {
@@ -293,22 +321,20 @@ function getTagHitOffset(
 }
 
 /**
- * 按 text 去重,丢弃没有 realFilename 的项,并记录序号便于 tooltip 标注来源。
+ * 按实际文件去重,丢弃没有 realFilename 的项。
  */
 function dedupeComponentPaths(
   rawComponentPaths: { text: string; realFilename?: string }[],
-): Map<string, { componentPath: string; targetFilePath: string; id: number }> {
+): Map<string, { componentPath: string; targetFilePath: string }> {
   const map = new Map<
     string,
-    { componentPath: string; targetFilePath: string; id: number }
+    { componentPath: string; targetFilePath: string }
   >()
-  let id = 1
   for (const path of rawComponentPaths) {
-    if (!path.realFilename || map.has(path.text)) continue
-    map.set(path.text, {
+    if (!path.realFilename || map.has(path.realFilename)) continue
+    map.set(path.realFilename, {
       componentPath: path.text,
       targetFilePath: path.realFilename,
-      id: id++,
     })
   }
   return map
