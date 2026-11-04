@@ -5,6 +5,7 @@ import {
   Language,
   MpxCompilerOptions,
   MpxVirtualCode,
+  createComponentReferenceIndex,
   forEachElementNode,
   getInstanceFieldDiagnostics,
   hyphenateTag,
@@ -23,6 +24,11 @@ export function proxyLanguageServiceForMpx<T>(
   mpxOptions: MpxCompilerOptions,
   asScriptId: (fileName: string) => T,
 ) {
+  const componentReferences = createComponentReferenceIndex(
+    ts,
+    language,
+    asScriptId,
+  )
   const proxyCache = new Map<
     string | symbol,
     ((...args: any[]) => any) | undefined
@@ -32,6 +38,65 @@ export function proxyLanguageServiceForMpx<T>(
     p: string | symbol,
   ): ((...args: any[]) => any) | undefined => {
     switch (p) {
+      case 'getFileReferences':
+        return (fileName: string) => {
+          const result = target.getFileReferences(fileName)
+          const program = target.getProgram()
+          return program
+            ? dedupeReferences([
+                ...result,
+                ...componentReferences
+                  .getFileReferences(program, fileName)
+                  .map(reference => ({ ...reference, isWriteAccess: false })),
+              ])
+            : result
+        }
+      case 'getReferencesAtPosition':
+        return (fileName: string, position: number) => {
+          const program = target.getProgram()
+          const references =
+            program &&
+            componentReferences.getReferencesAtPosition(
+              program,
+              fileName,
+              position,
+            )
+          return (
+            references?.map(reference => ({
+              ...reference,
+              isWriteAccess: false,
+            })) ?? target.getReferencesAtPosition(fileName, position)
+          )
+        }
+      case 'findReferences':
+        return (fileName: string, position: number) => {
+          const program = target.getProgram()
+          const references =
+            program &&
+            componentReferences.getReferencesAtPosition(
+              program,
+              fileName,
+              position,
+            )
+          if (!references?.length)
+            return target.findReferences(fileName, position)
+          return [
+            {
+              definition: {
+                fileName: references[0].fileName,
+                textSpan: references[0].textSpan,
+                kind: ts.ScriptElementKind.alias,
+                name: 'component',
+                containerKind: ts.ScriptElementKind.unknown,
+                containerName: '',
+              },
+              references: references.map(reference => ({
+                ...reference,
+                isWriteAccess: false,
+              })),
+            },
+          ]
+        }
       case 'getSemanticDiagnostics':
         return (fileName: string) => [
           ...target
@@ -477,4 +542,15 @@ function getComponentSpans(
     }
   }
   return result
+}
+
+function dedupeReferences(references: ts.ReferenceEntry[]) {
+  return [
+    ...new Map(
+      references.map(reference => [
+        `${reference.fileName}:${reference.textSpan.start}:${reference.textSpan.length}`,
+        reference,
+      ]),
+    ).values(),
+  ]
 }

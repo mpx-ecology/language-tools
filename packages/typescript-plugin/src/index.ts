@@ -97,6 +97,12 @@ export = createLanguageServicePlugin((ts, info) => {
       return
     }
 
+    session.addProtocolHandler('_mpx:fileReferences', ({ arguments: args }) => {
+      return (session as any).handlers.get('fileReferences')?.({
+        arguments: args,
+      })
+    })
+
     session.addProtocolHandler('_mpx:projectInfo', ({ arguments: args }) => {
       return (session as any).handlers.get('projectInfo')?.({ arguments: args })
     })
