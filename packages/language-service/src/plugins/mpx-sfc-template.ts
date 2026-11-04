@@ -109,6 +109,7 @@ export function create(
         usingComponents?: SfcJsonBlockUsingComponents,
         componentProps?: Map<string, ComponentPropInfo[]>,
         mode: 'completion' | 'hover' = 'completion',
+        scriptComponentNames: string[] = [],
       ) => {
         const getAttributes = (componentTag: string) =>
           (componentProps?.get(componentTag) ?? [])
@@ -141,6 +142,11 @@ export function create(
                 })
               }
             }
+            for (const name of scriptComponentNames) {
+              if (!usingComponents?.has(name)) {
+                tags.push({ name, attributes: getAttributes(name) })
+              }
+            }
             return tags
           },
           provideAttributes: getAttributes,
@@ -162,6 +168,13 @@ export function create(
         const tagContext = getTagContextAtPosition(document, position)
         const componentTag = tagContext?.tag
         const componentProps = new Map<string, ComponentPropInfo[]>()
+        const client = getTsClient(context)
+        const componentNames =
+          helper && mode === 'completion'
+            ? ((await client?.getComponentNames(helper.documentUri.fsPath)) ??
+              [])
+            : []
+        if (!isCustomDataRequestCurrent(updateId, token)) return
 
         const hasMultipleComponentCandidates =
           componentTag !== undefined &&
@@ -171,11 +184,12 @@ export function create(
           helper &&
           componentTag &&
           tagContext.isAfterTagName &&
-          usingComponents?.has(componentTag) &&
+          (usingComponents?.has(componentTag) ||
+            componentNames.includes(componentTag)) &&
           (mode === 'completion' || hasMultipleComponentCandidates) &&
           !token?.isCancellationRequested
         ) {
-          const props = await getTsClient(context)?.getComponentProps(
+          const props = await client?.getComponentProps(
             helper.documentUri.fsPath,
             componentTag,
           )
@@ -188,7 +202,12 @@ export function create(
           return
         }
 
-        runUpdateExtraCustomData(usingComponents, componentProps, mode)
+        runUpdateExtraCustomData(
+          usingComponents,
+          componentProps,
+          mode,
+          componentNames,
+        )
         return {
           updateId,
           usingComponents,

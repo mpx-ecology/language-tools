@@ -20,6 +20,9 @@ const globalTypes = () => `
   function __VLS_GetRawProperties<RawO extends Record<string, any>>(
     opt: RawO
   ): __VLS_GetOptionField<RawO, 'properties'>
+  function __VLS_GetRawComponents<RawO extends Record<string, any>>(
+    opt: RawO
+  ): __VLS_KnownProperties<__VLS_GetOptionField<RawO, 'components'>>
   function __VLS_GetTemplateContext<RawO extends Record<string, any>>(
     opt: RawO
   ): __VLS_TemplateContext<RawO>

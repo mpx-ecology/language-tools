@@ -39,9 +39,12 @@
     "@types/minimatch": "^5.1.2",
     "@types/node": "catalog:",
     "@types/path-browserify": "catalog:",
+    "@types/react": "18.3.12",
     "@volar/typescript": "catalog:",
     "@vue/compiler-sfc": "^3.5.0",
     "miniprogram-api-typings": "^3.12.3",
+    "react": "18.3.1",
+    "react-native": "0.76.9",
     "typescript": "catalog:"
   },
   "peerDependencies": {
