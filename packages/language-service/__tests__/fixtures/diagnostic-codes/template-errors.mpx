@@ -1,0 +1,10 @@
+<template>
+  <!-- Intentional Mpx brace errors: keep the existing IDs 1001 / 1002. -->
+  <view wx:if=" {{ visible }}" />
+  <view wx:for=" {{ rows }}" wx:key="id" />
+</template>
+<script setup>
+const visible = true
+const rows = [{ id: 1 }]
+defineExpose({ visible, rows })
+</script>
