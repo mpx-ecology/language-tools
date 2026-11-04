@@ -430,13 +430,13 @@ function* generateFailedPropExps(
   }
 }
 
-function getCanonicalComponentName(tagText: string) {
+export function getCanonicalComponentName(tagText: string) {
   return identifierRegex.test(tagText)
     ? tagText
     : capitalize(camelize(tagText.replace(colonReg, '-')))
 }
 
-function getPossibleOriginalComponentNames(
+export function getPossibleOriginalComponentNames(
   tagText: string,
   deduplicate: boolean,
 ) {

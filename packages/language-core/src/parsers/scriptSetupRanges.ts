@@ -78,6 +78,7 @@ export function parseScriptSetupRanges(
   let defineOptions: DefineOptions | undefined
   let onReactHooksExec: OnReactHooksExec | undefined
   const useTemplateRef: UseTemplateRef[] = []
+  const useContext: CallExpressionRange[] = []
   const text = ast.text
 
   const leadingCommentRanges =
@@ -114,6 +115,7 @@ export function parseScriptSetupRanges(
     }
   })
   ts.forEachChild(ast, node => visitNode(node, [ast]))
+  collectUseContext(ast)
 
   const templateRefNames = new Set(useTemplateRef.map(ref => ref.name))
   bindings = bindings.filter(({ range }) => {
@@ -135,6 +137,7 @@ export function parseScriptSetupRanges(
     defineOptions,
     onReactHooksExec,
     useTemplateRef,
+    useContext,
   }
 
   function visitNode(node: ts.Node, parents: ts.Node[]) {
@@ -333,6 +336,97 @@ export function parseScriptSetupRanges(
       typeArg: node.typeArguments?.length
         ? _getStartEnd(node.typeArguments[0])
         : undefined,
+    }
+  }
+
+  function collectUseContext(node: ts.Node, shadowed = false) {
+    if (ts.isBlock(node)) {
+      shadowed ||= node.statements.some(declaresUseContext)
+    } else if (ts.isFunctionLike(node)) {
+      shadowed ||= node.parameters.some(parameter =>
+        bindsUseContext(parameter.name),
+      )
+      shadowed ||=
+        (ts.isFunctionDeclaration(node) || ts.isFunctionExpression(node)) &&
+        !!node.name &&
+        ts.isIdentifier(node.name) &&
+        node.name.text === 'useContext'
+      shadowed ||= hasHoistedUseContext(node)
+    } else if (ts.isCatchClause(node)) {
+      shadowed ||=
+        !!node.variableDeclaration &&
+        bindsUseContext(node.variableDeclaration.name)
+    } else if (
+      ts.isForStatement(node) ||
+      ts.isForInStatement(node) ||
+      ts.isForOfStatement(node)
+    ) {
+      shadowed ||=
+        !!node.initializer &&
+        ts.isVariableDeclarationList(node.initializer) &&
+        node.initializer.declarations.some(declaration =>
+          bindsUseContext(declaration.name),
+        )
+    } else if (ts.isCaseBlock(node)) {
+      shadowed ||= node.clauses.some(clause =>
+        clause.statements.some(declaresUseContext),
+      )
+    }
+    if (
+      !shadowed &&
+      ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      node.expression.text === 'useContext'
+    ) {
+      useContext.push(parseCallExpression(node))
+    }
+    ts.forEachChild(node, child => collectUseContext(child, shadowed))
+  }
+
+  function bindsUseContext(name: ts.BindingName): boolean {
+    return ts.isIdentifier(name)
+      ? name.text === 'useContext'
+      : name.elements.some(
+          element =>
+            ts.isBindingElement(element) && bindsUseContext(element.name),
+        )
+  }
+
+  function declaresUseContext(node: ts.Node): boolean {
+    if (ts.isVariableStatement(node)) {
+      return node.declarationList.declarations.some(declaration =>
+        bindsUseContext(declaration.name),
+      )
+    }
+    return (
+      (ts.isFunctionDeclaration(node) ||
+        ts.isClassDeclaration(node) ||
+        ts.isEnumDeclaration(node)) &&
+      node.name?.text === 'useContext'
+    )
+  }
+
+  function hasHoistedUseContext(scope: ts.Node): boolean {
+    let found = false
+    ts.forEachChild(scope, visit)
+    return found
+    function visit(node: ts.Node) {
+      if (
+        found ||
+        ts.isFunctionLike(node) ||
+        ts.isClassLike(node) ||
+        ts.isModuleDeclaration(node)
+      )
+        return
+      if (
+        ts.isVariableDeclarationList(node) &&
+        !(node.flags & ts.NodeFlags.BlockScoped)
+      ) {
+        found ||= node.declarations.some(declaration =>
+          bindsUseContext(declaration.name),
+        )
+      }
+      ts.forEachChild(node, visit)
     }
   }
 

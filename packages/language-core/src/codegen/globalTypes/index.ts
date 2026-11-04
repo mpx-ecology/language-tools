@@ -38,6 +38,7 @@ export function generateGlobalTypes({
 	type __VLS_GlobalDirectives = import('${lib}').GlobalDirectives;
 	type __VLS_IsAny<T> = 0 extends 1 & T ? true : false;
 	type __VLS_PickNotAny<A, B> = __VLS_IsAny<A> extends true ? B : A;
+	type __VLS_MpxPublicInstance<T> = T extends new (...args: any[]) => infer I ? I : unknown;
 	type __VLS_SpreadMerge<A, B> = Omit<A, keyof B> & B;
 	type __VLS_WithComponent<N0 extends string, LocalComponents, Self, N1 extends string, N2 extends string, N3 extends string> =
 		N1 extends keyof LocalComponents ? N1 extends N0 ? Pick<LocalComponents, N0 extends keyof LocalComponents ? N0 : never> : { [K in N0]: LocalComponents[N1] } :

@@ -108,7 +108,6 @@ function* generateTemplateBody(
       yield `type __VLS_Slots = {}${endOfLine}`
     }
     yield `type __VLS_InheritedAttrs = {}${endOfLine}`
-    yield `type __VLS_TemplateRefs = {}${endOfLine}`
     yield `type __VLS_RootEl = any${endOfLine}`
   }
 }

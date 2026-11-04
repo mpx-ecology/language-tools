@@ -1,0 +1,13 @@
+<template><view>{{ count }}</view></template>
+<script setup lang="ts">
+import { ref } from '@mpxjs/core'
+defineProps({ title: { type: String, value: 'Mpx' } })
+const count = ref(0)
+/** 加载指定页，返回下一页。 */
+function loadMore(page: number): Promise<number> {
+  return Promise.resolve(page + 1)
+}
+const privateMethod = () => 'private'
+defineExpose({ count, loadMore })
+</script>
+<script type="application/json">{ "component": true }</script>
