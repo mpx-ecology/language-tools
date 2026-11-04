@@ -1,0 +1,4 @@
+<script setup lang="ts">
+defineOptions({ properties: { title: { type: String, value: 'options' } } })
+defineExpose({ title: 'exposed' })
+</script>

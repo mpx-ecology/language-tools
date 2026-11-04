@@ -1,4 +1,5 @@
 import type { CompilerError, SourceLocation } from '@vue/compiler-dom'
+import { MpxDiagnosticCode } from '@mpxjs/language-shared'
 
 export interface MpxCompilerError extends CompilerError {
   code: MpxErrorCodes
@@ -18,9 +19,9 @@ export function createMpxCompilerError(
 
 export enum MpxErrorCodes {
   // mpx template transform errors
-  TEMPLATE_WX_FOR_VALUE_BRACE = 1001,
-  TEMPLATE_WX_IF_VALUE_BRACE,
-  TEMPLATE_WX_IF_NO_ADJACENT_BRANCH,
+  TEMPLATE_WX_FOR_VALUE_BRACE = MpxDiagnosticCode.TemplateWxForValueBrace,
+  TEMPLATE_WX_IF_VALUE_BRACE = MpxDiagnosticCode.TemplateWxIfValueBrace,
+  TEMPLATE_WX_IF_NO_ADJACENT_BRANCH = MpxDiagnosticCode.TemplateWxIfNoAdjacentBranch,
 
   // others ..
 }

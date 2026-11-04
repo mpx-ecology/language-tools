@@ -1,0 +1,15 @@
+<template>
+  <!-- ❌ testID 需要 string；onLayout 回调参数需要 LayoutChangeEvent，各一条诊断。 -->
+  <NativeView testID="{{ 42 }}" onLayout="{{ wrongHandler }}" />
+  <!-- ❌ 以下三个 title 均需要 string，各一条诊断。 -->
+  <FunctionAlias title="{{ 42 }}" />
+  <ClassAlias title="{{ 42 }}" />
+  <ForwardAlias title="{{ 42 }}" />
+</template>
+<script setup lang="ts">
+import { View } from 'react-native'
+import { FunctionPanel, ClassPanel, ForwardPanel } from './components'
+defineOptions({ components: { NativeView: View, FunctionAlias: FunctionPanel, ClassAlias: ClassPanel, ForwardAlias: ForwardPanel } })
+const wrongHandler = (event: string) => event
+defineExpose({ wrongHandler })
+</script>

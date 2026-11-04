@@ -54,6 +54,39 @@ it('does not suggest context fields, other applications, unregistered files, or 
   ).toContain('OtherPanel')
 })
 
+it('preserves public ref types for application-registered components', () => {
+  const file = service.file('app-a/pages/index.mpx')
+  const original = service.read('app-a/pages/index.mpx')
+  const source = `<template><app-panel wx:ref="panel" title="valid" /></template>
+<script setup lang="ts">
+const { refs } = useContext()
+const result = refs.panel?.title
+refs.panel?.title.toFixed()
+defineExpose({})
+</script>`
+  try {
+    service.updateFile('app-a/pages/index.mpx', source)
+    const info = service.proxyLanguageService.getQuickInfoAtPosition(
+      file,
+      source.indexOf('result') + 1,
+    )
+    expect(ts.displayPartsToString(info?.displayParts)).toBe(
+      'const result: string | undefined',
+    )
+    const diagnostics =
+      service.proxyLanguageService.getSemanticDiagnostics(file)
+    expect(diagnostics.map(diagnostic => diagnostic.code)).toEqual([2551])
+    expect(
+      source.slice(
+        diagnostics[0].start!,
+        diagnostics[0].start! + diagnostics[0].length!,
+      ),
+    ).toBe('toFixed')
+  } finally {
+    service.updateFile('app-a/pages/index.mpx', original)
+  }
+})
+
 it('inherits the host app through packages entries without leaking package development globals', () => {
   const names = getComponentNames.call(
     context,

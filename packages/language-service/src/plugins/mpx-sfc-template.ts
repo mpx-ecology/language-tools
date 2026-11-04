@@ -176,19 +176,18 @@ export function create(
       ) => {
         const updateId = ++customDataUpdateId
         const helper = templateCodegenHelper(context, document.uri)
+        const client = getTsClient(context)
         const usingComponents =
           helper?.sfc.usingComponents ?? helper?.sfc.json?.usingComponents
         const typeComponents =
           helper && mode === 'completion' && !token?.isCancellationRequested
-            ? ((await getTsClient(context)?.getComponentNames?.(
-                helper.documentUri.fsPath,
-              )) ?? [])
+            ? ((await client?.getComponentNames?.(helper.documentUri.fsPath)) ??
+              [])
             : []
         if (!isCustomDataRequestCurrent(updateId, token)) return
         const tagContext = getTagContextAtPosition(document, position)
         const componentTag = tagContext?.tag
         const componentProps = new Map<string, ComponentPropInfo[]>()
-
         const hasMultipleComponentCandidates =
           componentTag !== undefined &&
           (usingComponents?.get(componentTag)?.length ?? 0) > 1
@@ -205,7 +204,7 @@ export function create(
           (mode === 'completion' || hasMultipleComponentCandidates) &&
           !token?.isCancellationRequested
         ) {
-          const props = await getTsClient(context)?.getComponentProps(
+          const props = await client?.getComponentProps(
             helper.documentUri.fsPath,
             componentTag,
           )

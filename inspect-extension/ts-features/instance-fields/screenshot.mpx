@@ -1,0 +1,8 @@
+<template><view>{{ title }}</view></template>
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+defineProps({ title: { type: String, value: 'prop' } })
+// ❌ expose / Hooks 的 title 重名：应警告并关联其他来源。
+defineExpose({ title: 'exposed' })
+onReactHooksExec(() => ({ title: 'hooks' }))
+</script>

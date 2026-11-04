@@ -8,6 +8,7 @@ export * from './utils/parseSfc'
 export * from './utils/shared'
 export * from './utils/ts'
 export * from './utils/templateDiagnostics'
+export * from './utils/instanceFieldDiagnostics'
 export * from './virtualFile/mpxFile'
 
 export { tsCodegen } from './plugins/mpx-tsx'

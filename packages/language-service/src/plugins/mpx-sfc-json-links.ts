@@ -2,6 +2,7 @@ import type * as vscode from 'vscode-languageserver-protocol'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode, type UsingComponentInfo } from '@mpxjs/language-core'
+import { MpxDiagnosticCode } from '@mpxjs/language-shared'
 import { isMpPluginComponentPath } from '../utils'
 
 export function create(): LanguageServicePlugin {
@@ -117,7 +118,7 @@ export function create(): LanguageServicePlugin {
             diagnostics.push({
               range: pathRange(document, info),
               severity: 1 satisfies typeof vscode.DiagnosticSeverity.Error,
-              code: '4001',
+              code: MpxDiagnosticCode.JsonPathNotFound,
               source: 'mpx-json',
               message: `找不到对应路径文件：'${info.text}'，请检查文件路径是否正确。`,
             })
