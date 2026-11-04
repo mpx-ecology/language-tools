@@ -1,0 +1,9 @@
+<template><view>仅最终 Hooks 返回值挂载到实例</view></template>
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+// 下面两处 data 都被最后的注册替代，不应出现 5002。
+defineOptions({ reactHooksExec() { return { data: 0 } } })
+onReactHooksExec(() => ({ data: 1 }))
+onReactHooksExec(() => ({ safe: 2 }))
+defineExpose({})
+</script>

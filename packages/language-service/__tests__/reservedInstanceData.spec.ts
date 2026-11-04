@@ -8,8 +8,10 @@ import {
   getDefaultCompilerOptions,
 } from '@mpxjs/language-core'
 import * as ts from 'typescript'
+import { MpxDiagnosticCode } from '@mpxjs/language-shared'
 import fs from 'node:fs'
 import path from 'node:path'
+import vm from 'node:vm'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { URI } from 'vscode-uri'
 import { describe, expect, it } from 'vitest'
@@ -65,7 +67,7 @@ defineExpose({ data: localValue })
     expect(diagnostics).toEqual([
       expect.objectContaining({
         severity: 2,
-        code: 'reserved-instance-data',
+        code: MpxDiagnosticCode.ReservedInstanceData,
         source: 'mpx',
       }),
     ])
@@ -73,6 +75,74 @@ defineExpose({ data: localValue })
   })
 
   const setupCases = [
+    [
+      'final Hooks: earlier result is replaced',
+      "import { onReactHooksExec } from '@mpxjs/core'; onReactHooksExec(() => ({ data: 1 })); onReactHooksExec(() => ({ safe: 1 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: final result is public',
+      "import { onReactHooksExec } from '@mpxjs/core'; onReactHooksExec(() => ({ safe: 1 })); onReactHooksExec(() => ({ /*warn*/data: 1 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: only the last duplicate is public',
+      "import { onReactHooksExec } from '@mpxjs/core'; onReactHooksExec(() => ({ data: 1 })); onReactHooksExec(() => ({ /*warn*/data: 2 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: const registration alias',
+      "import { onReactHooksExec } from '@mpxjs/core'; const register = onReactHooksExec; onReactHooksExec(() => ({ data: 1 })); register(() => ({ safe: 1 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: namespace const alias',
+      "import * as mpx from '@mpxjs/core'; const register = mpx.onReactHooksExec; register(() => ({ /*warn*/data: 1 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: setup overrides option callback',
+      "import { onReactHooksExec } from '@mpxjs/core'; defineOptions({ reactHooksExec() { return { data: 1 } } }); onReactHooksExec(() => ({ safe: 1 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: option callback remains without registration',
+      'defineOptions({ reactHooksExec() { return { /*warn*/data: 1 } }, setup() { return { safe: 1 } } }); defineExpose({})',
+    ],
+    [
+      'final Hooks: conditional later registration is uncertain',
+      "import { onReactHooksExec } from '@mpxjs/core'; onReactHooksExec(() => ({ data: 1 })); if (flag) onReactHooksExec(() => ({ safe: 1 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: definite later registration wins',
+      "import { onReactHooksExec } from '@mpxjs/core'; if (flag) onReactHooksExec(() => ({ data: 1 })); onReactHooksExec(() => ({ /*warn*/data: 2 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: short circuit registration is uncertain',
+      "import { onReactHooksExec } from '@mpxjs/core'; onReactHooksExec(() => ({ data: 1 })); flag && onReactHooksExec(() => ({ safe: 1 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: compiler conditional registration is uncertain',
+      "import { onReactHooksExec } from '@mpxjs/core'; onReactHooksExec(() => ({ data: 1 })); /* @mpx-if (__ISRN__) */ onReactHooksExec(() => ({ safe: 1 })); /* @mpx-endif */ defineExpose({})",
+    ],
+    [
+      'final Hooks: definite registration after compiler condition',
+      "import { onReactHooksExec } from '@mpxjs/core'; /* @mpx-if (__ISRN__) */ onReactHooksExec(() => ({ data: 1 })); /* @mpx-endif */ onReactHooksExec(() => ({ /*warn*/data: 2 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: uncalled nested function is private',
+      "import { onReactHooksExec } from '@mpxjs/core'; onReactHooksExec(() => ({ safe: 1 })); function unused() { onReactHooksExec(() => ({ data: 1 })) }; defineExpose({})",
+    ],
+    [
+      'final Hooks: opaque later call may register hooks',
+      "import { onReactHooksExec } from '@mpxjs/core'; onReactHooksExec(() => ({ data: 1 })); registerUnknown(); defineExpose({})",
+    ],
+    [
+      'final Hooks: definite registration after opaque call',
+      "import { onReactHooksExec } from '@mpxjs/core'; registerUnknown(); onReactHooksExec(() => ({ /*warn*/data: 2 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: async callback replaces previous return',
+      "import { onReactHooksExec } from '@mpxjs/core'; onReactHooksExec(() => ({ data: 1 })); onReactHooksExec(async () => ({ safe: 1 })); defineExpose({})",
+    ],
+    [
+      'final Hooks: non-function does not register',
+      "import { onReactHooksExec } from '@mpxjs/core'; onReactHooksExec(() => ({ /*warn*/data: 1 })); onReactHooksExec(false); defineExpose({})",
+    ],
     ['implicit top-level var', 'var /*warn*/data = 1; defineExpose()'],
     [
       'hoisted var is not in compiler implicit bindings',
@@ -244,6 +314,34 @@ defineExpose({ data: localValue })
 
   const optionsCases = [
     [
+      'final Hooks: Options callback replaced by setup',
+      'createComponent({ reactHooksExec() { return { data: 1 } }, setup() { onReactHooksExec(() => ({ safe: 1 })); return {} } })',
+    ],
+    [
+      'final Hooks: Options setup final callback',
+      'createComponent({ reactHooksExec() { return { data: 1 } }, setup() { onReactHooksExec(() => ({ safe: 1 })); onReactHooksExec(() => ({ /*warn*/data: 2 })); return {} } })',
+    ],
+    [
+      'final Hooks: Options setup earlier callback replaced',
+      'createComponent({ setup() { onReactHooksExec(() => ({ data: 1 })); onReactHooksExec(() => ({ safe: 1 })); return {} } })',
+    ],
+    [
+      'final Hooks: conditional setup callback',
+      'createComponent({ reactHooksExec() { return { data: 1 } }, setup() { if (flag) onReactHooksExec(() => ({ safe: 1 })); return {} } })',
+    ],
+    [
+      'final Hooks: unregistered Options callback remains',
+      'createComponent({ reactHooksExec() { return { /*warn*/data: 1 } }, setup() { return {} } })',
+    ],
+    [
+      'final Hooks: unreachable callback ignored',
+      'createComponent({ setup() { onReactHooksExec(() => ({ /*warn*/data: 1 })); return {}; onReactHooksExec(() => ({ safe: 1 })) } })',
+    ],
+    [
+      'final Hooks: early conditional return is uncertain',
+      'createComponent({ reactHooksExec() { return { data: 1 } }, setup() { if (flag) return {}; onReactHooksExec(() => ({ data: 2 })); return {} } })',
+    ],
+    [
       'injected public field',
       "createComponent({ inject: { /*warn*/data: 'value' } })",
     ],
@@ -364,7 +462,7 @@ defineExpose({ data: localValue })
     for (const diagnostic of diagnostics) {
       expect(diagnostic).toMatchObject({
         severity: 2,
-        code: 'reserved-instance-data',
+        code: MpxDiagnosticCode.ReservedInstanceData,
         source: 'mpx',
       })
       expect(diagnostic.message).toContain('"data"')
@@ -377,6 +475,68 @@ defineExpose({ data: localValue })
     )
     expect(diagnostics).toHaveLength(1)
     expect(document.getText(diagnostics[0].range)).toBe('data')
+  })
+
+  it('matches the installed core callHook ordering and final return contract', () => {
+    const file = path.resolve(
+      __dirname,
+      '../../language-core/node_modules/@mpxjs/core/src/core/proxy.js',
+    )
+    const ast = ts.createSourceFile(
+      file,
+      fs.readFileSync(file, 'utf8'),
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.JS,
+    )
+    let method: ts.MethodDeclaration | undefined
+    function visit(node: ts.Node) {
+      if (ts.isMethodDeclaration(node) && node.name.getText(ast) === 'callHook')
+        method = node
+      else ts.forEachChild(node, visit)
+    }
+    visit(ast)
+    expect(method).toBeDefined()
+    const actual = new vm.Script(
+      `({ ${method!.getText(ast)} })`,
+    ).runInNewContext({
+      isFunction: (value: unknown) => typeof value === 'function',
+      BEFORECREATE: '__beforeCreate__',
+      setCurrentInstance() {},
+      unsetCurrentInstance() {},
+      callWithErrorHandling: (
+        fn: (...args: unknown[]) => unknown,
+        _instance: unknown,
+        _name: unknown,
+        args: unknown[],
+      ) => fn(...(args ?? [])),
+    })
+    const calls: string[] = []
+    const receiver = {
+      target: {},
+      options: {
+        __reactHooksExec__: () => {
+          calls.push('options')
+          return { data: 'old' }
+        },
+      },
+      hooks: {
+        __reactHooksExec__: [
+          () => {
+            calls.push('first')
+            return { data: 'replaced' }
+          },
+          () => {
+            calls.push('last')
+            return { safe: 1 }
+          },
+        ],
+      },
+    }
+    expect(actual.callHook.call(receiver, '__reactHooksExec__', [])).toEqual({
+      safe: 1,
+    })
+    expect(calls).toEqual(['options', 'first', 'last'])
   })
 
   it('matches actual no-argument expose and generated setup precedence', async () => {
@@ -394,7 +554,7 @@ defineExpose({ data: localValue })
     }
   })
 
-  it.each(['expose.mpx', 'props.mpx', 'hooks.mpx'])(
+  it.each(['expose.mpx', 'props.mpx', 'hooks.mpx', 'final-hooks.mpx'])(
     'uses independent, compiler-valid Mpx fixture %s',
     async file => {
       const fileName = path.join(fixtureRoot, file)

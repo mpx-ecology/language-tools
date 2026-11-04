@@ -15,6 +15,7 @@ import { config } from './config'
 import { activate as activateSplitEditors } from './features/splitEditors'
 import { activate as activeInterpolationDecorators } from './features/interpolationDecorators'
 import { activate as activeFlattenStyles } from './features/flattenStyles'
+import { activate as activateComponentNavigationDecorations } from './features/componentNavigationDecorations'
 
 let client: lsp.BaseLanguageClient
 
@@ -82,6 +83,7 @@ async function activateLc(createLc: CreateLanguageClient) {
   activeFlattenStyles(client)
   activateSplitEditors(client)
   activeInterpolationDecorators(context, selectors)
+  activateComponentNavigationDecorations(context, selectors, client)
 
   lsp.activateAutoInsertion(selectors, client)
   lsp.activateDocumentDropEdit(selectors, client)

@@ -1,0 +1,12 @@
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+defineProps({ title: String, earlierOnly: String })
+// ✅ 同名局部变量、公开别名 renamed、未知动态 key 均不警告。
+const title = 'local'
+const dynamic = 'anything' as string
+const value: Record<string, string> = {}
+defineExpose({ renamed: title, [dynamic]: 'unknown', ...value })
+// ✅ 只使用最后一次 Hooks 返回值，earlierOnly 不挂载。
+onReactHooksExec(() => ({ earlierOnly: 1 }))
+onReactHooksExec(() => ({ finalOnly: 1 }))
+</script>

@@ -1,0 +1,5 @@
+<script setup lang="ts">
+defineProps({ actual: String })
+defineOptions({ properties: { title: String } })
+defineExpose({ title: 'legal' })
+</script>

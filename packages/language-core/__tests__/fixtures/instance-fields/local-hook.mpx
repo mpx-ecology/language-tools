@@ -1,0 +1,6 @@
+<script setup lang="ts">
+defineProps({ title: String })
+defineExpose({})
+function onReactHooksExec(callback: () => object) { return callback() }
+onReactHooksExec(() => ({ title: 'not a registration' }))
+</script>

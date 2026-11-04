@@ -1,93 +1,89 @@
 import type * as ts from 'typescript'
-import type { MatchPath } from 'tsconfig-paths'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as enhancedResolve from 'enhanced-resolve'
 import { createMatchPath } from 'tsconfig-paths'
 
-interface RequestOptions {
-  extensions?: string[]
-  tryIndices?: string[]
-}
+export type ResolveFile = (fileName: string) => string | undefined
 
-function tryRequest(
-  uri: string,
-  matcher: MatchPath,
-  options: RequestOptions = {},
+/** Map aliases first; use the same file/package rules as relative requests. */
+export function createTsConfigPathResolver(
+  compilerConfig: ts.CompilerOptions,
+  resolveRequest: ResolveFile,
+  trackDependency: (fileName: string, content?: boolean) => void,
 ) {
-  const { extensions = [], tryIndices = ['index'] } = options
-
-  function request(requestUri: string) {
-    let result: string | undefined
-    try {
-      result = matcher(
-        requestUri,
-        packageJsonPath => {
-          try {
-            return JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
-          } catch {
-            return undefined
-          }
-        },
-        fs.existsSync,
-        [],
-      )
-    } catch {
-      return
-    }
-
-    if (!result) {
-      return
-    }
-
-    const absolute = path.isAbsolute(result)
-      ? result
-      : path.resolve(process.cwd(), result)
-
-    try {
-      if (fs.statSync(absolute).isFile()) {
-        return absolute
-      }
-    } catch {
-      // The matcher can return a path that disappears between lookup and stat.
-    }
-  }
-
-  const exactResult = request(uri)
-  if (exactResult) {
-    return exactResult
-  }
-
-  for (const tryIndex of tryIndices) {
-    for (const ext of extensions) {
-      // Keep the same lookup order as the JSON path resolver used previously.
-      for (const candidate of [`${uri}/${tryIndex}${ext}`, `${uri}${ext}`]) {
-        const result = request(candidate)
-        if (result) {
-          return result
-        }
-      }
-    }
-  }
-}
-
-/** Create a project-scoped resolver for tsconfig `baseUrl` / `paths`. */
-export function createTsConfigPathResolver(compilerConfig: ts.CompilerOptions) {
+  const pathsBasePath =
+    typeof compilerConfig.pathsBasePath === 'string'
+      ? compilerConfig.pathsBasePath
+      : undefined
+  const configDirectory =
+    typeof compilerConfig.configFilePath === 'string'
+      ? path.dirname(compilerConfig.configFilePath)
+      : process.cwd()
   const matcher = createMatchPath(
-    compilerConfig.baseUrl ?? path.join(process.cwd(), './'),
+    compilerConfig.baseUrl ?? pathsBasePath ?? configDirectory,
     compilerConfig.paths ?? {},
   )
-
-  return (uri: string) =>
-    tryRequest(uri, matcher, {
-      extensions: ['.mpx', '.js'],
-    })
+  return (request: string) => {
+    const matched = matcher(
+      request,
+      fileName => {
+        trackDependency(fileName, true)
+        try {
+          return JSON.parse(fs.readFileSync(fileName, 'utf8'))
+        } catch {
+          return undefined
+        }
+      },
+      fileName => !!resolveRequest(fileName),
+      [],
+    )
+    return matched ? resolveRequest(matched) : undefined
+  }
 }
 
 /** Create a project-scoped package resolver for Mpx component extensions. */
-export function createPackagePathResolver() {
+export function createPackagePathResolver(
+  resolveFile: ResolveFile,
+  trackDependency: (fileName: string, content?: boolean) => void,
+) {
   const resolver = enhancedResolve.create.sync({
     extensions: ['.mpx', '.js'],
+    // The default enhanced-resolve filesystem caches misses for four seconds.
+    // Keep our own dependency-aware cache so newly created files are visible.
+    fileSystem: new Proxy(fs, {
+      get(target, key) {
+        const value = Reflect.get(target, key)
+        if (
+          ['statSync', 'readlinkSync', 'readFileSync'].includes(String(key))
+        ) {
+          return (...args: unknown[]) => {
+            trackDependency(String(args[0]), key === 'readFileSync')
+            return Reflect.apply(value, target, args)
+          }
+        }
+        return value
+      },
+    }),
+    plugins: [
+      {
+        apply(resolver) {
+          resolver
+            .getHook('before-file')
+            .tapAsync('MpxPlatformFile', (request, context, callback) => {
+              const selected = request.path && resolveFile(request.path)
+              if (!selected || selected === request.path) return callback()
+              resolver.doResolve(
+                resolver.ensureHook('file'),
+                { ...request, path: selected },
+                'Mpx platform file',
+                context,
+                callback,
+              )
+            })
+        },
+      },
+    ],
   })
 
   return (uri: string, baseUri: string) => {

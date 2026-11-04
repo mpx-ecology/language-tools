@@ -1,6 +1,7 @@
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { MpxVirtualCode } from '@mpxjs/language-core'
 import { URI } from 'vscode-uri'
+import { MpxDiagnosticCode } from '@mpxjs/language-shared'
 import { getReservedInstanceDataRanges } from '../utils/reservedInstanceData'
 
 export function create(ts: typeof import('typescript')): LanguageServicePlugin {
@@ -38,7 +39,7 @@ export function create(ts: typeof import('typescript')): LanguageServicePlugin {
                 end: document.positionAt(block.startTagEnd + range.end),
               },
               severity: 2 as const,
-              code: 'reserved-instance-data',
+              code: MpxDiagnosticCode.ReservedInstanceData,
               source: 'mpx',
               message: '"data" 是 Mpx 实例保留字段，请更换公开字段名。',
             }))

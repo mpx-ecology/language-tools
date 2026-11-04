@@ -1,0 +1,13 @@
+<template>
+  <NativeView testID="{{ 42 }}" onLayout="{{ wrongHandler }}" />
+  <FunctionAlias title="{{ 42 }}" />
+  <ClassAlias title="{{ 42 }}" />
+  <ForwardAlias title="{{ 42 }}" />
+</template>
+<script setup lang="ts">
+import { View } from 'react-native'
+import { FunctionPanel, ClassPanel, ForwardPanel } from './components'
+defineOptions({ components: { NativeView: View, FunctionAlias: FunctionPanel, ClassAlias: ClassPanel, ForwardAlias: ForwardPanel } })
+const wrongHandler = (event: string) => event
+defineExpose({ wrongHandler })
+</script>

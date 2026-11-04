@@ -233,7 +233,8 @@ export function* generateElementProps(
       const codeInfo = getPropsCodeInfo(
         ctx,
         strictPropsCheck,
-        (options.usingComponents?.get(node.tag)?.length ?? 0) > 1,
+        ctx.multiTagNodes.has(node) ||
+          (options.usingComponents?.get(node.tag)?.length ?? 0) > 1,
         duplicateAtModePropNames.has(propName),
       )
 
@@ -323,7 +324,8 @@ export function* generateAtModePropChecks(
       const codeInfo = getPropsCodeInfo(
         ctx,
         strictPropsCheck,
-        (options.usingComponents?.get(node.tag)?.length ?? 0) > 1,
+        ctx.multiTagNodes.has(node) ||
+          (options.usingComponents?.get(node.tag)?.length ?? 0) > 1,
         false,
       )
 

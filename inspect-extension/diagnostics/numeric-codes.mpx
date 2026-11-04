@@ -1,0 +1,21 @@
+<template>
+  <!-- ❌ 故意错误：wx:if / wx:for 双括号前有空格，保留 mpx(1002) / mpx(1001)。 -->
+  <view wx:if=" {{ visible }}" />
+  <view wx:for=" {{ rows }}" wx:key="id" />
+  <!-- ✅ label 保持 string 类型，诊断编号调整不影响 hover 和源码跳转。 -->
+  <view>{{ label }}</view>
+</template>
+<script setup>
+const visible = true
+const rows = [{ id: 1 }]
+const label = 'Mpx'
+defineExpose({ visible, rows, label })
+</script>
+<script type="application/json">
+{
+  // ❌ 故意错误：不存在的组件路径应显示 mpx-json(4001)，精确标记路径。
+  "usingComponents": { "missing-panel": "./missing-panel.mpx" },
+  // ❌ 故意错误：component 类型错误保留上游 JSON Schema 的 code 和 source。
+  "component": "wrong"
+}
+</script>

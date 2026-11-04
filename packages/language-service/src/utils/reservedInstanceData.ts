@@ -76,6 +76,8 @@ export function getReservedInstanceDataRanges(
       }
       return getApi(call) === 'defineProps'
     })
+  let conditionalRanges: [number, number][] | undefined
+  let setupHookFallback: ts.Node | undefined
   for (let expression of calls) {
     const api = getApi(expression)
     if (setup) {
@@ -119,11 +121,11 @@ export function getReservedInstanceDataRanges(
         checkOptions(expression.arguments[0], true)
       }
     }
-    if (setup && api === 'onReactHooksExec')
-      checkReturns(expression.arguments[0])
     if (api === 'createComponent' || api === 'createPage')
       checkOptions(expression.arguments[0], false)
   }
+
+  if (setup) checkFinalHook(ast, setupHookFallback)
 
   return [
     ...returnRanges,
@@ -258,7 +260,16 @@ export function getReservedInstanceDataRanges(
   }
 
   function getApi(call: ts.CallExpression) {
-    const expression = call.expression
+    return apiFor(call.expression)
+  }
+
+  function apiFor(
+    expression: ts.Node,
+    seen = new Set<ts.Node>(),
+  ): string | undefined {
+    expression = unwrap(expression)
+    if (seen.has(expression)) return
+    seen.add(expression)
     if (
       ts.isPropertyAccessExpression(expression) &&
       ts.isIdentifier(expression.expression)
@@ -299,6 +310,26 @@ export function getReservedInstanceDataRanges(
         (name === macro || !binding)
       )
         return macro
+    }
+    if (
+      binding &&
+      ts.isVariableDeclaration(binding) &&
+      binding.initializer &&
+      !mutated.has(binding)
+    ) {
+      const list = parents.get(binding)
+      if (
+        list &&
+        ts.isVariableDeclarationList(list) &&
+        list.flags & ts.NodeFlags.Const
+      ) {
+        const api = apiFor(binding.initializer, seen)
+        if (
+          api &&
+          ['createComponent', 'createPage', 'onReactHooksExec'].includes(api)
+        )
+          return api
+      }
     }
     if (binding) return
     if (options.reactHooks.includes(name)) return 'onReactHooksExec'
@@ -426,10 +457,13 @@ export function getReservedInstanceDataRanges(
         }
       }
     }
-    checkReturns(fields.get('reactHooksExec')?.value)
-    if (fromMacro) return
-    checkReturns(fields.get('setup')?.value)
-    const fn = functionValue(fields.get('setup')?.value)
+    if (fromMacro) {
+      setupHookFallback = fields.get('reactHooksExec')?.value
+      return
+    }
+    const setupValue = fields.get('setup')?.value
+    checkReturns(setupValue)
+    const fn = functionValue(setupValue)
     if (
       fn &&
       (ts.isMethodDeclaration(fn) ||
@@ -437,13 +471,116 @@ export function getReservedInstanceDataRanges(
         ts.isFunctionDeclaration(fn) ||
         ts.isArrowFunction(fn)) &&
       fn.body
-    )
-      scanHooks(fn.body)
-    function scanHooks(node: ts.Node) {
+    ) {
+      if (
+        fn.modifiers?.some(mod => mod.kind === ts.SyntaxKind.AsyncKeyword) ||
+        fn.asteriskToken
+      )
+        return
+      checkFinalHook(fn.body, fields.get('reactHooksExec')?.value)
+    } else if (!fields.has('setup'))
+      checkFinalHook(undefined, fields.get('reactHooksExec')?.value)
+  }
+
+  function checkFinalHook(
+    body: ts.Node | undefined,
+    fallback: ts.Node | undefined,
+  ) {
+    let selected = fallback
+    let uncertain = false
+    let mayHaveReturned = false
+    if (body) visit(body)
+    if (!uncertain) checkReturns(selected)
+
+    function visit(node: ts.Node, guarded = false) {
       if (ts.isFunctionLike(node) || ts.isClassLike(node)) return
-      if (ts.isCallExpression(node) && getApi(node) === 'onReactHooksExec')
-        checkReturns(node.arguments[0])
-      ts.forEachChild(node, scanHooks)
+      const conditional =
+        guarded ||
+        ts.isIfStatement(node) ||
+        ts.isConditionalExpression(node) ||
+        ts.isSwitchStatement(node) ||
+        ts.isTryStatement(node) ||
+        ts.isIterationStatement(node, false) ||
+        (ts.isBinaryExpression(node) &&
+          [
+            ts.SyntaxKind.AmpersandAmpersandToken,
+            ts.SyntaxKind.BarBarToken,
+            ts.SyntaxKind.QuestionQuestionToken,
+          ].includes(node.operatorToken.kind))
+      if (ts.isBlock(node) || ts.isSourceFile(node)) {
+        for (const statement of node.statements) {
+          visit(statement, conditional)
+          if (ts.isReturnStatement(statement) || ts.isThrowStatement(statement))
+            break
+        }
+        return
+      }
+      ts.forEachChild(node, child => visit(child, conditional))
+      if (ts.isCallExpression(node)) {
+        const api = getApi(node)
+        if (api === 'onReactHooksExec') {
+          const argument = node.arguments[0]
+          if (!argument) return
+          const value = functionValue(argument)
+          // injectHook ignores values that are definitely not functions.
+          if (
+            value &&
+            (ts.isObjectLiteralExpression(value) ||
+              ts.isArrayLiteralExpression(value) ||
+              ts.isLiteralExpression(value) ||
+              [
+                ts.SyntaxKind.TrueKeyword,
+                ts.SyntaxKind.FalseKeyword,
+                ts.SyntaxKind.NullKeyword,
+              ].includes(value.kind))
+          )
+            return
+          if (conditional || mayHaveReturned || conditionallyCompiled(node))
+            uncertain = true
+          else {
+            selected = argument
+            uncertain = false
+          }
+        } else if (!api) uncertain = true
+      }
+      if (ts.isReturnStatement(node) || ts.isThrowStatement(node))
+        mayHaveReturned = true
     }
+  }
+
+  function conditionallyCompiled(node: ts.Node) {
+    if (!conditionalRanges) {
+      conditionalRanges = []
+      const scanner = ts.createScanner(
+        ts.ScriptTarget.Latest,
+        false,
+        ts.LanguageVariant.Standard,
+        ast.text,
+      )
+      let depth = 0
+      let start = 0
+      for (
+        let token = scanner.scan();
+        token !== ts.SyntaxKind.EndOfFileToken;
+        token = scanner.scan()
+      ) {
+        if (
+          token !== ts.SyntaxKind.SingleLineCommentTrivia &&
+          token !== ts.SyntaxKind.MultiLineCommentTrivia
+        )
+          continue
+        const directive = scanner
+          .getTokenText()
+          .match(/^\/[/\*]\s*@mpx-(if|endif)\b/)
+        if (directive?.[1] === 'if' && depth++ === 0)
+          start = scanner.getTokenPos()
+        if (directive?.[1] === 'endif' && depth && --depth === 0)
+          conditionalRanges.push([start, scanner.getTextPos()])
+      }
+      if (depth) conditionalRanges.push([start, ast.text.length])
+    }
+    return conditionalRanges.some(
+      ([start, end]) => node.getStart(ast) >= start && node.end <= end,
+    )
   }
 }

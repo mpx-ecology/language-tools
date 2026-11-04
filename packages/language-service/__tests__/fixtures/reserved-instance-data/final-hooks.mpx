@@ -1,0 +1,10 @@
+<template><view>最终 Hooks 保留字段诊断</view></template>
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+// 旧返回值不挂载，不应警告这里。
+defineOptions({ reactHooksExec() { return { data: 0 } } })
+onReactHooksExec(() => ({ data: 1 }))
+// 预期：只在这里的 data key 出现 mpx(5002) warning。
+onReactHooksExec(() => ({ data: 2 }))
+defineExpose({})
+</script>

@@ -1,0 +1,8 @@
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+defineProps({ title: String })
+defineExpose({})
+const register = onReactHooksExec
+const alias = register
+alias(() => ({ title: 'alias' }))
+</script>

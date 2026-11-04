@@ -1,0 +1,14 @@
+<template>
+  <!-- ✅ app-badge: 应用 JSON；TypedBadge: 类型扩展；local-badge: 本页注册。 -->
+  <!-- ✅ 标签补全应包含上述三类来源，接受候选不写入 usingComponents。 -->
+  <app-badge title="{{ 123 }}" />
+  <!-- ❌ 上行故意传 number：修复后应报告 TS2322，title hover 为 string。 -->
+  <TypedBadge title="typed" />
+  <local-badge title="local" />
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script type="application/json">
+{ "usingComponents": { "local-badge": "../badge.mpx" } }
+</script>

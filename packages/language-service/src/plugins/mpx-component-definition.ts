@@ -4,8 +4,12 @@ import type { TextDocument } from 'vscode-languageserver-textdocument'
 import { URI } from 'vscode-uri'
 import { MpxVirtualCode, tsCodegen } from '@mpxjs/language-core'
 import { isMpPluginComponentPath } from '../utils'
+import { jsonPathTargets } from '../utils/componentNavigation'
+import { getMpxSourceScript } from '../utils/templateCodegenHelper'
 
-export function create(): LanguageServicePlugin {
+export function create(
+  options: { template?: boolean } = {},
+): LanguageServicePlugin {
   return {
     name: 'mpx-component-definition',
 
@@ -22,7 +26,7 @@ export function create(): LanguageServicePlugin {
             return
           }
           const [documentUri, embeddedCodeId] = decoded
-          const sourceScript = context.language.scripts.get(documentUri)
+          const sourceScript = getMpxSourceScript(context, documentUri)
           const root = sourceScript?.generated?.root
           if (!(root instanceof MpxVirtualCode)) {
             return
@@ -34,7 +38,7 @@ export function create(): LanguageServicePlugin {
 
           const virtualCode =
             sourceScript?.generated?.embeddedCodes.get(embeddedCodeId)
-          if (virtualCode?.id === 'template') {
+          if (options.template !== false && virtualCode?.id === 'template') {
             return provideTemplateDefinition(root, document, position)
           }
         },
@@ -49,43 +53,16 @@ export function create(): LanguageServicePlugin {
           return
         }
         const offset = document.offsetAt(position)
-        const { result: resolvedUsingComponents } =
-          (await root.sfc.json.resolvedUsingComponents) || {}
-        if (!resolvedUsingComponents?.size) {
-          return
-        }
-
-        for (const [_, componentsArray] of resolvedUsingComponents) {
-          for (const {
-            text,
-            offset: compOffset,
-            realFilename,
-          } of componentsArray) {
-            if (!realFilename || isMpPluginComponentPath(text)) {
-              continue
-            }
-            const pathStart = compOffset + 1
-            if (offset >= pathStart && offset <= pathStart + text.length) {
-              return [
-                {
-                  targetUri: URI.file(realFilename).toString(),
-                  targetRange: {
-                    start: { line: 0, character: 0 },
-                    end: { line: 0, character: 0 },
-                  },
-                  targetSelectionRange: {
-                    start: { line: 0, character: 0 },
-                    end: { line: 0, character: 0 },
-                  },
-                  originSelectionRange: {
-                    start: document.positionAt(pathStart),
-                    end: document.positionAt(pathStart + text.length),
-                  },
-                },
-              ]
-            }
+        const definitions: vscode.LocationLink[] = []
+        for (const group of jsonPathTargets(document, root.sfc.json)) {
+          const start = document.offsetAt(group.range.start)
+          const end = document.offsetAt(group.range.end)
+          if (offset >= start && offset <= end) {
+            for (const file of group.files)
+              definitions.push(definition(file, document, start, end - start))
           }
         }
+        return uniqueDefinitions(definitions)
       }
 
       async function provideTemplateDefinition(
@@ -98,7 +75,7 @@ export function create(): LanguageServicePlugin {
         const templateNodeTags =
           codegen?.getGeneratedTemplate()?.templateNodeTags ?? []
         const { result: usingComponents } =
-          (await sfc.json?.resolvedUsingComponents) || {}
+          (await sfc.resolvedUsingComponents) || {}
         if (!usingComponents?.size) {
           return
         }
@@ -119,32 +96,53 @@ export function create(): LanguageServicePlugin {
             continue
           }
 
-          const componentsArray = usingComponents.get(name)!
-          for (const { text, realFilename } of componentsArray) {
-            if (!realFilename || isMpPluginComponentPath(text)) {
-              continue
-            }
-            const tagOffset = onStartTag ? startTagOffset : endTagOffset!
-            return [
-              {
-                targetUri: URI.file(realFilename).toString(),
-                targetRange: {
-                  start: { line: 0, character: 0 },
-                  end: { line: 0, character: 0 },
-                },
-                targetSelectionRange: {
-                  start: { line: 0, character: 0 },
-                  end: { line: 0, character: 0 },
-                },
-                originSelectionRange: {
-                  start: document.positionAt(tagOffset),
-                  end: document.positionAt(tagOffset + name.length),
-                },
-              },
-            ]
-          }
+          const tagOffset = onStartTag ? startTagOffset : endTagOffset!
+          return uniqueDefinitions(
+            usingComponents
+              .get(name)!
+              .filter(
+                info =>
+                  info.realFilename && !isMpPluginComponentPath(info.text),
+              )
+              .map(info =>
+                definition(
+                  info.realFilename!,
+                  document,
+                  tagOffset,
+                  name.length,
+                ),
+              ),
+          )
         }
       }
     },
   }
+}
+
+function definition(
+  fileName: string,
+  document: TextDocument,
+  offset: number,
+  length: number,
+): vscode.LocationLink {
+  const start = { line: 0, character: 0 }
+  return {
+    targetUri: URI.file(fileName).toString(),
+    targetRange: { start, end: start },
+    targetSelectionRange: { start, end: start },
+    originSelectionRange: {
+      start: document.positionAt(offset),
+      end: document.positionAt(offset + length),
+    },
+  }
+}
+
+function uniqueDefinitions(definitions: vscode.LocationLink[]) {
+  const unique = new Map(
+    definitions.map(item => [
+      item.targetUri + JSON.stringify(item.targetSelectionRange),
+      item,
+    ]),
+  )
+  return unique.size ? [...unique.values()] : undefined
 }

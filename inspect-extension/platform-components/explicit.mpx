@@ -1,0 +1,13 @@
+<template>
+  <!-- ✅ 显式指定 ios 文件：value hover 为 number，F12 只跳到 panel.ios.mpx。 -->
+  <demo-panel value="{{ numeric }}" />
+  <!-- ❌ 故意传 string，应报 TS2322；query 中的 mode 不选择其他平台。 -->
+  <demo-panel value="bad" />
+</template>
+<script setup lang="ts">
+const numeric = 42
+defineExpose({ numeric })
+</script>
+<script name="json">
+module.exports = { usingComponents: { 'demo-panel': './panel.ios.mpx?mode=ali&env=other' } }
+</script>

@@ -8,6 +8,7 @@ import type {
   SfcBlockAttr,
 } from '../types'
 import { computed, pauseTracking, resumeTracking } from 'alien-signals'
+import { camelize, capitalize } from '@mpxjs/language-shared'
 import { parseCssClassNames } from '../utils/parseCssClassNames'
 import { computedArray } from '../utils/signals'
 import { parseUsingComponents } from '../utils/parseJsonUsingComponents'
@@ -19,6 +20,8 @@ export function computedSfc(
   fileName: string,
   getSnapshot: () => ts.IScriptSnapshot,
   getParseResult: () => SFCParseResult | undefined,
+  getApplication: () => Sfc['application'] = () => undefined,
+  getExternalDependencyVersion: () => string = () => '',
 ): Sfc {
   const getUntrackedSnapshot = () => {
     pauseTracking()
@@ -131,6 +134,7 @@ export function computedSfc(
         parseUsingComponents(ts, getAst(), base.lang),
       )
       const getResolvedUsingComponents = computed(() => {
+        getExternalDependencyVersion()
         for (const plugin of plugins) {
           if (typeof plugin.resolveUsingComponentsPath === 'function') {
             return plugin.resolveUsingComponentsPath(
@@ -142,6 +146,7 @@ export function computedSfc(
       })
       const getPages = computed(() => parsePages(ts, getAst(), base.lang))
       const getResolvedPages = computed(() => {
+        getExternalDependencyVersion()
         for (const plugin of plugins) {
           if (typeof plugin.resolvePagesPath === 'function') {
             return plugin.resolvePagesPath(getPages(), fileName)
@@ -231,7 +236,32 @@ export function computedSfc(
     },
   )
 
+  const getUsingComponents = computed(() =>
+    mergeRegistrations(
+      getApplication()?.json.usingComponents,
+      getJson()?.usingComponents,
+    ),
+  )
+  const getResolvedUsingComponents = computed(() => ({
+    result: mergeRegistrations(
+      getApplication()?.json.resolvedUsingComponents?.result,
+      getJson()?.resolvedUsingComponents?.result,
+      getJson()?.usingComponents,
+    ),
+    // Errors belong to the source JSON block, never to an inheriting page.
+    errors: getJson()?.resolvedUsingComponents?.errors ?? [],
+  }))
+
   return {
+    get application() {
+      return getApplication()
+    },
+    get usingComponents() {
+      return getUsingComponents()
+    },
+    get resolvedUsingComponents() {
+      return getResolvedUsingComponents()
+    },
     get content() {
       return getContent()
     },
@@ -469,4 +499,20 @@ function filterErrors(
     return
   }
   errors.push(error)
+}
+
+function mergeRegistrations<T>(
+  application: Map<string, T> | undefined,
+  local: Map<string, T> | undefined,
+  localNames = local,
+) {
+  const localKeys = new Set(
+    [...(localNames?.keys() ?? [])].map(name => capitalize(camelize(name))),
+  )
+  return new Map([
+    ...[...(application ?? [])].filter(
+      ([name]) => !localKeys.has(capitalize(camelize(name))),
+    ),
+    ...(local ?? []),
+  ])
 }

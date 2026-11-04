@@ -10,20 +10,26 @@ export function getComponentNames(this: RequestContext, fileName: string) {
     return
   }
   const mpxCode = volarFile.generated.root
-  return _getComponentNames(ts, languageService, mpxCode)
+  return _getComponentNames(ts, languageService, mpxCode, true)
 }
 
 export function _getComponentNames(
   ts: typeof import('typescript'),
   tsLs: ts.LanguageService,
   mpxCode: MpxVirtualCode,
+  registeredOnly = false,
 ) {
   const names =
-    getVariableType(ts, tsLs, mpxCode, '__VLS_components')
+    getVariableType(
+      ts,
+      tsLs,
+      mpxCode,
+      registeredOnly ? '__VLS_registeredComponents' : '__VLS_components',
+    )
       ?.type?.getProperties()
       .map(c => c.name)
       .filter(entry => !entry.includes('$') && !entry.startsWith('_')) ?? []
 
-  names.push(getSelfComponentName(mpxCode.fileName))
+  if (!registeredOnly) names.push(getSelfComponentName(mpxCode.fileName))
   return names
 }
