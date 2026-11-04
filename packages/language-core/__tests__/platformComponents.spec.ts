@@ -261,7 +261,7 @@ defineExpose({ invalidValue })
     expect(
       propsFor(service)
         ?.find(prop => prop.name === 'value')
-        ?.type.split(' | ')
+        ?.type?.split(' | ')
         .sort(),
     ).toEqual(['false', 'number', 'string', 'true', 'undefined'])
     expect(
