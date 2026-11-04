@@ -1,0 +1,10 @@
+<template>
+  <!-- ❌ 标签名虽相同，但注册到 other；不可出现在 panel 的引用中。 -->
+  <demo-panel />
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script type="application/json">
+{ "usingComponents": { "demo-panel": "./other.mpx" } }
+</script>

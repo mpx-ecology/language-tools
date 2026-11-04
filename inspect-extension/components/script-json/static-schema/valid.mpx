@@ -1,0 +1,23 @@
+<template><view><panel /></view></template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script type="application/json">
+{
+  // ✅ component hover 有说明；值补全 true；保留注释与尾逗号。
+  "component": true,
+  // ✅ panel 路径 Cmd/Ctrl 点击可跳转；在 ./ 后触发补全可见 panel.mpx。
+  "usingComponents": { "panel": "./panel.mpx" },
+  // ✅ 占位值是组件名，view / text 无路径诊断。
+  "componentPlaceholder": { "panel": "view" },
+  // ✅ 顶层补全 componentGenerics；字段 hover 显示抽象节点说明。
+  "componentGenerics": {
+    "selectable": true,
+    // ✅ 对象内补全 default，hover 显示默认组件路径说明。
+    "with-default": { "default": "./panel.mpx" },
+  },
+  // ✅ 页面配置提示仍可使用；不因文件角色不明禁止页面字段。
+  "navigationBarTitleText": "静态 JSON Schema",
+  "customPlatformOption": { "enabled": true },
+}
+</script>

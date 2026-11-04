@@ -31,10 +31,13 @@ export function getComponentProps(
   let components: NonNullable<ReturnType<typeof getVariableType>> | undefined
   let componentType: ts.Type | undefined
 
-  // Mpx custom components come from JSON registration. Query its precise map
-  // first: __VLS_components also intersects GlobalComponents, which can be
-  // `any` in Mpx projects and erase every custom component prop.
-  for (const variableName of ['__MPX_jsonComponents', '__VLS_components']) {
+  // Query precise registration maps before the context/global fallback.
+  // Script registrations override JSON registrations in the Mpx RN runtime.
+  for (const variableName of [
+    '__MPX_scriptComponents',
+    '__MPX_jsonComponents',
+    '__VLS_components',
+  ]) {
     const candidateComponents = getVariableType(
       ts,
       languageService,

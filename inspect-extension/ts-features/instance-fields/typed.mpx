@@ -1,0 +1,16 @@
+<script setup lang="ts">
+import { onReactHooksExec as registerHooks } from '@mpxjs/core'
+import type { Exposed } from './types'
+interface Props { title: string; obsolete?: string }
+const { title: localTitle } = defineProps<Props>()
+const local = { title: localTitle }
+const exposed: Exposed = { ...local, own: 1 }
+// ❌ exposed 与 props 的 title 重名；定位 exposed，关联信息保留类型定义。
+defineExpose(exposed)
+const first = () => ({ obsolete: 'earlier' })
+// ✅ 早期 Hooks 返回 obsolete 不挂载实例，不与 props 冲突。
+registerHooks(first)
+const last = () => ({ title: 'last', fresh: 'final' })
+// ❌ 最后一次 Hooks 的 title 与 props/expose 重名，关联信息可跳到 types.ts。
+registerHooks(last)
+</script>

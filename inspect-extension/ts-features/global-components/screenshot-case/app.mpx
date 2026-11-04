@@ -1,0 +1,6 @@
+<script type="application/json">
+{
+  "pages": ["./pages/index"],
+  "usingComponents": { "app-badge": "./badge.mpx" }
+}
+</script>

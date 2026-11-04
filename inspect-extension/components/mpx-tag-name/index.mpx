@@ -1,0 +1,24 @@
+<template>
+  <!-- ✅ input 按标签高亮；maxlength hover 为 number，属性及 bind:input 事件有补全。 -->
+  <!-- ✅ 修改外层 view 时仍只联动原始开闭标签；不能把 input 改成 view。 -->
+  <view mpxTagName="input" maxlength="{{ 10 }}" bindinput="handleInput"></view>
+  <!-- ✅ tag-panel 值上 F12 / Cmd 点击跳到 panel.mpx；title hover 为 string。 -->
+  <view mpxTagName="tag-panel" title="Mpx"></view>
+  <!-- ❌ 故意错误：maxlength 应报 string 不能赋给 number，范围落在 maxlength。 -->
+  <view mpxTagName="input" maxlength="{{ 'wrong' }}" />
+  <!-- ❌ 故意错误：title 应报 number 不能赋给 string，范围落在 title。 -->
+  <view mpxTagName="tag-panel" title="{{ 123 }}" />
+  <!-- ✅ 无活动平台时保留 view 与条件标签候选；@swan 属性只按 input 检查。 -->
+  <view mpxTagName@swan="input" maxlength@swan="{{ 10 }}" />
+  <!-- ✅ RN 平台静态标签值也可 F12；本例使用 Mpx 组件而非直接注册 React 组件。 -->
+  <view mpxTagName@ios|android="tag-panel" title@ios|android="Mpx" />
+  <!-- ✅ 无条件值优先；input 的属性检查不应被 @swan 的标签值覆盖。 -->
+  <view mpxTagName="input" mpxTagName@swan="tag-panel" maxlength="{{ 10 }}" />
+</template>
+<script setup lang="ts">
+function handleInput(event: { detail: { value: string } }) {}
+defineExpose({ handleInput })
+</script>
+<script name="json">
+export default { usingComponents: { 'tag-panel': './panel.mpx' } }
+</script>

@@ -1,0 +1,10 @@
+<template>
+  <!-- ❌ 本文件是独立组件，不应混入 panel.mpx 的引用。 -->
+  <view>other</view>
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script type="application/json">
+{ "component": true }
+</script>

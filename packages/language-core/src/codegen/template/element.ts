@@ -25,8 +25,11 @@ import {
 } from './elementProps'
 import { generateInterpolation } from './interpolation'
 import { generatePropertyAccess } from './propertyAccess'
-import { collectStyleScopedClassReferences } from './styleScopedClasses'
 import { generateVSlot } from './vSlot'
+import {
+  type TemplateTagIdentity,
+  getTemplateTagIdentities,
+} from './tagIdentity'
 
 const colonReg = /:/g
 
@@ -34,19 +37,11 @@ export function* generateComponent(
   options: TemplateCodegenOptions,
   ctx: TemplateCodegenContext,
   node: CompilerDOM.ElementNode,
+  identity: TemplateTagIdentity = getTemplateTagIdentities(node)[0],
 ): Generator<Code> {
-  collectStyleScopedClassReferences(options, ctx, node)
-  const tagOffsets = [
-    node.loc.start.offset +
-      options.template.content.slice(node.loc.start.offset).indexOf(node.tag),
-  ]
-  if (!node.isSelfClosing && options.template.lang === 'html') {
-    const endTagOffset =
-      node.loc.start.offset + node.loc.source.lastIndexOf(node.tag)
-    if (endTagOffset > tagOffsets[0]) {
-      tagOffsets.push(endTagOffset)
-    }
-  }
+  const tagOffsets = [identity.startTagOffset]
+  if (identity.endTagOffset !== undefined)
+    tagOffsets.push(identity.endTagOffset)
   const failedPropExps: FailedPropExpression[] = []
   const possibleOriginalNames = getPossibleOriginalComponentNames(
     node.tag,
@@ -58,11 +53,7 @@ export function* generateComponent(
   const componentCtxVar = ctx.getInternalVariable()
   const isComponentTag = node.tag.toLowerCase() === 'component'
 
-  ctx.templateNodeTags.push({
-    name: node.tag,
-    startTagOffset: tagOffsets[0],
-    endTagOffset: tagOffsets[1],
-  })
+  ctx.templateNodeTags.push(identity)
 
   ctx.currentComponent?.childTypes.push(`typeof ${componentVNodeVar}`)
   ctx.currentComponent = {
@@ -151,7 +142,9 @@ export function* generateComponent(
     yield* generateCanonicalComponentName(
       node.tag,
       tagOffsets[0],
-      ctx.codeFeatures.withoutHighlightAndCompletionAndNavigation,
+      identity.sourceTag
+        ? ctx.resolveCodeFeatures({ verification: true, semantic: true })
+        : ctx.codeFeatures.withoutHighlightAndCompletionAndNavigation,
     )
     yield `${endOfLine}`
 
@@ -305,15 +298,9 @@ export function* generateElement(
   options: TemplateCodegenOptions,
   ctx: TemplateCodegenContext,
   node: CompilerDOM.ElementNode,
+  identity: TemplateTagIdentity = getTemplateTagIdentities(node)[0],
 ): Generator<Code> {
-  collectStyleScopedClassReferences(options, ctx, node)
-  const startTagOffset =
-    node.loc.start.offset +
-    options.template.content.slice(node.loc.start.offset).indexOf(node.tag)
-  const endTagOffset =
-    !node.isSelfClosing && options.template.lang === 'html'
-      ? node.loc.start.offset + node.loc.source.lastIndexOf(node.tag)
-      : undefined
+  const { startTagOffset, endTagOffset } = identity
   const failedPropExps: FailedPropExpression[] = []
   const isExternalNodeTag = options.usingComponents?.has(node.tag) ?? false
 
@@ -321,11 +308,7 @@ export function* generateElement(
     `__VLS_NativeElements['${isExternalNodeTag ? 'external-' : ''}${node.tag}']`,
   )
 
-  ctx.templateNodeTags.push({
-    name: node.tag,
-    startTagOffset: startTagOffset,
-    endTagOffset: endTagOffset,
-  })
+  ctx.templateNodeTags.push(identity)
 
   yield `__VLS_asFunctionalElement(__VLS_elements`
   yield* generateElementNodeTag(
@@ -333,7 +316,13 @@ export function* generateElement(
     ctx,
     node.tag,
     startTagOffset,
-    ctx.codeFeatures.withoutHighlightAndCompletion,
+    identity.sourceTag
+      ? ctx.resolveCodeFeatures({
+          verification: true,
+          semantic: true,
+          navigation: true,
+        })
+      : ctx.codeFeatures.withoutHighlightAndCompletion,
     isExternalNodeTag,
   )
   if (endTagOffset !== undefined) {
@@ -430,13 +419,13 @@ function* generateFailedPropExps(
   }
 }
 
-function getCanonicalComponentName(tagText: string) {
+export function getCanonicalComponentName(tagText: string) {
   return identifierRegex.test(tagText)
     ? tagText
     : capitalize(camelize(tagText.replace(colonReg, '-')))
 }
 
-function getPossibleOriginalComponentNames(
+export function getPossibleOriginalComponentNames(
   tagText: string,
   deduplicate: boolean,
 ) {

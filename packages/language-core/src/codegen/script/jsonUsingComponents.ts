@@ -14,7 +14,7 @@ export function* generateJsonUsingComponents(
   options: ScriptCodegenOptions,
   _ctx: ScriptCodegenContext,
 ): Generator<Code> {
-  const usingComponents = options.sfc.json?.usingComponents
+  const usingComponents = options.sfc.usingComponents
 
   if (!usingComponents?.size) {
     yield `const __MPX_jsonComponents = {}${endOfLine}`
@@ -74,7 +74,7 @@ export function* generateJsonPathCompletionImports(
   options: ScriptCodegenOptions,
   _ctx: ScriptCodegenContext,
 ): Generator<Code> {
-  const usingComponents = options.sfc.json?.usingComponents
+  const usingComponents = options.sfc.usingComponents
   const resolvedUsingComponents = getResolvedUsingComponents(options)
   const jsonStart = (options.sfc.json?.startTagEnd || 0) + 1
   const pages = options.sfc.json?.pages
@@ -96,6 +96,21 @@ export function* generateJsonPathCompletionImports(
           componentPathInfo,
           resolvedUsingComponents,
         )
+
+        const localPaths = options.sfc.json?.usingComponents?.get(componentName)
+        if (!localPaths?.includes(componentPathInfo)) {
+          const application = options.sfc.application
+          const resolved =
+            resolvedImportPath ??
+            (application && componentPathInfo.text.startsWith('.')
+              ? path.resolve(
+                  path.dirname(application.fileName),
+                  componentPathInfo.text,
+                )
+              : componentPathInfo.text)
+          yield `import ${importName} from ${JSON.stringify(resolved)}${newLine}`
+          continue
+        }
 
         if (
           resolvedImportPath &&
@@ -178,7 +193,7 @@ export function* generateJsonPathCompletionImports(
 function getResolvedUsingComponents(
   options: ScriptCodegenOptions,
 ): SfcJsonBlockResolvedUsingComponents['result'] | undefined {
-  return options.sfc.json?.resolvedUsingComponents?.result
+  return options.sfc.resolvedUsingComponents?.result
 }
 
 function getResolvedImportPath(

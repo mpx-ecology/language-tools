@@ -1,0 +1,22 @@
+<template><view /></template>
+<script type="application/json">
+{
+  // Static Mpx JSON accepts comments and trailing commas.
+  "component": true,
+  "usingComponents": {
+    "panel": "./panel.mpx?root=demo",
+    "alias-panel": "@/panel",
+    "native-panel": "./native/index",
+    "plugin-panel": "plugin://demo/panel",
+  },
+  "componentPlaceholder": { "panel": "view", "alias-panel": "text" },
+  "componentGenerics": {
+    "selectable": true,
+    "optional": false,
+    "empty": {},
+    "with-default": { "default": "./panel.mpx" },
+  },
+  "navigationBarTitleText": "Page configuration remains available",
+  "customPlatformOption": { "enabled": true },
+}
+</script>

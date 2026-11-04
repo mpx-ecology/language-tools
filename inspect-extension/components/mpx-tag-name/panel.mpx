@@ -1,0 +1,7 @@
+<template><view>{{ title }}</view></template>
+<script setup lang="ts">
+defineProps<{ title: string }>()
+</script>
+<script name="json">
+export default { component: true }
+</script>
