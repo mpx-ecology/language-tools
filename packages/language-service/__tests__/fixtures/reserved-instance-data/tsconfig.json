@@ -1,0 +1,9 @@
+{
+  "extends": "../../../../language-core/__tests__/fixtures/reference-type-props/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@mpxjs/core": ["../../../../language-core/node_modules/@mpxjs/core"]
+    }
+  },
+  "include": ["./**/*"]
+}

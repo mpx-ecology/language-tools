@@ -1,0 +1,6 @@
+<template><view>{{ renamed }} {{ count }}</view></template>
+<script setup lang="ts">
+const data = 1
+const fields = { /*warn*/data: 2, renamed: data, count: 3 }
+defineExpose({ ...fields })
+</script>
