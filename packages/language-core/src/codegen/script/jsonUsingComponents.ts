@@ -70,7 +70,8 @@ export function* generateJsonPathCompletionImports(
   options: ScriptCodegenOptions,
   _ctx: ScriptCodegenContext,
 ): Generator<Code> {
-  const usingComponents = options.sfc.json?.usingComponents
+  const usingComponents =
+    options.sfc.usingComponents ?? options.sfc.json?.usingComponents
   const candidates = getComponentCandidates(options)
   const jsonStart = (options.sfc.json?.startTagEnd || 0) + 1
   const pages = options.sfc.json?.pages
@@ -86,6 +87,13 @@ export function* generateJsonPathCompletionImports(
       // One completion mapping for each original request, independent of how
       // many platform files supply types. Never duplicate semantic/navigation maps.
       for (const componentPathInfo of componentPaths) {
+        // Inherited registrations belong to the application's JSON document.
+        if (
+          !options.sfc.json?.usingComponents
+            ?.get(componentName)
+            ?.includes(componentPathInfo)
+        )
+          continue
         yield `import '`
         yield [
           componentPathInfo.text,
@@ -106,8 +114,13 @@ export function* generateJsonPathCompletionImports(
       for (let i = 0; i < componentCandidates.length; i++) {
         const candidate = componentCandidates[i]!
         const importName = getUsingComponentImportName(componentIndex, i)
+        const application = options.sfc.application
+        const inherited = !options.sfc.json?.usingComponents?.has(componentName)
         const importPath =
-          getResolvedImportPath(options.fileName, candidate) ?? candidate.text
+          getResolvedImportPath(options.fileName, candidate) ??
+          (inherited && application && candidate.text.startsWith('.')
+            ? path.resolve(path.dirname(application.fileName), candidate.text)
+            : candidate.text)
         yield `import ${importName} from ${JSON.stringify(importPath)}${newLine}`
       }
     }
@@ -142,9 +155,12 @@ export function* generateJsonPathCompletionImports(
 
 /** Keep source registrations intact, but import each actual type source once. */
 function getComponentCandidates(options: ScriptCodegenOptions) {
-  const usingComponents = options.sfc.json?.usingComponents
+  const usingComponents =
+    options.sfc.usingComponents ?? options.sfc.json?.usingComponents
   if (!usingComponents) return
-  const resolved = options.sfc.json?.resolvedUsingComponents?.result
+  const resolved =
+    options.sfc.resolvedUsingComponents?.result ??
+    options.sfc.json?.resolvedUsingComponents?.result
   return new Map(
     [...usingComponents].map(([name, paths]) => {
       const candidates = new Map<string, ResolvedUsingComponentInfo>()

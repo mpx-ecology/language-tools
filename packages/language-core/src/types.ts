@@ -174,6 +174,10 @@ export type SfcJsonBlockResolvedPages = {
 }
 
 export interface Sfc {
+  /** Registered JSON components visible to this file; local entries override application entries. */
+  usingComponents?: SfcJsonBlockUsingComponents
+  resolvedUsingComponents?: SfcJsonBlockResolvedUsingComponents
+  application?: { fileName: string; json: NonNullable<Sfc['json']> }
   content: string
   comments: string[]
   template:

@@ -1,0 +1,17 @@
+<template>
+  <!-- ✅ 标签内应补全 React Native ViewProps，包括 onLayout / testID。 -->
+  <NativeView  />
+</template>
+
+<script setup lang="ts">
+import { View, type ViewProps } from 'react-native'
+
+defineOptions({ components: { NativeView: View } })
+const handleFooterLayout: NonNullable<ViewProps['onLayout']> = event => {
+  const height: number = event.nativeEvent.layout.height
+  return height
+}
+const wrongHandler = (event: string) => event
+
+defineExpose({ handleFooterLayout, wrongHandler })
+</script>

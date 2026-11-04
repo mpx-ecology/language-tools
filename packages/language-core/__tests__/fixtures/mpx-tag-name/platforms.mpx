@@ -1,0 +1,14 @@
+<template>
+  <view mpxTagName@swan="input" maxlength@swan="{{ 'wrong' }}" />
+  <view mpxTagName@ios|android="tag-panel" title@ios="{{ 123 }}" />
+  <view mpxTagName="input" mpxTagName@swan="tag-panel" maxlength="{{ 'wrong' }}" />
+  <view mpxTagName="{{ notAnExpression }}" />
+  <view mpxTagName="" />
+  <view mpxTagName@unknown="tag-panel" />
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script name="json">
+export default { usingComponents: { 'tag-panel': './panel.mpx' } }
+</script>

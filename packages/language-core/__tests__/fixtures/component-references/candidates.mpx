@@ -1,0 +1,16 @@
+<template>
+  <candidate-panel></candidate-panel>
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script name="json">
+const components = {}
+if (__mpx_mode__ === 'ali') {
+  components['candidate-panel'] = './panel.ali.mpx'
+} else {
+  components['candidate-panel'] = './panel.mpx?root=one'
+  components['candidate-panel'] = './panel.mpx?root=two'
+}
+module.exports = { usingComponents: components }
+</script>

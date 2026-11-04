@@ -7,10 +7,14 @@ export * from './types'
 export * from './utils/parseSfc'
 export * from './utils/shared'
 export * from './utils/formatUsingComponentsPath'
+export * from './utils/componentReferences'
 export * from './utils/ts'
 export * from './utils/templateDiagnostics'
+export * from './utils/instanceFieldDiagnostics'
 export * from './virtualFile/mpxFile'
 
 export { tsCodegen } from './plugins/mpx-tsx'
 
 export * from '@volar/language-core'
+
+export * from './codegen/template/tagIdentity'

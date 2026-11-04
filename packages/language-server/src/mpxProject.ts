@@ -77,6 +77,7 @@ export function createMpxProject(
     commandLine.options,
     commandLine.mpxOptions,
     (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
+    uriConverter.asUri,
   )
   return {
     languagePlugins: [withMpxJsonServiceScripts(languagePlugin, jsonOnly)],

@@ -7,6 +7,9 @@ import type {
   MpxLanguagePluginReturn,
 } from './types'
 import * as CompilerDOM from '@vue/compiler-dom'
+import * as path from 'path-browserify'
+import { resolveApplication } from './utils/resolveApplication'
+import { createUsingComponentsPathResolver } from './utils/formatUsingComponentsPath'
 import { LanguagePlugin, forEachEmbeddedCode } from '@volar/language-core'
 import { MpxVirtualCode } from './virtualFile/mpxFile'
 import { createPlugins } from './plugins'
@@ -61,6 +64,7 @@ export function createMpxLanguagePlugin<T>(
   compilerOptions: ts.CompilerOptions,
   mpxCompilerOptions: MpxCompilerOptions,
   asFileName: (scriptId: T) => string,
+  asScriptId?: (fileName: string) => T,
 ): LanguagePlugin<T, MpxVirtualCode> & {
   getExternalFilesVersion(
     fileName?: string,
@@ -76,6 +80,7 @@ export function createMpxLanguagePlugin<T>(
     mpxCompilerOptions,
   }
   const plugins = createPlugins(pluginContext)
+  const resolveComponent = createUsingComponentsPathResolver(compilerOptions)
   const fileRegistry = getMpxFileRegistry(
     getFileRegistryKey(compilerOptions, mpxCompilerOptions, plugins),
     mpxCompilerOptions.plugins,
@@ -86,6 +91,14 @@ export function createMpxLanguagePlugin<T>(
       const files = fileName
         ? [fileRegistry.get(fileName)].filter(code => !!code)
         : [...fileRegistry.values()]
+      if (fileName) {
+        const application = files[0]?.sfc.application
+        const applicationCode =
+          application && fileRegistry.get(application.fileName)
+        // Global registrations affect the consuming page's generated imports.
+        // Refresh their owner before reading the page's dependency version.
+        if (applicationCode) files.unshift(applicationCode)
+      }
       return files
         .map(code => {
           const version = code.getExternalDependencyVersion()
@@ -104,12 +117,13 @@ export function createMpxLanguagePlugin<T>(
         }
       }
     },
-    createVirtualCode(scriptId, languageId, snapshot) {
+    createVirtualCode(scriptId, languageId, snapshot, ctx) {
       const fileName = asFileName(scriptId)
       if (plugins.some(plugin => plugin.isValidFile?.(fileName, languageId))) {
         const code = fileRegistry.get(fileName)
         if (code) {
           code.update(snapshot)
+          updateApplication(scriptId, code, ctx)
           return code
         } else {
           const code = new MpxVirtualCode(
@@ -121,12 +135,14 @@ export function createMpxLanguagePlugin<T>(
             ts,
           )
           fileRegistry.set(fileName, code)
+          updateApplication(scriptId, code, ctx)
           return code
         }
       }
     },
-    updateVirtualCode(_fileId, code, snapshot) {
+    updateVirtualCode(scriptId, code, snapshot, ctx) {
       code.update(snapshot)
+      updateApplication(scriptId, code, ctx)
       return code
     },
     typescript: {
@@ -150,6 +166,33 @@ export function createMpxLanguagePlugin<T>(
         }
       },
     },
+  }
+  function updateApplication(
+    scriptId: T,
+    code: MpxVirtualCode,
+    ctx: import('@volar/language-core').CodegenContext<T>,
+  ) {
+    const toId =
+      asScriptId ??
+      (typeof scriptId === 'string'
+        ? (fileName: string) => fileName as T
+        : undefined)
+    if (!toId) return
+    const configPath = compilerOptions.configFilePath
+    code.setApplication(
+      resolveApplication(
+        ts,
+        code.fileName,
+        typeof configPath === 'string' ? path.dirname(configPath) : undefined,
+        fileName => {
+          const source = ctx.getAssociatedScript(toId(fileName))
+          return source?.generated?.root instanceof MpxVirtualCode
+            ? source.generated.root.sfc
+            : undefined
+        },
+        resolveComponent,
+      ),
+    )
   }
 }
 

@@ -1,6 +1,6 @@
 import type * as ts from 'typescript'
 import type { VirtualCode } from '@volar/language-core'
-import type { MpxCompilerOptions, MpxLanguagePluginReturn } from '../types'
+import type { MpxCompilerOptions, MpxLanguagePluginReturn, Sfc } from '../types'
 import { computed, signal } from 'alien-signals'
 import { allCodeFeatures } from '../plugins'
 import { computedSfc } from './computedSfc'
@@ -13,6 +13,7 @@ export class MpxVirtualCode implements VirtualCode {
   private _externalDependencyVersion = signal('')
 
   private _snapshot = signal<ts.IScriptSnapshot>(undefined!)
+  private _application = signal<Sfc['application']>(undefined)
 
   private _mpxSfc = computedMpxSfc(
     this.plugins,
@@ -26,6 +27,7 @@ export class MpxVirtualCode implements VirtualCode {
     this.fileName,
     this._snapshot,
     this._mpxSfc,
+    this._application,
     this._externalDependencyVersion,
   )
   private _embeddedCodes = computedEmbeddedCodes(
@@ -81,6 +83,10 @@ export class MpxVirtualCode implements VirtualCode {
     return this.plugins
       .map(plugin => plugin.getExternalDependencyVersion?.(this.fileName) ?? 0)
       .join(',')
+  }
+
+  setApplication(application: Sfc['application']) {
+    this._application(application)
   }
 
   update(newSnapshot: ts.IScriptSnapshot) {

@@ -2967,6 +2967,10 @@ const data: html.HTMLDataV1 = {
   ],
   globalAttributes: [
     {
+      name: 'mpxTagName',
+      description: '编译时替换节点标签名；支持 @平台 条件。值使用静态标签名。',
+    },
+    {
       name: 'enable-text-pass-through',
       description: {
         kind: 'markdown',

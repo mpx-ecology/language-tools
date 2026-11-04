@@ -1,4 +1,5 @@
 import path from 'node:path'
+import * as ts from 'typescript'
 import type { LanguageServiceContext } from '@volar/language-service'
 import type {
   Hover,
@@ -15,6 +16,9 @@ import {
 import { create as createTemplateLinks } from '../src/plugins/mpx-sfc-template-links'
 import { create as createComponentDefinition } from '../src/plugins/mpx-component-definition'
 import { create as createJsonLinks } from '../src/plugins/mpx-sfc-json-links'
+import { create as createTemplate } from '../src/plugins/mpx-sfc-template'
+import { getComponentProps } from '../../typescript-plugin/src/requests/getComponentProps'
+import type { IRequests } from '../../typescript-plugin/src/requests'
 import { componentTargetsHover } from '../src/utils/componentNavigation'
 
 const fixtureRoot = path.resolve(
@@ -63,6 +67,47 @@ const targetNames = (definitions: unknown) =>
     .sort()
 
 describe('platform component forward navigation', () => {
+  it('hovers source attributes with every platform type and declaration source', async () => {
+    const { service, context, template } = setup()
+    Object.assign(context, {
+      env: { workspaceFolders: [], getConfiguration: async () => undefined },
+      project: { mpx: {} },
+    })
+    const request = {
+      typescript: ts,
+      language: service.language,
+      languageService: service.languageService,
+      languageServiceHost: service.languageServiceHost,
+      isTsPlugin: false,
+      getFileId: (file: string) => file,
+    }
+    const plugin = createTemplate(
+      () =>
+        ({
+          getComponentProps: async (file, tag) =>
+            getComponentProps.call(request, file, tag),
+        }) as IRequests,
+    ).create(context)
+    const hover = await plugin.provideHover!(
+      template,
+      template.positionAt(template.getText().indexOf('value=') + 2),
+      token,
+    )
+    const text = JSON.stringify(hover?.contents)
+    for (const type of ['string', 'number', 'false', 'true'])
+      expect(text).toContain(type)
+    expect(text).not.toContain('__VLS_SelfComponent')
+    const tagHover = await createTemplateLinks().create(context).provideHover!(
+      template,
+      template.positionAt(template.getText().indexOf('demo-panel') + 1),
+      token,
+    )
+    expectRealFileLinks(tagHover as Hover, [
+      'panel.mpx',
+      'panel.ios.mpx',
+      'panel.ali.mpx',
+    ])
+  })
   it.each([
     ['template links', createTemplateLinks],
     ['component definitions', createComponentDefinition],

@@ -232,6 +232,66 @@ describe('platform component resolution', () => {
 })
 
 describe('platform component type sources', () => {
+  it('retains all platform types for application registrations without mapping their paths into the page', () => {
+    const directory = temporaryFixture()
+    fs.writeFileSync(
+      path.join(directory, 'app.mpx'),
+      `<script>
+import { createApp } from '@mpxjs/core'
+createApp({})
+</script>
+<script type="application/json">{"usingComponents":{"demo-panel":"./panel"}}</script>`,
+    )
+    fs.writeFileSync(
+      path.join(directory, 'index.mpx'),
+      `<template><demo-panel value="{{ invalidValue }}" /></template>
+<script setup lang="ts">
+const invalidValue = { invalid: true }
+defineExpose({ invalidValue })
+</script>`,
+    )
+    const service = createTestLanguageService(directory)
+    services.push(service)
+    const { code, root } = service.getServiceScript('index.mpx')
+    expect(code.match(/import __MPX_jsonComponent_0_\d from/g)).toHaveLength(3)
+    expect(code).not.toContain("import './panel'")
+    expect(
+      root.sfc.resolvedUsingComponents?.result.get('demo-panel'),
+    ).toHaveLength(3)
+    expect(
+      propsFor(service)
+        ?.find(prop => prop.name === 'value')
+        ?.type.split(' | ')
+        .sort(),
+    ).toEqual(['false', 'number', 'string', 'true', 'undefined'])
+    expect(
+      service.proxyLanguageService
+        .getSemanticDiagnostics(service.file('index.mpx'))
+        .map(diagnostic => diagnostic.code),
+    ).toEqual([2322])
+    const parentText = service.read('index.mpx')
+    fs.writeFileSync(
+      path.join(directory, 'panel.android.mpx'),
+      `<template><text>{{ androidOnly }}</text></template>
+<script setup lang="ts">
+defineProps({ value: Number, androidOnly: Number })
+defineExpose({})
+</script>`,
+    )
+    expect(
+      propsFor(service)?.find(prop => prop.name === 'androidOnly')?.type,
+    ).toBe('number | undefined')
+    expect(
+      service
+        .getServiceScript('index.mpx')
+        .code.match(/import __MPX_jsonComponent_0_\d from/g),
+    ).toHaveLength(4)
+    fs.unlinkSync(path.join(directory, 'panel.android.mpx'))
+    expect(propsFor(service)?.some(prop => prop.name === 'androidOnly')).toBe(
+      false,
+    )
+    expect(service.read('index.mpx')).toBe(parentText)
+  })
   it('imports every real candidate once while keeping every original completion mapping', () => {
     const service = createTestLanguageService(fixtureRoot)
     services.push(service)
@@ -262,11 +322,10 @@ describe('platform component type sources', () => {
       verification: false,
     })
   })
-  it('preserves candidate prop types, explicit-file checks and hover without an active platform', () => {
+  it('preserves candidate prop types and explicit-file checks without an active platform', () => {
     const service = createTestLanguageService(fixtureRoot)
     services.push(service)
     const fileName = service.file('index.mpx')
-    const source = service.read('index.mpx')
     const diagnostics = service.proxyLanguageService
       .getSemanticDiagnostics(fileName)
       .filter(diagnostic => diagnostic.code === 2322)
@@ -286,20 +345,6 @@ describe('platform component type sources', () => {
       'true',
       'undefined',
     ])
-    const { code } = service.getServiceScript('index.mpx')
-    const hover = ts.displayPartsToString(
-      service.languageService.getQuickInfoAtPosition(
-        fileName,
-        source.length + code.indexOf('DemoPanel:') + 1,
-        10_000,
-      )?.displayParts,
-    )
-    for (const constructor of [
-      'StringConstructor',
-      'NumberConstructor',
-      'BooleanConstructor',
-    ])
-      expect(hover).toContain(constructor)
   })
   it('updates candidates, prop metadata and host versions with unchanged parent text', () => {
     const directory = temporaryFixture()

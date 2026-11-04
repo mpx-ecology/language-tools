@@ -130,7 +130,9 @@ export function componentNavigationRanges(
     }
   }
   if (sfc.template) {
-    const components = sfc.json?.resolvedUsingComponents?.result
+    const components =
+      sfc.resolvedUsingComponents?.result ??
+      sfc.json?.resolvedUsingComponents?.result
     const tags =
       tsCodegen.get(sfc)?.getGeneratedTemplate()?.templateNodeTags ?? []
     for (const tag of tags) {

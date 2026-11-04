@@ -14,11 +14,24 @@ const plugin: MpxLanguagePlugin = () => {
       }
       if (sfc.scriptSetup) {
         names.push({ id: 'scriptsetup_raw', lang: sfc.scriptSetup.lang })
+        names.push({
+          id: 'scriptsetup_diagnostics',
+          lang: 'mpx-instance-fields',
+        })
       }
       return names
     },
 
     resolveEmbeddedCode(_fileName, sfc, embeddedFile) {
+      if (embeddedFile.id === 'scriptsetup_diagnostics' && sfc.scriptSetup) {
+        embeddedFile.content.push([
+          sfc.scriptSetup.content,
+          'scriptSetup',
+          0,
+          { verification: true },
+        ])
+        return
+      }
       const script =
         embeddedFile.id === 'script_raw'
           ? sfc.script

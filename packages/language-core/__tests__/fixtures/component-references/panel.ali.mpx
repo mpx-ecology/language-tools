@@ -1,0 +1,5 @@
+<template><view /></template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script type="application/json">{ "component": true }</script>
