@@ -1,0 +1,12 @@
+<script name="json">
+module.exports = {
+  // ❌ 预期 schema warning：component 应为 boolean，只标记 'yes'。
+  component: 'yes',
+  // ❌ 预期 schema warning：枚举应为 black / white。
+  navigationBarTextStyle: 'blue',
+  // ❌ 预期 schema warning：标题应为 string，只标记 42。
+  navigationBarTitleText: 42,
+  // ❌ 预期 schema warning：usingComponents 应为 object。
+  usingComponents: [],
+}
+</script>

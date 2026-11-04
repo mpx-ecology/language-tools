@@ -1,0 +1,13 @@
+<script name="json">
+// ✅ 在对象内空白行触发补全：component、usingComponents、导航栏配置等。
+// ✅ component 悬浮显示 boolean、中文说明与文档链接。
+// ✅ navigationBarTextStyle 的字符串内补全 black / white。
+const config = {
+  component: true,
+  navigationBarTitleText: '配置类型提示',
+  navigationBarTextStyle: 'white',
+  // ✅ 未知平台/构建字段允许保留，JS 推断仍为 { title: string }。
+  customBuildOptions: { title: '扩展配置' },
+}
+module.exports = config
+</script>

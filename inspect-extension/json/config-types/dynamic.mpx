@@ -1,0 +1,11 @@
+<script name="json">
+const mode = 'wx'
+const title = '动态配置'
+// ✅ 条件表达式两支对象均有字段补全，未知平台字段不报错。
+module.exports = mode === 'wx' ? {
+  navigationBarTitleText: title,
+  component: false,
+} : {
+  transparentTitle: 'always',
+}
+</script>
