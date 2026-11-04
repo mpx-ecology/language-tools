@@ -1,0 +1,28 @@
+<template>
+  <demo-panel value="{{ numeric }}"></demo-panel>
+  <!-- Valid across the available component candidates. -->
+  <demo-panel value="bad" />
+  <demo-panel value="{{ true }}" />
+  <!-- Intentional error: the object matches none of the candidate value types. -->
+  <demo-panel value="{{ invalidValue }}" />
+  <explicit-panel value="{{ numeric }}" />
+  <!-- Intentional error: this explicit file accepts a number only. -->
+  <explicit-panel value="bad" />
+  <only-ios value="{{ numeric }}" />
+</template>
+<script setup lang="ts">
+const numeric = 42
+const invalidValue = { invalid: true }
+defineExpose({ numeric, invalidValue })
+</script>
+<script name="json">
+const components = { 'demo-panel': './panel' }
+if (__mpx_mode__ === 'ali') components['demo-panel'] = '@components/panel.mpx?root=demo'
+module.exports = {
+  usingComponents: {
+    ...components,
+    'explicit-panel': './panel.ios.mpx?mode=ali&env=other',
+    'only-ios': './only-ios'
+  }
+}
+</script>

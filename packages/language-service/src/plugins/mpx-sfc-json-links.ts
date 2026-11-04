@@ -1,9 +1,15 @@
 import type * as vscode from 'vscode-languageserver-protocol'
 import type { LanguageServicePlugin } from '@volar/language-service'
 import { URI } from 'vscode-uri'
-import { MpxVirtualCode, type UsingComponentInfo } from '@mpxjs/language-core'
+import { MpxVirtualCode } from '@mpxjs/language-core'
+import {
+  componentFileName,
+  componentTargetsHover,
+  jsonPathRange,
+  jsonPathTargets,
+} from '../utils/componentNavigation'
 import { MpxDiagnosticCode } from '@mpxjs/language-shared'
-import { isMpPluginComponentPath } from '../utils'
+import { getMpxSourceScript } from '../utils/templateCodegenHelper'
 
 export function create(): LanguageServicePlugin {
   return {
@@ -11,6 +17,7 @@ export function create(): LanguageServicePlugin {
 
     capabilities: {
       documentLinkProvider: {},
+      hoverProvider: true,
       diagnosticProvider: {
         interFileDependencies: false,
         workspaceDiagnostics: false,
@@ -18,126 +25,72 @@ export function create(): LanguageServicePlugin {
     },
 
     create(context) {
+      function getRoot(rawUri: string) {
+        const decoded = context.decodeEmbeddedDocumentUri(URI.parse(rawUri))
+        if (!decoded || !/^json_(js|json)$/.test(decoded[1])) return
+        const root = getMpxSourceScript(context, decoded[0])?.generated?.root
+        return root instanceof MpxVirtualCode && root.sfc.json
+          ? root
+          : undefined
+      }
       return {
-        async provideDocumentLinks(document) {
-          const uri = URI.parse(document.uri)
-          const decoded = context.decodeEmbeddedDocumentUri(uri)
-          if (!decoded) {
-            return
-          }
-          const [documentUri, embeddedCodeId] = decoded
-          if (!/json_(js|json)/.test(embeddedCodeId)) {
-            return
-          }
-          const sourceScript = context.language.scripts.get(documentUri)
-          const root = sourceScript?.generated?.root
-          if (!(root instanceof MpxVirtualCode) || !root.sfc.json) {
-            return
-          }
+        provideDocumentLinks(document) {
+          const root = getRoot(document.uri)
+          if (!root?.sfc.json) return
+          // Overlapping DocumentLinks open just one target. Multi-target paths
+          // use the definition provider so the editor can show its native Peek UI.
+          return jsonPathTargets(document, root.sfc.json)
+            .filter(group => group.files.length === 1)
+            .map(group => ({
+              range: group.range,
+              target: URI.file(group.files[0]!).toString(),
+              tooltip: `${group.title}：${componentFileName(group.files[0]!)}`,
+            }))
+        },
 
-          const result: vscode.DocumentLink[] = []
-          const { result: resolvedUsingComponents } =
-            (await root.sfc.json.resolvedUsingComponents) || {}
-          const { result: resolvedPages } =
-            (await root.sfc.json.resolvedPages) || {}
-
-          if (resolvedUsingComponents?.size) {
-            for (const [_, componentsArray] of resolvedUsingComponents) {
-              for (const info of componentsArray) {
-                const { text: componentPath, realFilename: targetFilePath } =
-                  info
-                if (!targetFilePath) {
-                  continue
-                }
-                if (isMpPluginComponentPath(componentPath)) {
-                  // Fix #70 plugin 组件路径不处理
-                  continue
-                }
-                result.push({
-                  range: pathRange(document, info),
-                  // fix: 兼容 Windows 路径协议 eg: file:///d:/{you_path}/list.mpx
-                  target: URI.file(targetFilePath).toString(),
-                  tooltip: `自定义组件：${componentPath}`,
-                })
-              }
+        provideHover(document, position) {
+          const root = getRoot(document.uri)
+          if (!root?.sfc.json) return
+          const offset = document.offsetAt(position)
+          for (const group of jsonPathTargets(document, root.sfc.json)) {
+            if (
+              group.files.length > 1 &&
+              offset >= document.offsetAt(group.range.start) &&
+              offset <= document.offsetAt(group.range.end)
+            ) {
+              return componentTargetsHover(
+                group.range,
+                group.files,
+                group.title,
+              )
             }
           }
-
-          if (resolvedPages?.length) {
-            for (const page of resolvedPages) {
-              const { text: pagePath, realFilename: targetFilePath } = page
-              if (!targetFilePath) {
-                continue
-              }
-              result.push({
-                range: pathRange(document, page),
-                target: URI.file(targetFilePath).toString(),
-                tooltip: `页面路径：${pagePath}`,
-              })
-            }
-          }
-
-          return result
         },
 
         async provideDiagnostics(document) {
-          const uri = URI.parse(document.uri)
-          const decoded = context.decodeEmbeddedDocumentUri(uri)
-          if (!decoded) {
-            return
-          }
-          const [documentUri, embeddedCodeId] = decoded
-          if (!/json_(js|json)/.test(embeddedCodeId)) {
-            return
-          }
-          const sourceScript = context.language.scripts.get(documentUri)
-          const root = sourceScript?.generated?.root
-          if (!(root instanceof MpxVirtualCode) || !root.sfc.json) {
-            return
-          }
-
+          const root = getRoot(document.uri)
+          if (!root?.sfc.json) return
           const diagnostics: vscode.Diagnostic[] = []
-
           const { errors: resolvedUsingComponentsErrors = [] } =
             (await root.sfc.json.resolvedUsingComponents) || {}
           const { errors: resolvedPagesErrors = [] } =
             (await root.sfc.json.resolvedPages) || {}
 
-          if (
-            !resolvedUsingComponentsErrors?.length &&
-            !resolvedPagesErrors?.length
-          ) {
-            return []
-          }
-
-          // 收集路径错误
           for (const info of [
             ...resolvedUsingComponentsErrors,
             ...resolvedPagesErrors,
           ]) {
             diagnostics.push({
-              range: pathRange(document, info),
+              range: jsonPathRange(document, info),
               severity: 1 satisfies typeof vscode.DiagnosticSeverity.Error,
               code: MpxDiagnosticCode.JsonPathNotFound,
               source: 'mpx-json',
               message: `找不到对应路径文件：'${info.text}'，请检查文件路径是否正确。`,
             })
           }
-
           return diagnostics
         },
       }
     },
   }
-}
-
-function pathRange(
-  document: import('vscode-languageserver-textdocument').TextDocument,
-  info: UsingComponentInfo,
-) {
-  const [start, end] = info.sourceRange ?? [
-    info.offset + 1,
-    info.offset + 1 + info.text.length,
-  ]
-  return { start: document.positionAt(start), end: document.positionAt(end) }
 }

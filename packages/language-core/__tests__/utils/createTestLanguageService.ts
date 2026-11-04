@@ -9,6 +9,7 @@ import {
   MpxVirtualCode,
   createMpxLanguagePlugin,
   createParsedCommandLine,
+  decorateMpxLanguageServiceHost,
   generateGlobalTypes,
   getGlobalTypesFileName,
   nativeComponentsTypesContents,
@@ -88,11 +89,16 @@ export function createTestLanguageService(
     id => id,
   )
 
+  const scriptRegistry = new Map<string, SourceScript<string>>()
   const associationVersions = new Map<string, number>()
   const language: Language<string> = createLanguage(
     [languagePlugin],
-    new Map<string, SourceScript<string>>(),
+    scriptRegistry,
     id => {
+      languagePlugin.getExternalFilesVersion(id, fileName => {
+        const source = scriptRegistry.get(fileName)
+        if (source) source.isAssociationDirty = true
+      })
       const snapshot = getSnapshot(id)
       if (snapshot) language.scripts.set(id, snapshot, getLanguageId(id))
       else {
@@ -162,6 +168,10 @@ export function createTestLanguageService(
   }
 
   decorateLanguageServiceHost(ts, language, host)
+  decorateMpxLanguageServiceHost(host, languagePlugin, fileName => {
+    const source = language.scripts.get(fileName)
+    if (source) source.isAssociationDirty = true
+  })
   const languageService = ts.createLanguageService(host)
   const { initialize, proxy } = createProxyLanguageService(languageService)
   initialize(language)

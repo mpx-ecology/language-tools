@@ -4,6 +4,20 @@
 
 反馈尚未逐项在用户环境复现。截图展示的诊断、颜色或跳转结果属于现象记录，不等于已确认的插件缺陷；截图中的代码、文字和 AI 解释均作为分析材料。
 
+## 代码审查与合并（2026-11-04）
+
+本轮审查了 13 个待合并 PR。9 个代码 PR 已完成审查与集成后合并；#160、#161、#165 因可复现的边界缺陷保留，已在对应 PR 提交行内 review。规范与进度由 #131 本次同步。此前状态表保留为历史快照，不代表这些 PR 当前仍待合并。
+
+已合并：[#157](https://github.com/mpx-ecology/language-tools/pull/157)、[#158](https://github.com/mpx-ecology/language-tools/pull/158)、[#159](https://github.com/mpx-ecology/language-tools/pull/159)、[#162](https://github.com/mpx-ecology/language-tools/pull/162)、[#163](https://github.com/mpx-ecology/language-tools/pull/163)、[#164](https://github.com/mpx-ecology/language-tools/pull/164)、[#166](https://github.com/mpx-ecology/language-tools/pull/166)、[#167](https://github.com/mpx-ecology/language-tools/pull/167)、[#169](https://github.com/mpx-ecology/language-tools/pull/169)。完整集成与验证记录见[优化计划第 3.6 节](../plans/2026-10-30-language-tools-optimization.md#36-审查与合并收尾2026-11-04)。
+
+| PR                                                             | 审查结论                                                          | 证据                                                                                                      |
+| -------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [#160](https://github.com/mpx-ecology/language-tools/pull/160) | P2：后续导出或属性写入覆盖配置后，仍对已失效值报 warning          | [行内 review 与复现](https://github.com/mpx-ecology/language-tools/pull/160#pullrequestreview-5765278056) |
+| [#161](https://github.com/mpx-ecology/language-tools/pull/161) | P2：早期 Hooks 返回值被后续注册替代后，仍误报 data 保留字段       | [行内 review 与复现](https://github.com/mpx-ecology/language-tools/pull/161#pullrequestreview-5765278052) |
+| [#165](https://github.com/mpx-ecology/language-tools/pull/165) | P2：card.mpx 与 card/index.mpx 被折叠为同一身份，隐藏独立组件候选 | [行内 review 与复现](https://github.com/mpx-ecology/language-tools/pull/165#pullrequestreview-5765278087) |
+
+最终代码集成的 857 项测试、构建、lint 与扩展打包通过，1 项性能基准默认跳过。本轮未重跑 F5 或上传图片，既有图片和待补项保留原状态；合并与发布分别跟踪。
+
 ## 修复进度（2026-11-03）
 
 归档与跟踪基础文档已通过 [PR #121](https://github.com/mpx-ecology/language-tools/pull/121)、[PR #123](https://github.com/mpx-ecology/language-tools/pull/123) 合并。本轮更新集中在 [PR #131](https://github.com/mpx-ecology/language-tools/pull/131)；各项 Issue、分支、PR、负责会话及验收边界见[优化计划的进度表](../plans/2026-10-30-language-tools-optimization.md#31-修复进度与并行安排2026-10-30)。保留 T01–T18 编号，原 T18 按用户更正合并到 T10 / T11，共 17 个独立工作项。

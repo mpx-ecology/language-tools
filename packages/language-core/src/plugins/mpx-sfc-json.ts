@@ -18,6 +18,13 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
     usingComponents: SfcJsonBlockUsingComponents,
     uri: string,
   ) {
+    resolveComponentPath.retain(
+      uri,
+      'components',
+      [...usingComponents.values()].flatMap(infos =>
+        infos.map(info => info.text),
+      ),
+    )
     const result: SfcJsonBlockResolvedUsingComponents['result'] = new Map()
     const errors: SfcJsonBlockResolvedUsingComponents['errors'] = []
 
@@ -27,20 +34,19 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
           continue
         }
 
-        const { result: resolvedFilename, error } =
-          resolveComponentPath(info.text, uri) || {}
+        const { candidates, error } =
+          resolveComponentPath(info.text, uri, 'components') || {}
 
         // 路径错误收集
         if (error) {
           errors.push(info)
-        } else if (resolvedFilename) {
+        } else if (candidates?.length) {
           if (!result.has(name)) {
             result.set(name, [])
           }
-          result.get(name)!.push({
-            ...info,
-            realFilename: resolvedFilename,
-          })
+          result
+            .get(name)!
+            .push(...candidates.map(candidate => ({ ...info, ...candidate })))
         }
       }
     }
@@ -49,6 +55,11 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
   }
 
   function resolvePagesPath(pages: SfcJsonBlockPages, uri: string) {
+    resolveComponentPath.retain(
+      uri,
+      'pages',
+      pages.map(info => info.text),
+    )
     const result: SfcJsonBlockResolvedPages['result'] = []
     const errors: SfcJsonBlockResolvedPages['errors'] = []
 
@@ -57,16 +68,13 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
         continue
       }
 
-      const { result: resolvedFilename, error } =
-        resolveComponentPath(info.text, uri) || {}
+      const { candidates, error } =
+        resolveComponentPath(info.text, uri, 'pages') || {}
 
       if (error) {
         errors.push(info)
-      } else if (resolvedFilename) {
-        result.push({
-          ...info,
-          realFilename: resolvedFilename,
-        })
+      } else if (candidates?.length) {
+        result.push(...candidates.map(candidate => ({ ...info, ...candidate })))
       }
     }
 
@@ -75,6 +83,13 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
 
   return {
     name: 'mpx-sfc-json',
+    requiredCompilerOptions: [
+      'baseUrl',
+      'paths',
+      'pathsBasePath',
+      'configFilePath',
+    ],
+    getExternalDependencyVersion: resolveComponentPath.getVersion,
 
     compileSFCJson(lang, json) {
       if (lang === 'js' || lang === 'json') {

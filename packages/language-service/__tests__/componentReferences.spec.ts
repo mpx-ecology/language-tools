@@ -91,7 +91,7 @@ afterAll(() => {
 })
 
 describe('component navigation through real TS and LSP', () => {
-  it('already navigates template tags and JSON paths to the resolved component', async () => {
+  it('navigates template tags and JSON paths to all resolved component files', async () => {
     for (const text of [
       'demo-panel',
       '/demo-panel',
@@ -103,9 +103,9 @@ describe('component navigation through real TS and LSP', () => {
         uri('first.mpx'),
         position('first.mpx', text),
       )
-      expect([...new Set(definitions?.map(d => d.targetUri))]).toEqual([
-        uri('panel.mpx').toString(),
-      ])
+      expect([...new Set(definitions?.map(d => d.targetUri))].sort()).toEqual(
+        [uri('panel.mpx').toString(), uri('panel.ali.mpx').toString()].sort(),
+      )
     }
   })
   it('finds exact template and registration source ranges from the component file', async () => {

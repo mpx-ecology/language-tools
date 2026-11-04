@@ -1,6 +1,8 @@
 # Mpx Language Tools 用户反馈分析与优化计划
 
-初始分析日期：2026-10-30，基线为本仓库 `84c7cb3`、`vscode/package.json` 版本 `1.24.3`。进度更新至 2026-11-04：T01 / T08 / T17 已通过 #130 / #129 / #120 合并，T10 / T11 已通过 #143 合并；T14 未复现运行时缺陷，回归与验收 PR #156 已合并。T13 的通用 JSON JS 语义已通过 #142 合并，配置 Schema 提示继续由 PR #160 跟进，当前已非草稿但 F5 证据仍未交付。尚未完成交付的 11 项实现均已提交 PR，逐项状态、负责会话与依赖见第 3.1 节。归档与跟踪基础文档已通过 [PR #121](https://github.com/mpx-ecology/language-tools/pull/121)、[PR #123](https://github.com/mpx-ecology/language-tools/pull/123) 合并；本轮进度及截图规范集中更新至 [PR #131](https://github.com/mpx-ecology/language-tools/pull/131)。已合并不等于已随版本发布，发布版本尚未在本文登记。
+最新代码审查与合并状态见[第 3.6 节](#36-审查与合并收尾2026-11-04)。以下初始判断、估算和前期协调进展保留历史时间，不作为当前待合并清单。
+
+历史进度快照（本轮审查前）：初始分析日期：2026-10-30，基线为本仓库 `84c7cb3`、`vscode/package.json` 版本 `1.24.3`。进度更新至 2026-11-04：T01 / T08 / T17 已通过 #130 / #129 / #120 合并，T10 / T11 已通过 #143 合并；T14 未复现运行时缺陷，回归与验收 PR #156 已合并。T13 的通用 JSON JS 语义已通过 #142 合并，配置 Schema 提示继续由 PR #160 跟进，当前已非草稿但 F5 证据仍未交付。尚未完成交付的 11 项实现均已提交 PR，逐项状态、负责会话与依赖见第 3.1 节。归档与跟踪基础文档已通过 [PR #121](https://github.com/mpx-ecology/language-tools/pull/121)、[PR #123](https://github.com/mpx-ecology/language-tools/pull/123) 合并；本轮进度及截图规范集中更新至 [PR #131](https://github.com/mpx-ecology/language-tools/pull/131)。已合并不等于已随版本发布，发布版本尚未在本文登记。
 
 本轮原始 10 条反馈及 8 张截图索引见[反馈归档](../feedback/2026-10-30-user-feedback.md)。保留 T01–T18 跟踪编号。2026-11-02 用户更正 U06，原 T18“CSS 属性补全”合并至 T10 / T11，形成 17 个独立工作项；T18 只保留合并记录，不另开会话或计入成本。反馈中重复的补全、自动导入和 class 能力只计一次。
 
@@ -180,6 +182,46 @@ T02 的同一场景文件逐字节一致，主题、字号与检查位置保持�
 | T16 保留名诊断；[#161](https://github.com/mpx-ecology/language-tools/pull/161)                                                                   | 2026-11-03 21:48          | `48b7214550a1bc7a71a2fd71bdec44dc2ec6c980` 已合入 main `e40ca6a`；155 项专项、669 项全量及 build / lint 通过，当前 head 的 Test / autofix 成功，无合并冲突、无未解决 review thread。          | capture heads：历史证据保留原归属；待同场景截图及附件；新 head 未执行 F5；#168 / #169 保持独立，未改动。                                                     | 证据未完整交付，仍需自动附件上传/正文嵌入及至少一名评审批准，不标记完成。                       |
 | T13 配置 Schema；[#160](https://github.com/mpx-ecology/language-tools/pull/160)                                                                  | 2026-11-03 22:26          | `53212df4738f571aa07e0f008ca689d0c59ed06e` 当前非草稿，Test / autofix 成功，无合并冲突；此处更正早期 Draft 快照，保留第 3.3 节历史记录。                                                      | 已定位正确基线宿主并修正临时项目初始化；适用截图工具仍未取得可信前后图。                                                                                     | 继续合法窗口截图、自动附件上传及正文交付；Ready 不等于完成，仍需评审批准。                      |
 | JSON JS 历史证据；[#142](https://github.com/mpx-ecology/language-tools/pull/142)                                                                 | 2026-11-03 22:26          | PR 已合并，head `d0e23625384b26e244726e6fbbe03feced3c93a7`；只补历史证据。                                                                                                                    | before `60ebb13` / after `d0e2362` 的同场景 JPEG 原图已齐并核准，验证局部定义及 JSDoc TS2322；附带 TS6133 已注明，原有四张修复后附件保留。                   | 尚无这两张新图的附件 URL；待自动上传并嵌入 #138 / #142 后再登记完整交付，不改运行时。           |
+
+### 3.6 审查与合并收尾（2026-11-04）
+
+本轮审查了 13 个待合并 PR。9 个代码 PR 已完成审查与集成后合并；#160、#161、#165 因可复现的边界缺陷保留，已在对应 PR 提交行内 review。规范与进度由 #131 本次同步。此前状态表保留为历史快照，不代表这些 PR 当前仍待合并。
+
+本轮最终代码基线为 [main `5a40288`](https://github.com/mpx-ecology/language-tools/commit/5a402885e6f924abf14c26ed126833c9f2eaa68e)；其文件树与已验证的 #167 集成 head `69e9070db09a4f7f4aa70fb69d7b8bf2d870ea71` 一致。
+
+| PR                                                             | 当前结果 | 范围                       |
+| -------------------------------------------------------------- | -------- | -------------------------- |
+| [#157](https://github.com/mpx-ecology/language-tools/pull/157) | 已合并   | 静态 JSON 泛型与嵌套值约束 |
+| [#158](https://github.com/mpx-ecology/language-tools/pull/158) | 已合并   | 实例公开字段重名警告       |
+| [#159](https://github.com/mpx-ecology/language-tools/pull/159) | 已合并   | RN 脚本注册组件类型        |
+| [#162](https://github.com/mpx-ecology/language-tools/pull/162) | 已合并   | wx:ref 公开实例类型        |
+| [#163](https://github.com/mpx-ecology/language-tools/pull/163) | 已合并   | 静态组件消费引用           |
+| [#164](https://github.com/mpx-ecology/language-tools/pull/164) | 已合并   | 应用与类型声明全局组件     |
+| [#166](https://github.com/mpx-ecology/language-tools/pull/166) | 已合并   | mpxTagName 模板身份        |
+| [#167](https://github.com/mpx-ecology/language-tools/pull/167) | 已合并   | 多平台组件文件解析与导航   |
+| [#169](https://github.com/mpx-ecology/language-tools/pull/169) | 已合并   | 统一数字诊断码             |
+
+保留的 3 个 PR：
+
+| PR                                                             | 审查结论                                                          | 证据                                                                                                      |
+| -------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [#160](https://github.com/mpx-ecology/language-tools/pull/160) | P2：后续导出或属性写入覆盖配置后，仍对已失效值报 warning          | [行内 review 与复现](https://github.com/mpx-ecology/language-tools/pull/160#pullrequestreview-5765278056) |
+| [#161](https://github.com/mpx-ecology/language-tools/pull/161) | P2：早期 Hooks 返回值被后续注册替代后，仍误报 data 保留字段       | [行内 review 与复现](https://github.com/mpx-ecology/language-tools/pull/161#pullrequestreview-5765278052) |
+| [#165](https://github.com/mpx-ecology/language-tools/pull/165) | P2：card.mpx 与 card/index.mpx 被折叠为同一身份，隐藏独立组件候选 | [行内 review 与复现](https://github.com/mpx-ecology/language-tools/pull/165#pullrequestreview-5765278087) |
+
+集成验证：
+
+| 命令或操作                                                              | 结果                               | 证据或说明                                                                                                                                                                                          |
+| ----------------------------------------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 平台、导航、全局注册、服务边界与 JSON 源范围专项                        | 通过                               | 最终 #167 集成提交 10 文件、88 项                                                                                                                                                                   |
+| `pnpm build` / `pnpm test` / `pnpm lint` / `pnpm -F mpx-official build` | 通过                               | 857 项测试通过，1 项性能基准默认跳过；构建、lint、扩展打包通过                                                                                                                                      |
+| 最终代码提交的 Test / autofix                                           | 通过                               | [Test](https://github.com/mpx-ecology/language-tools/actions/runs/41807019645)、[autofix](https://github.com/mpx-ecology/language-tools/actions/runs/41807019372)，对应 #167 head 69e9070           |
+| #163 合并时的 autofix                                                   | 失败                               | [基线异常](https://github.com/mpx-ecology/language-tools/actions/runs/41799929790)已按维护者明确授权作单次例外；其 Test 与本地格式检查通过，主线格式修正后 #164 / #166 / #167 的 autofix 均恢复通过 |
+| 本轮 F5 与截图上传                                                      | 未执行（本轮为代码审查与集成验证） | 既有截图保留采集版本，待补项目继续待补，不将代码合并计为图片交付或发布                                                                                                                              |
+
+集成收尾同步了静态 JSON 的数字诊断码断言，保留 RN / 全局注册的覆盖顺序、标签候选诊断去重和实例警告，补齐应用全局组件新增或删除平台文件后的 props 与装饰刷新。旧的单目标导航断言已更新为真实的多目标结果，hover 通过实际模板 provider 验证。
+
+本轮没有更新版本号、changelog 或发布。第 3.3–3.5 节的截图与取证记录继续保留原采集版本；代码合并不将待补图片改为已交付。
 
 ## 4. 分组分析与修复边界
 
