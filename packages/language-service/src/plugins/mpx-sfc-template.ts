@@ -44,6 +44,19 @@ export function create(
 
   let htmlBuiltinData = [html.getDefaultHTMLDataProvider()]
   let extraCustomData: html.IHTMLDataProvider[] = []
+  let attributeAlias: { tag: string; names: string[] } | undefined
+  const builtinProvider: html.IHTMLDataProvider = {
+    ...mpxBuiltinData,
+    getId: () => mpxBuiltinData.getId(),
+    isApplicable: id => mpxBuiltinData.isApplicable(id),
+    provideTags: () => mpxBuiltinData.provideTags(),
+    provideAttributes: tag =>
+      attributeAlias?.tag === tag ? [] : mpxBuiltinData.provideAttributes(tag),
+    provideValues: (tag, attr) =>
+      attributeAlias?.tag === tag
+        ? []
+        : mpxBuiltinData.provideValues(tag, attr),
+  }
 
   const onDidChangeCustomDataListeners = new Set<() => void>()
   const onDidChangeCustomData = (listener: () => void): Disposable => {
@@ -59,7 +72,7 @@ export function create(
     documentSelector: ['html'],
     useDefaultDataProvider: false,
     getCustomData() {
-      return [...extraCustomData, mpxBuiltinData, ...htmlBuiltinData]
+      return [...extraCustomData, builtinProvider, ...htmlBuiltinData]
     },
     onDidChangeCustomData,
     async getFormattingOptions(_document, options, context) {
@@ -112,18 +125,35 @@ export function create(
         mode: 'completion' | 'hover' = 'completion',
         typeComponents: string[] = [],
         applicationComponents?: SfcJsonBlockUsingComponents,
+        alias?: { tag: string; names: string[] },
       ) => {
-        const getAttributes = (componentTag: string) =>
+        attributeAlias = alias
+        const getComponentAttributes = (componentTag: string) =>
           (componentProps?.get(componentTag) ?? [])
             .filter(prop => !prop.isAttribute)
             .map(prop =>
               toAttributeData(
                 prop,
                 mode === 'completion' ||
+                  (alias?.names.length ?? 0) > 1 ||
                   (usingComponents?.get(componentTag)?.length ?? 0) > 1,
               ),
             )
 
+        const getAttributes = (tag: string) =>
+          alias?.tag === tag
+            ? mergeTagAttributes(
+                alias.names.map(name => ({
+                  name,
+                  attributes: [
+                    ...getComponentAttributes(name),
+                    ...(usingComponents?.has(name)
+                      ? []
+                      : mpxBuiltinData.provideAttributes(name)),
+                  ],
+                })),
+              )
+            : getComponentAttributes(tag)
         updateExtraCustomData({
           getId: () => 'mpx-template-custom-json',
           isApplicable: () => true,
@@ -159,6 +189,11 @@ export function create(
                 })
               }
             }
+            if (alias)
+              tags.push({
+                name: alias.tag,
+                attributes: getAttributes(alias.tag),
+              })
             return tags
           },
           provideAttributes: getAttributes,
@@ -179,37 +214,66 @@ export function create(
         const client = getTsClient(context)
         const usingComponents =
           helper?.sfc.usingComponents ?? helper?.sfc.json?.usingComponents
-        const typeComponents =
+        let typeComponents =
           helper && mode === 'completion' && !token?.isCancellationRequested
             ? ((await client?.getComponentNames?.(helper.documentUri.fsPath)) ??
               [])
             : []
         if (!isCustomDataRequestCurrent(updateId, token)) return
         const tagContext = getTagContextAtPosition(document, position)
-        const componentTag = tagContext?.tag
-        const componentProps = new Map<string, ComponentPropInfo[]>()
-        const hasMultipleComponentCandidates =
-          componentTag !== undefined &&
-          (usingComponents?.get(componentTag)?.length ?? 0) > 1
-
+        const identities =
+          helper?.codegen
+            ?.getGeneratedTemplate()
+            ?.templateNodeTags.filter(
+              tag =>
+                tagContext &&
+                (tag.sourceTag?.startTagOffset === tagContext.start + 1 ||
+                  tag.startTagOffset === tagContext.start + 1),
+            ) ?? []
+        const names = identities.length
+          ? [...new Set(identities.map(tag => tag.name))]
+          : tagContext
+            ? [tagContext.tag]
+            : []
+        const alias =
+          tagContext && identities.some(tag => tag.sourceTag)
+            ? { tag: tagContext.tag, names }
+            : undefined
         if (
           helper &&
-          componentTag &&
-          tagContext.isAfterTagName &&
-          (usingComponents?.has(componentTag) ||
-            typeComponents.some(
-              name =>
-                name === componentTag || hyphenateTag(name) === componentTag,
-            )) &&
-          (mode === 'completion' || hasMultipleComponentCandidates) &&
+          mode === 'hover' &&
+          names.length > 1 &&
           !token?.isCancellationRequested
         ) {
-          const props = await client?.getComponentProps(
-            helper.documentUri.fsPath,
-            componentTag,
-          )
-          if (props?.length) {
-            componentProps.set(componentTag, props)
+          typeComponents =
+            (await client?.getComponentNames?.(helper.documentUri.fsPath)) ?? []
+          if (!isCustomDataRequestCurrent(updateId, token)) return
+        }
+        const componentTag = tagContext?.tag
+        const componentProps = new Map<string, ComponentPropInfo[]>()
+
+        for (const name of names) {
+          const hasMultipleComponentCandidates =
+            (usingComponents?.get(name)?.length ?? 0) > 1
+          if (
+            helper &&
+            componentTag &&
+            tagContext.isAfterTagName &&
+            (usingComponents?.has(name) ||
+              typeComponents.some(
+                registered =>
+                  registered === name || hyphenateTag(registered) === name,
+              )) &&
+            (mode === 'completion' ||
+              hasMultipleComponentCandidates ||
+              names.length > 1) &&
+            !token?.isCancellationRequested
+          ) {
+            const props = await client?.getComponentProps(
+              helper.documentUri.fsPath,
+              name,
+            )
+            if (props?.length) componentProps.set(name, props)
           }
         }
 
@@ -223,6 +287,7 @@ export function create(
           mode,
           typeComponents,
           helper?.sfc.application?.json.usingComponents,
+          alias,
         )
         return {
           updateId,
@@ -260,6 +325,23 @@ export function create(
           )
           if (!customData) {
             return
+          }
+          const valueRange = getTagNameValueRange(document, position)
+          if (valueRange) {
+            const names = new Set([
+              ...mpxBuiltinTagsSet,
+              ...(customData.usingComponents?.keys() ?? []),
+              ...customData.typeComponents,
+            ])
+            if (!isCustomDataRequestCurrent(customData.updateId, token)) return
+            return {
+              isIncomplete: false,
+              items: [...names].map(name => ({
+                label: name,
+                kind: 7,
+                textEdit: { range: valueRange, newText: name },
+              })),
+            }
           }
           let htmlComplete = await baseServiceInstance.provideCompletionItems?.(
             document,
@@ -463,6 +545,7 @@ export function create(
     }
     return {
       tag: node.tag,
+      start: node.start,
       attributeCondition,
       // Component props are only needed for attribute completion / hover. Asking
       // tsserver for them while editing the tag name can repeatedly force project
@@ -500,4 +583,85 @@ export function create(
       values: prop.values?.map(name => ({ name })),
     }
   }
+}
+
+function getTagNameValueRange(
+  document: TextDocument,
+  position: vscode.Position,
+) {
+  const offset = document.offsetAt(position)
+  const scanner = html
+    .getLanguageService({ useDefaultDataProvider: false })
+    .createScanner(document.getText())
+  let attribute = ''
+  for (
+    let token = scanner.scan();
+    token !== html.TokenType.EOS;
+    token = scanner.scan()
+  ) {
+    if (scanner.getTokenOffset() > offset) break
+    if (token === html.TokenType.AttributeName)
+      attribute = scanner.getTokenText()
+    if (
+      token === html.TokenType.AttributeValue &&
+      getAtModeBaseName(attribute) === 'mpxTagName'
+    ) {
+      const value = scanner.getTokenText()
+      const quoted = value.startsWith('"') || value.startsWith("'")
+      const start = scanner.getTokenOffset() + (quoted ? 1 : 0)
+      const end =
+        scanner.getTokenEnd() -
+        (quoted && value.length > 1 && value.endsWith(value[0]) ? 1 : 0)
+      if (
+        offset >= start &&
+        offset <= end &&
+        /^[\w:-]*$/.test(document.getText().slice(start, end))
+      ) {
+        return {
+          start: document.positionAt(start),
+          end: document.positionAt(end),
+        }
+      }
+    }
+  }
+}
+
+function mergeTagAttributes(
+  tags: { name: string; attributes: html.IAttributeData[] }[],
+) {
+  if (tags.length === 1) return tags[0].attributes
+  const result = new Map<string, html.IAttributeData>()
+  for (const tag of tags) {
+    for (const attribute of tag.attributes) {
+      const description =
+        typeof attribute.description === 'string'
+          ? attribute.description
+          : attribute.description?.value
+      const previous = result.get(attribute.name)
+      const previousDescription =
+        typeof previous?.description === 'string'
+          ? previous.description
+          : previous?.description?.value
+      result.set(attribute.name, {
+        ...attribute,
+        description: {
+          kind: 'markdown',
+          value: [
+            previousDescription,
+            `**${tag.name}**\n\n${description ?? ''}`,
+          ]
+            .filter(Boolean)
+            .join('\n\n'),
+        },
+        values: [
+          ...new Map(
+            [...(previous?.values ?? []), ...(attribute.values ?? [])].map(
+              value => [value.name, value],
+            ),
+          ).values(),
+        ],
+      })
+    }
+  }
+  return [...result.values()]
 }

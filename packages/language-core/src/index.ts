@@ -15,3 +15,5 @@ export * from './virtualFile/mpxFile'
 export { tsCodegen } from './plugins/mpx-tsx'
 
 export * from '@volar/language-core'
+
+export * from './codegen/template/tagIdentity'

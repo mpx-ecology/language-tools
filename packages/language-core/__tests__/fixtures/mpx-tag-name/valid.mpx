@@ -1,0 +1,13 @@
+<template>
+  <view mpxTagName="input" maxlength="{{ 10 }}" bindinput="handleInput"></view>
+  <view mpxTagName='tag-panel' title="Mpx"></view>
+  <view mpxTagName@swan="input" maxlength@swan="{{ 10 }}" />
+  <view mpxTagName@ios|android="tag-panel" title@ios|android="Mpx" />
+</template>
+<script setup lang="ts">
+function handleInput(event: { detail: { value: string } }) {}
+defineExpose({ handleInput })
+</script>
+<script name="json">
+export default { usingComponents: { 'tag-panel': './panel.mpx' } }
+</script>

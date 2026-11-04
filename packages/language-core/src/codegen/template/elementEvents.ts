@@ -1,7 +1,7 @@
 import type * as ts from 'typescript'
 import type { Code } from '../../types'
 import * as CompilerDOM from '@vue/compiler-dom'
-import { camelize } from '@mpxjs/language-shared'
+import { camelize, getAtModeBaseName } from '@mpxjs/language-shared'
 import { createTsAst, endOfLine, newLine } from '../utils'
 import { wrapWith } from '../utils/wrapWith'
 import type { TemplateCodegenContext } from './context'
@@ -40,7 +40,7 @@ export function* generateElementEvents(
         yield `let ${emitsVar}!: __VLS_ResolveEmits<typeof ${componentOriginalVar}, typeof ${componentCtxVar}.emit>${endOfLine}`
         yield `let ${propsVar}!: __VLS_FunctionalComponentProps<typeof ${componentFunctionalVar}, typeof ${componentVNodeVar}>${endOfLine}`
       }
-      const source = prop.arg?.loc.source ?? 'model-value'
+      const source = getAtModeBaseName(prop.arg?.loc.source ?? 'model-value')
       const start = prop.arg?.loc.start.offset
       let propPrefix = 'on-'
       let emitPrefix = ''
@@ -83,6 +83,7 @@ export function* generateEventArg(
     ...ctx.codeFeatures.navigationWithoutRename,
   }
 
+  name = getAtModeBaseName(name)
   const prefixMatch = name.match(/^(bind|catch):(.+)$/)
   if (prefixMatch) {
     const [, prefix, eventName] = prefixMatch

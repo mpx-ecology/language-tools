@@ -132,7 +132,10 @@ export function createTestLanguageService(
       virtualFiles.has(fileName) || ts.sys.fileExists(fileName),
     readFile,
     readDirectory: ts.sys.readDirectory,
-    directoryExists: ts.sys.directoryExists,
+    directoryExists: directoryName =>
+      [...virtualFiles.keys()].some(file =>
+        file.startsWith(directoryName + path.sep),
+      ) || ts.sys.directoryExists(directoryName),
     getDirectories: ts.sys.getDirectories,
     realpath: ts.sys.realpath,
     getModuleResolutionCache: () => moduleResolutionCache,
@@ -148,6 +151,10 @@ export function createTestLanguageService(
               fileExists: fileName =>
                 virtualFiles.has(fileName) || ts.sys.fileExists(fileName),
               readFile,
+              directoryExists: directoryName =>
+                [...virtualFiles.keys()].some(file =>
+                  file.startsWith(directoryName + path.sep),
+                ) || ts.sys.directoryExists(directoryName),
             },
             moduleResolutionCache,
           ).resolvedModule,
