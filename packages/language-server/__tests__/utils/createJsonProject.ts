@@ -65,6 +65,7 @@ export async function createJsonProject(
   const tsClient = {
     getDocumentHighlights: async () => null,
     getCompletion: async () => undefined,
+    getComponentNames: async () => [],
   } as unknown as NonNullable<
     Parameters<typeof createMpxLanguageServicePlugins>[1]
   >

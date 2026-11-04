@@ -87,7 +87,7 @@ function getCommonLanguageServicePlugins(
     createMpxReservedInstanceDataPlugin(ts),
     createMpxComponentReferencesPlugin(ts),
     createInstanceFieldPlugin(ts),
-    createMpxTemplatePlugin(getTsPluginClient),
+    createMpxTemplatePlugin(getTsPluginClient, ts),
     createMpxTemplateCompilerErrorsPlugin(),
     createMpxTemplateDirectiveCommentsPlugin(),
     createMpxTemplateAutoinsertSpacePlugin(),

@@ -1,0 +1,14 @@
+<template>
+  <!-- 在 collision-ca 末尾触发补全：只应提供 ./collision-card/index.mpx。 -->
+  <!-- 注册前的未知组件提示是故意的；接受后应补为 collision-card 并注册目录组件。 -->
+  <collision-ca />
+  <existing-card />
+</template>
+<script setup>defineExpose({})</script>
+<script type="application/json">
+{
+  "usingComponents": {
+    "existing-card": "./collision-card.mpx"
+  }
+}
+</script>

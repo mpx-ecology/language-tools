@@ -1,0 +1,4 @@
+<template><view>已注册别名组件</view></template>
+<script type="application/json">
+{ "component": true }
+</script>

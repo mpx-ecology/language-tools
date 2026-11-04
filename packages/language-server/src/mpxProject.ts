@@ -88,7 +88,10 @@ export function createMpxProject(
       project: import('@mpxjs/language-service').ProjectContext
       language: import('@mpxjs/language-service').Language
     }) {
-      project.mpx = { compilerOptions: commandLine.mpxOptions }
+      project.mpx = {
+        compilerOptions: commandLine.mpxOptions,
+        typescriptCompilerOptions: commandLine.options,
+      }
       if (project.typescript) {
         const host = project.typescript.languageServiceHost
         const getProjectVersion = host.getProjectVersion?.bind(host)

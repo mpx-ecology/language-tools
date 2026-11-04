@@ -150,6 +150,7 @@ describe('editor project file notifications', () => {
     expect(lifecycle.watchFiles).toHaveBeenCalledWith([
       '**/*.{mpx,js,jsx,cjs,mjs,ts,tsx,cts,mts,json}',
     ])
+    expect(lifecycle.watchFiles).toHaveBeenCalledOnce()
   })
 
   it('refreshes native and ordinary JSON changes without destroying cached projects', async () => {

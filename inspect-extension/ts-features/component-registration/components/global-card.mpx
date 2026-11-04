@@ -1,0 +1,4 @@
+<template><view>已有全局组件</view></template>
+<script type="application/json">
+{ "component": true }
+</script>

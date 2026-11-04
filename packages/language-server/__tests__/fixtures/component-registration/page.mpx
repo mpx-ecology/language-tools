@@ -1,0 +1,9 @@
+<template><demo-card title="Mpx" /></template>
+<script name="json">
+module.exports = {
+  navigationBarTitleText: 'Registration',
+  usingComponents: {
+    'known-alias': '@config/known-card'
+  }
+}
+</script>

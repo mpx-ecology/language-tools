@@ -1,0 +1,7 @@
+<template><view>{{ title }}</view></template>
+<script setup>
+defineProps({ title: String })
+</script>
+<script type="application/json">
+{ "component": true }
+</script>

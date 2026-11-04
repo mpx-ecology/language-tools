@@ -1,0 +1,4 @@
+<template><view>待注册组件</view></template>
+<script type="application/json">
+{ "component": true }
+</script>

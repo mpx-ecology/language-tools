@@ -1,0 +1,14 @@
+<template>
+  <!-- ❌ 故意未注册；✅ 接受 demo-card 后只合并下面的字面量注册表。 -->
+  <demo-card title="JS 字面量" />
+  <registered-card />
+</template>
+<script name="json">
+module.exports = {
+  // ✅ 保留 JS 注释和单引号
+  navigationBarTitleText: 'JS 自动注册',
+  usingComponents: {
+    'registered-card': './components/registered-card.mpx', // ✅ 保留尾逗号
+  },
+}
+</script>

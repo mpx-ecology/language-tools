@@ -1,0 +1,17 @@
+<template>
+  <!-- ✅ 将 demo-card 改为 demo-ca 后接受候选，应补全标签并合并注册；一次撤销还原两处。 -->
+  <!-- ❌ 当前故意未注册 demo-card；接受后应恢复已有组件类型和导航。 -->
+  <demo-card title="自动注册" />
+  <registered-card />
+  <!-- ✅ 全局组件已注册，不应重复写入本地。 -->
+  <global-card />
+</template>
+<script type="application/json">
+{
+  // ✅ 接受候选后保留标题与注释
+  "navigationBarTitleText": "JSON 自动注册",
+  "usingComponents": {
+    "registered-card": "./components/registered-card" // ✅ 新项沿用无扩展名路径
+  }
+}
+</script>
