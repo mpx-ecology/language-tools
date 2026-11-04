@@ -101,12 +101,15 @@ function* generateSetupFunction(
     if (arg) {
       setupCodeModifies.push([
         [
-          `const __VLS_defineOptions = DefineComponent(`,
+          `const __VLS_rawOptions = __VLS_CaptureOptions(`,
           generateSfcBlockSection(scriptSetup, arg.start, arg.end, {
             ...codeFeatures.all,
             verification: false, // 避免重复报错
+            semantic: false, // 原始 defineOptions 调用保留语义映射
+            completion: false, // 补全和诊断仅使用原始调用
           }),
           `)${endOfLine}`,
+          `const __VLS_defineOptions = DefineComponent(__VLS_rawOptions)${endOfLine}`,
         ],
         callExp.start,
         callExp.start,
@@ -282,6 +285,16 @@ function* generateSetupMacros(
   }
 
   const calls: { name: string; type: string; exp: TextRange }[] = []
+  if (scriptSetupRanges.useContext.length && !bindingNames.has('useContext')) {
+    yield `type __VLS_MpxUseContext = () => Omit<ReturnType<typeof useContext>, 'refs'> & { refs: __VLS_TemplateRefs }${endOfLine}`
+    for (const range of scriptSetupRanges.useContext) {
+      calls.push({
+        name: 'useContext',
+        type: '__VLS_MpxUseContext',
+        exp: range.exp,
+      })
+    }
+  }
   for (const [range, type] of [
     [scriptSetupRanges.defineProps, '__VLS_MpxDefineProps'],
     [scriptSetupRanges.withDefaults, '__VLS_MpxWithDefaults'],
@@ -296,7 +309,10 @@ function* generateSetupMacros(
   calls.sort((a, b) => a.exp.start - b.exp.start)
 
   if (calls.length) {
-    const type = `{ ${calls.map(call => `${call.name}: ${call.type}`).join('; ')} }`
+    const uniqueCalls = [
+      ...new Map(calls.map(call => [call.name, call])).values(),
+    ]
+    const type = `{ ${uniqueCalls.map(call => `${call.name}: ${call.type}`).join('; ')} }`
     yield options.lang === 'js'
       ? `const __VLS_setupMacros = /** @type {${type}} */ ({})${endOfLine}`
       : `const __VLS_setupMacros = {} as ${type}${endOfLine}`
@@ -314,7 +330,7 @@ function* generateSetupMacros(
     // Complete in a lexical scope with the Mpx signatures and configured aliases.
     // Its local declarations cannot shadow bindings in the actual setup code.
     yield `{${newLine}`
-    for (const call of calls) {
+    for (const call of uniqueCalls) {
       yield `const ${call.name} = __VLS_setupMacros.${call.name}${endOfLine}`
     }
     // Keep the surrounding call context: signature help and completion share a

@@ -1,0 +1,5 @@
+<script setup lang="ts">
+defineProps({ title: String })
+class Example { title() { return 'prototype' } }
+defineExpose(new Example())
+</script>

@@ -1,0 +1,10 @@
+<script setup lang="ts">
+import { onReactHooksExec as registerHooks } from '@mpxjs/core'
+defineProps({ title: String })
+defineExpose({})
+registerHooks(() => ({ okay: 1 }))
+{
+  const registerHooks = (callback: () => object) => callback()
+  registerHooks(() => ({ title: 'local' }))
+}
+</script>

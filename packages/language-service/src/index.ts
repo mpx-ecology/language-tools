@@ -27,7 +27,9 @@ import { create as createMpxJsonImportCompletionPlugin } from './plugins/mpx-sfc
 import { create as createMpxPrettierPlugin } from './plugins/mpx-prettier'
 import { create as createMpxComponentReferencesPlugin } from './plugins/mpx-component-references'
 import { create as createMpxComponentDefinitionPlugin } from './plugins/mpx-component-definition'
+import { create as createInstanceFieldPlugin } from './plugins/mpx-instance-fields'
 import { Commands } from './types'
+import { withNumericMpxDiagnosticCodes } from './utils/diagnosticCodes'
 
 export * from '@volar/language-service'
 export * from '@mpxjs/language-core'
@@ -67,7 +69,7 @@ export function createMpxLanguageServicePlugins(
     delete plugin.capabilities.semanticTokensProvider
   }
 
-  return plugins
+  return plugins.map(withNumericMpxDiagnosticCodes)
 }
 
 function getCommonLanguageServicePlugins(
@@ -80,6 +82,7 @@ function getCommonLanguageServicePlugins(
     createTypeScriptDocCommentTemplatePlugin(ts),
     createMpxSfcPlugin(),
     createMpxComponentReferencesPlugin(ts),
+    createInstanceFieldPlugin(ts),
     createMpxTemplatePlugin(getTsPluginClient),
     createMpxTemplateCompilerErrorsPlugin(),
     createMpxTemplateDirectiveCommentsPlugin(),

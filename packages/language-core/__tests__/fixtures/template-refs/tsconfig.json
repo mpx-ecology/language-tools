@@ -1,0 +1,4 @@
+{
+  "extends": "../reference-type-props/tsconfig.json",
+  "include": ["./**/*"]
+}

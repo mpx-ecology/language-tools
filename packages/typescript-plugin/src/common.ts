@@ -7,6 +7,7 @@ import {
   MpxVirtualCode,
   createComponentReferenceIndex,
   forEachElementNode,
+  getInstanceFieldDiagnostics,
   hyphenateTag,
 } from '@mpxjs/language-core'
 import { capitalize } from '@mpxjs/language-shared'
@@ -97,6 +98,19 @@ export function proxyLanguageServiceForMpx<T>(
           ]
         }
       case 'getSemanticDiagnostics':
+        return (fileName: string) => [
+          ...target
+            .getSemanticDiagnostics(fileName)
+            .map(diagnostic =>
+              transformTemplateDiagnostic(ts, language, asScriptId, diagnostic),
+            ),
+          ...getInstanceFieldDiagnostics(
+            ts,
+            language,
+            asScriptId(fileName),
+            target.getProgram(),
+          ),
+        ]
       case 'getSyntacticDiagnostics':
       case 'getSuggestionDiagnostics':
         return (fileName: string) =>

@@ -1,0 +1,19 @@
+<template>
+  <!-- ✅ NativeView 应识别为 View，onLayout 保留 LayoutChangeEvent。 -->
+  <NativeView testID="footer" onLayout="{{ handleFooterLayout }}" />
+  <!-- ❌ testID 需要 string；onLayout 回调参数需要 LayoutChangeEvent。 -->
+  <NativeView testID="{{ 42 }}" onLayout="{{ wrongHandler }}" />
+</template>
+
+<script setup lang="ts">
+import { View, type ViewProps } from 'react-native'
+
+defineOptions({ components: { NativeView: View } })
+const handleFooterLayout: NonNullable<ViewProps['onLayout']> = event => {
+  const height: number = event.nativeEvent.layout.height
+  return height
+}
+const wrongHandler = (event: string) => event
+
+defineExpose({ handleFooterLayout, wrongHandler })
+</script>

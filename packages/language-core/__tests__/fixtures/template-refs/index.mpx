@@ -1,0 +1,24 @@
+<template>
+  <exposed-child wx:ref="child" />
+  <options-child wx:ref="options" />
+</template>
+<script setup lang="ts">
+const { refs, triggerEvent } = useContext()
+if (!refs.child || !refs.options) throw new Error('not mounted')
+const result = refs.child.loadMore(1)
+const found = refs.options.find('Mpx')
+const count: number = refs.child.count
+const title: string = refs.child.title
+refs.child.loadMore('bad')
+refs.child.privateMethod()
+triggerEvent('done', { result, found, count })
+defineExpose({})
+</script>
+<script type="application/json">
+{
+  "usingComponents": {
+    "exposed-child": "./exposed-child.mpx",
+    "options-child": "./options-child.mpx"
+  }
+}
+</script>
