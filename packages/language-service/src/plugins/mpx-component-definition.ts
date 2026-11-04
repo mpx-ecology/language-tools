@@ -26,10 +26,7 @@ export function create(
             return
           }
           const [documentUri, embeddedCodeId] = decoded
-          const sourceScript =
-            embeddedCodeId === 'template'
-              ? getMpxSourceScript(context, documentUri)
-              : context.language.scripts.get(documentUri)
+          const sourceScript = getMpxSourceScript(context, documentUri)
           const root = sourceScript?.generated?.root
           if (!(root instanceof MpxVirtualCode)) {
             return

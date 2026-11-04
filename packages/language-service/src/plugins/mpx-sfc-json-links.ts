@@ -9,6 +9,7 @@ import {
   jsonPathTargets,
 } from '../utils/componentNavigation'
 import { MpxDiagnosticCode } from '@mpxjs/language-shared'
+import { getMpxSourceScript } from '../utils/templateCodegenHelper'
 
 export function create(): LanguageServicePlugin {
   return {
@@ -27,7 +28,7 @@ export function create(): LanguageServicePlugin {
       function getRoot(rawUri: string) {
         const decoded = context.decodeEmbeddedDocumentUri(URI.parse(rawUri))
         if (!decoded || !/^json_(js|json)$/.test(decoded[1])) return
-        const root = context.language.scripts.get(decoded[0])?.generated?.root
+        const root = getMpxSourceScript(context, decoded[0])?.generated?.root
         return root instanceof MpxVirtualCode && root.sfc.json
           ? root
           : undefined

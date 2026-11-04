@@ -8,6 +8,7 @@ import { MpxVirtualCode, tsCodegen } from '@mpxjs/language-core'
 import type { Hover, Range } from 'vscode-languageserver-protocol'
 import { URI, Utils } from 'vscode-uri'
 import { isMpPluginComponentPath } from './index'
+import { getMpxSourceScript } from './templateCodegenHelper'
 
 export function componentFileName(fileName: string) {
   return Utils.basename(URI.file(fileName))
@@ -89,16 +90,9 @@ export function componentNavigationRanges(
   context: import('@volar/language-service').LanguageServiceContext,
   uri: URI,
 ): Range[] {
-  let source = context.language.scripts.get(uri)
-  let root = source?.generated?.root
+  const source = getMpxSourceScript(context, uri)
+  const root = source?.generated?.root
   if (!(root instanceof MpxVirtualCode)) return []
-  // External file changes need Volar to re-register mappings before reading them.
-  if (root.externalDependencyVersion !== root.getExternalDependencyVersion()) {
-    source!.isAssociationDirty = true
-    source = context.language.scripts.get(uri)
-    root = source?.generated?.root
-    if (!(root instanceof MpxVirtualCode)) return []
-  }
   const snapshot = source!.snapshot
   const document = context.documents.get(uri, source!.languageId, snapshot)
   const ranges = new Map<string, Range>()

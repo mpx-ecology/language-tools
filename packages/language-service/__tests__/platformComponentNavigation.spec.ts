@@ -1,4 +1,5 @@
 import path from 'node:path'
+import fs from 'node:fs'
 import * as ts from 'typescript'
 import type { LanguageServiceContext } from '@volar/language-service'
 import type {
@@ -8,7 +9,7 @@ import type {
 } from 'vscode-languageserver-protocol'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { URI } from 'vscode-uri'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   type TestLanguageService,
   createTestLanguageService,
@@ -19,7 +20,10 @@ import { create as createJsonLinks } from '../src/plugins/mpx-sfc-json-links'
 import { create as createTemplate } from '../src/plugins/mpx-sfc-template'
 import { getComponentProps } from '../../typescript-plugin/src/requests/getComponentProps'
 import type { IRequests } from '../../typescript-plugin/src/requests'
-import { componentTargetsHover } from '../src/utils/componentNavigation'
+import {
+  componentNavigationRanges,
+  componentTargetsHover,
+} from '../src/utils/componentNavigation'
 
 const fixtureRoot = path.resolve(
   __dirname,
@@ -30,8 +34,11 @@ const token = {
   onCancellationRequested: () => ({ dispose() {} }),
 }
 const services: TestLanguageService[] = []
+const temporaryDirectories: string[] = []
 afterEach(() => {
   for (const service of services.splice(0)) service.dispose()
+  for (const directory of temporaryDirectories.splice(0))
+    fs.rmSync(directory, { recursive: true, force: true })
 })
 function setup() {
   const service = createTestLanguageService(fixtureRoot)
@@ -67,6 +74,57 @@ const targetNames = (definitions: unknown) =>
     .sort()
 
 describe('platform component forward navigation', () => {
+  it('refreshes application platform decorations without starting a TypeScript Program', () => {
+    const directory = fs.mkdtempSync(
+      path.join(path.dirname(fixtureRoot), '.platform-navigation-'),
+    )
+    temporaryDirectories.push(directory)
+    fs.cpSync(fixtureRoot, directory, { recursive: true })
+    fs.copyFileSync(
+      path.join(directory, 'panel.mpx'),
+      path.join(directory, 'single.mpx'),
+    )
+    fs.writeFileSync(
+      path.join(directory, 'app.mpx'),
+      `<script type="application/json">{"usingComponents":{"demo-panel":"./single"}}</script>`,
+    )
+    fs.writeFileSync(
+      path.join(directory, 'index.mpx'),
+      '<template><demo-panel /></template><script setup>defineExpose({})</script>',
+    )
+    const service = createTestLanguageService(directory)
+    services.push(service)
+    const uri = URI.file(service.file('index.mpx'))
+    const getProgram = vi.spyOn(service.languageService, 'getProgram')
+    const context = {
+      language: {
+        scripts: {
+          get: (uri: URI) => service.language.scripts.get(uri.fsPath),
+        },
+      },
+      documents: {
+        get: (
+          uri: URI,
+          languageId: string,
+          snapshot: import('typescript').IScriptSnapshot,
+        ) =>
+          TextDocument.create(
+            uri.toString(),
+            languageId,
+            0,
+            snapshot.getText(0, snapshot.getLength()),
+          ),
+      },
+      project: {},
+    } as unknown as LanguageServiceContext
+    expect(componentNavigationRanges(context, uri)).toEqual([])
+    const variant = path.join(directory, 'single.ios.mpx')
+    fs.copyFileSync(path.join(directory, 'panel.ios.mpx'), variant)
+    expect(componentNavigationRanges(context, uri)).toHaveLength(1)
+    fs.unlinkSync(variant)
+    expect(componentNavigationRanges(context, uri)).toEqual([])
+    expect(getProgram).not.toHaveBeenCalled()
+  })
   it('hovers source attributes with every platform type and declaration source', async () => {
     const { service, context, template } = setup()
     Object.assign(context, {
