@@ -173,7 +173,7 @@ describe('static JSON in mapped Mpx SFCs', () => {
     const fixture = setup('{ "usingComponents": { "panel": "./missing.mpx" } }')
     const diagnostics = await fixture.diagnostics()
     expect(diagnostics).toHaveLength(1)
-    expect(diagnostics[0]).toMatchObject({ source: 'mpx-json', code: '4001' })
+    expect(diagnostics[0]).toMatchObject({ source: 'mpx-json', code: 4001 })
     expect(diagnosticTexts(fixture.document, diagnostics)[0]).toContain(
       './missing.mpx',
     )
