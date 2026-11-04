@@ -1,0 +1,16 @@
+<template>
+  <NativeView testID="footer" onLayout="{{ handleFooterLayout }}" />
+  <FunctionAlias title="function" count="{{ 1 }}" onLayout="{{ handleFooterLayout }}" />
+  <ClassAlias title="class" count="{{ 1 }}" onLayout="{{ handleFooterLayout }}" />
+  <ForwardAlias title="forward" count="{{ 1 }}" onLayout="{{ handleFooterLayout }}" />
+</template>
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+import { View, type ViewProps } from 'react-native'
+import { FunctionPanel, ClassPanel, ForwardPanel } from './components'
+const handleFooterLayout: NonNullable<ViewProps['onLayout']> = event => event.nativeEvent.layout.height
+createComponent({
+  components: { NativeView: View, FunctionAlias: FunctionPanel, ClassAlias: ClassPanel, ForwardAlias: ForwardPanel },
+  methods: { handleFooterLayout },
+})
+</script>

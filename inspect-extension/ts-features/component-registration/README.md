@@ -37,3 +37,7 @@ RN `components` + 脚本 import 依赖 T03，暂不提供；多平台候选增�
 2026-11-03，同步包含 #142 的主线 `e40ca6a`：保留共享 TypeScript 项目的 JSON JS 语义、文档关闭与依赖失效生命周期；候选使用的编译选项迁入 `createMpxProject.setup`，文件监听复用主线的单次注册。10 个专项 spec 共 181 项、全量 28 个 spec 共 648 项及 build / lint 通过；新增真实共享项目回归覆盖 IDE / 独立模式的注册编辑、JSON JS hover、别名、恢复原快照和关闭未保存候选后的缓存恢复。
 
 上节真实宿主记录对应集成前 `eaf194a`。集成后的 F5 与截图仍待专用 UI 时段复验，不将旧宿主记录作为新版本截图交付。
+
+## 文件组件与目录组件的独立身份
+
+`file-index/collisions.mpx` 使用本目录独立的静态 app 边界。`existing-card` 已注册 `collision-card.mpx`，在 `collision-ca` 末尾补全或对完整 `collision-card` 应用 Quick Fix 时，只应剩下 `collision-card/index.mpx`。接受后保留原注册、新增目录组件路径，一次撤销回到原内容。

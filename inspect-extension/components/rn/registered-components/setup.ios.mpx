@@ -1,0 +1,17 @@
+<template>
+  <!-- ✅ 四个注册别名：标签补全；onLayout hover 为 LayoutChangeEvent 回调；F12 到 components 注册 key。 -->
+  <NativeView testID="footer" onLayout="{{ handleFooterLayout }}" />
+  <FunctionAlias title="function" count="{{ 1 }}" onLayout="{{ handleFooterLayout }}" />
+  <ClassAlias title="class" count="{{ 1 }}" onLayout="{{ handleFooterLayout }}" />
+  <ForwardAlias title="forward" count="{{ 1 }}" onLayout="{{ handleFooterLayout }}" />
+</template>
+<script setup lang="ts">
+import { View, type ViewProps } from 'react-native'
+import { FunctionPanel, ClassPanel, ForwardPanel } from './components'
+const handleFooterLayout: NonNullable<ViewProps['onLayout']> = event => {
+  const height: number = event.nativeEvent.layout.height
+  return height
+}
+defineOptions({ components: { NativeView: View, FunctionAlias: FunctionPanel, ClassAlias: ClassPanel, ForwardAlias: ForwardPanel } })
+defineExpose({ handleFooterLayout })
+</script>

@@ -1,0 +1,6 @@
+<template><view>{{ title }}</view></template>
+<script setup lang="ts">
+interface Props { /*warn*/data?: string; title?: string }
+withDefaults(defineProps<Props>(), { data: '', title: 'Mpx' })
+defineExpose({})
+</script>

@@ -152,6 +152,37 @@ describe('template custom data request concurrency', () => {
     mockState.hoverWaiters = new Map()
   })
 
+  it('aborts a request superseded while component names are loading', async () => {
+    const namesA = deferred<string[]>()
+    const client = createTsClient(async () => [
+      { name: 'fromB', type: 'string' },
+    ])
+    vi.spyOn(client, 'getComponentNames').mockImplementation(file =>
+      file === documentA.uri ? namesA.promise : Promise.resolve([]),
+    )
+    const service = createService(client)
+    const requestA = service.provideCompletionItems!(
+      documentA,
+      completionPosition,
+      completionContext,
+      neverCancelledToken,
+    )
+    await vi.waitFor(() =>
+      expect(client.getComponentNames).toHaveBeenCalledWith(documentA.uri),
+    )
+    const resultB = await service.provideCompletionItems!(
+      documentB,
+      completionPosition,
+      completionContext,
+      neverCancelledToken,
+    )
+    namesA.resolve(['NativeView'])
+    expect(await requestA).toBeUndefined()
+    expect(resultB?.items.map(item => item.label)).toEqual(['fromB'])
+    expect(client.getComponentProps).toHaveBeenCalledTimes(1)
+    expect(mockState.completionCalls).toEqual([documentB.uri])
+  })
+
   it('aborts a stale request before it calls HTML completion', async () => {
     const propsA = deferred<ComponentPropInfo[]>()
     const client = createTsClient((_, tag) =>
@@ -386,6 +417,7 @@ function createTsClient(
   ) => Promise<ComponentPropInfo[]>,
 ) {
   return {
+    getComponentNames: vi.fn(async () => []),
     getComponentProps: vi.fn(getComponentProps),
   } as unknown as IRequests & {
     getComponentProps: ReturnType<typeof vi.fn<typeof getComponentProps>>

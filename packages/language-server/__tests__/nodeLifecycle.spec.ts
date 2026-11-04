@@ -23,6 +23,7 @@ const lifecycle = vi.hoisted(() => ({
 
 vi.mock('@volar/language-server/node', () => ({
   createConnection: () => ({
+    onRequest() {},
     listen() {},
     onNotification: (_method: string, callback: typeof lifecycle.response) => {
       lifecycle.response = callback

@@ -1,0 +1,12 @@
+<template>
+  <!-- ✅ 必传 title 保留 string hover/补全；脚本注册处仍显示 core 2.11.0 的既有类型限制。 -->
+  <RequiredAlias title="required" />
+  <!-- ❌ number 不能赋给 string。 -->
+  <RequiredAlias title="{{ 42 }}" />
+</template>
+<script setup lang="ts">
+import { RequiredPanel } from './components'
+// @mpxjs/core 2.11.0 rejects required React props via ComponentType<{}>.
+// Keep this upstream diagnostic visible; the template must still retain props.
+defineOptions({ components: { RequiredAlias: RequiredPanel } })
+</script>

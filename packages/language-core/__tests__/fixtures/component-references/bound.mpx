@@ -1,0 +1,10 @@
+<template>
+  <bound-panel />
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script name="json">
+const panel = './panel.mpx'
+module.exports = { usingComponents: { 'bound-panel': panel, 'plugin-panel': 'plugin://demo/panel' } }
+</script>

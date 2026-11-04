@@ -1,0 +1,13 @@
+<script setup lang="ts">
+import { onReactHooksExec as registerHooks } from '@mpxjs/core'
+import type { Exposed } from './types'
+interface Props { title: string; obsolete?: string }
+const { title: localTitle } = defineProps<Props>()
+const local = { title: localTitle }
+const exposed: Exposed = { ...local, own: 1 }
+defineExpose(exposed)
+const first = () => ({ obsolete: 'earlier' })
+registerHooks(first)
+const last = () => ({ title: 'last', fresh: 'final' })
+registerHooks(last)
+</script>

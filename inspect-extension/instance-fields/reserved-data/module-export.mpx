@@ -1,0 +1,11 @@
+<template><view /></template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+
+// ✅ 未挂载实例的模块导出、局部对象和解构别名均不应出现保留名 warning。
+export const data = 1
+const { data: renamed } = { data }
+export default { data, renamed }
+createComponent({})
+</script>

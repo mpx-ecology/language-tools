@@ -109,6 +109,7 @@ export type MpxLanguagePluginReturn = {
     sfc: Sfc,
     embeddedFile: MpxEmbeddedCode,
   ): void
+  getExternalDependencyVersion?(fileName: string): number
   resolveUsingComponentsPath?(
     usingComponentsPath: SfcJsonBlockUsingComponents,
     uri: string,
@@ -157,6 +158,8 @@ export interface UsingComponentInfo {
 }
 export interface ResolvedUsingComponentInfo extends UsingComponentInfo {
   realFilename?: string
+  /** Platform suffix of the actual candidate file; not an active IDE platform. */
+  mode?: string
 }
 export type SfcJsonBlockUsingComponents = Map<string, UsingComponentInfo[]>
 export type SfcJsonBlockResolvedUsingComponents = {
@@ -171,6 +174,10 @@ export type SfcJsonBlockResolvedPages = {
 }
 
 export interface Sfc {
+  /** Registered JSON components visible to this file; local entries override application entries. */
+  usingComponents?: SfcJsonBlockUsingComponents
+  resolvedUsingComponents?: SfcJsonBlockResolvedUsingComponents
+  application?: { fileName: string; json: NonNullable<Sfc['json']> }
   content: string
   comments: string[]
   template:

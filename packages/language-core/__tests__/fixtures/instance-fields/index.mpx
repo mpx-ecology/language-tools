@@ -1,0 +1,9 @@
+<template><view>{{ title }} {{ count }}</view></template>
+<script setup lang="ts">
+import { onReactHooksExec } from '@mpxjs/core'
+defineProps({ title: { type: String, value: 'prop' }, count: Number })
+const title = 'local'
+const shared = { title, count: 1 }
+defineExpose({ ...shared })
+onReactHooksExec(() => ({ title: 'hooks', count: 2 }))
+</script>

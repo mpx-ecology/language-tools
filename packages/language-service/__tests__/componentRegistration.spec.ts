@@ -356,6 +356,97 @@ describe('mapped workspace component registration', () => {
     expect(text).toContain('"demo-card": "./other/demo-card.mpx"')
   })
 
+  it.each([
+    ['./collision-card.mpx', './collision-card/index.mpx'],
+    ['./collision-card/index.mpx', './collision-card.mpx'],
+    ['@/collision-card.mpx?root=shared', '@/collision-card/index.mpx'],
+    ['@/collision-card/index.mpx?root=shared', '@/collision-card.mpx'],
+  ])(
+    'file/index identity: registering %s retains %s',
+    async (registered, remaining) => {
+      const test = setup(
+        `<template><collision-card| /></template><script type="application/json">{ "usingComponents": { "existing-card": "${registered}" } }</script>`,
+        {
+          'collision-card.mpx': component,
+          'collision-card/index.mpx': component,
+        },
+        { baseUrl: root, paths: { '@/*': ['./*'] } },
+      )
+      const items = auto(await test.complete()).filter(
+        item => item.label === 'collision-card',
+      )
+      expect(items.map(item => item.labelDetails?.description)).toEqual([
+        remaining,
+      ])
+      const accepted = apply(test.document, await test.resolve(items[0]))
+      const registrations = readComponentConfig(ts, accepted).registrations
+      expect(registrations.get('existing-card')).toBe(registered)
+      expect(registrations.get('collision-card')).toBe(remaining)
+      const actions = await test.actions()
+      expect(actions).toHaveLength(1)
+      const changes = actions[0].edit!.changes![test.document.uri]
+      expect(
+        readComponentConfig(
+          ts,
+          TextDocument.applyEdits(test.document, changes),
+        ).registrations.get('collision-card'),
+      ).toBe(remaining)
+      test.update(accepted.replace('<collision-card', '<collision-card|'))
+      expect(
+        auto(await test.complete()).filter(
+          item => item.label === 'collision-card',
+        ),
+      ).toEqual([])
+    },
+  )
+
+  it.each([
+    ['./collision-card.mpx', './collision-card/index.mpx'],
+    ['./collision-card/index.mpx', './collision-card.mpx'],
+  ])(
+    'file/index identity: global registration %s retains %s',
+    async (registered, remaining) => {
+      const test = setup('<template><collision-card| /></template>', {
+        'app.mpx': `<script type="application/json">{ "usingComponents": { "global-card": "${registered}" } }</script>`,
+        'collision-card.mpx': component,
+        'collision-card/index.mpx': component,
+      })
+      const items = auto(await test.complete()).filter(
+        item => item.label === 'collision-card',
+      )
+      expect(items.map(item => item.labelDetails?.description)).toEqual([
+        remaining,
+      ])
+    },
+  )
+
+  it('file/index identity: resolves existing extensionless requests to their real file', async () => {
+    const test = setup(
+      '<template><demo-card| /></template><script type="application/json">{ "usingComponents": { "existing-card": "./components/demo-card" } }</script>',
+      { 'components/demo-card/index.mpx': component },
+    )
+    expect(
+      auto(await test.complete()).map(item => item.labelDetails?.description),
+    ).toEqual(['./components/demo-card/index'])
+  })
+
+  it('file/index identity: canonicalizes symlink registrations without offering the same file twice', async () => {
+    const directory = fs.mkdtempSync(path.join(root, '.registration-identity-'))
+    try {
+      fs.symlinkSync(
+        path.join(root, 'components/demo-card.mpx'),
+        path.join(directory, 'alias.mpx'),
+      )
+      const target = `./${path.basename(directory)}/alias.mpx`
+      const test = setup(
+        `<template><demo-card| /></template><script type="application/json">{ "usingComponents": { "existing-card": "${target}" } }</script>`,
+      )
+      expect(auto(await test.complete())).toEqual([])
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
   it('invalidates directory discovery on create/delete/rename events', async () => {
     const test = setup('<template><de| /></template>')
     expect(auto(await test.complete()).map(item => item.label)).toContain(

@@ -1,0 +1,5 @@
+<template>
+  <!-- @mpx-ignore -->
+  <view mpxTagName="input" maxlength="{{ 'wrong' }}" />
+</template>
+<script setup lang="ts">defineExpose({})</script>

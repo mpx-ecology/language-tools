@@ -1,0 +1,10 @@
+<template>
+  <RequiredAlias title="required" />
+  <RequiredAlias title="{{ 42 }}" />
+</template>
+<script setup lang="ts">
+import { RequiredPanel } from './components'
+// @mpxjs/core 2.11.0 rejects required React props via ComponentType<{}>.
+// Keep this upstream diagnostic visible; the template must still retain props.
+defineOptions({ components: { RequiredAlias: RequiredPanel } })
+</script>

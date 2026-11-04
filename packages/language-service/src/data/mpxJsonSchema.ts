@@ -15,11 +15,41 @@ export default {
     },
     usingComponents: {
       type: 'object',
+      additionalProperties: {
+        type: 'string',
+        markdownDescription:
+          '自定义组件路径，支持 Mpx 组件、原生组件和插件组件。',
+      },
       markdownDescription: `页面自定义组件配置。\n\n详见：[Mpx 文档](https://mpxjs.cn/guide/basic/component.html#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%84%E4%BB%B6) | ${WxDocsWithUrl}`,
     },
     componentPlaceholder: {
       type: 'object',
+      additionalProperties: {
+        type: 'string',
+        markdownDescription:
+          '占位组件名称，可使用已注册组件名或 view、text 等内置组件名。',
+      },
       markdownDescription: `占位组件配置。\n\n详见：[${WxDocs}](${WxDocsUrl}/framework/custom-component/placeholder.html)`,
+    },
+    componentGenerics: {
+      type: 'object',
+      markdownDescription: `组件泛型（抽象节点）声明，可使用布尔值或包含默认组件路径的对象。\n\n详见：[Mpx 文档](https://mpxjs.cn/guide/basic/component.html#componentgenerics) | [${WxDocs}](${WxDocsUrl}/framework/custom-component/generics.html)`,
+      // Mpx processGenerics accepts boolean declarations and objects without
+      // defaults. Keep extension keys open, as with the rest of this schema.
+      additionalProperties: {
+        anyOf: [
+          { type: 'boolean' },
+          {
+            type: 'object',
+            properties: {
+              default: {
+                type: 'string',
+                markdownDescription: '默认组件路径，未传入具体组件时使用。',
+              },
+            },
+          },
+        ],
+      },
     },
     navigationBarBackgroundColor: {
       type: 'string',

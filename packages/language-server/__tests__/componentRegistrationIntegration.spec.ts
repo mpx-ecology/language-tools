@@ -1,3 +1,4 @@
+import path from 'node:path'
 import type { CompletionItem, TextEdit } from '@mpxjs/language-service'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -35,7 +36,7 @@ describe.each([true, false])(
         jsonOnly,
         {},
         true,
-        'component-registration',
+        path.resolve(__dirname, 'fixtures/component-registration'),
       ))
     }
 

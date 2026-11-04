@@ -1,0 +1,5 @@
+<template><view /></template>
+<script setup lang="ts">
+defineProps<{ neverRegistered: string }>()
+defineExpose({})
+</script>

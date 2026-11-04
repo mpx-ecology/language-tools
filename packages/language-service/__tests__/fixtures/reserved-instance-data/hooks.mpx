@@ -1,0 +1,7 @@
+<template><view /></template>
+<script setup lang="ts">
+import { onReactHooksExec as registerHooks } from '@mpxjs/core'
+const useValues = () => ({ /*warn*/data: 1, hookTitle: 'Hooks' })
+registerHooks(useValues)
+defineExpose({})
+</script>

@@ -6,6 +6,8 @@ import type {
 } from '@volar/language-service'
 import type * as vscode from 'vscode-languageserver-protocol'
 import * as path from 'node:path'
+import * as fs from 'node:fs'
+import { createUsingComponentsPathResolver } from '@mpxjs/language-core'
 import * as html from 'vscode-html-languageservice'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { URI, Utils } from 'vscode-uri'
@@ -157,12 +159,19 @@ export function create(
           ...config.registrations.keys(),
           ...globals.keys(),
         ])
+        const compilerOptions = options()
+        const resolvePath = createUsingComponentsPathResolver(compilerOptions)
         const registeredPaths = new Set([
           ...[...config.registrations.values()].flatMap(value =>
-            identities(value, uri, options()),
+            identities(value, uri, compilerOptions, resolvePath),
           ),
           ...[...globals.values()].flatMap(value =>
-            identities(value, Utils.joinPath(scope, 'app.mpx'), options()),
+            identities(
+              value,
+              Utils.joinPath(scope, 'app.mpx'),
+              compilerOptions,
+              resolvePath,
+            ),
           ),
         ])
         let cached = fileLists.get(scope.toString())
@@ -479,12 +488,27 @@ function contains(folder: URI, uri: URI) {
   )
 }
 function identity(uri: URI) {
-  return uri
-    .toString()
-    .replace(/\.mpx$/, '')
-    .replace(/\/index$/, '')
+  // Preserve distinct files such as card.mpx and card/index.mpx. Resolve only
+  // actual filesystem aliases; unsaved snapshots retain their exact URI.
+  try {
+    return URI.file(fs.realpathSync(uri.fsPath)).toString()
+  } catch {
+    return uri.toString()
+  }
 }
-function identities(value: string, from: URI, options: ts.CompilerOptions) {
+function identities(
+  value: string,
+  from: URI,
+  options: ts.CompilerOptions,
+  resolve: ReturnType<typeof createUsingComponentsPathResolver>,
+) {
+  const resolved = resolve(value, from.fsPath)?.candidates
+  if (resolved?.length)
+    return resolved
+      .filter(candidate => !candidate.realFilename.startsWith('plugin://'))
+      .map(candidate => identity(URI.file(candidate.realFilename)))
+  // An open document may not exist on disk yet. Preserve exact literal/alias
+  // identities without guessing that a filename and directory index are equal.
   value = value.split('?')[0]
   if (value.startsWith('.'))
     return [identity(Utils.resolvePath(Utils.dirname(from), value))]

@@ -21,6 +21,8 @@ import {
   getWorkspaceFolder,
 } from '@volar/language-server/lib/project/typescriptProject'
 import { createMpxProject } from './mpxProject'
+import { ComponentNavigationRangesRequest } from './protocol'
+import { getComponentNavigationRangeResponse } from './componentNavigation'
 
 const connection = createConnection()
 const server = createServer(connection)
@@ -41,6 +43,10 @@ connection.onNotification('tsserver/response', ([id, response]) => {
   tsserverRequestHandlers.get(id)?.(response)
   tsserverRequestHandlers.delete(id)
 })
+
+connection.onRequest(ComponentNavigationRangesRequest, (params, token) =>
+  getComponentNavigationRangeResponse(server, params, token),
+)
 
 connection.onInitialize(params => {
   if (params.initializationOptions?.agent) {

@@ -5,8 +5,11 @@
   "description": "debug for mpx vscode extension",
   "devDependencies": {
     "@mpxjs/core": "catalog:",
+    "@types/react": "18.3.12",
     "@vant/weapp": "^1.11.7",
     "miniprogram-api-typings": "^3.12.3",
+    "react": "18.3.1",
+    "react-native": "0.76.9",
     "typescript": "catalog:",
     "unocss": "^66.3.3",
     "vue": "^2.7.0"

@@ -1,0 +1,6 @@
+<template>
+  <!-- ✅ 局部 AppPanel 覆盖 app-panel 和类型扩展；补全保留 AppPanel 拼写，只提供 count。 -->
+  <!-- ❌ count 故意传 string，预期 TS2322，hover / F12 指向 local.mpx。 --><app-panel count="{{ 'wrong' }}" /></template>
+<script type="application/json">
+{"usingComponents":{"AppPanel":"../local.mpx"}}
+</script>

@@ -278,6 +278,11 @@
         "command": "mpx.action.flattenStyles",
         "title": "Flatten Stylus Styles for Mpx2RN (Experiment)",
         "category": "Mpx"
+      },
+      {
+        "command": "mpx.action.findAllFileReferences",
+        "title": "%findAllFileReferences%",
+        "category": "Mpx"
       }
     ],
     "menus": {
@@ -290,14 +295,14 @@
       ],
       "explorer/context": [
         {
-          "command": "typescript.findAllFileReferences",
+          "command": "mpx.action.findAllFileReferences",
           "when": "tsSupportsFileReferences && resourceLangId == mpx",
           "group": "4_search"
         }
       ],
       "editor/title/context": [
         {
-          "command": "typescript.findAllFileReferences",
+          "command": "mpx.action.findAllFileReferences",
           "when": "tsSupportsFileReferences && resourceLangId == mpx"
         }
       ],
@@ -312,6 +317,10 @@
         },
         {
           "command": "mpx.action.splitEditors",
+          "when": "editorLangId == mpx"
+        },
+        {
+          "command": "mpx.action.findAllFileReferences",
           "when": "editorLangId == mpx"
         }
       ],

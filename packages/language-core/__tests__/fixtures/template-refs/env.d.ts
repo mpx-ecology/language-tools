@@ -1,0 +1,1 @@
+import '@mpxjs/core'
