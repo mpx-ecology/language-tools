@@ -1,0 +1,9 @@
+<template>
+  <other-name />
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script name="json">
+module.exports = { usingComponents: { 'other-name': './panel' } }
+</script>

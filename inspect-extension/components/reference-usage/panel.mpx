@@ -1,0 +1,11 @@
+<template>
+  <!-- ✅ 从资源管理器对本文件执行“查找所有引用”，应包含 first / second 的注册与模板。 -->
+  <view>{{ title }}</view>
+</template>
+<script setup lang="ts">
+defineProps({ title: { type: String, value: 'panel' } })
+defineExpose({})
+</script>
+<script type="application/json">
+{ "component": true }
+</script>
