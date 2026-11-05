@@ -10,9 +10,15 @@ import { generateJsonService } from '../codegen/script/jsonService'
 import { allCodeFeatures } from './shared'
 import { createUsingComponentsPathResolver } from '../utils/formatUsingComponentsPath'
 
-const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
-  const resolveComponentPath =
-    createUsingComponentsPathResolver(compilerOptions)
+const plugin: MpxLanguagePlugin = ({
+  modules,
+  compilerOptions,
+  onExternalDependencyChange,
+}) => {
+  const resolveComponentPath = createUsingComponentsPathResolver(
+    compilerOptions,
+    onExternalDependencyChange,
+  )
 
   function resolveUsingComponentsPath(
     usingComponents: SfcJsonBlockUsingComponents,
@@ -90,6 +96,8 @@ const plugin: MpxLanguagePlugin = ({ modules, compilerOptions }) => {
       'configFilePath',
     ],
     getExternalDependencyVersion: resolveComponentPath.getVersion,
+    disposeFile: resolveComponentPath.forget,
+    dispose: resolveComponentPath.dispose,
 
     compileSFCJson(lang, json) {
       if (lang === 'js' || lang === 'json') {

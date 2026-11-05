@@ -37,3 +37,9 @@ usingComponents 的 `?root=` 等 query 保留在原始注册和补全映射中�
 真实下划线前后截图待分配的串行 UI 时段采集；已有用户截图只保留本地，不作为当前客户端装饰已验收的证据。
 
 下划线位置使用与 VS Code 原生链接一致的 `text-underline-position: under`。同一字体、字号和缩放下，对照 `./panel` 与单目标 `./panel.ios.mpx`：线条应位于 `p / g / y` 等下伸部下方，不压住字形；不使用固定像素偏移，不改变点击范围或行为。该视觉对照仍需真实 Extension Host 截图验收。
+
+## 预热后的响应和候选刷新
+
+打开 `refresh.mpx`，等待诊断完成。对 `status` 重复悬停和 Ctrl/Cmd+悬停，预期显示字符串类型和可跳转状态。
+
+对 `refresh-panel` 标签及 JSON 路径分别查看定义，初始都应只定位到普通版本。将 `refresh-targets/refresh-panel.mpx` 复制为同目录的 `refresh-panel.ios.mpx`，两个位置均应出现普通和 iOS 定义。删除该临时文件后，两处应恢复为一个定义。目标目录在本场景的 `tsconfig.json` include 范围外。整个过程保持 `refresh.mpx` 打开且无需编辑或重启服务器。

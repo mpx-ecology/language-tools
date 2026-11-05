@@ -3,6 +3,7 @@ import type { ResolvedUsingComponentInfo } from '../types'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { URI } from 'vscode-uri'
+import { watchComponentDependency } from './componentDependencyWatcher'
 import {
   createPackagePathResolver,
   createTsConfigPathResolver,
@@ -42,27 +43,30 @@ export type ComponentPathCandidate = Pick<
  */
 export function createUsingComponentsPathResolver(
   compilerOptions: ts.CompilerOptions,
+  onChange?: (uri: string) => void,
 ) {
   type Result = {
     result?: string
     candidates: ComponentPathCandidate[]
     error?: boolean
   }
-  const cache = new Map<
-    string,
-    Map<
-      string,
-      { value: Result; dependencies: Map<string, string>; owners: Set<string> }
-    >
-  >()
+  type Entry = {
+    value: Result
+    dependencies: Map<string, string>
+    owners: Set<string>
+    close?: () => void
+  }
+  const cache = new Map<string, Map<string, Entry>>()
   const versions = new Map<string, number>()
   let dependencies = new Map<string, string>()
+  let contentDependencies = new Set<string>()
   let mode: string | undefined
   let discoverModes = false
   let availableModes = new Set<string>()
 
   function trackDependency(fileName: string, content = false) {
     const dependency = content ? fileName : path.dirname(fileName)
+    if (content && onChange) contentDependencies.add(dependency)
     if (!dependencies.has(dependency))
       dependencies.set(dependency, fingerprint(dependency))
   }
@@ -114,11 +118,12 @@ export function createUsingComponentsPathResolver(
 
   function getVersion(uri: string) {
     const entries = cache.get(uri)
-    const current = new Map<string, string>()
-    for (const [request, entry] of entries ?? []) {
-      if (hasChanged(entry.dependencies, current)) {
-        entries!.delete(request)
-        versions.set(uri, (versions.get(uri) ?? 0) + 1)
+    if (entries?.size) {
+      const current = new Map<string, string>()
+      for (const [request, entry] of entries) {
+        if (hasChanged(entry.dependencies, current)) {
+          invalidate(uri, entries, request, entry)
+        }
       }
     }
     return versions.get(uri) ?? 0
@@ -137,11 +142,9 @@ export function createUsingComponentsPathResolver(
       cached.owners.add(owner)
       return cached.value
     }
-    if (cached) {
-      entries.delete(componentPath)
-      versions.set(uri, (versions.get(uri) ?? 0) + 1)
-    }
+    if (cached) invalidate(uri, entries, componentPath, cached)
     dependencies = new Map()
+    contentDependencies = new Set()
     // Resource query mode/env are not webpack's compilation mode/env. Preserve
     // the original request on the registration; only resolve its resource path.
     let request = componentPath.split('?')[0]!
@@ -181,12 +184,34 @@ export function createUsingComponentsPathResolver(
       candidates: [...candidates.values()],
     }
     if (!value.result) value.error = true
-    entries.set(componentPath, {
-      value,
-      dependencies,
-      owners: new Set([owner]),
-    })
+    const entry: Entry = { value, dependencies, owners: new Set([owner]) }
+    entries.set(componentPath, entry)
+    if (onChange) {
+      const invalidateEntry = () =>
+        invalidate(uri, entries, componentPath, entry)
+      const closes = [...dependencies.keys()].map(fileName =>
+        watchComponentDependency(
+          fileName,
+          contentDependencies.has(fileName),
+          invalidateEntry,
+        ),
+      )
+      entry.close = () => closes.forEach(close => close())
+    }
     return value
+  }
+
+  function invalidate(
+    uri: string,
+    entries: Map<string, Entry>,
+    request: string,
+    entry: Entry,
+  ) {
+    if (entries.get(request) !== entry) return
+    entries.delete(request)
+    entry.close?.()
+    versions.set(uri, (versions.get(uri) ?? 0) + 1)
+    onChange?.(uri)
   }
 
   function retain(uri: string, owner: string, requests: Iterable<string>) {
@@ -194,11 +219,30 @@ export function createUsingComponentsPathResolver(
     const entries = cache.get(uri)
     for (const [request, entry] of entries ?? []) {
       if (!active.has(request)) entry.owners.delete(owner)
-      if (!entry.owners.size) entries!.delete(request)
+      if (!entry.owners.size) {
+        entries!.delete(request)
+        entry.close?.()
+      }
     }
   }
 
-  return Object.assign(resolveUsingComponentsPath, { getVersion, retain })
+  function forget(uri: string) {
+    for (const entry of cache.get(uri)?.values() ?? []) entry.close?.()
+    cache.delete(uri)
+    versions.delete(uri)
+  }
+
+  function dispose() {
+    for (const uri of cache.keys()) forget(uri)
+    versions.clear()
+  }
+
+  return Object.assign(resolveUsingComponentsPath, {
+    getVersion,
+    retain,
+    forget,
+    dispose,
+  })
 }
 
 function fingerprint(fileName: string) {

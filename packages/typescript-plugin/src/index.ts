@@ -28,6 +28,8 @@ export = createLanguageServicePlugin((ts, info) => {
     info.languageServiceHost.getCompilationSettings(),
     mpxOptions,
     id => id,
+    undefined,
+    true,
   )
 
   addMpxCommands()
@@ -35,6 +37,14 @@ export = createLanguageServicePlugin((ts, info) => {
   return {
     languagePlugins: [languagePlugin],
     setup: language => {
+      const close = info.project.close.bind(info.project)
+      info.project.close = () => {
+        try {
+          close()
+        } finally {
+          languagePlugin.dispose()
+        }
+      }
       const getLanguageService = info.project.getLanguageService.bind(
         info.project,
       )

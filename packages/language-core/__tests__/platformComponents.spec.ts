@@ -2,11 +2,16 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import * as ts from 'typescript'
-import { forEachEmbeddedCode } from '../src'
+import {
+  createMpxLanguagePlugin,
+  forEachEmbeddedCode,
+  getDefaultCompilerOptions,
+} from '../src'
+import { createLanguage } from '@volar/language-core'
 import { compileMpxSource } from './utils/compileMpxFixture'
 import { getComponentProps } from '../../typescript-plugin/src/requests/getComponentProps'
 import * as enhancedResolve from 'enhanced-resolve'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   componentFileModes,
   createUsingComponentsPathResolver,
@@ -229,6 +234,62 @@ describe('platform component resolution', () => {
       'panel.ios.mpx',
     ])
   })
+})
+
+it('updates only changed component registrations when watching files outside the project roots', async () => {
+  const directory = temporaryFixture()
+  const plugin = createMpxLanguagePlugin(
+    ts,
+    {},
+    getDefaultCompilerOptions(),
+    (fileName: string) => fileName,
+    undefined,
+    true,
+  )
+  try {
+    const language = createLanguage([plugin], new Map(), () => {})
+    const owner = path.join(directory, 'index.mpx')
+    const snapshot = ts.ScriptSnapshot.fromString(
+      '<script type="application/json">{"usingComponents":{"panel":"./external/nested/panel"}}</script>',
+    )
+    const code = language.scripts.set(owner, snapshot, 'mpx')!.generated!.root
+    const root = code as import('../src').MpxVirtualCode
+    const candidates = () =>
+      root.sfc.json?.resolvedUsingComponents?.result
+        .get('panel')
+        ?.map(candidate => path.basename(candidate.realFilename!)) ?? []
+    expect(candidates()).toEqual([])
+    const getVersion = vi.spyOn(root, 'getExternalDependencyVersion')
+    const invalidated = vi.fn()
+    const version = plugin.getExternalFilesVersion(undefined, invalidated)
+    expect(plugin.getExternalFilesVersion(undefined, invalidated)).toBe(version)
+    expect(getVersion).not.toHaveBeenCalled()
+    expect(invalidated).not.toHaveBeenCalled()
+
+    const target = path.join(directory, 'external/nested/panel.ios.mpx')
+    fs.mkdirSync(path.dirname(target), { recursive: true })
+    fs.writeFileSync(target, '<template><view /></template>')
+    await vi.waitFor(() =>
+      expect(plugin.getExternalFilesVersion(undefined, invalidated)).not.toBe(
+        version,
+      ),
+    )
+    expect(invalidated.mock.calls).toEqual([[owner]])
+    root.update(snapshot)
+    expect(candidates()).toEqual(['panel.ios.mpx'])
+    const added = plugin.getExternalFilesVersion(undefined)
+    fs.unlinkSync(target)
+    await vi.waitFor(() =>
+      expect(plugin.getExternalFilesVersion(undefined, invalidated)).not.toBe(
+        added,
+      ),
+    )
+    expect(invalidated.mock.calls).toEqual([[owner], [owner]])
+    root.update(snapshot)
+    expect(candidates()).toEqual([])
+  } finally {
+    plugin.dispose()
+  }
 })
 
 describe('platform component type sources', () => {

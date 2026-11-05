@@ -78,7 +78,13 @@ export function createMpxProject(
     commandLine.mpxOptions,
     (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
     uriConverter.asUri,
+    true,
   )
+  const dispose = sys.dispose
+  sys.dispose = () => {
+    languagePlugin.dispose()
+    dispose()
+  }
   return {
     languagePlugins: [withMpxJsonServiceScripts(languagePlugin, jsonOnly)],
     setup({
