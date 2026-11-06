@@ -1,0 +1,12 @@
+<template>
+  <refresh-panel />
+</template>
+
+<script name="json">
+module.exports = {
+  usingComponents: {
+    'refresh-panel': './refresh-targets/refresh-panel.mpx',
+    missing: './refresh-targets/missing-panel'
+  }
+}
+</script>

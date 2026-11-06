@@ -110,6 +110,8 @@ export type MpxLanguagePluginReturn = {
     embeddedFile: MpxEmbeddedCode,
   ): void
   getExternalDependencyVersion?(fileName: string): number
+  disposeFile?(fileName: string): void
+  dispose?(): void
   resolveUsingComponentsPath?(
     usingComponentsPath: SfcJsonBlockUsingComponents,
     uri: string,
@@ -127,6 +129,11 @@ export type MpxLanguagePlugin = (ctx: {
   }
   compilerOptions: ts.CompilerOptions
   mpxCompilerOptions: MpxCompilerOptions
+  serviceScriptOnly?: boolean
+  onExternalDependencyChange?: (fileName: string) => void
+  getComponentFileStats?():
+    | Map<string, import('node:fs').Stats | undefined>
+    | undefined
 }) => MpxLanguagePluginReturn | MpxLanguagePluginReturn[]
 
 export interface SfcBlock {

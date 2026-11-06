@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { forEachEmbeddedCode } from '../src'
 import {
   type TestLanguageService,
   createTestLanguageService,
@@ -50,6 +51,38 @@ describe('JSON usingComponents codegen', () => {
     expect(code).toContain(
       'import __MPX_jsonComponent_1_0 from "./component-index/index.mpx"',
     )
+  })
+
+  it('uses one import for types and completion when the path already matches', () => {
+    const original = service.read('index.mpx')
+    const source = original.replace(
+      '"./component-options"',
+      '"./component-options.mpx"',
+    )
+    service.updateFile('index.mpx', source)
+    try {
+      const { code, root } = service.getServiceScript('index.mpx')
+      expect(code).not.toContain("import './component-options.mpx'")
+      const codeOffset = code.indexOf('./component-options.mpx')
+      expect(codeOffset).toBeGreaterThanOrEqual(0)
+      const script = [...forEachEmbeddedCode(root)].find(
+        code => code.id === 'script_ts',
+      )!
+      const mapping = script.mappings.find(mapping =>
+        mapping.generatedOffsets.includes(codeOffset),
+      )
+      expect(mapping?.sourceOffsets).toContain(
+        source.indexOf('./component-options.mpx'),
+      )
+      expect(mapping?.data).toMatchObject({
+        completion: true,
+        verification: false,
+        semantic: false,
+        navigation: false,
+      })
+    } finally {
+      service.updateFile('index.mpx', original)
+    }
   })
 
   it('keeps multiple path candidates as a union', () => {

@@ -37,3 +37,23 @@ usingComponents 的 `?root=` 等 query 保留在原始注册和补全映射中�
 真实下划线前后截图待分配的串行 UI 时段采集；已有用户截图只保留本地，不作为当前客户端装饰已验收的证据。
 
 下划线位置使用与 VS Code 原生链接一致的 `text-underline-position: under`。同一字体、字号和缩放下，对照 `./panel` 与单目标 `./panel.ios.mpx`：线条应位于 `p / g / y` 等下伸部下方，不压住字形；不使用固定像素偏移，不改变点击范围或行为。该视觉对照仍需真实 Extension Host 截图验收。
+
+## 预热后的响应和候选刷新
+
+打开 `refresh.mpx`，等待诊断完成。对 `status` 重复悬停和 Ctrl/Cmd+悬停，预期显示字符串类型和可跳转状态。
+
+对 `refresh-panel` 标签及 JSON 路径分别查看定义，初始都应只定位到普通版本。将 `refresh-targets/refresh-panel.mpx` 复制为同目录的 `refresh-panel.ios.mpx`，两个位置均应出现普通和 iOS 定义。删除该临时文件后，两处应恢复为一个定义。目标目录在本场景的 `tsconfig.json` include 范围外。整个过程保持 `refresh.mpx` 打开且无需编辑或重启服务器。
+
+## 冷启动 JSON 诊断
+
+在独立 Extension Host 首次打开 `cold-start.mpx`。模板 `status` 应可悬停和跳转，JSON JS 块的 `count` 应出现故意保留的 TS2322。对照冷启动时可在场景副本中批量生成带相同组件注册的 Mpx 文件，并纳入本目录的 `tsconfig.json`。每轮启动新宿主并使用同一副本。预热后按上一节的步骤核对平台候选新增和删除。
+
+在同一宿主打开 `cold-start.mpx` 和 `refresh.mpx`。它们引用同一个组件路径。按预热场景新增、删除 iOS 候选，检查两个文件的模板标签和 JSON 路径都能更新跳转目标。
+
+诊断增量检查。在 `cold-start.mpx` 把 `count` 的字符串改为数字，确认 JSON TS2322 消失，再恢复字符串并确认诊断重现。
+
+在场景副本的 `tsconfig.json` 显式设定 `compilerOptions.checkJs: false`，打开 `literal-json.mpx`。`missing-panel` 是故意不存在的路径，应出现 Mpx 缺失组件诊断。确认 `refresh-panel` 的注册路径仍可补全和跳转，再打开 `cold-start.mpx` 检查带 `@ts-check` 的 JSON TS2322。
+
+要验证项目级 JS 类型检查，在场景副本中把 `checkJs` 改为 `true`，并移除 `cold-start.mpx` 中的 `// @ts-check`。重启独立宿主后，故意保留的 TS2322 仍应出现，组件候选增删和路径补全也应正常。
+
+包作用域检查。在场景副本的根目录和嵌套目录各打开一个引用同名包的组件，初始都跳转到根目录的包。向嵌套目录的 `node_modules` 添加同名包后，嵌套组件应跳转到该包，根目录组件仍跳转到原包。删除嵌套包后，嵌套组件应恢复跳转到原包。

@@ -35,6 +35,103 @@ it('refreshes imported JSON types through the existing project file watcher', as
   expect(hoverText(await p.service.getHover(uri, at))).toContain('number')
 })
 
+it.each([true, false])(
+  'honors project checkJs=%s for JSON scripts',
+  async checkJs => {
+    const p = (project = await createJsonProject(true, { checkJs }))
+    await p.edit(
+      'index.mpx',
+      `<script name="json">
+/** @type {number} */
+const count = "wrong"
+module.exports = {
+  navigationBarTitleText: String(count),
+  usingComponents: { widget: "./missing-widget" },
+}
+</script>`,
+    )
+    const codes = (await p.service.getDiagnostics(p.uri('index.mpx'))).map(
+      d => d.code,
+    )
+    expect(codes.includes(2322)).toBe(checkJs)
+    expect(codes).toContain(4001)
+  },
+)
+
+it('validates unchecked literal configs without loading the JSON TypeScript program', async () => {
+  const p = (project = await createJsonProject(true, { checkJs: false }))
+  const source = `<script name="json">
+module.exports = {
+  usingComponents: { widget: "./missing-widget" },
+  navigationBarTitleText: "title",
+  component: "invalid",
+}
+</script>`
+  await p.edit('index.mpx', source)
+  const uri = p.uri('index.mpx')
+  const host = p.service.context.project.typescript!.languageServiceHost
+  const getFiles = host.getScriptFileNames
+  let reads = 0
+  host.getScriptFileNames = () => {
+    reads++
+    return getFiles()
+  }
+
+  const diagnostics = await p.service.getDiagnostics(uri)
+  expect(diagnostics.map(d => d.code)).toContain(4001)
+  expect(diagnostics.some(d => d.source === 'mpx-json-schema')).toBe(true)
+  expect(reads).toBe(0)
+
+  await p.edit(
+    'index.mpx',
+    source.replace(
+      '<script name="json">\n',
+      '<script name="json">#!/usr/bin/env node\n',
+    ),
+  )
+  expect((await p.service.getDiagnostics(uri)).map(d => d.code)).toContain(
+    18026,
+  )
+  expect(reads).toBeGreaterThan(0)
+
+  await p.edit('index.mpx', source.replace('"title"', ''))
+  expect((await p.service.getDiagnostics(uri)).map(d => d.code)).toContain(1109)
+  expect(reads).toBeGreaterThan(0)
+
+  await p.edit(
+    'index.mpx',
+    source
+      .replace(
+        'module.exports',
+        '// @ts-check\n/** @type {number} */\nconst count = "wrong"\nmodule.exports',
+      )
+      .replace('"title"', 'String(count)'),
+  )
+  expect((await p.service.getDiagnostics(uri)).map(d => d.code)).toContain(2322)
+})
+
+it('loads JSON scripts into the semantic project only when requested', async () => {
+  const p = (project = await createJsonProject())
+  const source =
+    '<script name="json">\n// @ts-check\n/** @type {number} */\nconst count = "wrong"\nmodule.exports = { count }\n</script>'
+  await p.write('index.mpx', source)
+  await p.write('unopened.mpx', source)
+  const host = p.service.context.project.typescript!.languageServiceHost
+  const hasScript = (name: string) =>
+    host.getScriptFileNames().some(file => file.endsWith(name + '.__json.cjs'))
+  expect(hasScript('index.mpx')).toBe(false)
+  expect(hasScript('unopened.mpx')).toBe(false)
+  expect(
+    (await p.service.getDiagnostics(p.uri('index.mpx'))).map(d => d.code),
+  ).toContain(2322)
+  expect(hasScript('index.mpx')).toBe(true)
+  expect(hasScript('unopened.mpx')).toBe(false)
+  expect(
+    (await p.service.getDiagnostics(p.uri('unopened.mpx'))).map(d => d.code),
+  ).toContain(2322)
+  expect(hasScript('unopened.mpx')).toBe(true)
+})
+
 for (const jsonOnly of [true, false]) {
   describe('JSON module environment (JSON-only host: ' + jsonOnly + ')', () => {
     it('types injected CommonJS names without Node types or business-script leakage', async () => {

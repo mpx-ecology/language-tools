@@ -65,12 +65,22 @@ export function createMpxLanguagePlugin<T>(
   mpxCompilerOptions: MpxCompilerOptions,
   asFileName: (scriptId: T) => string,
   asScriptId?: (fileName: string) => T,
+  watchExternalDependencies = false,
+  options?: { serviceScriptOnly?: boolean },
 ): LanguagePlugin<T, MpxVirtualCode> & {
   getExternalFilesVersion(
     fileName?: string,
     onChange?: (fileName: string) => void,
   ): string
+  dispose(): void
+  withComponentFileStats<R>(run: () => R): R
 } {
+  let componentFileStats:
+    | Map<string, import('node:fs').Stats | undefined>
+    | undefined
+  const getComponentFileStats = () => componentFileStats
+  const changedFiles = new Set<string>()
+  let externalProjectVersion = 0
   const pluginContext: Parameters<MpxLanguagePlugin>[0] = {
     modules: {
       '@vue/compiler-dom': CompilerDOM,
@@ -78,16 +88,46 @@ export function createMpxLanguagePlugin<T>(
     },
     compilerOptions,
     mpxCompilerOptions,
+    serviceScriptOnly:
+      options?.serviceScriptOnly === true && !mpxCompilerOptions.plugins.length,
+    getComponentFileStats,
+    onExternalDependencyChange: watchExternalDependencies
+      ? fileName => changedFiles.add(fileName)
+      : undefined,
   }
   const plugins = createPlugins(pluginContext)
   const resolveComponent = createUsingComponentsPathResolver(compilerOptions)
-  const fileRegistry = getMpxFileRegistry(
-    getFileRegistryKey(compilerOptions, mpxCompilerOptions, plugins),
-    mpxCompilerOptions.plugins,
-  )
+  // Watched caches belong to the project that owns their lifetime.
+  const fileRegistry =
+    watchExternalDependencies || pluginContext.serviceScriptOnly
+      ? new Map<string, MpxVirtualCode>()
+      : getMpxFileRegistry(
+          getFileRegistryKey(compilerOptions, mpxCompilerOptions, plugins),
+          mpxCompilerOptions.plugins,
+        )
 
   return {
+    withComponentFileStats(run) {
+      if (componentFileStats) return run()
+      componentFileStats = new Map()
+      try {
+        return run()
+      } finally {
+        componentFileStats = undefined
+      }
+    },
     getExternalFilesVersion(fileName, onChange) {
+      if (!fileName && watchExternalDependencies) {
+        // A clean project has no pending paths. Drain changes once before
+        // TypeScript consults the project version or reuses its current graph.
+        if (changedFiles.size) {
+          const pending = [...changedFiles]
+          changedFiles.clear()
+          externalProjectVersion++
+          for (const changed of pending) onChange?.(changed)
+        }
+        return String(externalProjectVersion)
+      }
       const files = fileName
         ? [fileRegistry.get(fileName)].filter(code => !!code)
         : [...fileRegistry.values()]
@@ -107,6 +147,13 @@ export function createMpxLanguagePlugin<T>(
           return version
         })
         .join(';')
+    },
+    dispose() {
+      if (!watchExternalDependencies) return
+      for (const plugin of plugins) plugin.dispose?.()
+      resolveComponent.dispose()
+      changedFiles.clear()
+      fileRegistry.clear()
     },
     getLanguageId(scriptId) {
       const fileName = asFileName(scriptId)
@@ -139,6 +186,14 @@ export function createMpxLanguagePlugin<T>(
           return code
         }
       }
+    },
+    disposeVirtualCode(_scriptId, code) {
+      if (!watchExternalDependencies) return
+      const { fileName } = code
+      fileRegistry.delete(fileName)
+      changedFiles.delete(fileName)
+      for (const plugin of plugins) plugin.disposeFile?.(fileName)
+      resolveComponent.forget(fileName)
     },
     updateVirtualCode(scriptId, code, snapshot, ctx) {
       code.update(snapshot)
@@ -222,6 +277,10 @@ export function withMpxJsonServiceScripts<T>(
     ...plugin,
     typescript: {
       ...plugin.typescript!,
+      // JSON roots are added on demand. Keep them out of Volar's config glob.
+      extraFileExtensions: jsonOnly
+        ? []
+        : plugin.typescript!.extraFileExtensions,
       getServiceScript: jsonOnly
         ? () => undefined
         : plugin.typescript!.getServiceScript,

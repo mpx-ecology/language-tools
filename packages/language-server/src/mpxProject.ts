@@ -23,19 +23,19 @@ export function createMpxProject(
 ) {
   // Track the actual config/extends reads, including custom config names and
   // failed reads that may become valid after a file is created.
-  const configHost = onConfigFileAccess
-    ? {
-        ...ts.sys,
-        readFile(fileName: string) {
-          onConfigFileAccess(fileName)
-          return ts.sys.readFile(fileName)
-        },
-        fileExists(fileName: string) {
-          onConfigFileAccess(fileName)
-          return ts.sys.fileExists(fileName)
-        },
-      }
-    : ts.sys
+  const configHost = {
+    ...ts.sys,
+    // Volar reads the project's roots separately.
+    readDirectory: () => [],
+    readFile(fileName: string) {
+      onConfigFileAccess?.(fileName)
+      return ts.sys.readFile(fileName)
+    },
+    fileExists(fileName: string) {
+      onConfigFileAccess?.(fileName)
+      return ts.sys.fileExists(fileName)
+    },
+  }
   const commandLine = configFileName
     ? createParsedCommandLine(ts, configHost, configFileName, jsonOnly)
     : {
@@ -72,13 +72,33 @@ export function createMpxProject(
   // Preserve tsconfig roots: global augmentations can live in ordinary modules
   // or be introduced transitively through their imports. jsonOnly disables the
   // Mpx business service script, not the project's ambient type environment.
+  const jsonFiles = new Set<string>()
+  if (jsonOnly) {
+    const { extensions } = commandLine.mpxOptions
+    const getFiles = projectHost.getScriptFileNames
+    const getVersion = projectHost.getProjectVersion
+    // JSON scripts are independent CommonJS modules. Load them when requested,
+    // preserving the ordinary TS/JS roots that contribute ambient declarations.
+    projectHost.getScriptFileNames = () => [
+      ...getFiles().filter(file => !extensions.some(ext => file.endsWith(ext))),
+      ...jsonFiles,
+    ]
+    projectHost.getProjectVersion = () =>
+      `${getVersion?.() ?? ''}:${jsonFiles.size}`
+  }
   const languagePlugin = createMpxLanguagePlugin(
     ts,
     commandLine.options,
     commandLine.mpxOptions,
     (uri: { fsPath: string }) => uri.fsPath.replace(/\\/g, '/'),
     uriConverter.asUri,
+    true,
   )
+  const dispose = sys.dispose
+  sys.dispose = () => {
+    languagePlugin.dispose()
+    dispose()
+  }
   return {
     languagePlugins: [withMpxJsonServiceScripts(languagePlugin, jsonOnly)],
     setup({
@@ -91,6 +111,9 @@ export function createMpxProject(
       project.mpx = {
         compilerOptions: commandLine.mpxOptions,
         typescriptCompilerOptions: commandLine.options,
+        includeJsonScript: jsonOnly
+          ? uri => jsonFiles.add(uriConverter.asFileName(uri))
+          : undefined,
       }
       if (project.typescript) {
         const host = project.typescript.languageServiceHost

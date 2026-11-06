@@ -10,10 +10,7 @@ import { generateTemplate } from './template'
 import { codeFeatures } from '../codeFeatures'
 import { generateComponentSelf } from './componentSelf'
 import { generateTemplateRefs } from './templateRefs'
-import {
-  generateJsonPathCompletionImports,
-  generateJsonUsingComponents,
-} from './jsonUsingComponents'
+import { generateJsonComponents } from './jsonUsingComponents'
 import {
   endOfLine,
   generateDefineComponent,
@@ -85,8 +82,7 @@ export function* generateScript(
   }
   // Keep JSON path completion imports near the real import section so the
   // generated script layout stays close to vue-language-tools.
-  yield* generateJsonPathCompletionImports(options, ctx)
-  yield* generateJsonUsingComponents(options, ctx)
+  yield* generateJsonComponents(options)
   yield* generateTemplateRefs(options)
   if (options.sfc.script && options.scriptRanges) {
     const { createComponentObj } = options.scriptRanges
