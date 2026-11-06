@@ -14,10 +14,12 @@ const plugin: MpxLanguagePlugin = ({
   modules,
   compilerOptions,
   onExternalDependencyChange,
+  getComponentFileStats,
 }) => {
   const resolveComponentPath = createUsingComponentsPathResolver(
     compilerOptions,
     onExternalDependencyChange,
+    getComponentFileStats,
   )
 
   function resolveUsingComponentsPath(

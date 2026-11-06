@@ -23,19 +23,19 @@ export function createMpxProject(
 ) {
   // Track the actual config/extends reads, including custom config names and
   // failed reads that may become valid after a file is created.
-  const configHost = onConfigFileAccess
-    ? {
-        ...ts.sys,
-        readFile(fileName: string) {
-          onConfigFileAccess(fileName)
-          return ts.sys.readFile(fileName)
-        },
-        fileExists(fileName: string) {
-          onConfigFileAccess(fileName)
-          return ts.sys.fileExists(fileName)
-        },
-      }
-    : ts.sys
+  const configHost = {
+    ...ts.sys,
+    // Volar reads the project's roots separately.
+    readDirectory: () => [],
+    readFile(fileName: string) {
+      onConfigFileAccess?.(fileName)
+      return ts.sys.readFile(fileName)
+    },
+    fileExists(fileName: string) {
+      onConfigFileAccess?.(fileName)
+      return ts.sys.fileExists(fileName)
+    },
+  }
   const commandLine = configFileName
     ? createParsedCommandLine(ts, configHost, configFileName, jsonOnly)
     : {

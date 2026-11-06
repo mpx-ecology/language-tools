@@ -277,6 +277,7 @@ export function setupGlobalTypes(
   mpxOptions: MpxCompilerOptions,
   host: {
     fileExists(path: string): boolean
+    readFile?(path: string): string | undefined
     writeFile?(path: string, data: string): void
   },
 ): MpxCompilerOptions['__setupedGlobalTypes'] {
@@ -306,7 +307,8 @@ export function setupGlobalTypes(
     )
     const globalTypesContents =
       `// @ts-nocheck\n` + `export {};\n` + generateGlobalTypes(mpxOptions)
-    host.writeFile(globalTypesPath, globalTypesContents)
+    if (host.readFile?.(globalTypesPath) !== globalTypesContents)
+      host.writeFile(globalTypesPath, globalTypesContents)
 
     const nativeComponentsTypesPath = path.join(
       dir,
@@ -314,7 +316,11 @@ export function setupGlobalTypes(
       '.mpx-global-types',
       `${nativeComponentsTypesFileName}.d.ts`,
     )
-    host.writeFile(nativeComponentsTypesPath, nativeComponentsTypesContents)
+    if (
+      host.readFile?.(nativeComponentsTypesPath) !==
+      nativeComponentsTypesContents
+    )
+      host.writeFile(nativeComponentsTypesPath, nativeComponentsTypesContents)
 
     return { absolutePath: globalTypesPath }
   } catch {

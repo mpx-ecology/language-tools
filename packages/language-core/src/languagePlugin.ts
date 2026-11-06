@@ -72,7 +72,12 @@ export function createMpxLanguagePlugin<T>(
     onChange?: (fileName: string) => void,
   ): string
   dispose(): void
+  withComponentFileStats<R>(run: () => R): R
 } {
+  let componentFileStats:
+    | Map<string, import('node:fs').Stats | undefined>
+    | undefined
+  const getComponentFileStats = () => componentFileStats
   const changedFiles = new Set<string>()
   let externalProjectVersion = 0
   const pluginContext: Parameters<MpxLanguagePlugin>[0] = {
@@ -82,6 +87,7 @@ export function createMpxLanguagePlugin<T>(
     },
     compilerOptions,
     mpxCompilerOptions,
+    getComponentFileStats,
     onExternalDependencyChange: watchExternalDependencies
       ? fileName => changedFiles.add(fileName)
       : undefined,
@@ -97,6 +103,15 @@ export function createMpxLanguagePlugin<T>(
       )
 
   return {
+    withComponentFileStats(run) {
+      if (componentFileStats) return run()
+      componentFileStats = new Map()
+      try {
+        return run()
+      } finally {
+        componentFileStats = undefined
+      }
+    },
     getExternalFilesVersion(fileName, onChange) {
       if (!fileName && watchExternalDependencies) {
         // A clean project has no pending paths. Drain changes once before
@@ -258,6 +273,10 @@ export function withMpxJsonServiceScripts<T>(
     ...plugin,
     typescript: {
       ...plugin.typescript!,
+      // JSON roots are added on demand. Keep them out of Volar's config glob.
+      extraFileExtensions: jsonOnly
+        ? []
+        : plugin.typescript!.extraFileExtensions,
       getServiceScript: jsonOnly
         ? () => undefined
         : plugin.typescript!.getServiceScript,

@@ -247,6 +247,25 @@ describe('platform component resolution', () => {
     expect(resolve(request, first)?.candidates).toEqual([])
   })
 
+  it('checks dependency fingerprints again outside a graph build', () => {
+    const directory = temporaryFixture()
+    const importer = path.join(directory, 'index.mpx')
+    const variant = path.join(directory, 'during-build.ios.mpx')
+    let graphStats: Map<string, fs.Stats | undefined> | undefined = new Map()
+    const resolve = createUsingComponentsPathResolver(
+      {},
+      undefined,
+      () => graphStats,
+    )
+    expect(resolve('./during-build', importer)?.candidates).toEqual([])
+    fs.writeFileSync(variant, '<template><view /></template>')
+    expect(resolve('./during-build', importer)?.candidates).toEqual([])
+
+    graphStats = undefined
+    expect(resolve.getVersion(importer)).toBe(1)
+    expect(resolve('./during-build', importer)?.result).toBe(variant)
+  })
+
   it('keeps bare package lookups separate across importer directories', () => {
     const directory = temporaryFixture()
     const resolve = resolver(directory)

@@ -49,3 +49,5 @@ usingComponents 的 `?root=` 等 query 保留在原始注册和补全映射中�
 在独立 Extension Host 首次打开 `cold-start.mpx`。模板 `status` 应可悬停和跳转，JSON JS 块的 `count` 应出现故意保留的 TS2322。对照冷启动时可在场景副本中批量生成带相同组件注册的 Mpx 文件，并纳入本目录的 `tsconfig.json`。每轮启动新宿主并使用同一副本。预热后按上一节的步骤核对平台候选新增和删除。
 
 在同一宿主打开 `cold-start.mpx` 和 `refresh.mpx`。它们引用同一个组件路径。按预热场景新增、删除 iOS 候选，检查两个文件的模板标签和 JSON 路径都能更新跳转目标。
+
+诊断增量检查。在 `cold-start.mpx` 把 `count` 的字符串改为数字，确认 JSON TS2322 消失，再恢复字符串并确认诊断重现。

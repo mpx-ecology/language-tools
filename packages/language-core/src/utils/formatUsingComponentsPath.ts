@@ -44,6 +44,7 @@ export type ComponentPathCandidate = Pick<
 export function createUsingComponentsPathResolver(
   compilerOptions: ts.CompilerOptions,
   onChange?: (uri: string) => void,
+  getBatchStats?: () => Map<string, fs.Stats | undefined> | undefined,
 ) {
   type Result = {
     result?: string
@@ -73,8 +74,9 @@ export function createUsingComponentsPathResolver(
   let availableModes = new Set<string>()
 
   function stat(fileName: string) {
-    if (!stats.has(fileName)) stats.set(fileName, readStat(fileName))
-    return stats.get(fileName)
+    const current = getBatchStats?.() ?? stats
+    if (!current.has(fileName)) current.set(fileName, readStat(fileName))
+    return current.get(fileName)
   }
 
   function trackDependency(fileName: string, content = false) {
@@ -141,9 +143,13 @@ export function createUsingComponentsPathResolver(
     dependencies: Map<string, string>,
     current = new Map<string, string>(),
   ) {
+    const batch = getBatchStats?.()
     for (const [fileName, value] of dependencies) {
       if (!current.has(fileName))
-        current.set(fileName, fingerprint(readStat(fileName)))
+        current.set(
+          fileName,
+          fingerprint(batch ? stat(fileName) : readStat(fileName)),
+        )
       if (current.get(fileName) !== value) return true
     }
     return false
@@ -229,11 +235,12 @@ export function createUsingComponentsPathResolver(
     if (onChange) {
       const invalidateEntry = () =>
         invalidate(uri, entries, componentPath, entry)
-      for (const fileName of resolution.dependencies.keys()) {
+      for (const [fileName, version] of resolution.dependencies) {
         closes.push(
           watchComponentDependency(
             fileName,
             resolution.contentDependencies.has(fileName),
+            version,
             invalidateEntry,
           ),
         )

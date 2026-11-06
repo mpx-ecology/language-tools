@@ -37,6 +37,9 @@ export = createLanguageServicePlugin((ts, info) => {
   return {
     languagePlugins: [languagePlugin],
     setup: language => {
+      const updateGraph = info.project.updateGraph.bind(info.project)
+      info.project.updateGraph = () =>
+        languagePlugin.withComponentFileStats(updateGraph)
       const close = info.project.close.bind(info.project)
       info.project.close = () => {
         try {
@@ -92,17 +95,19 @@ export = createLanguageServicePlugin((ts, info) => {
   }
 
   function getMpxCompilerOptions() {
+    // tsserver already computed the project roots; this pass only reads options.
+    const configHost = { ...ts.sys, readDirectory: () => [] }
     if (info.project.projectKind === ts.server.ProjectKind.Configured) {
       const tsconfig = info.project.getProjectName()
       return mpx.createParsedCommandLine(
         ts,
-        ts.sys,
+        configHost,
         tsconfig.replace(windowsPathReg, '/'),
       ).mpxOptions
     } else {
       return mpx.createParsedCommandLineByJson(
         ts,
-        ts.sys,
+        configHost,
         info.languageServiceHost.getCurrentDirectory(),
         {},
       ).mpxOptions

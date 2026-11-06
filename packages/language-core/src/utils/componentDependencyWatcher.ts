@@ -49,13 +49,14 @@ const dependencies = new Map<
 export function watchComponentDependency(
   fileName: string,
   content: boolean,
+  expectedVersion: string,
   invalidate: () => void,
 ) {
   const key = `${content ? 'file' : 'directory'}:${fileName}`
   let entry = dependencies.get(key)
   if (!entry) {
     const listeners = new Set<() => void>()
-    const close = watchDependency(fileName, content, () => {
+    const close = watchDependency(fileName, content, expectedVersion, () => {
       for (const notify of listeners) notify()
     })
     entry = { close, listeners }
@@ -75,6 +76,7 @@ export function watchComponentDependency(
 function watchDependency(
   fileName: string,
   content: boolean,
+  expectedVersion: string,
   invalidate: () => void,
 ) {
   const closes: (() => void)[] = []
@@ -121,7 +123,7 @@ function watchDependency(
   // Native watchers may miss mutations made in the same turn they are
   // installed. Recheck once after installation, then rely on file events.
   const startupCheck = setImmediate(() => {
-    if (pathVersion(fileName) !== version) invalidate()
+    if (pathVersion(fileName) !== expectedVersion) invalidate()
   })
   startupCheck.unref()
   return () => {
@@ -145,4 +147,5 @@ function pathVersion(fileName: string) {
   } catch {
     // The dependency can become inaccessible before its watcher is notified.
   }
+  return ''
 }
