@@ -13,6 +13,7 @@ declare module '@volar/language-service' {
     mpx?: {
       compilerOptions: MpxCompilerOptions
       typescriptCompilerOptions?: import('typescript').CompilerOptions
+      includeJsonScript?(uri: import('vscode-uri').URI): void
     }
   }
 }

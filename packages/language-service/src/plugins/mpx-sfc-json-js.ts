@@ -46,8 +46,10 @@ export function create(
             const decoded = context.decodeEmbeddedDocumentUri(
               URI.parse(document.uri),
             )
-            if (decoded?.[1] === 'json_service')
+            if (decoded?.[1] === 'json_service') {
+              context.project.mpx?.includeJsonScript?.(decoded[0])
               return provider(document, ...args)
+            }
           })
         )
       }

@@ -81,8 +81,10 @@ function watchDependency(
   let watchOwnDirectory = false
   if (!content) {
     // Watch child additions and removals, and the directory's own replacement.
+    const version = directoryVersion(fileName)
     const close = subscribe(fileName, event => {
-      if (event === 'rename') invalidate()
+      if (event === 'rename' || directoryVersion(fileName) !== version)
+        invalidate()
     })
     if (close) {
       watchOwnDirectory = true
@@ -95,12 +97,8 @@ function watchDependency(
   let watchParent = false
   for (;;) {
     const name = path.basename(child).toLowerCase()
-    const close = subscribe(directory, (event, entry) => {
-      if (
-        entry === null ||
-        ((content || event === 'rename') && entry.toLowerCase() === name)
-      )
-        invalidate()
+    const close = subscribe(directory, (_, entry) => {
+      if (entry === null || entry.toLowerCase() === name) invalidate()
     })
     if (close) {
       watchParent = true
@@ -131,5 +129,14 @@ function isDirectory(fileName: string) {
     return fs.statSync(fileName, { throwIfNoEntry: false })?.isDirectory()
   } catch {
     return false
+  }
+}
+
+function directoryVersion(fileName: string) {
+  try {
+    const stat = fs.statSync(fileName, { throwIfNoEntry: false })
+    if (stat) return `${stat.ino}:${stat.mtimeMs}:${stat.ctimeMs}`
+  } catch {
+    // A directory can become inaccessible before its watcher is notified.
   }
 }

@@ -72,6 +72,20 @@ export function createMpxProject(
   // Preserve tsconfig roots: global augmentations can live in ordinary modules
   // or be introduced transitively through their imports. jsonOnly disables the
   // Mpx business service script, not the project's ambient type environment.
+  const jsonFiles = new Set<string>()
+  if (jsonOnly) {
+    const { extensions } = commandLine.mpxOptions
+    const getFiles = projectHost.getScriptFileNames
+    const getVersion = projectHost.getProjectVersion
+    // JSON scripts are independent CommonJS modules. Load them when requested,
+    // preserving the ordinary TS/JS roots that contribute ambient declarations.
+    projectHost.getScriptFileNames = () => [
+      ...getFiles().filter(file => !extensions.some(ext => file.endsWith(ext))),
+      ...jsonFiles,
+    ]
+    projectHost.getProjectVersion = () =>
+      `${getVersion?.() ?? ''}:${jsonFiles.size}`
+  }
   const languagePlugin = createMpxLanguagePlugin(
     ts,
     commandLine.options,
@@ -97,6 +111,9 @@ export function createMpxProject(
       project.mpx = {
         compilerOptions: commandLine.mpxOptions,
         typescriptCompilerOptions: commandLine.options,
+        includeJsonScript: jsonOnly
+          ? uri => jsonFiles.add(uriConverter.asFileName(uri))
+          : undefined,
       }
       if (project.typescript) {
         const host = project.typescript.languageServiceHost

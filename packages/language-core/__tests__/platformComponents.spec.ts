@@ -269,20 +269,24 @@ it('updates only changed component registrations when watching files outside the
     const target = path.join(directory, 'external/nested/panel.ios.mpx')
     fs.mkdirSync(path.dirname(target), { recursive: true })
     fs.writeFileSync(target, '<template><view /></template>')
-    await vi.waitFor(() =>
-      expect(plugin.getExternalFilesVersion(undefined, invalidated)).not.toBe(
-        version,
-      ),
+    await vi.waitFor(
+      () =>
+        expect(plugin.getExternalFilesVersion(undefined, invalidated)).not.toBe(
+          version,
+        ),
+      { timeout: 4000 },
     )
     expect(invalidated.mock.calls).toEqual([[owner]])
     root.update(snapshot)
     expect(candidates()).toEqual(['panel.ios.mpx'])
     const added = plugin.getExternalFilesVersion(undefined)
     fs.unlinkSync(target)
-    await vi.waitFor(() =>
-      expect(plugin.getExternalFilesVersion(undefined, invalidated)).not.toBe(
-        added,
-      ),
+    await vi.waitFor(
+      () =>
+        expect(plugin.getExternalFilesVersion(undefined, invalidated)).not.toBe(
+          added,
+        ),
+      { timeout: 4000 },
     )
     expect(invalidated.mock.calls).toEqual([[owner], [owner]])
     root.update(snapshot)

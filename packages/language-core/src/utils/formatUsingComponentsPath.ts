@@ -58,17 +58,42 @@ export function createUsingComponentsPathResolver(
   }
   const cache = new Map<string, Map<string, Entry>>()
   const versions = new Map<string, number>()
+  const directories = new Map<string, { version: string; names: Set<string> }>()
+  const stats = new Map<string, fs.Stats | undefined>()
   let dependencies = new Map<string, string>()
   let contentDependencies = new Set<string>()
   let mode: string | undefined
   let discoverModes = false
   let availableModes = new Set<string>()
 
+  function stat(fileName: string) {
+    if (!stats.has(fileName)) stats.set(fileName, readStat(fileName))
+    return stats.get(fileName)
+  }
+
   function trackDependency(fileName: string, content = false) {
     const dependency = content ? fileName : path.dirname(fileName)
     if (content && onChange) contentDependencies.add(dependency)
-    if (!dependencies.has(dependency))
-      dependencies.set(dependency, fingerprint(dependency))
+    let version = dependencies.get(dependency)
+    if (version === undefined) {
+      version = fingerprint(stat(dependency))
+      dependencies.set(dependency, version)
+    }
+    return version
+  }
+
+  function siblingNames(fileName: string) {
+    const directory = path.dirname(fileName)
+    const version = trackDependency(fileName)
+    const cached = directories.get(directory)
+    if (cached?.version === version) return cached.names
+    try {
+      const names = new Set(fs.readdirSync(directory).map(foldName))
+      directories.set(directory, { version, names })
+      return names
+    } catch {
+      // Keep individual probes available on filesystems that cannot list a directory.
+    }
   }
 
   function resolveFile(fileName: string) {
@@ -78,27 +103,27 @@ export function createUsingComponentsPathResolver(
       // Probe siblings at the same file hook used by Mpx. Only real platform
       // variants need another package/alias traversal; a generic fallback is
       // already represented by the first resolution.
+      const names = siblingNames(fileName)
       for (const candidateMode of componentFileModes) {
         const candidate = `${stem}.${candidateMode}${ext}`
-        trackDependency(candidate)
-        try {
-          if (fs.statSync(candidate).isFile()) availableModes.add(candidateMode)
-        } catch {
-          /* Missing siblings still share the dependency directory. */
-        }
+        if (
+          (!names || names.has(foldName(path.basename(candidate)))) &&
+          stat(candidate)?.isFile()
+        )
+          availableModes.add(candidateMode)
       }
     }
     for (const candidate of platformFiles(fileName, mode)) {
       trackDependency(candidate)
-      try {
-        if (fs.statSync(candidate).isFile()) return candidate
-      } catch {
-        /* Missing candidates are dependencies too. */
-      }
+      if (stat(candidate)?.isFile()) return candidate
     }
   }
 
-  const resolvePackage = createPackagePathResolver(resolveFile, trackDependency)
+  const resolvePackage = createPackagePathResolver(
+    resolveFile,
+    trackDependency,
+    stat,
+  )
   const resolveByTsConfig = createTsConfigPathResolver(
     compilerOptions,
     fileName =>
@@ -110,10 +135,12 @@ export function createUsingComponentsPathResolver(
     dependencies: Map<string, string>,
     current = new Map<string, string>(),
   ) {
-    return [...dependencies].some(([fileName, value]) => {
-      if (!current.has(fileName)) current.set(fileName, fingerprint(fileName))
-      return current.get(fileName) !== value
-    })
+    for (const [fileName, value] of dependencies) {
+      if (!current.has(fileName))
+        current.set(fileName, fingerprint(readStat(fileName)))
+      if (current.get(fileName) !== value) return true
+    }
+    return false
   }
 
   function getVersion(uri: string) {
@@ -143,6 +170,7 @@ export function createUsingComponentsPathResolver(
       return cached.value
     }
     if (cached) invalidate(uri, entries, componentPath, cached)
+    stats.clear()
     dependencies = new Map()
     contentDependencies = new Set()
     // Resource query mode/env are not webpack's compilation mode/env. Preserve
@@ -168,7 +196,7 @@ export function createUsingComponentsPathResolver(
       if (!result) continue
       let realFilename: string
       try {
-        realFilename = fs.realpathSync(result).replace(/\\/g, '/')
+        realFilename = fs.realpathSync.native(result).replace(/\\/g, '/')
       } catch {
         continue
       }
@@ -235,6 +263,8 @@ export function createUsingComponentsPathResolver(
   function dispose() {
     for (const uri of cache.keys()) forget(uri)
     versions.clear()
+    directories.clear()
+    stats.clear()
   }
 
   return Object.assign(resolveUsingComponentsPath, {
@@ -245,13 +275,20 @@ export function createUsingComponentsPathResolver(
   })
 }
 
-function fingerprint(fileName: string) {
+function readStat(fileName: string) {
   try {
-    const stat = fs.statSync(fileName)
-    return `${stat.ino}:${stat.mtimeMs}:${stat.ctimeMs}:${stat.size}`
+    return fs.statSync(fileName, { throwIfNoEntry: false })
   } catch {
-    return ''
+    return undefined
   }
+}
+
+function fingerprint(stat: fs.Stats | undefined) {
+  return stat ? `${stat.ino}:${stat.mtimeMs}:${stat.ctimeMs}:${stat.size}` : ''
+}
+
+function foldName(name: string) {
+  return name.normalize('NFC').toLowerCase()
 }
 
 function platformFiles(fileName: string, mode?: string) {

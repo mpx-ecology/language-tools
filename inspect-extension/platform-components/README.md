@@ -43,3 +43,7 @@ usingComponents 的 `?root=` 等 query 保留在原始注册和补全映射中�
 打开 `refresh.mpx`，等待诊断完成。对 `status` 重复悬停和 Ctrl/Cmd+悬停，预期显示字符串类型和可跳转状态。
 
 对 `refresh-panel` 标签及 JSON 路径分别查看定义，初始都应只定位到普通版本。将 `refresh-targets/refresh-panel.mpx` 复制为同目录的 `refresh-panel.ios.mpx`，两个位置均应出现普通和 iOS 定义。删除该临时文件后，两处应恢复为一个定义。目标目录在本场景的 `tsconfig.json` include 范围外。整个过程保持 `refresh.mpx` 打开且无需编辑或重启服务器。
+
+## 冷启动 JSON 诊断
+
+在独立 Extension Host 首次打开 `cold-start.mpx`。模板 `status` 应可悬停和跳转，JSON JS 块的 `count` 应出现故意保留的 TS2322。对照冷启动时可在场景副本中批量生成带相同组件注册的 Mpx 文件，并纳入本目录的 `tsconfig.json`。每轮启动新宿主并使用同一副本。预热后按上一节的步骤核对平台候选新增和删除。

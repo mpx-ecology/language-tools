@@ -35,6 +35,28 @@ it('refreshes imported JSON types through the existing project file watcher', as
   expect(hoverText(await p.service.getHover(uri, at))).toContain('number')
 })
 
+it('loads JSON scripts into the semantic project only when requested', async () => {
+  const p = (project = await createJsonProject())
+  const source =
+    '<script name="json">\n// @ts-check\n/** @type {number} */\nconst count = "wrong"\nmodule.exports = { count }\n</script>'
+  await p.write('index.mpx', source)
+  await p.write('unopened.mpx', source)
+  const host = p.service.context.project.typescript!.languageServiceHost
+  const hasScript = (name: string) =>
+    host.getScriptFileNames().some(file => file.endsWith(name + '.__json.cjs'))
+  expect(hasScript('index.mpx')).toBe(false)
+  expect(hasScript('unopened.mpx')).toBe(false)
+  expect(
+    (await p.service.getDiagnostics(p.uri('index.mpx'))).map(d => d.code),
+  ).toContain(2322)
+  expect(hasScript('index.mpx')).toBe(true)
+  expect(hasScript('unopened.mpx')).toBe(false)
+  expect(
+    (await p.service.getDiagnostics(p.uri('unopened.mpx'))).map(d => d.code),
+  ).toContain(2322)
+  expect(hasScript('unopened.mpx')).toBe(true)
+})
+
 for (const jsonOnly of [true, false]) {
   describe('JSON module environment (JSON-only host: ' + jsonOnly + ')', () => {
     it('types injected CommonJS names without Node types or business-script leakage', async () => {

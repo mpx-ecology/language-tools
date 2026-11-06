@@ -25,6 +25,8 @@ export function createTsConfigPathResolver(
     compilerConfig.paths ?? {},
   )
   return (request: string) => {
+    let probedPath: string | undefined
+    let probedResult: string | undefined
     const matched = matcher(
       request,
       fileName => {
@@ -35,36 +37,52 @@ export function createTsConfigPathResolver(
           return undefined
         }
       },
-      fileName => !!resolveRequest(fileName),
+      fileName => {
+        probedPath = fileName
+        probedResult = resolveRequest(fileName)
+        return !!probedResult
+      },
       [],
     )
-    return matched ? resolveRequest(matched) : undefined
+    if (matched)
+      return matched === probedPath ? probedResult : resolveRequest(matched)
   }
 }
 
 /** Create a project-scoped package resolver for Mpx component extensions. */
 export function createPackagePathResolver(
   resolveFile: ResolveFile,
-  trackDependency: (fileName: string, content?: boolean) => void,
+  trackDependency: (fileName: string, content?: boolean) => string,
+  stat: (fileName: string) => fs.Stats | undefined,
 ) {
+  const files = new Map<string, { version: string; contents: Buffer }>()
+  const missingFile = Object.assign(new Error('File not found'), {
+    code: 'ENOENT',
+  })
+  const fileSystem = {
+    ...fs,
+    statSync(fileName: string) {
+      trackDependency(fileName)
+      return stat(fileName)
+    },
+    readlinkSync(fileName: string) {
+      trackDependency(fileName)
+      return fs.readlinkSync(fileName)
+    },
+    readFileSync(fileName: string) {
+      const version = trackDependency(fileName, true)
+      if (!version) throw missingFile
+      const cached = files.get(fileName)
+      if (cached?.version === version) return cached.contents
+      const contents = fs.readFileSync(fileName)
+      files.set(fileName, { version, contents })
+      return contents
+    },
+  }
   const resolver = enhancedResolve.create.sync({
     extensions: ['.mpx', '.js'],
-    // The default enhanced-resolve filesystem caches misses for four seconds.
-    // Keep our own dependency-aware cache so newly created files are visible.
-    fileSystem: new Proxy(fs, {
-      get(target, key) {
-        const value = Reflect.get(target, key)
-        if (
-          ['statSync', 'readlinkSync', 'readFileSync'].includes(String(key))
-        ) {
-          return (...args: unknown[]) => {
-            trackDependency(String(args[0]), key === 'readFileSync')
-            return Reflect.apply(value, target, args)
-          }
-        }
-        return value
-      },
-    }),
+    // Cache package contents against their metadata instead of using a TTL.
+    fileSystem: fileSystem as typeof fs,
     plugins: [
       {
         apply(resolver) {
@@ -87,10 +105,9 @@ export function createPackagePathResolver(
   })
 
   return (uri: string, baseUri: string) => {
-    const baseDir =
-      fs.existsSync(baseUri) && fs.statSync(baseUri).isDirectory()
-        ? baseUri
-        : path.dirname(baseUri)
+    const baseDir = stat(baseUri)?.isDirectory()
+      ? baseUri
+      : path.dirname(baseUri)
 
     try {
       return resolver({}, baseDir, uri) || undefined
