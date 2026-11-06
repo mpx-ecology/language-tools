@@ -30,6 +30,7 @@ export = createLanguageServicePlugin((ts, info) => {
     id => id,
     undefined,
     true,
+    { serviceScriptOnly: true },
   )
 
   addMpxCommands()

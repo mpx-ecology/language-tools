@@ -15,21 +15,31 @@ import { type MpxLanguagePlugin } from './types'
 export * from './plugins/shared'
 
 export function createPlugins(pluginContext: Parameters<MpxLanguagePlugin>[0]) {
-  const plugins: MpxLanguagePlugin[] = [
-    mpxFilePlugin,
-    mpxRootTagsPlugin,
-    mpxScriptJsPlugin,
-    mpxTemplateHtmlPlugin,
-    mpxTemplateInlineCssPlugin,
-    mpxTemplateInlineTsPlugin,
-    mpxSfcTemplatePlugin,
-    mpxSfcScriptFormatPlugin,
-    mpxSfcStylePlugin,
-    mpxSfcJsonPlugin,
-    mpxSfcCustomBlocksPlugin,
-    mpxTsxPlugin,
-    ...pluginContext.mpxCompilerOptions.plugins,
-  ]
+  // tsserver only consumes the generated script; the language server owns the
+  // template, style, JSON and document-structure views.
+  const plugins: MpxLanguagePlugin[] = pluginContext.serviceScriptOnly
+    ? [
+        mpxFilePlugin,
+        mpxScriptJsPlugin,
+        mpxTemplateHtmlPlugin,
+        mpxSfcJsonPlugin,
+        mpxTsxPlugin,
+      ]
+    : [
+        mpxFilePlugin,
+        mpxRootTagsPlugin,
+        mpxScriptJsPlugin,
+        mpxTemplateHtmlPlugin,
+        mpxTemplateInlineCssPlugin,
+        mpxTemplateInlineTsPlugin,
+        mpxSfcTemplatePlugin,
+        mpxSfcScriptFormatPlugin,
+        mpxSfcStylePlugin,
+        mpxSfcJsonPlugin,
+        mpxSfcCustomBlocksPlugin,
+        mpxTsxPlugin,
+        ...pluginContext.mpxCompilerOptions.plugins,
+      ]
 
   return plugins
     .flatMap(plugin => {

@@ -66,6 +66,7 @@ export function createMpxLanguagePlugin<T>(
   asFileName: (scriptId: T) => string,
   asScriptId?: (fileName: string) => T,
   watchExternalDependencies = false,
+  options?: { serviceScriptOnly?: boolean },
 ): LanguagePlugin<T, MpxVirtualCode> & {
   getExternalFilesVersion(
     fileName?: string,
@@ -87,6 +88,8 @@ export function createMpxLanguagePlugin<T>(
     },
     compilerOptions,
     mpxCompilerOptions,
+    serviceScriptOnly:
+      options?.serviceScriptOnly === true && !mpxCompilerOptions.plugins.length,
     getComponentFileStats,
     onExternalDependencyChange: watchExternalDependencies
       ? fileName => changedFiles.add(fileName)
@@ -95,12 +98,13 @@ export function createMpxLanguagePlugin<T>(
   const plugins = createPlugins(pluginContext)
   const resolveComponent = createUsingComponentsPathResolver(compilerOptions)
   // Watched caches belong to the project that owns their lifetime.
-  const fileRegistry = watchExternalDependencies
-    ? new Map<string, MpxVirtualCode>()
-    : getMpxFileRegistry(
-        getFileRegistryKey(compilerOptions, mpxCompilerOptions, plugins),
-        mpxCompilerOptions.plugins,
-      )
+  const fileRegistry =
+    watchExternalDependencies || pluginContext.serviceScriptOnly
+      ? new Map<string, MpxVirtualCode>()
+      : getMpxFileRegistry(
+          getFileRegistryKey(compilerOptions, mpxCompilerOptions, plugins),
+          mpxCompilerOptions.plugins,
+        )
 
   return {
     withComponentFileStats(run) {

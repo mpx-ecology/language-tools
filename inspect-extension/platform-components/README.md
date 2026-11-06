@@ -53,3 +53,5 @@ usingComponents 的 `?root=` 等 query 保留在原始注册和补全映射中�
 诊断增量检查。在 `cold-start.mpx` 把 `count` 的字符串改为数字，确认 JSON TS2322 消失，再恢复字符串并确认诊断重现。
 
 在场景副本的 `tsconfig.json` 显式设定 `compilerOptions.checkJs: false`，打开 `literal-json.mpx`。`missing-panel` 是故意不存在的路径，应出现 Mpx 缺失组件诊断。确认 `refresh-panel` 的注册路径仍可补全和跳转，再打开 `cold-start.mpx` 检查带 `@ts-check` 的 JSON TS2322。
+
+要验证项目级 JS 类型检查，在场景副本中把 `checkJs` 改为 `true`，并移除 `cold-start.mpx` 中的 `// @ts-check`。重启独立宿主后，故意保留的 TS2322 仍应出现，组件候选增删和路径补全也应正常。

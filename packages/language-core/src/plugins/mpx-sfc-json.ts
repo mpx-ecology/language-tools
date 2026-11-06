@@ -13,6 +13,7 @@ import { createUsingComponentsPathResolver } from '../utils/formatUsingComponent
 const plugin: MpxLanguagePlugin = ({
   modules,
   compilerOptions,
+  serviceScriptOnly,
   onExternalDependencyChange,
   getComponentFileStats,
 }) => {
@@ -115,6 +116,7 @@ const plugin: MpxLanguagePlugin = ({
     },
 
     getEmbeddedCodes(_fileName, sfc) {
+      if (serviceScriptOnly) return []
       const result: {
         id: string
         lang: string

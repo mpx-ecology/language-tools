@@ -297,6 +297,54 @@ describe('platform component resolution', () => {
   })
 })
 
+it('keeps the service script and its mappings when omitting editor views', () => {
+  const fileName = path.join(fixtureRoot, 'index.mpx')
+  const snapshot = ts.ScriptSnapshot.fromString(
+    fs.readFileSync(fileName, 'utf8'),
+  )
+  const generate = (serviceScriptOnly: boolean, customPlugin = false) => {
+    const options = getDefaultCompilerOptions()
+    if (customPlugin) options.plugins.push(() => ({ name: 'custom' }))
+    const plugin = createMpxLanguagePlugin(
+      ts,
+      { baseUrl: fixtureRoot, paths: { '@components/*': ['./*'] } },
+      options,
+      (name: string) => name,
+      undefined,
+      true,
+      { serviceScriptOnly },
+    )
+    try {
+      const language = createLanguage([plugin], new Map(), () => {})
+      const root = language.scripts.set(fileName, snapshot, 'mpx')!.generated!
+        .root
+      const script = plugin.typescript!.getServiceScript(root)!.code
+      return {
+        ids: [...forEachEmbeddedCode(root)].map(code => code.id),
+        text: script.snapshot.getText(0, script.snapshot.getLength()),
+        mappings: script.mappings.map(
+          ({ sourceOffsets, generatedOffsets, lengths }) => ({
+            sourceOffsets,
+            generatedOffsets,
+            lengths,
+          }),
+        ),
+      }
+    } finally {
+      plugin.dispose()
+    }
+  }
+
+  const full = generate(false)
+  const service = generate(true)
+  expect(full.ids).toContain('json_service')
+  expect(full.ids).toContain('template')
+  expect(service.ids).toEqual(['main', 'script_ts'])
+  expect(service.text).toBe(full.text)
+  expect(service.mappings).toEqual(full.mappings)
+  expect(generate(true, true).ids).toEqual(full.ids)
+})
+
 it('updates only changed component registrations when watching files outside the project roots', async () => {
   const directory = temporaryFixture()
   const plugin = createMpxLanguagePlugin(

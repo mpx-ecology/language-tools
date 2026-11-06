@@ -129,6 +129,7 @@ export type MpxLanguagePlugin = (ctx: {
   }
   compilerOptions: ts.CompilerOptions
   mpxCompilerOptions: MpxCompilerOptions
+  serviceScriptOnly?: boolean
   onExternalDependencyChange?: (fileName: string) => void
   getComponentFileStats?():
     | Map<string, import('node:fs').Stats | undefined>

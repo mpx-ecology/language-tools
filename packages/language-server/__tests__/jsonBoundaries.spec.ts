@@ -35,6 +35,29 @@ it('refreshes imported JSON types through the existing project file watcher', as
   expect(hoverText(await p.service.getHover(uri, at))).toContain('number')
 })
 
+it.each([true, false])(
+  'honors project checkJs=%s for JSON scripts',
+  async checkJs => {
+    const p = (project = await createJsonProject(true, { checkJs }))
+    await p.edit(
+      'index.mpx',
+      `<script name="json">
+/** @type {number} */
+const count = "wrong"
+module.exports = {
+  navigationBarTitleText: String(count),
+  usingComponents: { widget: "./missing-widget" },
+}
+</script>`,
+    )
+    const codes = (await p.service.getDiagnostics(p.uri('index.mpx'))).map(
+      d => d.code,
+    )
+    expect(codes.includes(2322)).toBe(checkJs)
+    expect(codes).toContain(4001)
+  },
+)
+
 it('validates unchecked literal configs without loading the JSON TypeScript program', async () => {
   const p = (project = await createJsonProject(true, { checkJs: false }))
   const source = `<script name="json">

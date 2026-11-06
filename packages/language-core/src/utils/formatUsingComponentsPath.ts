@@ -55,7 +55,8 @@ export function createUsingComponentsPathResolver(
     value: Result
     dependencies: Map<string, string>
     contentDependencies: Set<string>
-    references: number
+    users: Set<() => void>
+    stopWatching?: () => void
   }
   type Entry = {
     resolution: Resolution
@@ -67,6 +68,10 @@ export function createUsingComponentsPathResolver(
   const versions = new Map<string, number>()
   const directories = new Map<string, { version: string; names: Set<string> }>()
   const stats = new Map<string, fs.Stats | undefined>()
+  const batchRealpaths = new WeakMap<
+    Map<string, fs.Stats | undefined>,
+    Map<string, string | undefined>
+  >()
   let dependencies = new Map<string, string>()
   let contentDependencies = new Set<string>()
   let mode: string | undefined
@@ -213,38 +218,37 @@ export function createUsingComponentsPathResolver(
         value: resolveCandidates(request, importer),
         dependencies,
         contentDependencies,
-        references: 0,
+        users: new Set(),
       }
       resolutions.set(key, resolution)
     }
-    resolution.references++
-    const closes: (() => void)[] = []
+    const invalidateEntry = () => invalidate(uri, entries, componentPath, entry)
     const entry: Entry = {
       resolution,
       owners: new Set([owner]),
       close() {
-        for (const close of closes) close()
-        if (
-          --resolution.references === 0 &&
-          resolutions.get(key) === resolution
-        )
-          resolutions.delete(key)
+        resolution.users.delete(invalidateEntry)
+        if (!resolution.users.size) {
+          resolution.stopWatching?.()
+          if (resolutions.get(key) === resolution) resolutions.delete(key)
+        }
       },
     }
+    resolution.users.add(invalidateEntry)
     entries.set(componentPath, entry)
-    if (onChange) {
-      const invalidateEntry = () =>
-        invalidate(uri, entries, componentPath, entry)
-      for (const [fileName, version] of resolution.dependencies) {
-        closes.push(
-          watchComponentDependency(
-            fileName,
-            resolution.contentDependencies.has(fileName),
-            version,
-            invalidateEntry,
-          ),
-        )
+    if (onChange && !resolution.stopWatching) {
+      const invalidateResolution = () => {
+        for (const notify of [...resolution.users]) notify()
       }
+      const stops = [...resolution.dependencies].map(([fileName, version]) =>
+        watchComponentDependency(
+          fileName,
+          resolution.contentDependencies.has(fileName),
+          version,
+          invalidateResolution,
+        ),
+      )
+      resolution.stopWatching = () => stops.forEach(stop => stop())
     }
     return resolution.value
   }
@@ -261,12 +265,8 @@ export function createUsingComponentsPathResolver(
         resolveByTsConfig(request) || resolvePackage(request, importer)
       if (discoverModes) modes.push(...availableModes)
       if (!result) continue
-      let realFilename: string
-      try {
-        realFilename = fs.realpathSync.native(result).replace(/\\/g, '/')
-      } catch {
-        continue
-      }
+      const realFilename = canonicalPath(result)
+      if (!realFilename) continue
       trackDependency(realFilename)
       if (!candidates.has(realFilename)) {
         candidates.set(realFilename, {
@@ -281,6 +281,15 @@ export function createUsingComponentsPathResolver(
     }
     if (!value.result) value.error = true
     return value
+  }
+
+  function canonicalPath(fileName: string) {
+    const batch = getBatchStats?.()
+    if (!batch) return readRealpath(fileName)
+    let paths = batchRealpaths.get(batch)
+    if (!paths) batchRealpaths.set(batch, (paths = new Map()))
+    if (!paths.has(fileName)) paths.set(fileName, readRealpath(fileName))
+    return paths.get(fileName)
   }
 
   function invalidate(
@@ -327,6 +336,14 @@ export function createUsingComponentsPathResolver(
     forget,
     dispose,
   })
+}
+
+function readRealpath(fileName: string) {
+  try {
+    return fs.realpathSync.native(fileName).replace(/\\/g, '/')
+  } catch {
+    return undefined
+  }
 }
 
 function readStat(fileName: string) {
