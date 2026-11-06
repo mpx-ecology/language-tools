@@ -285,6 +285,64 @@ describe('platform component resolution', () => {
     }
   })
 
+  it('reuses a lookup across directories until a nested package changes the scope', () => {
+    const directory = temporaryFixture()
+    const outer = path.join(directory, 'outer')
+    const inner = path.join(directory, 'inner')
+    fs.mkdirSync(outer)
+    fs.mkdirSync(inner)
+    const pkg = path.join(directory, 'node_modules', 'scoped-widget')
+    fs.mkdirSync(pkg, { recursive: true })
+    fs.writeFileSync(path.join(pkg, 'package.json'), '{"main":"index.mpx"}')
+    const shared = path.join(pkg, 'index.mpx')
+    fs.writeFileSync(shared, '<template><view /></template>')
+
+    let batch: Map<string, fs.Stats | undefined> | undefined = new Map()
+    const resolve = createUsingComponentsPathResolver(
+      {},
+      undefined,
+      () => batch,
+    )
+    const outerImporter = path.join(outer, 'index.mpx')
+    const innerImporter = path.join(inner, 'index.mpx')
+    const result = resolve('scoped-widget', outerImporter)
+    expect(result?.result).toBe(shared)
+    expect(resolve('scoped-widget', innerImporter)).toBe(result)
+    const relative = resolve('../panel', outerImporter)
+    expect(resolve('../panel', innerImporter)).toBe(relative)
+    expect(
+      relative?.candidates.map(candidate =>
+        path.basename(candidate.realFilename),
+      ),
+    ).toEqual(['panel.mpx', 'panel.ali.mpx', 'panel.ios.mpx'])
+
+    batch = undefined
+    const nested = path.join(inner, 'node_modules', 'scoped-widget')
+    fs.mkdirSync(nested, { recursive: true })
+    fs.writeFileSync(path.join(nested, 'package.json'), '{"main":"index.mpx"}')
+    const innerFile = path.join(nested, 'index.mpx')
+    fs.writeFileSync(innerFile, '<template><view /></template>')
+    expect(resolve.getVersion(outerImporter)).toBe(0)
+    const shadowVersion = resolve.getVersion(innerImporter)
+    expect(shadowVersion).toBeGreaterThan(0)
+    batch = new Map()
+    expect(resolve('scoped-widget', innerImporter)?.result).toBe(innerFile)
+    expect(resolve('scoped-widget', outerImporter)?.result).toBe(shared)
+
+    batch = undefined
+    fs.rmSync(path.dirname(nested), { recursive: true, force: true })
+    fs.writeFileSync(
+      path.join(inner, 'package.json'),
+      '{"name":"scoped-widget","exports":"./self.mpx"}',
+    )
+    const self = path.join(inner, 'self.mpx')
+    fs.writeFileSync(self, '<template><view /></template>')
+    expect(resolve.getVersion(innerImporter)).toBeGreaterThan(shadowVersion)
+    batch = new Map()
+    expect(resolve('scoped-widget', innerImporter)?.result).toBe(self)
+    expect(resolve('scoped-widget', outerImporter)?.result).toBe(shared)
+  })
+
   it('canonicalizes symlink aliases and refreshes a retargeted link', () => {
     const directory = temporaryFixture()
     const resolve = resolver(directory)
@@ -424,11 +482,20 @@ const invalidValue = { invalid: true }
 defineExpose({ invalidValue })
 </script>`,
     )
+    const nested = path.join(directory, 'nested')
+    fs.mkdirSync(nested)
+    fs.copyFileSync(
+      path.join(directory, 'index.mpx'),
+      path.join(nested, 'index.mpx'),
+    )
     const service = createTestLanguageService(directory)
     services.push(service)
     const { code, root } = service.getServiceScript('index.mpx')
     expect(code.match(/import __MPX_jsonComponent_0_\d from/g)).toHaveLength(3)
     expect(code).not.toContain("import './panel'")
+    expect(service.getServiceScript('nested/index.mpx').code).toContain(
+      'from "../panel.ios.mpx"',
+    )
     expect(
       root.sfc.resolvedUsingComponents?.result.get('demo-panel'),
     ).toHaveLength(3)
@@ -460,9 +527,15 @@ defineExpose({})
         .getServiceScript('index.mpx')
         .code.match(/import __MPX_jsonComponent_0_\d from/g),
     ).toHaveLength(4)
+    expect(service.getServiceScript('nested/index.mpx').code).toContain(
+      'from "../panel.android.mpx"',
+    )
     fs.unlinkSync(path.join(directory, 'panel.android.mpx'))
     expect(propsFor(service)?.some(prop => prop.name === 'androidOnly')).toBe(
       false,
+    )
+    expect(service.getServiceScript('nested/index.mpx').code).not.toContain(
+      'from "../panel.android.mpx"',
     )
     expect(service.read('index.mpx')).toBe(parentText)
   })

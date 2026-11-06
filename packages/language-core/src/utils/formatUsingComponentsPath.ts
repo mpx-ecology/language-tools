@@ -51,15 +51,17 @@ export function createUsingComponentsPathResolver(
     candidates: ComponentPathCandidate[]
     error?: boolean
   }
-  type Resolution = {
-    value: Result
+  type Dependencies = {
     dependencies: Map<string, string>
-    contentDependencies: Set<string>
+    contentDependencies?: Set<string>
     users: Set<() => void>
     stopWatching?: () => void
   }
+  type Resolution = Dependencies & { value: Result }
+  type Scope = Dependencies & { directory: string }
   type Entry = {
     resolution: Resolution
+    scope?: Scope
     owners: Set<string>
     close(): void
   }
@@ -71,6 +73,10 @@ export function createUsingComponentsPathResolver(
   const batchRealpaths = new WeakMap<
     Map<string, fs.Stats | undefined>,
     Map<string, string | undefined>
+  >()
+  const batchScopes = new WeakMap<
+    Map<string, fs.Stats | undefined>,
+    Map<string, Scope | undefined>
   >()
   let dependencies = new Map<string, string>()
   let contentDependencies = new Set<string>()
@@ -97,7 +103,10 @@ export function createUsingComponentsPathResolver(
 
   function siblingNames(fileName: string) {
     const directory = path.dirname(fileName)
-    const version = trackDependency(fileName)
+    return readDirectoryNames(directory, trackDependency(fileName))
+  }
+
+  function readDirectoryNames(directory: string, version: string) {
     const cached = directories.get(directory)
     if (cached?.version === version) return cached.names
     try {
@@ -107,6 +116,51 @@ export function createUsingComponentsPathResolver(
     } catch {
       // Keep individual probes available on filesystems that cannot list a directory.
     }
+  }
+
+  function resolutionScope(directory: string, request: string) {
+    const batch = getBatchStats?.()
+    if (!batch || process.versions.pnp || !request || request.includes('#'))
+      return
+    if (
+      !path.isAbsolute(request) &&
+      (request.startsWith('.') || /[:\\]/.test(request))
+    )
+      return
+    let scopes = batchScopes.get(batch)
+    if (!scopes) batchScopes.set(batch, (scopes = new Map()))
+    return findScope(directory, scopes)
+  }
+
+  function findScope(
+    directory: string,
+    scopes: Map<string, Scope | undefined>,
+  ): Scope | undefined {
+    if (scopes.has(directory)) return scopes.get(directory)
+    const version = fingerprint(stat(directory))
+    const names = version && readDirectoryNames(directory, version)
+    const parent = path.dirname(directory)
+    let scope: Scope | undefined
+    // Every omitted directory must lack both package metadata and a module
+    // search location. Their fingerprints belong to the importing source.
+    if (
+      parent !== directory &&
+      names &&
+      !names.has('package.json') &&
+      !names.has('node_modules')
+    ) {
+      const ancestor = findScope(parent, scopes)
+      scope = {
+        directory: ancestor?.directory ?? parent,
+        dependencies: new Map([
+          [directory, version],
+          ...(ancestor?.dependencies ?? []),
+        ]),
+        users: new Set(),
+      }
+    }
+    scopes.set(directory, scope)
+    return scope
   }
 
   function resolveFile(fileName: string) {
@@ -140,7 +194,10 @@ export function createUsingComponentsPathResolver(
   const resolveByTsConfig = createTsConfigPathResolver(
     compilerOptions,
     fileName =>
-      resolvePackage(fileName, compilerOptions.baseUrl ?? process.cwd()),
+      resolvePackage(
+        fileName,
+        baseDirectory(compilerOptions.baseUrl ?? process.cwd()),
+      ),
     trackDependency,
   )
 
@@ -165,7 +222,7 @@ export function createUsingComponentsPathResolver(
     if (entries?.size) {
       const current = new Map<string, string>()
       for (const [request, entry] of entries) {
-        if (hasChanged(entry.resolution.dependencies, current)) {
+        if (entryChanged(entry, current)) {
           invalidate(uri, entries, request, entry)
         }
       }
@@ -182,7 +239,7 @@ export function createUsingComponentsPathResolver(
     let entries = cache.get(uri)
     if (!entries) cache.set(uri, (entries = new Map()))
     const cached = entries.get(componentPath)
-    if (cached && !hasChanged(cached.resolution.dependencies)) {
+    if (cached && !entryChanged(cached)) {
       cached.owners.add(owner)
       return cached.resolution.value
     }
@@ -201,8 +258,10 @@ export function createUsingComponentsPathResolver(
     }
     // Bare packages can resolve differently from different directories. Keep
     // the same base-directory semantics as the package resolver.
-    const baseDir = stat(importer)?.isDirectory() ? importer : directory
-    const key = JSON.stringify([baseDir, request])
+    const baseDir = baseDirectory(importer)
+    const scope = resolutionScope(baseDir, request)
+    const lookupDir = scope?.directory ?? baseDir
+    const key = JSON.stringify([lookupDir, request])
     const previous = resolutions.get(key)
     let resolution: Resolution
     if (
@@ -215,7 +274,7 @@ export function createUsingComponentsPathResolver(
       dependencies = new Map()
       contentDependencies = new Set()
       resolution = {
-        value: resolveCandidates(request, importer),
+        value: resolveCandidates(request, lookupDir),
         dependencies,
         contentDependencies,
         users: new Set(),
@@ -225,35 +284,59 @@ export function createUsingComponentsPathResolver(
     const invalidateEntry = () => invalidate(uri, entries, componentPath, entry)
     const entry: Entry = {
       resolution,
+      scope,
       owners: new Set([owner]),
       close() {
-        resolution.users.delete(invalidateEntry)
-        if (!resolution.users.size) {
-          resolution.stopWatching?.()
-          if (resolutions.get(key) === resolution) resolutions.delete(key)
-        }
+        stopUsing(resolution, invalidateEntry)
+        if (scope) stopUsing(scope, invalidateEntry)
+        if (!resolution.users.size && resolutions.get(key) === resolution)
+          resolutions.delete(key)
       },
     }
-    resolution.users.add(invalidateEntry)
     entries.set(componentPath, entry)
-    if (onChange && !resolution.stopWatching) {
-      const invalidateResolution = () => {
-        for (const notify of [...resolution.users]) notify()
-      }
-      const stops = [...resolution.dependencies].map(([fileName, version]) =>
-        watchComponentDependency(
-          fileName,
-          resolution.contentDependencies.has(fileName),
-          version,
-          invalidateResolution,
-        ),
-      )
-      resolution.stopWatching = () => stops.forEach(stop => stop())
-    }
+    startUsing(resolution, invalidateEntry)
+    if (scope) startUsing(scope, invalidateEntry)
     return resolution.value
   }
 
-  function resolveCandidates(request: string, importer: string): Result {
+  function baseDirectory(fileName: string) {
+    return stat(fileName)?.isDirectory() ? fileName : path.dirname(fileName)
+  }
+
+  function entryChanged(entry: Entry, current = new Map<string, string>()) {
+    return (
+      (entry.scope && hasChanged(entry.scope.dependencies, current)) ||
+      hasChanged(entry.resolution.dependencies, current)
+    )
+  }
+
+  function startUsing(group: Dependencies, notify: () => void) {
+    group.users.add(notify)
+    if (onChange && !group.stopWatching) {
+      const invalidateGroup = () => {
+        for (const user of [...group.users]) user()
+      }
+      const stops = [...group.dependencies].map(([fileName, version]) =>
+        watchComponentDependency(
+          fileName,
+          group.contentDependencies?.has(fileName) ?? false,
+          version,
+          invalidateGroup,
+        ),
+      )
+      group.stopWatching = () => stops.forEach(stop => stop())
+    }
+  }
+
+  function stopUsing(group: Dependencies, notify: () => void) {
+    group.users.delete(notify)
+    if (!group.users.size) {
+      group.stopWatching?.()
+      group.stopWatching = undefined
+    }
+  }
+
+  function resolveCandidates(request: string, directory: string): Result {
     const candidates = new Map<string, ComponentPathCandidate>()
     const explicitMode = fileMode(request)
     const modes: (string | undefined)[] = [undefined]
@@ -262,7 +345,7 @@ export function createUsingComponentsPathResolver(
       mode = modes[index]
       discoverModes = index === 0 && !explicitMode
       const result =
-        resolveByTsConfig(request) || resolvePackage(request, importer)
+        resolveByTsConfig(request) || resolvePackage(request, directory)
       if (discoverModes) modes.push(...availableModes)
       if (!result) continue
       const realFilename = canonicalPath(result)

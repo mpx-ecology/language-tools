@@ -55,3 +55,5 @@ usingComponents 的 `?root=` 等 query 保留在原始注册和补全映射中�
 在场景副本的 `tsconfig.json` 显式设定 `compilerOptions.checkJs: false`，打开 `literal-json.mpx`。`missing-panel` 是故意不存在的路径，应出现 Mpx 缺失组件诊断。确认 `refresh-panel` 的注册路径仍可补全和跳转，再打开 `cold-start.mpx` 检查带 `@ts-check` 的 JSON TS2322。
 
 要验证项目级 JS 类型检查，在场景副本中把 `checkJs` 改为 `true`，并移除 `cold-start.mpx` 中的 `// @ts-check`。重启独立宿主后，故意保留的 TS2322 仍应出现，组件候选增删和路径补全也应正常。
+
+包作用域检查。在场景副本的根目录和嵌套目录各打开一个引用同名包的组件，初始都跳转到根目录的包。向嵌套目录的 `node_modules` 添加同名包后，嵌套组件应跳转到该包，根目录组件仍跳转到原包。删除嵌套包后，嵌套组件应恢复跳转到原包。

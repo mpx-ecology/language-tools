@@ -125,11 +125,7 @@ export function createPackagePathResolver(
     ],
   })
 
-  return (uri: string, baseUri: string) => {
-    const baseDir = stat(baseUri)?.isDirectory()
-      ? baseUri
-      : path.dirname(baseUri)
-
+  return (uri: string, baseDir: string) => {
     try {
       return resolver({}, baseDir, uri) || undefined
     } catch {
