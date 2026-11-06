@@ -1,17 +1,21 @@
 import type { Code, ResolvedUsingComponentInfo } from '../../types'
 import type { ScriptCodegenOptions } from './index'
-import type { ScriptCodegenContext } from './context'
 import { camelize, capitalize } from '@mpxjs/language-shared'
 import * as path from 'path-browserify'
 import { endOfLine, newLine } from '../utils'
 import { identifierRegex } from '../utils'
 
-export function* generateJsonUsingComponents(
+export function* generateJsonComponents(
   options: ScriptCodegenOptions,
-  _ctx: ScriptCodegenContext,
 ): Generator<Code> {
-  const usingComponents = getComponentCandidates(options)
+  const candidates = getComponentCandidates(options)
+  yield* generateJsonPathCompletionImports(options, candidates)
+  yield* generateJsonUsingComponents(candidates)
+}
 
+function* generateJsonUsingComponents(
+  usingComponents: ReturnType<typeof getComponentCandidates>,
+): Generator<Code> {
   if (!usingComponents?.size) {
     yield `const __MPX_jsonComponents = {}${endOfLine}`
     return
@@ -66,62 +70,59 @@ export function* generateJsonUsingComponents(
   yield `}${endOfLine}`
 }
 
-export function* generateJsonPathCompletionImports(
+function* generateJsonPathCompletionImports(
   options: ScriptCodegenOptions,
-  _ctx: ScriptCodegenContext,
+  candidates: ReturnType<typeof getComponentCandidates>,
 ): Generator<Code> {
-  const usingComponents =
-    options.sfc.usingComponents ?? options.sfc.json?.usingComponents
-  const candidates = getComponentCandidates(options)
+  const localComponents = options.sfc.json?.usingComponents
+  const usingComponents = options.sfc.usingComponents ?? localComponents
   const jsonStart = (options.sfc.json?.startTagEnd || 0) + 1
   const pages = options.sfc.json?.pages
+  const application = options.sfc.application
 
-  // 生成虚拟的 import 语句用于路径补全
   yield `// Virtual imports for JSON path completion${newLine}`
 
-  // 为 usingComponents 生成虚拟 import
   if (usingComponents?.size) {
     for (const [componentIndex, [componentName, componentPaths]] of [
       ...usingComponents,
     ].entries()) {
-      // One completion mapping for each original request, independent of how
-      // many platform files supply types. Never duplicate semantic/navigation maps.
-      for (const componentPathInfo of componentPaths) {
-        // Inherited registrations belong to the application's JSON document.
+      const local = localComponents?.get(componentName)
+      const importPaths = (candidates?.get(componentName) ?? []).map(
+        candidate =>
+          getResolvedImportPath(options.fileName, candidate) ??
+          (!local && application && candidate.text.startsWith('.')
+            ? path.resolve(path.dirname(application.fileName), candidate.text)
+            : candidate.text),
+      )
+      const mappedOffsets: (number | undefined)[] = []
+      for (const info of componentPaths) {
+        // The original registration in an app belongs to that app's document.
+        if (!local?.includes(info)) continue
+        const offset = jsonStart + info.offset
+        const index = importPaths.indexOf(info.text)
         if (
-          !options.sfc.json?.usingComponents
-            ?.get(componentName)
-            ?.includes(componentPathInfo)
-        )
+          index >= 0 &&
+          mappedOffsets[index] === undefined &&
+          JSON.stringify(info.text).slice(1, -1) === info.text
+        ) {
+          // The same module literal already supplies component types.
+          mappedOffsets[index] = offset
           continue
+        }
         yield `import '`
-        yield [
-          componentPathInfo.text,
-          'json_import',
-          jsonStart + componentPathInfo.offset,
-          {
-            completion: true,
-            navigation: false,
-            semantic: false,
-            verification: false,
-            structure: false,
-            format: false,
-          },
-        ]
+        yield jsonPathMapping(info.text, offset)
         yield `'${newLine}`
       }
-      const componentCandidates = candidates?.get(componentName) ?? []
-      for (let i = 0; i < componentCandidates.length; i++) {
-        const candidate = componentCandidates[i]!
+      for (const [i, importPath] of importPaths.entries()) {
         const importName = getUsingComponentImportName(componentIndex, i)
-        const application = options.sfc.application
-        const inherited = !options.sfc.json?.usingComponents?.has(componentName)
-        const importPath =
-          getResolvedImportPath(options.fileName, candidate) ??
-          (inherited && application && candidate.text.startsWith('.')
-            ? path.resolve(path.dirname(application.fileName), candidate.text)
-            : candidate.text)
-        yield `import ${importName} from ${JSON.stringify(importPath)}${newLine}`
+        const offset = mappedOffsets[i]
+        if (offset === undefined) {
+          yield `import ${importName} from ${JSON.stringify(importPath)}${newLine}`
+        } else {
+          yield `import ${importName} from "`
+          yield jsonPathMapping(importPath, offset)
+          yield `"${newLine}`
+        }
       }
     }
   }
@@ -132,25 +133,26 @@ export function* generateJsonPathCompletionImports(
       const page = pages[i]
       yield `import __mpx_page_path_completion_${i} from '`
 
-      yield [
-        page.text,
-        'json_import',
-        jsonStart + page.offset,
-        {
-          completion: true,
-          navigation: false,
-          semantic: false,
-          verification: false,
-          structure: false,
-          format: false,
-        },
-      ]
+      yield jsonPathMapping(page.text, jsonStart + page.offset)
 
       yield `'${newLine}`
     }
   }
 
   yield `${newLine}`
+}
+
+const pathCompletion = {
+  completion: true,
+  navigation: false,
+  semantic: false,
+  verification: false,
+  structure: false,
+  format: false,
+}
+
+function jsonPathMapping(text: string, offset: number): Code {
+  return [text, 'json_import', offset, pathCompletion]
 }
 
 /** Keep source registrations intact, but import each actual type source once. */

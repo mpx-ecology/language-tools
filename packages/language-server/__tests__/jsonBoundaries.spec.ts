@@ -35,6 +35,58 @@ it('refreshes imported JSON types through the existing project file watcher', as
   expect(hoverText(await p.service.getHover(uri, at))).toContain('number')
 })
 
+it('validates unchecked literal configs without loading the JSON TypeScript program', async () => {
+  const p = (project = await createJsonProject(true, { checkJs: false }))
+  const source = `<script name="json">
+module.exports = {
+  usingComponents: { widget: "./missing-widget" },
+  navigationBarTitleText: "title",
+  component: "invalid",
+}
+</script>`
+  await p.edit('index.mpx', source)
+  const uri = p.uri('index.mpx')
+  const host = p.service.context.project.typescript!.languageServiceHost
+  const getFiles = host.getScriptFileNames
+  let reads = 0
+  host.getScriptFileNames = () => {
+    reads++
+    return getFiles()
+  }
+
+  const diagnostics = await p.service.getDiagnostics(uri)
+  expect(diagnostics.map(d => d.code)).toContain(4001)
+  expect(diagnostics.some(d => d.source === 'mpx-json-schema')).toBe(true)
+  expect(reads).toBe(0)
+
+  await p.edit(
+    'index.mpx',
+    source.replace(
+      '<script name="json">\n',
+      '<script name="json">#!/usr/bin/env node\n',
+    ),
+  )
+  expect((await p.service.getDiagnostics(uri)).map(d => d.code)).toContain(
+    18026,
+  )
+  expect(reads).toBeGreaterThan(0)
+
+  await p.edit('index.mpx', source.replace('"title"', ''))
+  expect((await p.service.getDiagnostics(uri)).map(d => d.code)).toContain(1109)
+  expect(reads).toBeGreaterThan(0)
+
+  await p.edit(
+    'index.mpx',
+    source
+      .replace(
+        'module.exports',
+        '// @ts-check\n/** @type {number} */\nconst count = "wrong"\nmodule.exports',
+      )
+      .replace('"title"', 'String(count)'),
+  )
+  expect((await p.service.getDiagnostics(uri)).map(d => d.code)).toContain(2322)
+})
+
 it('loads JSON scripts into the semantic project only when requested', async () => {
   const p = (project = await createJsonProject())
   const source =

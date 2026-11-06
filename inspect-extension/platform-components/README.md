@@ -51,3 +51,5 @@ usingComponents 的 `?root=` 等 query 保留在原始注册和补全映射中�
 在同一宿主打开 `cold-start.mpx` 和 `refresh.mpx`。它们引用同一个组件路径。按预热场景新增、删除 iOS 候选，检查两个文件的模板标签和 JSON 路径都能更新跳转目标。
 
 诊断增量检查。在 `cold-start.mpx` 把 `count` 的字符串改为数字，确认 JSON TS2322 消失，再恢复字符串并确认诊断重现。
+
+在场景副本的 `tsconfig.json` 显式设定 `compilerOptions.checkJs: false`，打开 `literal-json.mpx`。`missing-panel` 是故意不存在的路径，应出现 Mpx 缺失组件诊断。确认 `refresh-panel` 的注册路径仍可补全和跳转，再打开 `cold-start.mpx` 检查带 `@ts-check` 的 JSON TS2322。
