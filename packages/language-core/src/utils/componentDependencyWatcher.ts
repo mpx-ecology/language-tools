@@ -78,13 +78,12 @@ function watchDependency(
   invalidate: () => void,
 ) {
   const closes: (() => void)[] = []
+  const version = pathVersion(fileName)
   let watchOwnDirectory = false
   if (!content) {
     // Watch child additions and removals, and the directory's own replacement.
-    const version = directoryVersion(fileName)
     const close = subscribe(fileName, event => {
-      if (event === 'rename' || directoryVersion(fileName) !== version)
-        invalidate()
+      if (event === 'rename' || pathVersion(fileName) !== version) invalidate()
     })
     if (close) {
       watchOwnDirectory = true
@@ -119,7 +118,14 @@ function watchDependency(
     fs.watchFile(fileName, { persistent: false, interval: 1000 }, invalidate)
     closes.push(() => fs.unwatchFile(fileName, invalidate))
   }
+  // Native watchers may miss mutations made in the same turn they are
+  // installed. Recheck once after installation, then rely on file events.
+  const startupCheck = setImmediate(() => {
+    if (pathVersion(fileName) !== version) invalidate()
+  })
+  startupCheck.unref()
   return () => {
+    clearImmediate(startupCheck)
     for (const close of closes) close()
   }
 }
@@ -132,11 +138,11 @@ function isDirectory(fileName: string) {
   }
 }
 
-function directoryVersion(fileName: string) {
+function pathVersion(fileName: string) {
   try {
     const stat = fs.statSync(fileName, { throwIfNoEntry: false })
-    if (stat) return `${stat.ino}:${stat.mtimeMs}:${stat.ctimeMs}`
+    if (stat) return `${stat.ino}:${stat.mtimeMs}:${stat.ctimeMs}:${stat.size}`
   } catch {
-    // A directory can become inaccessible before its watcher is notified.
+    // The dependency can become inaccessible before its watcher is notified.
   }
 }

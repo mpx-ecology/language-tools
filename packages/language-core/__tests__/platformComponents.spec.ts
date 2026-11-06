@@ -224,15 +224,57 @@ describe('platform component resolution', () => {
       'node_modules/test-platform/b.mpx',
     ])
   })
-  it('canonicalizes symlink aliases to the actual file identity', () => {
+  it('shares a lookup across sources and refreshes both after a variant changes', () => {
     const directory = temporaryFixture()
-    fs.symlinkSync(
-      path.join(directory, 'panel.ios.mpx'),
-      path.join(directory, 'linked.mpx'),
-    )
-    expect(files(resolver(directory), './linked.mpx', directory)).toEqual([
-      'panel.ios.mpx',
-    ])
+    const resolve = resolver(directory)
+    const first = path.join(directory, 'first.mpx')
+    const second = path.join(directory, 'second.mpx')
+    const request = './shared'
+    const variant = path.join(directory, 'shared.ios.mpx')
+    const missing = resolve(request, first)
+    expect(missing?.candidates).toEqual([])
+    expect(resolve(request + '?root=second', second)).toBe(missing)
+
+    fs.writeFileSync(variant, '<template><view /></template>')
+    expect(resolve.getVersion(first)).toBe(1)
+    expect(resolve.getVersion(second)).toBe(1)
+    const found = resolve(request, first)
+    expect(found?.result).toBe(variant)
+    expect(resolve(request, second)).toBe(found)
+
+    fs.unlinkSync(variant)
+    expect(resolve(request, second)?.candidates).toEqual([])
+    expect(resolve(request, first)?.candidates).toEqual([])
+  })
+
+  it('keeps bare package lookups separate across importer directories', () => {
+    const directory = temporaryFixture()
+    const resolve = resolver(directory)
+    const targets = ['one', 'two'].map(name => {
+      const importer = path.join(directory, name, 'index.mpx')
+      const pkg = path.join(path.dirname(importer), 'node_modules', 'local')
+      fs.mkdirSync(pkg, { recursive: true })
+      fs.writeFileSync(path.join(pkg, 'package.json'), '{"main":"index.mpx"}')
+      fs.writeFileSync(
+        path.join(pkg, 'index.mpx'),
+        '<template><view /></template>',
+      )
+      return { importer, target: path.join(pkg, 'index.mpx') }
+    })
+    for (const { importer, target } of targets) {
+      expect(resolve('local', importer)?.result).toBe(target)
+    }
+  })
+
+  it('canonicalizes symlink aliases and refreshes a retargeted link', () => {
+    const directory = temporaryFixture()
+    const resolve = resolver(directory)
+    const alias = path.join(directory, 'linked.mpx')
+    fs.symlinkSync(path.join(directory, 'panel.ios.mpx'), alias)
+    expect(files(resolve, './linked.mpx', directory)).toEqual(['panel.ios.mpx'])
+    fs.unlinkSync(alias)
+    fs.symlinkSync(path.join(directory, 'panel.ali.mpx'), alias)
+    expect(files(resolve, './linked.mpx', directory)).toEqual(['panel.ali.mpx'])
   })
 })
 

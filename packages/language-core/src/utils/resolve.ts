@@ -55,34 +55,55 @@ export function createPackagePathResolver(
   trackDependency: (fileName: string, content?: boolean) => string,
   stat: (fileName: string) => fs.Stats | undefined,
 ) {
-  const files = new Map<string, { version: string; contents: Buffer }>()
+  const descriptions = new Map<
+    string,
+    { version: string; value: Record<string, unknown> }
+  >()
+  const links = new Map<string, { version: string; target?: string }>()
   const missingFile = Object.assign(new Error('File not found'), {
     code: 'ENOENT',
   })
-  const fileSystem = {
-    ...fs,
+  const syncOverrides = {
     statSync(fileName: string) {
       trackDependency(fileName)
       return stat(fileName)
     },
     readlinkSync(fileName: string) {
-      trackDependency(fileName)
-      return fs.readlinkSync(fileName)
+      const version = trackDependency(fileName)
+      const cached = links.get(fileName)
+      if (cached?.version === version) return cached.target
+      let target: string | undefined
+      try {
+        target = fs.readlinkSync(fileName)
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code
+        if (code !== 'ENOENT' && code !== 'EINVAL') throw error
+      }
+      links.set(fileName, { version, target })
+      return target
     },
-    readFileSync(fileName: string) {
+    readJsonSync(fileName: string) {
       const version = trackDependency(fileName, true)
       if (!version) throw missingFile
-      const cached = files.get(fileName)
-      if (cached?.version === version) return cached.contents
-      const contents = fs.readFileSync(fileName)
-      files.set(fileName, { version, contents })
-      return contents
+      const cached = descriptions.get(fileName)
+      if (cached?.version === version) return cached.value
+      const value: Record<string, unknown> = JSON.parse(
+        fs.readFileSync(fileName, 'utf8'),
+      )
+      descriptions.set(fileName, { version, value })
+      return value
     },
   }
   const resolver = enhancedResolve.create.sync({
     extensions: ['.mpx', '.js'],
-    // Cache package contents against their metadata instead of using a TTL.
-    fileSystem: fileSystem as typeof fs,
+    // The sync resolver uses string paths and supports an optional readJsonSync.
+    fileSystem: new Proxy(fs, {
+      get(target, key) {
+        return Object.hasOwn(syncOverrides, key)
+          ? syncOverrides[key as keyof typeof syncOverrides]
+          : Reflect.get(target, key)
+      },
+    }),
     plugins: [
       {
         apply(resolver) {

@@ -50,12 +50,18 @@ export function createUsingComponentsPathResolver(
     candidates: ComponentPathCandidate[]
     error?: boolean
   }
-  type Entry = {
+  type Resolution = {
     value: Result
     dependencies: Map<string, string>
-    owners: Set<string>
-    close?: () => void
+    contentDependencies: Set<string>
+    references: number
   }
+  type Entry = {
+    resolution: Resolution
+    owners: Set<string>
+    close(): void
+  }
+  const resolutions = new Map<string, Resolution>()
   const cache = new Map<string, Map<string, Entry>>()
   const versions = new Map<string, number>()
   const directories = new Map<string, { version: string; names: Set<string> }>()
@@ -148,7 +154,7 @@ export function createUsingComponentsPathResolver(
     if (entries?.size) {
       const current = new Map<string, string>()
       for (const [request, entry] of entries) {
-        if (hasChanged(entry.dependencies, current)) {
+        if (hasChanged(entry.resolution.dependencies, current)) {
           invalidate(uri, entries, request, entry)
         }
       }
@@ -165,24 +171,78 @@ export function createUsingComponentsPathResolver(
     let entries = cache.get(uri)
     if (!entries) cache.set(uri, (entries = new Map()))
     const cached = entries.get(componentPath)
-    if (cached && !hasChanged(cached.dependencies)) {
+    if (cached && !hasChanged(cached.resolution.dependencies)) {
       cached.owners.add(owner)
-      return cached.value
+      return cached.resolution.value
     }
     if (cached) invalidate(uri, entries, componentPath, cached)
-    stats.clear()
-    dependencies = new Map()
-    contentDependencies = new Set()
     // Resource query mode/env are not webpack's compilation mode/env. Preserve
     // the original request on the registration; only resolve its resource path.
     let request = componentPath.split('?')[0]!
     if (request.startsWith('plugin://')) {
       return { result: request, candidates: [{ realFilename: request }] }
     }
+    stats.clear()
     const importer = uriToFileName(uri)
+    const directory = path.dirname(importer)
     if (request.startsWith('./') || request.startsWith('../')) {
-      request = path.resolve(path.dirname(importer), request)
+      request = path.resolve(directory, request)
     }
+    // Bare packages can resolve differently from different directories. Keep
+    // the same base-directory semantics as the package resolver.
+    const baseDir = stat(importer)?.isDirectory() ? importer : directory
+    const key = JSON.stringify([baseDir, request])
+    const previous = resolutions.get(key)
+    let resolution: Resolution
+    if (
+      previous &&
+      previous !== cached?.resolution &&
+      !hasChanged(previous.dependencies)
+    ) {
+      resolution = previous
+    } else {
+      dependencies = new Map()
+      contentDependencies = new Set()
+      resolution = {
+        value: resolveCandidates(request, importer),
+        dependencies,
+        contentDependencies,
+        references: 0,
+      }
+      resolutions.set(key, resolution)
+    }
+    resolution.references++
+    const closes: (() => void)[] = []
+    const entry: Entry = {
+      resolution,
+      owners: new Set([owner]),
+      close() {
+        for (const close of closes) close()
+        if (
+          --resolution.references === 0 &&
+          resolutions.get(key) === resolution
+        )
+          resolutions.delete(key)
+      },
+    }
+    entries.set(componentPath, entry)
+    if (onChange) {
+      const invalidateEntry = () =>
+        invalidate(uri, entries, componentPath, entry)
+      for (const fileName of resolution.dependencies.keys()) {
+        closes.push(
+          watchComponentDependency(
+            fileName,
+            resolution.contentDependencies.has(fileName),
+            invalidateEntry,
+          ),
+        )
+      }
+    }
+    return resolution.value
+  }
+
+  function resolveCandidates(request: string, importer: string): Result {
     const candidates = new Map<string, ComponentPathCandidate>()
     const explicitMode = fileMode(request)
     const modes: (string | undefined)[] = [undefined]
@@ -200,6 +260,7 @@ export function createUsingComponentsPathResolver(
       } catch {
         continue
       }
+      trackDependency(realFilename)
       if (!candidates.has(realFilename)) {
         candidates.set(realFilename, {
           realFilename,
@@ -212,20 +273,6 @@ export function createUsingComponentsPathResolver(
       candidates: [...candidates.values()],
     }
     if (!value.result) value.error = true
-    const entry: Entry = { value, dependencies, owners: new Set([owner]) }
-    entries.set(componentPath, entry)
-    if (onChange) {
-      const invalidateEntry = () =>
-        invalidate(uri, entries, componentPath, entry)
-      const closes = [...dependencies.keys()].map(fileName =>
-        watchComponentDependency(
-          fileName,
-          contentDependencies.has(fileName),
-          invalidateEntry,
-        ),
-      )
-      entry.close = () => closes.forEach(close => close())
-    }
     return value
   }
 
@@ -237,7 +284,7 @@ export function createUsingComponentsPathResolver(
   ) {
     if (entries.get(request) !== entry) return
     entries.delete(request)
-    entry.close?.()
+    entry.close()
     versions.set(uri, (versions.get(uri) ?? 0) + 1)
     onChange?.(uri)
   }
@@ -249,13 +296,13 @@ export function createUsingComponentsPathResolver(
       if (!active.has(request)) entry.owners.delete(owner)
       if (!entry.owners.size) {
         entries!.delete(request)
-        entry.close?.()
+        entry.close()
       }
     }
   }
 
   function forget(uri: string) {
-    for (const entry of cache.get(uri)?.values() ?? []) entry.close?.()
+    for (const entry of cache.get(uri)?.values() ?? []) entry.close()
     cache.delete(uri)
     versions.delete(uri)
   }
