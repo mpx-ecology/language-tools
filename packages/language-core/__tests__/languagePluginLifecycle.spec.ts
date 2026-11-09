@@ -161,3 +161,58 @@ it('invalidates application consumers when a packages entry changes its manifest
     fs.rmSync(root, { recursive: true, force: true })
   }
 })
+
+it('shares missing app lookups within a graph while preserving live associations and the next graph', () => {
+  const root = '/mpx-application-lookup-test'
+  const plugin = createMpxLanguagePlugin(
+    ts,
+    { configFilePath: root + '/tsconfig.json' },
+    getDefaultCompilerOptions(),
+    (name: string) => name,
+  )
+  const roots = new Map<string, MpxVirtualCode>()
+  const associated = vi.fn((name: string) => {
+    const code = roots.get(name)
+    return code && { generated: { root: code } }
+  })
+  const ctx = { getAssociatedScript: associated } as Parameters<
+    NonNullable<typeof plugin.createVirtualCode>
+  >[3]
+  const add = (name: string, source: string) => {
+    const code = plugin.createVirtualCode!(
+      name,
+      'mpx',
+      ts.ScriptSnapshot.fromString(source),
+      ctx,
+    )!
+    roots.set(name, code)
+    return code
+  }
+  try {
+    add(root + '/app.mpx', '<script type="application/json">{}</script>')
+    const pages = ['/pages/first.mpx', '/pages/second.mpx'].map(
+      name => root + name,
+    )
+    plugin.withComponentFileStats(() =>
+      pages.forEach(name => add(name, '<template><view /></template>')),
+    )
+    expect(
+      associated.mock.calls.filter(
+        ([name]) => name === root + '/pages/app.mpx',
+      ),
+    ).toHaveLength(1)
+    expect(
+      associated.mock.calls.filter(([name]) => name === root + '/app.mpx'),
+    ).toHaveLength(2)
+    add(root + '/pages/app.mpx', '<script type="application/json">{}</script>')
+    plugin.withComponentFileStats(() => {
+      for (const name of pages) {
+        const code = roots.get(name)!
+        plugin.updateVirtualCode!(name, code, snapshot, ctx)
+        expect(code.sfc.application?.fileName).toBe(root + '/pages/app.mpx')
+      }
+    })
+  } finally {
+    plugin.dispose()
+  }
+})

@@ -78,6 +78,7 @@ export function createMpxLanguagePlugin<T>(
   let componentFileStats:
     | Map<string, import('node:fs').Stats | undefined>
     | undefined
+  let missingAssociatedFiles: Set<string> | undefined
   const getComponentFileStats = () => componentFileStats
   const changedFiles = new Set<string>()
   let externalProjectVersion = 0
@@ -124,10 +125,12 @@ export function createMpxLanguagePlugin<T>(
     withComponentFileStats(run) {
       if (componentFileStats) return run()
       componentFileStats = new Map()
+      if (!mpxCompilerOptions.plugins.length) missingAssociatedFiles = new Set()
       try {
         return run()
       } finally {
         componentFileStats = undefined
+        missingAssociatedFiles = undefined
       }
     },
     getExternalFilesVersion(fileName, onChange) {
@@ -142,9 +145,9 @@ export function createMpxLanguagePlugin<T>(
         }
         return String(externalProjectVersion)
       }
-      const files = fileName
-        ? [fileRegistry.get(fileName)].filter(code => !!code)
-        : [...fileRegistry.values()]
+      const file = fileName ? fileRegistry.get(fileName) : undefined
+      if (fileName && !file) return ''
+      const files = file ? [file] : [...fileRegistry.values()]
       if (fileName) {
         const application = files[0]?.sfc.application
         const applicationCode =
@@ -233,6 +236,7 @@ export function createMpxLanguagePlugin<T>(
             const lang = code.id.slice('script_'.length)
             return {
               code,
+              preventLeadingOffset: pluginContext.serviceScriptOnly,
               extension: '.' + lang,
               scriptKind: lang === 'js' ? ts.ScriptKind.JS : ts.ScriptKind.TS,
             }
@@ -260,7 +264,9 @@ export function createMpxLanguagePlugin<T>(
         code.fileName,
         typeof configPath === 'string' ? path.dirname(configPath) : undefined,
         fileName => {
+          if (missingAssociatedFiles?.has(fileName)) return
           const source = ctx.getAssociatedScript(toId(fileName))
+          if (!source) missingAssociatedFiles?.add(fileName)
           return source?.generated?.root instanceof MpxVirtualCode
             ? source.generated.root.sfc
             : undefined

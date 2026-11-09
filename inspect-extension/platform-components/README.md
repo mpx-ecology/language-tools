@@ -94,3 +94,7 @@ printf '%s\n' '<template><view>inner package</view></template>' > nested-scope/n
 打开 `buffered-scope.mpx`。在 `wx:if` 和 `wx:for` 的嵌套作用域中，`row.label` 悬停应为 `string`，`rowIndex` 为 `number`，`status` 定义应回到脚本中的常量。`row.label.toFixed()` 是故意的 TS2551 错误，应只有一条对应诊断；改成 `toUpperCase()` 后消失。多端 `mpxTagName` 包装标签中的 `row.label` 应保留相同类型，不能出现重复语义或导航范围。
 
 生成优化仅减少代码片段的传递和相邻纯文本段的存储；自动化测试对照流式生成核对完整文本、映射能力和作用域。预热后仍按上面的流程增删平台文件、嵌套包，验证跳转随变化刷新。符号链接目标与 package.json 内容变化应在下一轮建图重新读取，不沿用前一轮缓存。
+
+独立验收副本复用 `inspect-extension` 的 `@mpxjs/core` 和 `miniprogram-api-typings` 依赖，以核对真实模板类型。tsserver 的内置服务脚本使用无空白前缀模式；完整语言服务器视图及自定义 Mpx 插件保持原布局。自动化同时验证两种偏移模式下的属性查询、组件属性提取和源码定义。
+
+短表达式只共享语法树，作用域和源码映射逐次重建。共享缓存最多保留 1,024 条、每条不超过 256 个字符；编辑表达式后应立即更新类型与诊断。应用入口的缺失结果仅在一次同步建图中复用，下一轮仍应发现新增的 `app.mpx`。
