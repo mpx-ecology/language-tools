@@ -1,5 +1,6 @@
 import type { ProjectExposeContext } from '@volar/language-server/lib/project/typescriptProjectLs'
-import type { URI } from 'vscode-uri'
+import { URI } from 'vscode-uri'
+import { FileChangeType } from '@volar/language-server'
 import {
   createMpxLanguagePlugin,
   createParsedCommandLine,
@@ -16,7 +17,7 @@ interface DocumentState {
 /** Shared setup for IDE JSON-only projects and the agent's complete project. */
 export function createMpxProject(
   ts: typeof import('typescript'),
-  { configFileName, projectHost, sys, uriConverter }: ProjectExposeContext,
+  { configFileName, projectHost, sys, uriConverter, env }: ProjectExposeContext,
   jsonOnly = false,
   documents?: DocumentState,
   onConfigFileAccess?: (fileName: string) => void,
@@ -72,7 +73,67 @@ export function createMpxProject(
   // Preserve tsconfig roots: global augmentations can live in ordinary modules
   // or be introduced transitively through their imports. jsonOnly disables the
   // Mpx business service script, not the project's ambient type environment.
-  const jsonFiles = new Set<string>()
+  const jsonFiles = new Map<string, { active: number; lastUsed: number }>()
+  const deletedJsonFiles = new Set<string>()
+  let jsonVersion = 0
+  let accessOrder = 0
+  let closedVersion = documents?.getClosedVersion()
+  const maxClosedFiles = 32
+  const removeJsonFile = (fileName: string) => {
+    deletedJsonFiles.delete(fileName)
+    if (jsonFiles.delete(fileName)) jsonVersion++
+  }
+  // Keep open files and concurrent requests pinned; bound the closed-file cache.
+  const pruneClosedFiles = () => {
+    for (const fileName of deletedJsonFiles) {
+      if (
+        !jsonFiles.get(fileName)?.active &&
+        !documents?.isOpen(uriConverter.asUri(fileName))
+      )
+        removeJsonFile(fileName)
+    }
+    if (jsonFiles.size <= maxClosedFiles) return
+    const closed = [...jsonFiles].filter(
+      ([fileName, state]) =>
+        !state.active && !documents?.isOpen(uriConverter.asUri(fileName)),
+    )
+    closed.sort((a, b) => a[1].lastUsed - b[1].lastUsed)
+    for (const [fileName] of closed.slice(0, -maxClosedFiles))
+      removeJsonFile(fileName)
+  }
+  const includeJsonScript = (uri: URI) => {
+    const fileName = uriConverter.asFileName(uri)
+    let state = jsonFiles.get(fileName)
+    if (!state) {
+      jsonFiles.set(fileName, (state = { active: 0, lastUsed: 0 }))
+      jsonVersion++
+    }
+    state.active++
+    state.lastUsed = ++accessOrder
+    return () => {
+      state.active--
+      if (!state.active && !documents?.isOpen(uri)) {
+        if (deletedJsonFiles.has(fileName)) removeJsonFile(fileName)
+        else pruneClosedFiles()
+      }
+    }
+  }
+  const jsonWatcher = jsonOnly
+    ? env?.onDidChangeWatchedFiles?.(params => {
+        for (const change of params.changes) {
+          const uri = URI.parse(change.uri)
+          const fileName = uriConverter.asFileName(uri)
+          if (change.type === FileChangeType.Deleted) {
+            const state = jsonFiles.get(fileName)
+            if (!state) continue
+            if (state.active || documents?.isOpen(uri))
+              deletedJsonFiles.add(fileName)
+            else removeJsonFile(fileName)
+          } else if (change.type === FileChangeType.Created)
+            deletedJsonFiles.delete(fileName)
+        }
+      })
+    : undefined
   if (jsonOnly) {
     const { extensions } = commandLine.mpxOptions
     const getFiles = projectHost.getScriptFileNames
@@ -81,10 +142,16 @@ export function createMpxProject(
     // preserving the ordinary TS/JS roots that contribute ambient declarations.
     projectHost.getScriptFileNames = () => [
       ...getFiles().filter(file => !extensions.some(ext => file.endsWith(ext))),
-      ...jsonFiles,
+      ...jsonFiles.keys(),
     ]
-    projectHost.getProjectVersion = () =>
-      `${getVersion?.() ?? ''}:${jsonFiles.size}`
+    projectHost.getProjectVersion = () => {
+      const nextClosedVersion = documents?.getClosedVersion()
+      if (nextClosedVersion !== closedVersion) {
+        closedVersion = nextClosedVersion
+        pruneClosedFiles()
+      }
+      return `${getVersion?.() ?? ''}:${jsonVersion}`
+    }
   }
   const languagePlugin = createMpxLanguagePlugin(
     ts,
@@ -96,6 +163,9 @@ export function createMpxProject(
   )
   const dispose = sys.dispose
   sys.dispose = () => {
+    jsonWatcher?.dispose()
+    jsonFiles.clear()
+    deletedJsonFiles.clear()
     languagePlugin.dispose()
     dispose()
   }
@@ -111,9 +181,7 @@ export function createMpxProject(
       project.mpx = {
         compilerOptions: commandLine.mpxOptions,
         typescriptCompilerOptions: commandLine.options,
-        includeJsonScript: jsonOnly
-          ? uri => jsonFiles.add(uriConverter.asFileName(uri))
-          : undefined,
+        includeJsonScript: jsonOnly ? includeJsonScript : undefined,
       }
       if (project.typescript) {
         const host = project.typescript.languageServiceHost

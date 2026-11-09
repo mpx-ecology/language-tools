@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { forEachEmbeddedCode } from '../src'
+import { forEachEmbeddedCode, getDefaultCompilerOptions } from '../src'
+import { generateJsonComponents } from '../src/codegen/script/jsonUsingComponents'
+import type { ScriptCodegenOptions } from '../src/codegen/script'
 import {
   type TestLanguageService,
   createTestLanguageService,
@@ -62,7 +64,9 @@ describe('JSON usingComponents codegen', () => {
     service.updateFile('index.mpx', source)
     try {
       const { code, root } = service.getServiceScript('index.mpx')
-      expect(code).not.toContain("import './component-options.mpx'")
+      expect(
+        code.match(/^import .*?["']\.\/component-options\.mpx["']/gm),
+      ).toHaveLength(1)
       const codeOffset = code.indexOf('./component-options.mpx')
       expect(codeOffset).toBeGreaterThanOrEqual(0)
       const script = [...forEachEmbeddedCode(root)].find(
@@ -83,6 +87,31 @@ describe('JSON usingComponents codegen', () => {
     } finally {
       service.updateFile('index.mpx', original)
     }
+  })
+
+  it('preserves local completion mappings when merged registrations are cloned', () => {
+    const { root } = service.getServiceScript('index.mpx')
+    const usingComponents = new Map(
+      [...root.sfc.usingComponents!].map(([name, entries]) => [
+        name,
+        entries.map(entry => ({ ...entry })),
+      ]),
+    )
+    const codes = [
+      ...generateJsonComponents({
+        fileName: root.fileName,
+        sfc: { ...root.sfc, usingComponents },
+        mpxCompilerOptions: getDefaultCompilerOptions(),
+      } as ScriptCodegenOptions),
+    ]
+    expect(
+      codes.some(
+        code =>
+          Array.isArray(code) &&
+          code[0] === './component-options' &&
+          code[1] === 'json_import',
+      ),
+    ).toBe(true)
   })
 
   it('keeps multiple path candidates as a union', () => {

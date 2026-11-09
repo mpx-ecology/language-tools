@@ -57,3 +57,34 @@ usingComponents 的 `?root=` 等 query 保留在原始注册和补全映射中�
 要验证项目级 JS 类型检查，在场景副本中把 `checkJs` 改为 `true`，并移除 `cold-start.mpx` 中的 `// @ts-check`。重启独立宿主后，故意保留的 TS2322 仍应出现，组件候选增删和路径补全也应正常。
 
 包作用域检查。在场景副本的根目录和嵌套目录各打开一个引用同名包的组件，初始都跳转到根目录的包。向嵌套目录的 `node_modules` 添加同名包后，嵌套组件应跳转到该包，根目录组件仍跳转到原包。删除嵌套包后，嵌套组件应恢复跳转到原包。
+
+### 可复现的嵌套包场景
+
+在本场景副本根目录执行以下命令（验收结束后删除生成的文件和目录）：
+
+```sh
+mkdir -p node_modules/f5-scope-widget nested-scope
+printf '%s\n' '{"main":"outer.mpx"}' > node_modules/f5-scope-widget/package.json
+printf '%s\n' '<template><view>outer package</view></template>' > node_modules/f5-scope-widget/outer.mpx
+cat > scope-check.mpx <<'MPX'
+<template><scope-widget /></template>
+<script name="json">
+module.exports = { usingComponents: { 'scope-widget': 'f5-scope-widget' } }
+</script>
+MPX
+cp scope-check.mpx nested-scope/scope-check.mpx
+```
+
+打开两个 `scope-check.mpx`，模板标签与 JSON 路径的定义均应指向 `outer.mpx`。保持两个文件打开，添加内层包：
+
+```sh
+mkdir -p nested-scope/node_modules/f5-scope-widget
+printf '%s\n' '{"main":"inner.mpx"}' > nested-scope/node_modules/f5-scope-widget/package.json
+printf '%s\n' '<template><view>inner package</view></template>' > nested-scope/node_modules/f5-scope-widget/inner.mpx
+```
+
+内层文件应跳到 `inner.mpx`，外层仍跳到 `outer.mpx`。删除 `nested-scope/node_modules/f5-scope-widget` 后，内层应恢复到 `outer.mpx`，无需编辑源文件或重启。
+
+### 应用 packages 入口变化
+
+在独立 Extension Host 打开 `application-scope` 目录。对 `nested/page.mpx` 的 `scope-panel` 查看定义，初始应指向 `nested/inner-panel.mpx`。保持页面打开，把 `nested/package.json` 的 `main` 从 `other.mpx` 改为 `app.mpx`，保存后定义应切换到根应用的 `outer-panel.mpx`。恢复 `other.mpx` 后应再次指向 `nested/inner-panel.mpx`，无需编辑页面或重启。只修改包入口，不新增或删除应用文件。

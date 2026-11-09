@@ -96,15 +96,29 @@ export function createMpxLanguagePlugin<T>(
       : undefined,
   }
   const plugins = createPlugins(pluginContext)
-  const resolveComponent = createUsingComponentsPathResolver(compilerOptions)
-  // Watched caches belong to the project that owns their lifetime.
-  const fileRegistry =
-    watchExternalDependencies || pluginContext.serviceScriptOnly
-      ? new Map<string, MpxVirtualCode>()
-      : getMpxFileRegistry(
-          getFileRegistryKey(compilerOptions, mpxCompilerOptions, plugins),
-          mpxCompilerOptions.plugins,
-        )
+  const applicationLookups = new Map<string, Map<string, Set<string>>>()
+  const applicationConsumers = new Map<string, Set<string>>()
+  const resolveComponent = createUsingComponentsPathResolver(
+    compilerOptions,
+    watchExternalDependencies
+      ? importer => {
+          for (const page of applicationConsumers.get(importer) ?? [])
+            changedFiles.add(page)
+        }
+      : undefined,
+  )
+  // Lifecycle-sensitive code and plugins must belong to their creating project.
+  const ownsFileRegistry =
+    watchExternalDependencies ||
+    pluginContext.serviceScriptOnly ||
+    mpxCompilerOptions.plugins.length > 0 ||
+    !mpxCompilerOptions.__setupedGlobalTypes
+  const fileRegistry = ownsFileRegistry
+    ? new Map<string, MpxVirtualCode>()
+    : getMpxFileRegistry(
+        getFileRegistryKey(compilerOptions, mpxCompilerOptions, plugins),
+        mpxCompilerOptions.plugins,
+      )
 
   return {
     withComponentFileStats(run) {
@@ -149,11 +163,14 @@ export function createMpxLanguagePlugin<T>(
         .join(';')
     },
     dispose() {
-      if (!watchExternalDependencies) return
-      for (const plugin of plugins) plugin.dispose?.()
       resolveComponent.dispose()
+      applicationLookups.clear()
+      applicationConsumers.clear()
       changedFiles.clear()
-      fileRegistry.clear()
+      if (ownsFileRegistry) {
+        for (const plugin of plugins) plugin.dispose?.()
+        fileRegistry.clear()
+      }
     },
     getLanguageId(scriptId) {
       const fileName = asFileName(scriptId)
@@ -188,9 +205,11 @@ export function createMpxLanguagePlugin<T>(
       }
     },
     disposeVirtualCode(_scriptId, code) {
-      if (!watchExternalDependencies) return
+      if (!ownsFileRegistry) return
       const { fileName } = code
+      if (fileRegistry.get(fileName) !== code) return
       fileRegistry.delete(fileName)
+      updateApplicationLookups(fileName)
       changedFiles.delete(fileName)
       for (const plugin of plugins) plugin.disposeFile?.(fileName)
       resolveComponent.forget(fileName)
@@ -234,6 +253,7 @@ export function createMpxLanguagePlugin<T>(
         : undefined)
     if (!toId) return
     const configPath = compilerOptions.configFilePath
+    let lookups: Map<string, Set<string>> | undefined
     code.setApplication(
       resolveApplication(
         ts,
@@ -245,9 +265,39 @@ export function createMpxLanguagePlugin<T>(
             ? source.generated.root.sfc
             : undefined
         },
-        resolveComponent,
+        (request, importer) => {
+          if (!watchExternalDependencies)
+            return resolveComponent(request, importer)
+          lookups ??= new Map()
+          let requests = lookups.get(importer)
+          if (!requests) lookups.set(importer, (requests = new Set()))
+          requests.add(request)
+          return resolveComponent(request, importer, code.fileName)
+        },
       ),
     )
+    updateApplicationLookups(code.fileName, lookups)
+  }
+
+  /** Retain package lookups only while a page consumes their application scope. */
+  function updateApplicationLookups(
+    fileName: string,
+    next?: Map<string, Set<string>>,
+  ) {
+    for (const importer of applicationLookups.get(fileName)?.keys() ?? []) {
+      resolveComponent.retain(importer, fileName, next?.get(importer) ?? [])
+      const consumers = applicationConsumers.get(importer)!
+      consumers.delete(fileName)
+      if (!consumers.size) applicationConsumers.delete(importer)
+    }
+    applicationLookups.delete(fileName)
+    for (const importer of next?.keys() ?? []) {
+      let consumers = applicationConsumers.get(importer)
+      if (!consumers)
+        applicationConsumers.set(importer, (consumers = new Set()))
+      consumers.add(fileName)
+    }
+    if (next?.size) applicationLookups.set(fileName, next)
   }
 }
 

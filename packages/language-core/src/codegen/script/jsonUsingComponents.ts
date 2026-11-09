@@ -108,7 +108,7 @@ function* generateJsonPathCompletionImports(
   yield `// Virtual imports for JSON path completion${newLine}`
 
   if (usingComponents?.size) {
-    for (const [componentIndex, [componentName, componentPaths]] of [
+    for (const [componentIndex, [componentName]] of [
       ...usingComponents,
     ].entries()) {
       const local = localComponents?.get(componentName)
@@ -118,9 +118,8 @@ function* generateJsonPathCompletionImports(
         local ? undefined : applicationDirectory,
       )
       const mappedOffsets: (number | undefined)[] = []
-      for (const info of componentPaths) {
-        // The original registration in an app belongs to that app's document.
-        if (!local?.includes(info)) continue
+      // Map local registrations even when a plugin clones the merged map.
+      for (const info of local ?? []) {
         const offset = jsonStart + info.offset
         const index = importPaths.indexOf(info.text)
         if (

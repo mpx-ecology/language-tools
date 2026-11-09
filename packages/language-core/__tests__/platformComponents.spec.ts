@@ -381,10 +381,15 @@ it('keeps the service script and its mappings when omitting editor views', () =>
         ids: [...forEachEmbeddedCode(root)].map(code => code.id),
         text: script.snapshot.getText(0, script.snapshot.getLength()),
         mappings: script.mappings.map(
-          ({ sourceOffsets, generatedOffsets, lengths }) => ({
+          ({ sourceOffsets, generatedOffsets, lengths, data }) => ({
             sourceOffsets,
             generatedOffsets,
             lengths,
+            data: JSON.parse(
+              JSON.stringify(data, (_, value) =>
+                typeof value === 'function' ? '[callback]' : value,
+              ),
+            ),
           }),
         ),
       }

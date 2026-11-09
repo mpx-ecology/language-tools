@@ -2,6 +2,7 @@
   <refresh-panel />
 </template>
 
+<!-- ❌ missing-panel 故意不存在，应出现 Mpx 缺失组件诊断。 -->
 <script name="json">
 module.exports = {
   usingComponents: {

@@ -16,7 +16,7 @@ function subscribe(directory: string, listener: Listener) {
         directory,
         { persistent: false },
         (event, name) => {
-          for (const notify of listeners) notify(event, name)
+          for (const notify of [...listeners]) notify(event, name)
         },
       )
       entry = { watcher, listeners }
@@ -24,7 +24,7 @@ function subscribe(directory: string, listener: Listener) {
       watcher.on('error', () => {
         // Re-resolving the affected entries attaches new watches or falls back
         // to polling the individual paths if the directory can't be watched.
-        for (const notify of listeners) notify('rename', null)
+        for (const notify of [...listeners]) notify('rename', null)
       })
     } catch {
       return
@@ -57,7 +57,7 @@ export function watchComponentDependency(
   if (!entry) {
     const listeners = new Set<() => void>()
     const close = watchDependency(fileName, content, expectedVersion, () => {
-      for (const notify of listeners) notify()
+      for (const notify of [...listeners]) notify()
     })
     entry = { close, listeners }
     dependencies.set(key, entry)

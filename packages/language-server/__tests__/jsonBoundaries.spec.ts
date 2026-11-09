@@ -132,6 +132,88 @@ it('loads JSON scripts into the semantic project only when requested', async () 
   expect(hasScript('unopened.mpx')).toBe(true)
 })
 
+it('removes deleted JSON roots and bounds closed roots while pinning active requests', async () => {
+  const p = (project = await createJsonProject(true, { checkJs: true }))
+  const source =
+    '<script name="json">const n = 1; module.exports = { n }</script>'
+  await p.write('index.mpx', source)
+  await p.edit('index.mpx', source)
+  await p.service.getDiagnostics(p.uri('index.mpx'))
+  const host = p.service.context.project.typescript!.languageServiceHost
+  expect(
+    host
+      .getScriptFileNames()
+      .some(file => file.endsWith('index.mpx.__json.cjs')),
+  ).toBe(true)
+  await p.close('index.mpx')
+  await p.write('index.mpx', undefined)
+  expect(
+    host
+      .getScriptFileNames()
+      .some(file => /index\.mpx(?:\.__json\.cjs)?$/.test(file)),
+  ).toBe(false)
+  const include = p.service.context.project.mpx!.includeJsonScript!
+  await p.write('pending.mpx', source)
+  const release = include(p.uri('pending.mpx'))
+  for (let i = 0; i < 40; i++) {
+    const name = `cached-${i}.mpx`
+    await p.write(name, source)
+    include(p.uri(name))?.()
+  }
+  expect(
+    host.getScriptFileNames().filter(file => file.endsWith('.mpx.__json.cjs')),
+  ).toHaveLength(33)
+  expect(
+    host
+      .getScriptFileNames()
+      .some(file => file.endsWith('pending.mpx.__json.cjs')),
+  ).toBe(true)
+  release?.()
+  expect(
+    host.getScriptFileNames().filter(file => file.endsWith('.mpx.__json.cjs')),
+  ).toHaveLength(32)
+  await p.service.getDiagnostics(p.uri('pending.mpx'))
+  expect(
+    host
+      .getScriptFileNames()
+      .some(file => file.endsWith('pending.mpx.__json.cjs')),
+  ).toBe(true)
+})
+
+it('preserves deleted JSON roots while open or requested, then releases them', async () => {
+  const p = (project = await createJsonProject(true, { checkJs: true }))
+  const source =
+    '<script name="json">/** @type {number} */ const n = "wrong"; module.exports = { n }</script>'
+  const host = p.service.context.project.typescript!.languageServiceHost
+  const hasRoot = (name: string) =>
+    host.getScriptFileNames().some(file => file.endsWith(name + '.__json.cjs'))
+  await p.write('index.mpx', source)
+  await p.edit('index.mpx', source)
+  await p.service.getDiagnostics(p.uri('index.mpx'))
+  await p.write('index.mpx', undefined)
+  expect(hasRoot('index.mpx')).toBe(true)
+  expect(
+    (await p.service.getDiagnostics(p.uri('index.mpx'))).map(d => d.code),
+  ).toContain(2322)
+  await p.close('index.mpx')
+  host.getProjectVersion?.()
+  expect(hasRoot('index.mpx')).toBe(false)
+  await p.write('pending.mpx', source)
+  const release = p.service.context.project.mpx!.includeJsonScript!(
+    p.uri('pending.mpx'),
+  )
+  await p.write('pending.mpx', undefined)
+  expect(
+    host.getScriptFileNames().some(file => file.endsWith('pending.mpx')),
+  ).toBe(true)
+  release?.()
+  expect(
+    host
+      .getScriptFileNames()
+      .some(file => /pending\.mpx(?:\.__json\.cjs)?$/.test(file)),
+  ).toBe(false)
+})
+
 for (const jsonOnly of [true, false]) {
   describe('JSON module environment (JSON-only host: ' + jsonOnly + ')', () => {
     it('types injected CommonJS names without Node types or business-script leakage', async () => {

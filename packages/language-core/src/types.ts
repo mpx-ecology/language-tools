@@ -110,7 +110,9 @@ export type MpxLanguagePluginReturn = {
     embeddedFile: MpxEmbeddedCode,
   ): void
   getExternalDependencyVersion?(fileName: string): number
+  /** Release per-file state when its owning virtual file is removed. */
   disposeFile?(fileName: string): void
+  /** Release project resources, including projects without dependency watching. */
   dispose?(): void
   resolveUsingComponentsPath?(
     usingComponentsPath: SfcJsonBlockUsingComponents,

@@ -39,7 +39,12 @@ export function create(
           | ((document: TextDocument, ...args: Args) => Result)
           | undefined,
         skip?: (uri: URI, document: TextDocument) => boolean,
-      ) {
+      ):
+        | ((
+            document: TextDocument,
+            ...args: Args
+          ) => Result | Promise<Awaited<Result>> | undefined)
+        | undefined {
         if (!jsonOnly) return provider
         return (
           provider &&
@@ -49,8 +54,17 @@ export function create(
             )
             if (decoded?.[1] === 'json_service') {
               if (skip?.(decoded[0], document)) return
-              context.project.mpx?.includeJsonScript?.(decoded[0])
-              return provider(document, ...args)
+              const release = context.project.mpx?.includeJsonScript?.(
+                decoded[0],
+              )
+              try {
+                return Promise.resolve(provider(document, ...args)).finally(
+                  () => release?.(),
+                )
+              } catch (error) {
+                release?.()
+                throw error
+              }
             }
           })
         )
