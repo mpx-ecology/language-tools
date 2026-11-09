@@ -1,17 +1,45 @@
-import type { Code, ResolvedUsingComponentInfo } from '../../types'
+import type {
+  Code,
+  ResolvedUsingComponentInfo,
+  UsingComponentInfo,
+} from '../../types'
 import type { ScriptCodegenOptions } from './index'
-import type { ScriptCodegenContext } from './context'
 import { camelize, capitalize } from '@mpxjs/language-shared'
 import * as path from 'path-browserify'
 import { endOfLine, newLine } from '../utils'
 import { identifierRegex } from '../utils'
 
-export function* generateJsonUsingComponents(
-  options: ScriptCodegenOptions,
-  _ctx: ScriptCodegenContext,
-): Generator<Code> {
-  const usingComponents = getComponentCandidates(options)
+type CandidateList = {
+  paths: ResolvedUsingComponentInfo[]
+  importsByDirectory?: Map<string, string[]>
+}
 
+const inheritedCandidates = new WeakMap<
+  UsingComponentInfo[],
+  {
+    resolved: ResolvedUsingComponentInfo[] | undefined
+    applicationDirectory: string
+    list: CandidateList
+  }
+>()
+
+export function* generateJsonComponents(
+  options: ScriptCodegenOptions,
+): Generator<Code> {
+  const application = options.sfc.application
+  const applicationDirectory = application && path.dirname(application.fileName)
+  const candidates = getComponentCandidates(options, applicationDirectory)
+  yield* generateJsonPathCompletionImports(
+    options,
+    candidates,
+    applicationDirectory,
+  )
+  yield* generateJsonUsingComponents(candidates)
+}
+
+function* generateJsonUsingComponents(
+  usingComponents: ReturnType<typeof getComponentCandidates>,
+): Generator<Code> {
   if (!usingComponents?.size) {
     yield `const __MPX_jsonComponents = {}${endOfLine}`
     return
@@ -36,7 +64,7 @@ export function* generateJsonUsingComponents(
     }
     components.push({
       componentIndex,
-      candidateCount: componentPaths.length,
+      candidateCount: componentPaths.paths.length,
     })
   }
 
@@ -66,62 +94,57 @@ export function* generateJsonUsingComponents(
   yield `}${endOfLine}`
 }
 
-export function* generateJsonPathCompletionImports(
+function* generateJsonPathCompletionImports(
   options: ScriptCodegenOptions,
-  _ctx: ScriptCodegenContext,
+  candidates: ReturnType<typeof getComponentCandidates>,
+  applicationDirectory: string | undefined,
 ): Generator<Code> {
-  const usingComponents =
-    options.sfc.usingComponents ?? options.sfc.json?.usingComponents
-  const candidates = getComponentCandidates(options)
+  const localComponents = options.sfc.json?.usingComponents
+  const usingComponents = options.sfc.usingComponents ?? localComponents
   const jsonStart = (options.sfc.json?.startTagEnd || 0) + 1
   const pages = options.sfc.json?.pages
+  const directory = path.dirname(options.fileName)
 
-  // 生成虚拟的 import 语句用于路径补全
   yield `// Virtual imports for JSON path completion${newLine}`
 
-  // 为 usingComponents 生成虚拟 import
   if (usingComponents?.size) {
-    for (const [componentIndex, [componentName, componentPaths]] of [
+    for (const [componentIndex, [componentName]] of [
       ...usingComponents,
     ].entries()) {
-      // One completion mapping for each original request, independent of how
-      // many platform files supply types. Never duplicate semantic/navigation maps.
-      for (const componentPathInfo of componentPaths) {
-        // Inherited registrations belong to the application's JSON document.
+      const local = localComponents?.get(componentName)
+      const importPaths = getImportPaths(
+        candidates?.get(componentName),
+        directory,
+        local ? undefined : applicationDirectory,
+      )
+      const mappedOffsets: (number | undefined)[] = []
+      // Map local registrations even when a plugin clones the merged map.
+      for (const info of local ?? []) {
+        const offset = jsonStart + info.offset
+        const index = importPaths.indexOf(info.text)
         if (
-          !options.sfc.json?.usingComponents
-            ?.get(componentName)
-            ?.includes(componentPathInfo)
-        )
+          index >= 0 &&
+          mappedOffsets[index] === undefined &&
+          JSON.stringify(info.text).slice(1, -1) === info.text
+        ) {
+          // The same module literal already supplies component types.
+          mappedOffsets[index] = offset
           continue
+        }
         yield `import '`
-        yield [
-          componentPathInfo.text,
-          'json_import',
-          jsonStart + componentPathInfo.offset,
-          {
-            completion: true,
-            navigation: false,
-            semantic: false,
-            verification: false,
-            structure: false,
-            format: false,
-          },
-        ]
+        yield jsonPathMapping(info.text, offset)
         yield `'${newLine}`
       }
-      const componentCandidates = candidates?.get(componentName) ?? []
-      for (let i = 0; i < componentCandidates.length; i++) {
-        const candidate = componentCandidates[i]!
+      for (const [i, importPath] of importPaths.entries()) {
         const importName = getUsingComponentImportName(componentIndex, i)
-        const application = options.sfc.application
-        const inherited = !options.sfc.json?.usingComponents?.has(componentName)
-        const importPath =
-          getResolvedImportPath(options.fileName, candidate) ??
-          (inherited && application && candidate.text.startsWith('.')
-            ? path.resolve(path.dirname(application.fileName), candidate.text)
-            : candidate.text)
-        yield `import ${importName} from ${JSON.stringify(importPath)}${newLine}`
+        const offset = mappedOffsets[i]
+        if (offset === undefined) {
+          yield `import ${importName} from ${JSON.stringify(importPath)}${newLine}`
+        } else {
+          yield `import ${importName} from "`
+          yield jsonPathMapping(importPath, offset)
+          yield `"${newLine}`
+        }
       }
     }
   }
@@ -132,19 +155,7 @@ export function* generateJsonPathCompletionImports(
       const page = pages[i]
       yield `import __mpx_page_path_completion_${i} from '`
 
-      yield [
-        page.text,
-        'json_import',
-        jsonStart + page.offset,
-        {
-          completion: true,
-          navigation: false,
-          semantic: false,
-          verification: false,
-          structure: false,
-          format: false,
-        },
-      ]
+      yield jsonPathMapping(page.text, jsonStart + page.offset)
 
       yield `'${newLine}`
     }
@@ -153,39 +164,102 @@ export function* generateJsonPathCompletionImports(
   yield `${newLine}`
 }
 
+const pathCompletion = {
+  completion: true,
+  navigation: false,
+  semantic: false,
+  verification: false,
+  structure: false,
+  format: false,
+}
+
+function jsonPathMapping(text: string, offset: number): Code {
+  return [text, 'json_import', offset, pathCompletion]
+}
+
 /** Keep source registrations intact, but import each actual type source once. */
-function getComponentCandidates(options: ScriptCodegenOptions) {
-  const usingComponents =
-    options.sfc.usingComponents ?? options.sfc.json?.usingComponents
+function getComponentCandidates(
+  options: ScriptCodegenOptions,
+  applicationDirectory: string | undefined,
+) {
+  const local = options.sfc.json?.usingComponents
+  const usingComponents = options.sfc.usingComponents ?? local
   if (!usingComponents) return
   const resolved =
     options.sfc.resolvedUsingComponents?.result ??
     options.sfc.json?.resolvedUsingComponents?.result
-  return new Map(
-    [...usingComponents].map(([name, paths]) => {
-      const candidates = new Map<string, ResolvedUsingComponentInfo>()
-      for (const info of paths) {
-        const matches = resolved
-          ?.get(name)
-          ?.filter(
-            candidate =>
-              candidate.offset === info.offset && candidate.text === info.text,
-          )
-        const sources: ResolvedUsingComponentInfo[] = matches?.length
-          ? matches
-          : [info]
-        for (const candidate of sources) {
-          const key = candidate.realFilename ?? candidate.text
-          if (!candidates.has(key)) candidates.set(key, candidate)
+  const shareInherited =
+    applicationDirectory && !options.mpxCompilerOptions.plugins.length
+  const lists = new Map<string, CandidateList>()
+  for (const [name, paths] of usingComponents) {
+    const resolvedPaths = resolved?.get(name)
+    if (shareInherited && !local?.has(name)) {
+      let cached = inheritedCandidates.get(paths)
+      if (
+        !cached ||
+        cached.resolved !== resolvedPaths ||
+        cached.applicationDirectory !== applicationDirectory
+      ) {
+        cached = {
+          resolved: resolvedPaths,
+          applicationDirectory,
+          list: {
+            paths: collectTypeSources(paths, resolvedPaths),
+            importsByDirectory: new Map(),
+          },
         }
+        inheritedCandidates.set(paths, cached)
       }
-      return [name, [...candidates.values()]] as const
-    }),
+      lists.set(name, cached.list)
+    } else {
+      lists.set(name, { paths: collectTypeSources(paths, resolvedPaths) })
+    }
+  }
+  return lists
+}
+
+function collectTypeSources(
+  paths: UsingComponentInfo[],
+  resolved: ResolvedUsingComponentInfo[] | undefined,
+) {
+  const candidates = new Map<string, ResolvedUsingComponentInfo>()
+  for (const info of paths) {
+    const matches = resolved?.filter(
+      candidate =>
+        candidate.offset === info.offset && candidate.text === info.text,
+    )
+    const sources: ResolvedUsingComponentInfo[] = matches?.length
+      ? matches
+      : [info]
+    for (const candidate of sources) {
+      const key = candidate.realFilename ?? candidate.text
+      if (!candidates.has(key)) candidates.set(key, candidate)
+    }
+  }
+  return [...candidates.values()]
+}
+
+function getImportPaths(
+  list: CandidateList | undefined,
+  directory: string,
+  applicationDirectory: string | undefined,
+) {
+  if (!list) return []
+  const cached = list.importsByDirectory?.get(directory)
+  if (cached) return cached
+  const paths = list.paths.map(
+    candidate =>
+      getResolvedImportPath(directory, candidate) ??
+      (applicationDirectory && candidate.text.startsWith('.')
+        ? path.resolve(applicationDirectory, candidate.text)
+        : candidate.text),
   )
+  list.importsByDirectory?.set(directory, paths)
+  return paths
 }
 
 function getResolvedImportPath(
-  importer: string,
+  directory: string,
   info: ResolvedUsingComponentInfo,
 ) {
   const realFilename = info.realFilename
@@ -194,9 +268,7 @@ function getResolvedImportPath(
     return
   }
 
-  let importPath = path
-    .relative(path.dirname(importer), realFilename)
-    .replace(/\\/g, '/')
+  let importPath = path.relative(directory, realFilename).replace(/\\/g, '/')
 
   if (!importPath) {
     importPath = path.basename(realFilename)

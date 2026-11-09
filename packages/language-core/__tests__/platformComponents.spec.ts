@@ -2,11 +2,16 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import * as ts from 'typescript'
-import { forEachEmbeddedCode } from '../src'
+import {
+  createMpxLanguagePlugin,
+  forEachEmbeddedCode,
+  getDefaultCompilerOptions,
+} from '../src'
+import { createLanguage } from '@volar/language-core'
 import { compileMpxSource } from './utils/compileMpxFixture'
 import { getComponentProps } from '../../typescript-plugin/src/requests/getComponentProps'
 import * as enhancedResolve from 'enhanced-resolve'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   componentFileModes,
   createUsingComponentsPathResolver,
@@ -219,16 +224,248 @@ describe('platform component resolution', () => {
       'node_modules/test-platform/b.mpx',
     ])
   })
-  it('canonicalizes symlink aliases to the actual file identity', () => {
+  it('shares a lookup across sources and refreshes both after a variant changes', () => {
     const directory = temporaryFixture()
-    fs.symlinkSync(
-      path.join(directory, 'panel.ios.mpx'),
-      path.join(directory, 'linked.mpx'),
-    )
-    expect(files(resolver(directory), './linked.mpx', directory)).toEqual([
-      'panel.ios.mpx',
-    ])
+    const resolve = resolver(directory)
+    const first = path.join(directory, 'first.mpx')
+    const second = path.join(directory, 'second.mpx')
+    const request = './shared'
+    const variant = path.join(directory, 'shared.ios.mpx')
+    const missing = resolve(request, first)
+    expect(missing?.candidates).toEqual([])
+    expect(resolve(request + '?root=second', second)).toBe(missing)
+
+    fs.writeFileSync(variant, '<template><view /></template>')
+    expect(resolve.getVersion(first)).toBe(1)
+    expect(resolve.getVersion(second)).toBe(1)
+    const found = resolve(request, first)
+    expect(found?.result).toBe(variant)
+    expect(resolve(request, second)).toBe(found)
+
+    fs.unlinkSync(variant)
+    expect(resolve(request, second)?.candidates).toEqual([])
+    expect(resolve(request, first)?.candidates).toEqual([])
   })
+
+  it('checks dependency fingerprints again outside a graph build', () => {
+    const directory = temporaryFixture()
+    const importer = path.join(directory, 'index.mpx')
+    const variant = path.join(directory, 'during-build.ios.mpx')
+    let graphStats: Map<string, fs.Stats | undefined> | undefined = new Map()
+    const resolve = createUsingComponentsPathResolver(
+      {},
+      undefined,
+      () => graphStats,
+    )
+    expect(resolve('./during-build', importer)?.candidates).toEqual([])
+    fs.writeFileSync(variant, '<template><view /></template>')
+    expect(resolve('./during-build', importer)?.candidates).toEqual([])
+
+    graphStats = undefined
+    expect(resolve.getVersion(importer)).toBe(1)
+    expect(resolve('./during-build', importer)?.result).toBe(variant)
+  })
+
+  it('keeps bare package lookups separate across importer directories', () => {
+    const directory = temporaryFixture()
+    const resolve = resolver(directory)
+    const targets = ['one', 'two'].map(name => {
+      const importer = path.join(directory, name, 'index.mpx')
+      const pkg = path.join(path.dirname(importer), 'node_modules', 'local')
+      fs.mkdirSync(pkg, { recursive: true })
+      fs.writeFileSync(path.join(pkg, 'package.json'), '{"main":"index.mpx"}')
+      fs.writeFileSync(
+        path.join(pkg, 'index.mpx'),
+        '<template><view /></template>',
+      )
+      return { importer, target: path.join(pkg, 'index.mpx') }
+    })
+    for (const { importer, target } of targets) {
+      expect(resolve('local', importer)?.result).toBe(target)
+    }
+  })
+
+  it('reuses a lookup across directories until a nested package changes the scope', () => {
+    const directory = temporaryFixture()
+    const outer = path.join(directory, 'outer')
+    const inner = path.join(directory, 'inner')
+    fs.mkdirSync(outer)
+    fs.mkdirSync(inner)
+    const pkg = path.join(directory, 'node_modules', 'scoped-widget')
+    fs.mkdirSync(pkg, { recursive: true })
+    fs.writeFileSync(path.join(pkg, 'package.json'), '{"main":"index.mpx"}')
+    const shared = path.join(pkg, 'index.mpx')
+    fs.writeFileSync(shared, '<template><view /></template>')
+
+    let batch: Map<string, fs.Stats | undefined> | undefined = new Map()
+    const resolve = createUsingComponentsPathResolver(
+      {},
+      undefined,
+      () => batch,
+    )
+    const outerImporter = path.join(outer, 'index.mpx')
+    const innerImporter = path.join(inner, 'index.mpx')
+    const result = resolve('scoped-widget', outerImporter)
+    expect(result?.result).toBe(shared)
+    expect(resolve('scoped-widget', innerImporter)).toBe(result)
+    const relative = resolve('../panel', outerImporter)
+    expect(resolve('../panel', innerImporter)).toBe(relative)
+    expect(
+      relative?.candidates.map(candidate =>
+        path.basename(candidate.realFilename),
+      ),
+    ).toEqual(['panel.mpx', 'panel.ali.mpx', 'panel.ios.mpx'])
+
+    batch = undefined
+    const nested = path.join(inner, 'node_modules', 'scoped-widget')
+    fs.mkdirSync(nested, { recursive: true })
+    fs.writeFileSync(path.join(nested, 'package.json'), '{"main":"index.mpx"}')
+    const innerFile = path.join(nested, 'index.mpx')
+    fs.writeFileSync(innerFile, '<template><view /></template>')
+    expect(resolve.getVersion(outerImporter)).toBe(0)
+    const shadowVersion = resolve.getVersion(innerImporter)
+    expect(shadowVersion).toBeGreaterThan(0)
+    batch = new Map()
+    expect(resolve('scoped-widget', innerImporter)?.result).toBe(innerFile)
+    expect(resolve('scoped-widget', outerImporter)?.result).toBe(shared)
+
+    batch = undefined
+    fs.rmSync(path.dirname(nested), { recursive: true, force: true })
+    fs.writeFileSync(
+      path.join(inner, 'package.json'),
+      '{"name":"scoped-widget","exports":"./self.mpx"}',
+    )
+    const self = path.join(inner, 'self.mpx')
+    fs.writeFileSync(self, '<template><view /></template>')
+    expect(resolve.getVersion(innerImporter)).toBeGreaterThan(shadowVersion)
+    batch = new Map()
+    expect(resolve('scoped-widget', innerImporter)?.result).toBe(self)
+    expect(resolve('scoped-widget', outerImporter)?.result).toBe(shared)
+  })
+
+  it('canonicalizes symlink aliases and refreshes a retargeted link', () => {
+    const directory = temporaryFixture()
+    const resolve = resolver(directory)
+    const alias = path.join(directory, 'linked.mpx')
+    fs.symlinkSync(path.join(directory, 'panel.ios.mpx'), alias)
+    expect(files(resolve, './linked.mpx', directory)).toEqual(['panel.ios.mpx'])
+    fs.unlinkSync(alias)
+    fs.symlinkSync(path.join(directory, 'panel.ali.mpx'), alias)
+    expect(files(resolve, './linked.mpx', directory)).toEqual(['panel.ali.mpx'])
+  })
+})
+
+it('keeps the service script and its mappings when omitting editor views', () => {
+  const fileName = path.join(fixtureRoot, 'index.mpx')
+  const snapshot = ts.ScriptSnapshot.fromString(
+    fs.readFileSync(fileName, 'utf8'),
+  )
+  const generate = (serviceScriptOnly: boolean, customPlugin = false) => {
+    const options = getDefaultCompilerOptions()
+    if (customPlugin) options.plugins.push(() => ({ name: 'custom' }))
+    const plugin = createMpxLanguagePlugin(
+      ts,
+      { baseUrl: fixtureRoot, paths: { '@components/*': ['./*'] } },
+      options,
+      (name: string) => name,
+      undefined,
+      true,
+      { serviceScriptOnly },
+    )
+    try {
+      const language = createLanguage([plugin], new Map(), () => {})
+      const root = language.scripts.set(fileName, snapshot, 'mpx')!.generated!
+        .root
+      const script = plugin.typescript!.getServiceScript(root)!.code
+      return {
+        ids: [...forEachEmbeddedCode(root)].map(code => code.id),
+        text: script.snapshot.getText(0, script.snapshot.getLength()),
+        mappings: script.mappings.map(
+          ({ sourceOffsets, generatedOffsets, lengths, data }) => ({
+            sourceOffsets,
+            generatedOffsets,
+            lengths,
+            data: JSON.parse(
+              JSON.stringify(data, (_, value) =>
+                typeof value === 'function' ? '[callback]' : value,
+              ),
+            ),
+          }),
+        ),
+      }
+    } finally {
+      plugin.dispose()
+    }
+  }
+
+  const full = generate(false)
+  const service = generate(true)
+  expect(full.ids).toContain('json_service')
+  expect(full.ids).toContain('template')
+  expect(service.ids).toEqual(['main', 'script_ts'])
+  expect(service.text).toBe(full.text)
+  expect(service.mappings).toEqual(full.mappings)
+  expect(generate(true, true).ids).toEqual(full.ids)
+})
+
+it('updates only changed component registrations when watching files outside the project roots', async () => {
+  const directory = temporaryFixture()
+  const plugin = createMpxLanguagePlugin(
+    ts,
+    {},
+    getDefaultCompilerOptions(),
+    (fileName: string) => fileName,
+    undefined,
+    true,
+  )
+  try {
+    const language = createLanguage([plugin], new Map(), () => {})
+    const owner = path.join(directory, 'index.mpx')
+    const snapshot = ts.ScriptSnapshot.fromString(
+      '<script type="application/json">{"usingComponents":{"panel":"./external/nested/panel"}}</script>',
+    )
+    const code = language.scripts.set(owner, snapshot, 'mpx')!.generated!.root
+    const root = code as import('../src').MpxVirtualCode
+    const candidates = () =>
+      root.sfc.json?.resolvedUsingComponents?.result
+        .get('panel')
+        ?.map(candidate => path.basename(candidate.realFilename!)) ?? []
+    expect(candidates()).toEqual([])
+    const getVersion = vi.spyOn(root, 'getExternalDependencyVersion')
+    const invalidated = vi.fn()
+    const version = plugin.getExternalFilesVersion(undefined, invalidated)
+    expect(plugin.getExternalFilesVersion(undefined, invalidated)).toBe(version)
+    expect(getVersion).not.toHaveBeenCalled()
+    expect(invalidated).not.toHaveBeenCalled()
+
+    const target = path.join(directory, 'external/nested/panel.ios.mpx')
+    fs.mkdirSync(path.dirname(target), { recursive: true })
+    fs.writeFileSync(target, '<template><view /></template>')
+    await vi.waitFor(
+      () =>
+        expect(plugin.getExternalFilesVersion(undefined, invalidated)).not.toBe(
+          version,
+        ),
+      { timeout: 4000 },
+    )
+    expect(invalidated.mock.calls).toEqual([[owner]])
+    root.update(snapshot)
+    expect(candidates()).toEqual(['panel.ios.mpx'])
+    const added = plugin.getExternalFilesVersion(undefined)
+    fs.unlinkSync(target)
+    await vi.waitFor(
+      () =>
+        expect(plugin.getExternalFilesVersion(undefined, invalidated)).not.toBe(
+          added,
+        ),
+      { timeout: 4000 },
+    )
+    expect(invalidated.mock.calls).toEqual([[owner], [owner]])
+    root.update(snapshot)
+    expect(candidates()).toEqual([])
+  } finally {
+    plugin.dispose()
+  }
 })
 
 describe('platform component type sources', () => {
@@ -250,11 +487,20 @@ const invalidValue = { invalid: true }
 defineExpose({ invalidValue })
 </script>`,
     )
+    const nested = path.join(directory, 'nested')
+    fs.mkdirSync(nested)
+    fs.copyFileSync(
+      path.join(directory, 'index.mpx'),
+      path.join(nested, 'index.mpx'),
+    )
     const service = createTestLanguageService(directory)
     services.push(service)
     const { code, root } = service.getServiceScript('index.mpx')
     expect(code.match(/import __MPX_jsonComponent_0_\d from/g)).toHaveLength(3)
     expect(code).not.toContain("import './panel'")
+    expect(service.getServiceScript('nested/index.mpx').code).toContain(
+      'from "../panel.ios.mpx"',
+    )
     expect(
       root.sfc.resolvedUsingComponents?.result.get('demo-panel'),
     ).toHaveLength(3)
@@ -286,9 +532,15 @@ defineExpose({})
         .getServiceScript('index.mpx')
         .code.match(/import __MPX_jsonComponent_0_\d from/g),
     ).toHaveLength(4)
+    expect(service.getServiceScript('nested/index.mpx').code).toContain(
+      'from "../panel.android.mpx"',
+    )
     fs.unlinkSync(path.join(directory, 'panel.android.mpx'))
     expect(propsFor(service)?.some(prop => prop.name === 'androidOnly')).toBe(
       false,
+    )
+    expect(service.getServiceScript('nested/index.mpx').code).not.toContain(
+      'from "../panel.android.mpx"',
     )
     expect(service.read('index.mpx')).toBe(parentText)
   })
@@ -420,3 +672,34 @@ function propsFor(service: TestLanguageService) {
     [service.file('index.mpx'), 'demo-panel'],
   )
 }
+
+it('validates shared dependency fingerprints once per build and refreshes the next build', () => {
+  const directory = temporaryFixture()
+  let stats = new Map<string, fs.Stats | undefined>()
+  const resolve = createUsingComponentsPathResolver({}, undefined, () => stats)
+  const owners = Array.from({ length: 80 }, (_, index) =>
+    path.join(directory, `owner-${index}.mpx`),
+  )
+  try {
+    for (const owner of owners)
+      expect(resolve('./panel', owner)?.candidates).toHaveLength(3)
+    stats = new Map()
+    const reads = vi.spyOn(stats, 'get')
+    const version = resolve.getVersion(owners[0])
+    const firstReads = reads.mock.calls.length
+    expect(firstReads).toBeGreaterThan(0)
+    for (const owner of owners) expect(resolve.getVersion(owner)).toBe(version)
+    expect(reads).toHaveBeenCalledTimes(firstReads)
+    fs.writeFileSync(
+      path.join(directory, 'panel.android.mpx'),
+      '<template><view /></template>',
+    )
+    stats = new Map()
+    for (const owner of owners) {
+      expect(resolve.getVersion(owner)).toBeGreaterThan(version)
+      expect(resolve('./panel', owner)?.candidates).toHaveLength(4)
+    }
+  } finally {
+    resolve.dispose()
+  }
+})

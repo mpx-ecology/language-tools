@@ -3,7 +3,7 @@ import type { TemplateCodegenOptions } from './index'
 import type { TemplateCodegenContext } from './context'
 
 import * as CompilerDOM from '@vue/compiler-dom'
-import { endOfLine } from '../utils'
+import { appendCode, endOfLine } from '../utils'
 import { nativeComponentNames } from '../globalTypes/nativeComponentsTypes'
 import { collectStyleScopedClassReferences } from './styleScopedClasses'
 import { hyphenateTag } from '../../utils/shared'
@@ -121,7 +121,10 @@ export function* generateTemplateChild(
                 ? generateSlotOutlet(options, ctx, effectiveNode)
                 : generateComponent(options, ctx, effectiveNode, identity)
           if (candidates.length === 1) {
-            yield* codes
+            if (ctx.codeBuffer) {
+              const buffer = ctx.codeBuffer
+              for (const code of codes) appendCode(buffer, code)
+            } else yield* codes
             ctx.currentComponent = currentComponent
             continue
           }
@@ -131,28 +134,36 @@ export function* generateTemplateChild(
             string,
             Set<'semantic' | 'navigation' | 'completion'>
           >()
-          for (const code of codes) {
-            if (typeof code === 'string') {
-              yield code
-              continue
-            }
-            const key = `${code[1]}:${code[2]}:${code[0].length}`
-            const seen = previousMappings.get(key)
-            const features = { ...code[3] }
-            for (const feature of [
-              'semantic',
-              'navigation',
-              'completion',
-            ] as const) {
-              if (!features[feature]) continue
-              if (seen?.has(feature)) delete features[feature]
-              else {
-                let current = currentMappings.get(key)
-                if (!current) currentMappings.set(key, (current = new Set()))
-                current.add(feature)
+          // Multi-tag candidates filter the emitted mappings, so keep their
+          // subtree in this stream rather than writing around the filter.
+          const buffer = ctx.codeBuffer
+          ctx.codeBuffer = undefined
+          try {
+            for (const code of codes) {
+              if (typeof code === 'string') {
+                yield code
+                continue
               }
+              const key = `${code[1]}:${code[2]}:${code[0].length}`
+              const seen = previousMappings.get(key)
+              const features = { ...code[3] }
+              for (const feature of [
+                'semantic',
+                'navigation',
+                'completion',
+              ] as const) {
+                if (!features[feature]) continue
+                if (seen?.has(feature)) delete features[feature]
+                else {
+                  let current = currentMappings.get(key)
+                  if (!current) currentMappings.set(key, (current = new Set()))
+                  current.add(feature)
+                }
+              }
+              yield [code[0], code[1], code[2], features]
             }
-            yield [code[0], code[1], code[2], features]
+          } finally {
+            ctx.codeBuffer = buffer
           }
           for (const [key, features] of currentMappings) {
             const previous = previousMappings.get(key) ?? new Set()

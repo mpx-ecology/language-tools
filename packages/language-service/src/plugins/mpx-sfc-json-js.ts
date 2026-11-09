@@ -3,7 +3,7 @@ import type {
   CancellationToken,
   Position,
 } from 'vscode-languageserver-protocol'
-import { isRenameEnabled } from '@mpxjs/language-core'
+import { MpxVirtualCode, isRenameEnabled } from '@mpxjs/language-core'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
 import { URI } from 'vscode-uri'
 import { create as createSemantic } from './typescript-semantic'
@@ -38,7 +38,13 @@ export function create(
         provider:
           | ((document: TextDocument, ...args: Args) => Result)
           | undefined,
-      ) {
+        skip?: (uri: URI, document: TextDocument) => boolean,
+      ):
+        | ((
+            document: TextDocument,
+            ...args: Args
+          ) => Result | Promise<Awaited<Result>> | undefined)
+        | undefined {
         if (!jsonOnly) return provider
         return (
           provider &&
@@ -46,10 +52,52 @@ export function create(
             const decoded = context.decodeEmbeddedDocumentUri(
               URI.parse(document.uri),
             )
-            if (decoded?.[1] === 'json_service')
-              return provider(document, ...args)
+            if (decoded?.[1] === 'json_service') {
+              if (skip?.(decoded[0], document)) return
+              const release = context.project.mpx?.includeJsonScript?.(
+                decoded[0],
+              )
+              try {
+                return Promise.resolve(provider(document, ...args)).finally(
+                  () => release?.(),
+                )
+              } catch (error) {
+                release?.()
+                throw error
+              }
+            }
           })
         )
+      }
+      function canSkipDiagnostics(uri: URI, document: TextDocument) {
+        const options =
+          context.project.typescript?.languageServiceHost.getCompilationSettings()
+        if (
+          options?.checkJs !== false ||
+          options.declaration ||
+          options.composite
+        )
+          return false
+
+        const source = context.language.scripts.get(uri)
+        const root = source?.generated?.root
+        const code = source?.generated?.embeddedCodes.get('json_service')
+        if (
+          !(root instanceof MpxVirtualCode) ||
+          !code ||
+          root.sfc.json?.lang !== 'js'
+        )
+          return false
+        if (
+          context.documents.get(
+            URI.parse(document.uri),
+            code.languageId,
+            code.snapshot,
+          ) !== document
+        )
+          return false
+
+        return isUncheckedLiteralConfig(ts, root.sfc.json.ast)
       }
       async function hasSourceDeclaration(
         document: TextDocument,
@@ -114,7 +162,10 @@ export function create(
         ),
         provideDefinition: jsonDocument(instance.provideDefinition),
         provideTypeDefinition: jsonDocument(instance.provideTypeDefinition),
-        provideDiagnostics: jsonDocument(instance.provideDiagnostics),
+        provideDiagnostics: jsonDocument(
+          instance.provideDiagnostics,
+          canSkipDiagnostics,
+        ),
         provideHover: jsonDocument(instance.provideHover),
         provideImplementation: jsonDocument(instance.provideImplementation),
         provideReferences: jsonDocument(instance.provideReferences),
@@ -145,4 +196,82 @@ export function createProject(
   options?: Parameters<typeof createSemantic>[1],
 ): LanguageServicePlugin {
   return create(ts, false, options)
+}
+
+/** A plain unchecked CommonJS literal has no TypeScript diagnostics to add.
+ * The Mpx schema and component-path providers still validate its contents.
+ */
+function isUncheckedLiteralConfig(
+  ts: typeof import('typescript'),
+  source: import('typescript').SourceFile,
+) {
+  // Keep pragmas, JSDoc, directives and all nonliteral code on the full service.
+  if (/\/[/*]/.test(source.text) || source.statements.length !== 1) return false
+  const diagnostics = (
+    source as import('typescript').SourceFile & {
+      parseDiagnostics?: readonly import('typescript').Diagnostic[]
+    }
+  ).parseDiagnostics
+  if (!diagnostics || diagnostics.length) return false
+  const statement = source.statements[0]!
+  if (
+    !ts.isExpressionStatement(statement) ||
+    source.text.slice(0, statement.getStart(source)).trim() ||
+    source.text.slice(statement.end).trim()
+  )
+    return false
+  const { expression } = statement
+  if (
+    !ts.isBinaryExpression(expression) ||
+    expression.operatorToken.kind !== ts.SyntaxKind.EqualsToken
+  )
+    return false
+  const { left, right } = expression
+  if (
+    !ts.isPropertyAccessExpression(left) ||
+    left.questionDotToken ||
+    !ts.isIdentifier(left.expression) ||
+    left.expression.text !== 'module' ||
+    left.getText(source) !== 'module.exports' ||
+    !ts.isObjectLiteralExpression(right)
+  )
+    return false
+  return isLiteral(right)
+
+  function isLiteral(node: import('typescript').Expression): boolean {
+    if (ts.isStringLiteral(node)) return !node.getText(source).includes('\\')
+    if (ts.isNumericLiteral(node))
+      return /^(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/.test(
+        node.getText(source),
+      )
+    if (
+      node.kind === ts.SyntaxKind.TrueKeyword ||
+      node.kind === ts.SyntaxKind.FalseKeyword ||
+      node.kind === ts.SyntaxKind.NullKeyword
+    )
+      return true
+    if (ts.isArrayLiteralExpression(node)) return node.elements.every(isLiteral)
+    if (!ts.isObjectLiteralExpression(node)) return false
+    const seen = new Set<string>()
+    return node.properties.every(prop => {
+      if (!ts.isPropertyAssignment(prop)) return false
+      const name = prop.name
+      if (
+        prop.getStart(source) !== name.getStart(source) ||
+        source.text
+          .slice(name.end, prop.initializer.getStart(source))
+          .trim() !== ':'
+      )
+        return false
+      if (!ts.isIdentifier(name) && !ts.isStringLiteral(name)) return false
+      if (
+        name.text === '__proto__' ||
+        seen.has(name.text) ||
+        name.getText(source).includes('\\')
+      )
+        return false
+      seen.add(name.text)
+      return isLiteral(prop.initializer)
+    })
+  }
 }

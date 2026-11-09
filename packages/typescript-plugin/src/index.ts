@@ -14,6 +14,7 @@ import { getElementNames } from './requests/getElementNames'
 import { getImportPathForFile } from './requests/getImportPathForFile'
 import { getPropertiesAtLocation } from './requests/getPropertiesAtLocation'
 import { getCompletionAtPostion } from './requests/getCompletion'
+import { createProjectGraphScope } from './utils/projectGraph'
 
 const windowsPathReg = /\\/g
 const project2Service = new WeakMap<
@@ -28,13 +29,33 @@ export = createLanguageServicePlugin((ts, info) => {
     info.languageServiceHost.getCompilationSettings(),
     mpxOptions,
     id => id,
+    undefined,
+    true,
+    { serviceScriptOnly: true },
   )
 
+  // Install before Volar captures filesystem methods for module resolution.
+  const withProjectGraphScope = mpxOptions.plugins.length
+    ? <T>(run: () => T) => run()
+    : createProjectGraphScope(info.languageServiceHost)
   addMpxCommands()
 
   return {
     languagePlugins: [languagePlugin],
     setup: language => {
+      const updateGraph = info.project.updateGraph.bind(info.project)
+      info.project.updateGraph = () =>
+        withProjectGraphScope(() =>
+          languagePlugin.withComponentFileStats(updateGraph),
+        )
+      const close = info.project.close.bind(info.project)
+      info.project.close = () => {
+        try {
+          close()
+        } finally {
+          languagePlugin.dispose()
+        }
+      }
       const getLanguageService = info.project.getLanguageService.bind(
         info.project,
       )
@@ -82,17 +103,19 @@ export = createLanguageServicePlugin((ts, info) => {
   }
 
   function getMpxCompilerOptions() {
+    // tsserver already computed the project roots; this pass only reads options.
+    const configHost = { ...ts.sys, readDirectory: () => [] }
     if (info.project.projectKind === ts.server.ProjectKind.Configured) {
       const tsconfig = info.project.getProjectName()
       return mpx.createParsedCommandLine(
         ts,
-        ts.sys,
+        configHost,
         tsconfig.replace(windowsPathReg, '/'),
       ).mpxOptions
     } else {
       return mpx.createParsedCommandLineByJson(
         ts,
-        ts.sys,
+        configHost,
         info.languageServiceHost.getCurrentDirectory(),
         {},
       ).mpxOptions
