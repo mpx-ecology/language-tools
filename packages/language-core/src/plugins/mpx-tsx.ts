@@ -2,6 +2,7 @@ import type { Code, MpxLanguagePlugin, Sfc } from '../types'
 import * as path from 'path-browserify'
 import { camelize, capitalize } from '@mpxjs/language-shared'
 import { computed, signal } from 'alien-signals'
+import { appendCode } from '../codegen/utils'
 import { generateScript } from '../codegen/script'
 import { generateTemplate } from '../codegen/template'
 import { parseScriptRanges } from '../parsers/scriptRanges'
@@ -215,26 +216,29 @@ function createTsx(
     }
 
     const codes: Code[] = []
-    const codegen = generateTemplate({
-      ts,
-      compilerOptions: ctx.compilerOptions,
-      mpxCompilerOptions: getResolvedOptions(),
-      template: sfc.template,
-      usingComponents: sfc.usingComponents,
-      scriptSetupBindingNames: getSetupBindingNames(),
-      scriptSetupImportComponentNames: getSetupImportComponentNames(),
-      destructuredPropNames: getSetupDestructuredPropNames(),
-      templateRefNames: getSetupTemplateRefNames(),
-      hasDefineSlots: setupHasDefineSlots(),
-      slotsAssignName: getSetupSlotsAssignName(),
-      propsAssignName: getSetupPropsAssignName(),
-      selfComponentName: getSelfComponentName(),
-    })
+    const codegen = generateTemplate(
+      {
+        ts,
+        compilerOptions: ctx.compilerOptions,
+        mpxCompilerOptions: getResolvedOptions(),
+        template: sfc.template,
+        usingComponents: sfc.usingComponents,
+        scriptSetupBindingNames: getSetupBindingNames(),
+        scriptSetupImportComponentNames: getSetupImportComponentNames(),
+        destructuredPropNames: getSetupDestructuredPropNames(),
+        templateRefNames: getSetupTemplateRefNames(),
+        hasDefineSlots: setupHasDefineSlots(),
+        slotsAssignName: getSetupSlotsAssignName(),
+        propsAssignName: getSetupPropsAssignName(),
+        selfComponentName: getSelfComponentName(),
+      },
+      codes,
+    )
 
     let current = codegen.next()
     while (!current.done) {
       const code = current.value
-      codes.push(code)
+      appendCode(codes, code)
       current = codegen.next()
     }
 
@@ -265,7 +269,7 @@ function createTsx(
     let current = codegen.next()
     while (!current.done) {
       const code = current.value
-      codes.push(code)
+      appendCode(codes, code)
       current = codegen.next()
     }
 

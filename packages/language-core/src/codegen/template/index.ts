@@ -26,10 +26,13 @@ export interface TemplateCodegenOptions {
   selfComponentName?: string
 }
 
+/** With a buffer, drain yielded root/footer fragments into it in order too. */
 export function* generateTemplate(
   options: TemplateCodegenOptions,
+  codeBuffer?: Code[],
 ): Generator<Code, TemplateCodegenContext> {
   const ctx = createTemplateCodegenContext(options)
+  ctx.codeBuffer = codeBuffer
 
   if (options.slotsAssignName) {
     ctx.addLocalVariable(options.slotsAssignName)

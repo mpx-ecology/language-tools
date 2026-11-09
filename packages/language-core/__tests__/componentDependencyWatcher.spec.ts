@@ -75,3 +75,23 @@ it('dispatches once when a callback replaces its subscription and leaves other o
     fs.rmSync(root, { recursive: true, force: true })
   }
 })
+
+it('watches the existing ancestor of a missing dependency without failed native watch attempts', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mpx-missing-watch-'))
+  const missing = path.join(root, 'missing/deep')
+  const invalidate = vi.fn()
+  vi.mocked(fs.watch).mockClear()
+  const close = watchComponentDependency(missing, false, '', invalidate)
+  try {
+    expect(
+      vi.mocked(fs.watch).mock.calls.map(([directory]) => directory),
+    ).toEqual([root])
+    fs.mkdirSync(missing, { recursive: true })
+    state.callbacks.get(root)!('rename', 'missing')
+    expect(invalidate).toHaveBeenCalledTimes(1)
+  } finally {
+    close()
+    state.callbacks.clear()
+    fs.rmSync(root, { recursive: true, force: true })
+  }
+})

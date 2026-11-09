@@ -672,3 +672,34 @@ function propsFor(service: TestLanguageService) {
     [service.file('index.mpx'), 'demo-panel'],
   )
 }
+
+it('validates shared dependency fingerprints once per build and refreshes the next build', () => {
+  const directory = temporaryFixture()
+  let stats = new Map<string, fs.Stats | undefined>()
+  const resolve = createUsingComponentsPathResolver({}, undefined, () => stats)
+  const owners = Array.from({ length: 80 }, (_, index) =>
+    path.join(directory, `owner-${index}.mpx`),
+  )
+  try {
+    for (const owner of owners)
+      expect(resolve('./panel', owner)?.candidates).toHaveLength(3)
+    stats = new Map()
+    const reads = vi.spyOn(stats, 'get')
+    const version = resolve.getVersion(owners[0])
+    const firstReads = reads.mock.calls.length
+    expect(firstReads).toBeGreaterThan(0)
+    for (const owner of owners) expect(resolve.getVersion(owner)).toBe(version)
+    expect(reads).toHaveBeenCalledTimes(firstReads)
+    fs.writeFileSync(
+      path.join(directory, 'panel.android.mpx'),
+      '<template><view /></template>',
+    )
+    stats = new Map()
+    for (const owner of owners) {
+      expect(resolve.getVersion(owner)).toBeGreaterThan(version)
+      expect(resolve('./panel', owner)?.candidates).toHaveLength(4)
+    }
+  } finally {
+    resolve.dispose()
+  }
+})

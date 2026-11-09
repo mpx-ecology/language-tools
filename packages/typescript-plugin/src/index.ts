@@ -14,6 +14,7 @@ import { getElementNames } from './requests/getElementNames'
 import { getImportPathForFile } from './requests/getImportPathForFile'
 import { getPropertiesAtLocation } from './requests/getPropertiesAtLocation'
 import { getCompletionAtPostion } from './requests/getCompletion'
+import { createProjectGraphScope } from './utils/projectGraph'
 
 const windowsPathReg = /\\/g
 const project2Service = new WeakMap<
@@ -33,6 +34,10 @@ export = createLanguageServicePlugin((ts, info) => {
     { serviceScriptOnly: true },
   )
 
+  // Install before Volar captures filesystem methods for module resolution.
+  const withProjectGraphScope = mpxOptions.plugins.length
+    ? <T>(run: () => T) => run()
+    : createProjectGraphScope(info.languageServiceHost)
   addMpxCommands()
 
   return {
@@ -40,7 +45,9 @@ export = createLanguageServicePlugin((ts, info) => {
     setup: language => {
       const updateGraph = info.project.updateGraph.bind(info.project)
       info.project.updateGraph = () =>
-        languagePlugin.withComponentFileStats(updateGraph)
+        withProjectGraphScope(() =>
+          languagePlugin.withComponentFileStats(updateGraph),
+        )
       const close = info.project.close.bind(info.project)
       info.project.close = () => {
         try {

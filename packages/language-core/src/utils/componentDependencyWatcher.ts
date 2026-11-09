@@ -10,6 +10,9 @@ const directories = new Map<
 function subscribe(directory: string, listener: Listener) {
   let entry = directories.get(directory)
   if (!entry) {
+    // Missing lookup directories are common. Watch their nearest existing
+    // ancestor without constructing a native watcher and exception at each hop.
+    if (!isDirectory(directory)) return
     const listeners = new Set<Listener>()
     try {
       const watcher = fs.watch(

@@ -78,6 +78,10 @@ export function createUsingComponentsPathResolver(
     Map<string, fs.Stats | undefined>,
     Map<string, Scope | undefined>
   >()
+  const batchDependencyChecks = new WeakMap<
+    Map<string, fs.Stats | undefined>,
+    WeakMap<Dependencies, boolean>
+  >()
   let dependencies = new Map<string, string>()
   let contentDependencies = new Set<string>()
   let mode: string | undefined
@@ -305,9 +309,24 @@ export function createUsingComponentsPathResolver(
 
   function entryChanged(entry: Entry, current = new Map<string, string>()) {
     return (
-      (entry.scope && hasChanged(entry.scope.dependencies, current)) ||
-      hasChanged(entry.resolution.dependencies, current)
+      (entry.scope && dependencyGroupChanged(entry.scope, current)) ||
+      dependencyGroupChanged(entry.resolution, current)
     )
+  }
+
+  function dependencyGroupChanged(
+    group: Dependencies,
+    current: Map<string, string>,
+  ) {
+    const batch = getBatchStats?.()
+    if (!batch) return hasChanged(group.dependencies, current)
+    let checks = batchDependencyChecks.get(batch)
+    if (!checks) batchDependencyChecks.set(batch, (checks = new WeakMap()))
+    const cached = checks.get(group)
+    if (cached !== undefined) return cached
+    const changed = hasChanged(group.dependencies, current)
+    checks.set(group, changed)
+    return changed
   }
 
   function startUsing(group: Dependencies, notify: () => void) {

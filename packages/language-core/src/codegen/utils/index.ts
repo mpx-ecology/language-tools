@@ -16,6 +16,14 @@ export const endOfLine = `;${newLine}`
 export const combineLastMapping: MpxCodeInformation = { __combineOffset: 1 }
 export const identifierRegex = /^[a-zA-Z_$][0-9a-zA-Z_$]*$/
 
+/** Compact plain text without moving or merging mapped source segments. */
+export function appendCode(codes: Code[], code: Code) {
+  const last = codes[codes.length - 1]
+  if (typeof code === 'string' && typeof last === 'string')
+    codes[codes.length - 1] = last + code
+  else codes.push(code)
+}
+
 export function collectVars(
   ts: typeof import('typescript'),
   node: ts.Node,

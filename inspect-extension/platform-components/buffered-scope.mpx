@@ -1,0 +1,26 @@
+<template>
+  <view wx:if="{{ visible }}">
+    <block wx:for="{{ rows }}" wx:for-item="row" wx:for-index="rowIndex" wx:key="id">
+      <view>
+        <text>{{ row.label.toUpperCase() }} {{ rowIndex }} {{ status }}</text>
+        <refresh-panel />
+        <!-- ❌ label 是 string，toFixed 应报告 TS2551。 -->
+        <text>{{ row.label.toFixed() }}</text>
+        <view mpxTagName@ios="text" mpxTagName@web="text">{{ row.label }}</view>
+      </view>
+    </block>
+  </view>
+</template>
+
+<script setup lang="ts">
+const visible = true
+const status = 'ready'
+const rows = [{ id: 'first', label: 'First' }]
+defineExpose({ visible, status, rows })
+</script>
+
+<script name="json">
+module.exports = {
+  usingComponents: { 'refresh-panel': './refresh-targets/refresh-panel' }
+}
+</script>

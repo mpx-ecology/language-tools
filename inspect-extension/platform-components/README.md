@@ -88,3 +88,9 @@ printf '%s\n' '<template><view>inner package</view></template>' > nested-scope/n
 ### 应用 packages 入口变化
 
 在独立 Extension Host 打开 `application-scope` 目录。对 `nested/page.mpx` 的 `scope-panel` 查看定义，初始应指向 `nested/inner-panel.mpx`。保持页面打开，把 `nested/package.json` 的 `main` 从 `other.mpx` 改为 `app.mpx`，保存后定义应切换到根应用的 `outer-panel.mpx`。恢复 `other.mpx` 后应再次指向 `nested/inner-panel.mpx`，无需编辑页面或重启。只修改包入口，不新增或删除应用文件。
+
+### 嵌套模板生成回归
+
+打开 `buffered-scope.mpx`。在 `wx:if` 和 `wx:for` 的嵌套作用域中，`row.label` 悬停应为 `string`，`rowIndex` 为 `number`，`status` 定义应回到脚本中的常量。`row.label.toFixed()` 是故意的 TS2551 错误，应只有一条对应诊断；改成 `toUpperCase()` 后消失。多端 `mpxTagName` 包装标签中的 `row.label` 应保留相同类型，不能出现重复语义或导航范围。
+
+生成优化仅减少代码片段的传递和相邻纯文本段的存储；自动化测试对照流式生成核对完整文本、映射能力和作用域。预热后仍按上面的流程增删平台文件、嵌套包，验证跳转随变化刷新。符号链接目标与 package.json 内容变化应在下一轮建图重新读取，不沿用前一轮缓存。
