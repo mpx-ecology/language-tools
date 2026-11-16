@@ -25,6 +25,8 @@ export function createTsConfigPathResolver(
     compilerConfig.paths ?? {},
   )
   return (request: string) => {
+    let probedPath: string | undefined
+    let probedResult: string | undefined
     const matched = matcher(
       request,
       fileName => {
@@ -35,34 +37,71 @@ export function createTsConfigPathResolver(
           return undefined
         }
       },
-      fileName => !!resolveRequest(fileName),
+      fileName => {
+        probedPath = fileName
+        probedResult = resolveRequest(fileName)
+        return !!probedResult
+      },
       [],
     )
-    return matched ? resolveRequest(matched) : undefined
+    if (matched)
+      return matched === probedPath ? probedResult : resolveRequest(matched)
   }
 }
 
 /** Create a project-scoped package resolver for Mpx component extensions. */
 export function createPackagePathResolver(
   resolveFile: ResolveFile,
-  trackDependency: (fileName: string, content?: boolean) => void,
+  trackDependency: (fileName: string, content?: boolean) => string,
+  stat: (fileName: string) => fs.Stats | undefined,
 ) {
+  const descriptions = new Map<
+    string,
+    { version: string; value: Record<string, unknown> }
+  >()
+  const links = new Map<string, { version: string; target?: string }>()
+  const missingFile = Object.assign(new Error('File not found'), {
+    code: 'ENOENT',
+  })
+  const syncOverrides = {
+    statSync(fileName: string) {
+      trackDependency(fileName)
+      return stat(fileName)
+    },
+    readlinkSync(fileName: string) {
+      const version = trackDependency(fileName)
+      const cached = links.get(fileName)
+      if (cached?.version === version) return cached.target
+      let target: string | undefined
+      try {
+        target = fs.readlinkSync(fileName)
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code
+        if (code !== 'ENOENT' && code !== 'EINVAL') throw error
+      }
+      links.set(fileName, { version, target })
+      return target
+    },
+    readJsonSync(fileName: string) {
+      const version = trackDependency(fileName, true)
+      if (!version) throw missingFile
+      const cached = descriptions.get(fileName)
+      if (cached?.version === version) return cached.value
+      const value: Record<string, unknown> = JSON.parse(
+        fs.readFileSync(fileName, 'utf8'),
+      )
+      descriptions.set(fileName, { version, value })
+      return value
+    },
+  }
   const resolver = enhancedResolve.create.sync({
     extensions: ['.mpx', '.js'],
-    // The default enhanced-resolve filesystem caches misses for four seconds.
-    // Keep our own dependency-aware cache so newly created files are visible.
+    // The sync resolver uses string paths and supports an optional readJsonSync.
     fileSystem: new Proxy(fs, {
       get(target, key) {
-        const value = Reflect.get(target, key)
-        if (
-          ['statSync', 'readlinkSync', 'readFileSync'].includes(String(key))
-        ) {
-          return (...args: unknown[]) => {
-            trackDependency(String(args[0]), key === 'readFileSync')
-            return Reflect.apply(value, target, args)
-          }
-        }
-        return value
+        return Object.hasOwn(syncOverrides, key)
+          ? syncOverrides[key as keyof typeof syncOverrides]
+          : Reflect.get(target, key)
       },
     }),
     plugins: [
@@ -86,12 +125,7 @@ export function createPackagePathResolver(
     ],
   })
 
-  return (uri: string, baseUri: string) => {
-    const baseDir =
-      fs.existsSync(baseUri) && fs.statSync(baseUri).isDirectory()
-        ? baseUri
-        : path.dirname(baseUri)
-
+  return (uri: string, baseDir: string) => {
     try {
       return resolver({}, baseDir, uri) || undefined
     } catch {

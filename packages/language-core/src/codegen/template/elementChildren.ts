@@ -3,6 +3,7 @@ import type { TemplateCodegenContext } from './context'
 import type { TemplateCodegenOptions } from './index'
 
 import * as CompilerDOM from '@vue/compiler-dom'
+import { appendCode } from '../utils'
 import { generateTemplateChild } from './templateChild'
 import { getTemplateTagIdentities } from './tagIdentity'
 
@@ -20,7 +21,13 @@ export function* generateElementChildren(
     if (isTemplateImport(childNode)) {
       continue
     }
-    yield* generateTemplateChild(options, ctx, childNode, enterNode)
+    const codes = generateTemplateChild(options, ctx, childNode, enterNode)
+    if (ctx.codeBuffer) {
+      const buffer = ctx.codeBuffer
+      for (const code of codes) appendCode(buffer, code)
+    } else {
+      yield* codes
+    }
   }
   // yield* ctx.generateAutoImportCompletion()
 }

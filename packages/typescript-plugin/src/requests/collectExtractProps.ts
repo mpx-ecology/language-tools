@@ -53,7 +53,10 @@ export function collectExtractProps(
       for (const map of maps) {
         let mapped = false
         for (const source of map.toSourceLocation(
-          name.getEnd() - (isTsPlugin ? sourceScript.snapshot.getLength() : 0),
+          name.getEnd() -
+            (isTsPlugin && !script?.preventLeadingOffset
+              ? sourceScript.snapshot.getLength()
+              : 0),
         )) {
           if (
             source[0] >= sfc.template!.startTagEnd + templateCodeRange[0] &&

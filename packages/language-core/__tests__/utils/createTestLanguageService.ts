@@ -42,6 +42,7 @@ export function createTestLanguageService(
   fixtureRoot = referenceTypePropsFixtureRoot,
   additionalRootFiles: string[] = [],
   fileOverrides = new Map<string, string | undefined>(),
+  pluginOptions?: { serviceScriptOnly?: boolean },
 ): TestLanguageService {
   const parsed = createParsedCommandLine(
     ts,
@@ -87,6 +88,9 @@ export function createTestLanguageService(
     compilerOptions,
     parsed.mpxOptions,
     id => id,
+    undefined,
+    false,
+    pluginOptions,
   )
 
   const scriptRegistry = new Map<string, SourceScript<string>>()

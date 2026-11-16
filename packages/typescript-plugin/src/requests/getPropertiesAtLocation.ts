@@ -45,7 +45,7 @@ export function getPropertiesAtLocation(
     if (!mapped) {
       return
     }
-    if (isTsPlugin) {
+    if (isTsPlugin && !virtualScript.preventLeadingOffset) {
       position += file.snapshot.getLength()
     }
   }

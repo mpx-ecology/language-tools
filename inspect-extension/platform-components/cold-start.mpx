@@ -1,0 +1,22 @@
+<template>
+  <refresh-panel />
+  <text>{{ status }}</text>
+</template>
+
+<script setup lang="ts">
+const status = 'ready'
+defineExpose({ status })
+</script>
+
+<script name="json">
+// @ts-check
+// Intentional TS2322. Check that JSON JS diagnostics still run on first open.
+/** @type {number} */
+const count = 'wrong'
+module.exports = {
+  count,
+  usingComponents: {
+    'refresh-panel': './refresh-targets/refresh-panel'
+  }
+}
+</script>

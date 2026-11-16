@@ -16,6 +16,14 @@ export const endOfLine = `;${newLine}`
 export const combineLastMapping: MpxCodeInformation = { __combineOffset: 1 }
 export const identifierRegex = /^[a-zA-Z_$][0-9a-zA-Z_$]*$/
 
+/** Compact plain text without moving or merging mapped source segments. */
+export function appendCode(codes: Code[], code: Code) {
+  const last = codes[codes.length - 1]
+  if (typeof code === 'string' && typeof last === 'string')
+    codes[codes.length - 1] = last + code
+  else codes.push(code)
+}
+
 export function collectVars(
   ts: typeof import('typescript'),
   node: ts.Node,
@@ -79,18 +87,37 @@ export function normalizeAttributeValue(
   return [content, offset]
 }
 
+/** Shared trees contain syntax only; scope and mappings are rebuilt per use. */
+const expressionSyntax = new WeakMap<typeof ts, Map<string, ts.SourceFile>>()
+const maxSharedExpressions = 1024
+const maxSharedExpressionLength = 256
+
 export function createTsAst(
   ts: typeof import('typescript'),
   astHolder: any,
   text: string,
 ) {
   if (astHolder.__volar_ast_text !== text) {
+    let cache: Map<string, ts.SourceFile> | undefined
+    if (text.length <= maxSharedExpressionLength) {
+      cache = expressionSyntax.get(ts)
+      if (!cache) expressionSyntax.set(ts, (cache = new Map()))
+    }
+    let ast = cache?.get(text)
+    if (!ast) {
+      ast = ts.createSourceFile(
+        'mpx_ast.ts',
+        cache ? text.split('').join('') : text,
+        99 satisfies ts.ScriptTarget.Latest,
+      )
+      if (cache) {
+        if (cache.size >= maxSharedExpressions)
+          cache.delete(cache.keys().next().value!)
+        cache.set(ast.text, ast)
+      }
+    }
     astHolder.__volar_ast_text = text
-    astHolder.__volar_ast = ts.createSourceFile(
-      'mpx_ast.ts',
-      text,
-      99 satisfies ts.ScriptTarget.Latest,
-    )
+    astHolder.__volar_ast = ast
   }
   return astHolder.__volar_ast as ts.SourceFile
 }

@@ -113,6 +113,7 @@ export function createTemplateCodegenContext(
   const commentBuffer: CompilerDOM.CommentNode[] = []
 
   return {
+    codeBuffer: undefined as Code[] | undefined,
     get currentInfo() {
       return stack[stack.length - 1]
     },

@@ -1,0 +1,17 @@
+<template>
+  <refresh-panel />
+  <text>{{ status }}</text>
+</template>
+
+<script setup lang="ts">
+const status = 'ready'
+defineExpose({ status })
+</script>
+
+<script type="application/json">
+{
+  "usingComponents": {
+    "refresh-panel": "./refresh-targets/refresh-panel"
+  }
+}
+</script>

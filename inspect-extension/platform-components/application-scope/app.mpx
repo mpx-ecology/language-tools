@@ -1,0 +1,6 @@
+<script name="json">
+module.exports = {
+  packages: ['./nested'],
+  usingComponents: { 'scope-panel': './outer-panel' }
+}
+</script>

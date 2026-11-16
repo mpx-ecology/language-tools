@@ -1,7 +1,8 @@
 import type { Code, MpxLanguagePlugin, Sfc } from '../types'
 import * as path from 'path-browserify'
 import { camelize, capitalize } from '@mpxjs/language-shared'
-import { computed } from 'alien-signals'
+import { computed, signal } from 'alien-signals'
+import { appendCode } from '../codegen/utils'
 import { generateScript } from '../codegen/script'
 import { generateTemplate } from '../codegen/template'
 import { parseScriptRanges } from '../parsers/scriptRanges'
@@ -15,10 +16,28 @@ export const tsCodegen = new WeakMap<Sfc, ReturnType<typeof createTsx>>()
 const validLangs = new Set(['js', 'ts'])
 
 const plugin: MpxLanguagePlugin = ctx => {
-  let appendedGlobalTypes = false
+  const fallbackFiles = new Set<string>()
+  const globalTypesOwner = signal<string | undefined>(undefined)
+  let globalTypesVersion = 0
 
   return {
     name: 'mpx-tsx',
+
+    getExternalDependencyVersion(fileName) {
+      return globalTypesOwner() === fileName ? globalTypesVersion : 0
+    },
+    disposeFile(fileName) {
+      if (!fallbackFiles.delete(fileName) || globalTypesOwner() !== fileName)
+        return
+      const next = fallbackFiles.values().next().value
+      globalTypesVersion++
+      globalTypesOwner(next)
+      if (next) ctx.onExternalDependencyChange?.(next)
+    },
+    dispose() {
+      fallbackFiles.clear()
+      globalTypesOwner(undefined)
+    },
 
     requiredCompilerOptions: [
       'noPropertyAccessFromIndexSignature',
@@ -48,15 +67,14 @@ const plugin: MpxLanguagePlugin = ctx => {
 
   function useCodegen(fileName: string, sfc: Sfc) {
     if (!tsCodegen.has(sfc)) {
-      let appendGlobalTypes = false
-      if (
-        !ctx.mpxCompilerOptions.__setupedGlobalTypes &&
-        !appendedGlobalTypes
-      ) {
-        appendGlobalTypes = true
-        appendedGlobalTypes = true
+      if (!ctx.mpxCompilerOptions.__setupedGlobalTypes) {
+        fallbackFiles.add(fileName)
+        if (!globalTypesOwner()) globalTypesOwner(fileName)
       }
-      tsCodegen.set(sfc, createTsx(fileName, sfc, ctx, appendGlobalTypes))
+      tsCodegen.set(
+        sfc,
+        createTsx(fileName, sfc, ctx, () => globalTypesOwner() === fileName),
+      )
     }
     return tsCodegen.get(sfc)!
   }
@@ -68,7 +86,7 @@ function createTsx(
   fileName: string,
   sfc: Sfc,
   ctx: Parameters<MpxLanguagePlugin>[0],
-  appendGlobalTypes: boolean,
+  appendGlobalTypes: () => boolean,
 ) {
   const ts = ctx.modules.typescript
 
@@ -198,26 +216,29 @@ function createTsx(
     }
 
     const codes: Code[] = []
-    const codegen = generateTemplate({
-      ts,
-      compilerOptions: ctx.compilerOptions,
-      mpxCompilerOptions: getResolvedOptions(),
-      template: sfc.template,
-      usingComponents: sfc.usingComponents,
-      scriptSetupBindingNames: getSetupBindingNames(),
-      scriptSetupImportComponentNames: getSetupImportComponentNames(),
-      destructuredPropNames: getSetupDestructuredPropNames(),
-      templateRefNames: getSetupTemplateRefNames(),
-      hasDefineSlots: setupHasDefineSlots(),
-      slotsAssignName: getSetupSlotsAssignName(),
-      propsAssignName: getSetupPropsAssignName(),
-      selfComponentName: getSelfComponentName(),
-    })
+    const codegen = generateTemplate(
+      {
+        ts,
+        compilerOptions: ctx.compilerOptions,
+        mpxCompilerOptions: getResolvedOptions(),
+        template: sfc.template,
+        usingComponents: sfc.usingComponents,
+        scriptSetupBindingNames: getSetupBindingNames(),
+        scriptSetupImportComponentNames: getSetupImportComponentNames(),
+        destructuredPropNames: getSetupDestructuredPropNames(),
+        templateRefNames: getSetupTemplateRefNames(),
+        hasDefineSlots: setupHasDefineSlots(),
+        slotsAssignName: getSetupSlotsAssignName(),
+        propsAssignName: getSetupPropsAssignName(),
+        selfComponentName: getSelfComponentName(),
+      },
+      codes,
+    )
 
     let current = codegen.next()
     while (!current.done) {
       const code = current.value
-      codes.push(code)
+      appendCode(codes, code)
       current = codegen.next()
     }
 
@@ -242,13 +263,13 @@ function createTsx(
       templateCodegen: getGeneratedTemplate(),
       destructuredPropNames: getSetupDestructuredPropNames(),
       templateRefNames: getSetupTemplateRefNames(),
-      appendGlobalTypes,
+      appendGlobalTypes: appendGlobalTypes(),
     })
 
     let current = codegen.next()
     while (!current.done) {
       const code = current.value
-      codes.push(code)
+      appendCode(codes, code)
       current = codegen.next()
     }
 

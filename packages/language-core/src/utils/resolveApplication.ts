@@ -1,7 +1,6 @@
 import type * as ts from 'typescript'
 import type { Sfc } from '../types'
 import * as path from 'path-browserify'
-import type { createUsingComponentsPathResolver } from './formatUsingComponentsPath'
 
 const packagePaths = new WeakMap<ts.SourceFile, string[]>()
 
@@ -11,7 +10,10 @@ export function resolveApplication(
   fileName: string,
   projectRoot: string | undefined,
   getSfc: (fileName: string) => Sfc | undefined,
-  resolve: ReturnType<typeof createUsingComponentsPathResolver>,
+  resolve: (
+    request: string,
+    importer: string,
+  ) => { result?: string } | undefined,
 ): Sfc['application'] {
   const candidates: { fileName: string; sfc?: Sfc }[] = []
   let directory = path.dirname(fileName)

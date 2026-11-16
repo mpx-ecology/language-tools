@@ -1,0 +1,5 @@
+<!-- ✅ 初始 F12 指向 inner-panel.mpx；nested/package.json 的 main 改成 app.mpx 后应指向 outer-panel.mpx。 -->
+<template><scope-panel /></template>
+<script name="json">
+module.exports = {}
+</script>
