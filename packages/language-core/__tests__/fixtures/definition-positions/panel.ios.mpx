@@ -1,0 +1,7 @@
+<template>
+  <text>{{ value }}</text>
+</template>
+<script setup lang="ts">
+defineProps({ value: Number })
+defineExpose({})
+</script>

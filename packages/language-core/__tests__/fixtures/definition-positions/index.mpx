@@ -1,0 +1,19 @@
+<template>
+  <demo-panel value="{{ numeric }}" />
+  <explicit-panel value="{{ numeric }}" />
+  <typed-panel label="hello" />
+  <view>{{ numeric }}</view>
+</template>
+<script setup lang="ts">
+const numeric = 42
+defineExpose({ numeric })
+</script>
+<script type="application/json">
+{
+  "usingComponents": {
+    "demo-panel": "./panel",
+    "explicit-panel": "./panel.ios.mpx",
+    "typed-panel": "./typed.mpx"
+  }
+}
+</script>
