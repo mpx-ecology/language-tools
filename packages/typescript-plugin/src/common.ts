@@ -39,6 +39,10 @@ export function proxyLanguageServiceForMpx<T>(
     p: string | symbol,
   ): ((...args: any[]) => any) | undefined => {
     switch (p) {
+      case 'toLineColumnOffset':
+        return target[p]
+          ? getSourceLineColumnOffset(ts, language, asScriptId, target[p])
+          : undefined
       case 'getFileReferences':
         return (fileName: string) => {
           const result = target.getFileReferences(fileName)
@@ -167,6 +171,37 @@ export function proxyLanguageServiceForMpx<T>(
       return Reflect.set(target, p, value, receiver)
     },
   })
+}
+
+function getSourceLineColumnOffset<T>(
+  ts: typeof import('typescript'),
+  language: Language<T>,
+  asScriptId: (fileName: string) => T,
+  toLineColumnOffset: NonNullable<ts.LanguageService['toLineColumnOffset']>,
+): NonNullable<ts.LanguageService['toLineColumnOffset']> {
+  const sourceFiles = new WeakMap<ts.IScriptSnapshot, ts.SourceFileLike>()
+  return (fileName, position) => {
+    const source = language.scripts.get(
+      asScriptId(fileName.replace(windowsPathReg, '/')),
+    )
+    if (!(source?.generated?.root instanceof MpxVirtualCode)) {
+      return toLineColumnOffset(fileName, position)
+    }
+    const snapshot = source.snapshot
+    let sourceFile = sourceFiles.get(snapshot)
+    if (!sourceFile) {
+      // Definition spans have already been mapped to source offsets. tsserver
+      // otherwise uses the generated Program file's line table to serialize
+      // them, which no longer matches when preventLeadingOffset is enabled.
+      const file: ts.SourceFileLike = {
+        text: snapshot.getText(0, snapshot.getLength()),
+        getLineAndCharacterOfPosition: offset =>
+          ts.getLineAndCharacterOfPosition(file, offset),
+      }
+      sourceFiles.set(snapshot, (sourceFile = file))
+    }
+    return sourceFile.getLineAndCharacterOfPosition(position)
+  }
 }
 
 function deduplicateTagCandidateDiagnostics(

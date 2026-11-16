@@ -1,0 +1,22 @@
+<template>
+  <!-- ✅ F12 on value: both candidates must select value in defineProps, not in template. -->
+  <demo-panel value="{{ numeric }}" />
+  <!-- ✅ Explicit single target: select the same iOS property declaration. -->
+  <explicit-panel value="{{ numeric }}" />
+  <!-- ✅ F12 on numeric: select the script declaration in this file. -->
+  <view>{{ numeric }}</view>
+  <!-- ❌ Intentional TS2322: neither candidate accepts boolean. -->
+  <demo-panel value="{{ true }}" />
+</template>
+<script setup lang="ts">
+const numeric = 42
+defineExpose({ numeric })
+</script>
+<script type="application/json">
+{
+  "usingComponents": {
+    "demo-panel": "./panel",
+    "explicit-panel": "./panel.ios.mpx"
+  }
+}
+</script>
