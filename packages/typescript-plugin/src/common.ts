@@ -11,7 +11,7 @@ import {
   getTemplateTagIdentities,
   hyphenateTag,
 } from '@mpxjs/language-core'
-import { capitalize } from '@mpxjs/language-shared'
+import { camelize, capitalize } from '@mpxjs/language-shared'
 import { _getComponentNames } from './requests/getComponentNames'
 import { _getElementNames } from './requests/getElementNames'
 import { transformTemplateDiagnostic } from './utils/diagnostics'
@@ -634,6 +634,11 @@ function getComponentSpans(
     ...validComponentNames,
     ...validComponentNames.map(hyphenateTag),
   ])
+  // Compare in the code generator's direction: ListDeep1 cannot recover the
+  // hyphen before the digit in list-deep-1 when converted back to a tag name.
+  const normalizedComponents = new Set(
+    validComponentNames.map(name => capitalize(camelize(name))),
+  )
   if (template.ast) {
     for (const node of forEachElementNode(template.ast)) {
       if (
@@ -644,7 +649,11 @@ function getComponentSpans(
         continue
       }
       for (const identity of getTemplateTagIdentities(node)) {
-        if (!components.has(identity.name) || elements.has(identity.name))
+        if (
+          (!components.has(identity.name) &&
+            !normalizedComponents.has(capitalize(camelize(identity.name)))) ||
+          elements.has(identity.name)
+        )
           continue
         for (const start of [identity.startTagOffset, identity.endTagOffset]) {
           if (
