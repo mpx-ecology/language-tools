@@ -1,0 +1,31 @@
+<template>
+  <!-- Expected: all registered list tags use the same component color. -->
+  <list-deep-error title="Mpx"></list-deep-error>
+  <list-deep-1 title="Mpx"></list-deep-1>
+  <list-deep-2 title="Mpx"></list-deep-2>
+  <list-deep-3 title="Mpx"></list-deep-3>
+  <list-deep-4 title="Mpx"></list-deep-4>
+  <list-deep-5 title="Mpx"></list-deep-5>
+  <list-deep-6 title="Mpx"></list-deep-6>
+  <list-deep-12 title="Mpx" />
+  <list-2-panel title="Mpx" />
+  <!-- Expected: the static value also uses the component color. -->
+  <view mpxTagName="list-deep-1" title="Mpx"></view>
+  <!-- Expected: native view keeps its normal tag color. -->
+  <view>Native element</view>
+</template>
+<script name="json">
+module.exports = {
+  usingComponents: {
+    'list-deep-error': './panel.mpx',
+    'list-deep-1': './panel.mpx',
+    'list-deep-2': './panel.mpx',
+    'list-deep-3': './panel.mpx',
+    'list-deep-4': './panel.mpx',
+    'list-deep-5': './panel.mpx',
+    'list-deep-6': './panel.mpx',
+    'list-deep-12': './panel.mpx',
+    'list-2-panel': './panel.mpx',
+  },
+}
+</script>

@@ -1,0 +1,23 @@
+<template>
+  <list-deep-1 title="Mpx"></list-deep-1>
+  <listDeep2 title="Mpx"></listDeep2>
+  <ListDeep3 title="Mpx"></ListDeep3>
+  <view mpxTagName="list-deep-1" title="Mpx" />
+  <list-deep1 title="Mpx"></list-deep1>
+  <listDeep1 title="Mpx"></listDeep1>
+  <ListDeep1 title="Mpx"></ListDeep1>
+  <view mpxTagName="list-deep1" />
+  <view mpxTagName="listDeep1" />
+  <view mpxTagName="ListDeep1" />
+  <view />
+</template>
+<script setup lang="ts">
+import Panel from './panel.mpx'
+defineOptions({
+  components: {
+    'list-deep-1': Panel,
+    listDeep2: Panel,
+    ListDeep3: Panel,
+  },
+})
+</script>

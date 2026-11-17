@@ -1,0 +1,11 @@
+<template>
+  <list-deep-1 value="text"></list-deep-1>
+  <list-deep1 value="text"></list-deep1>
+  <listDeep1 value="text"></listDeep1>
+  <ListDeep1 value="text"></ListDeep1>
+  <view mpxTagName="list-deep-1" value="text" />
+  <view mpxTagName="list-deep1" value="text" />
+  <view mpxTagName="listDeep1" value="text" />
+  <view mpxTagName="ListDeep1" value="text" />
+</template>
+<script name="json">module.exports = { usingComponents: { 'list-deep-1': './kebab-panel.mpx' } }</script>

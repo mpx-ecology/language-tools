@@ -9,7 +9,6 @@ import {
   forEachElementNode,
   getInstanceFieldDiagnostics,
   getTemplateTagIdentities,
-  hyphenateTag,
 } from '@mpxjs/language-core'
 import { capitalize } from '@mpxjs/language-shared'
 import { _getComponentNames } from './requests/getComponentNames'
@@ -630,10 +629,7 @@ function getComponentSpans(
   const result: ts.TextSpan[] = []
   const validComponentNames = _getComponentNames(ts, languageService, mpxCode)
   const elements = new Set(_getElementNames(ts, languageService, mpxCode))
-  const components = new Set([
-    ...validComponentNames,
-    ...validComponentNames.map(hyphenateTag),
-  ])
+  const components = new Set(validComponentNames)
   if (template.ast) {
     for (const node of forEachElementNode(template.ast)) {
       if (

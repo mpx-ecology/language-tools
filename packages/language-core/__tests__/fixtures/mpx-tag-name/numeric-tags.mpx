@@ -1,0 +1,35 @@
+<template>
+  <list-deep-1 title="Mpx"></list-deep-1>
+  <list-deep-2 title="Mpx"></list-deep-2>
+  <list-deep-3 title="Mpx"></list-deep-3>
+  <list-deep-4 title="Mpx"></list-deep-4>
+  <list-deep-5 title="Mpx"></list-deep-5>
+  <list-deep-6 title="Mpx"></list-deep-6>
+  <list-deep-12 title="Mpx"></list-deep-12>
+  <list-2-panel title="Mpx"></list-2-panel>
+  <list-deep1 title="Mpx"></list-deep1>
+  <list-deep-error title="Mpx"></list-deep-error>
+  <view mpxTagName="list-deep-1" title="Mpx"></view>
+  <view mpxTagName@swan="list-deep-12" title@swan="Mpx" />
+  <unknown-panel-1></unknown-panel-1>
+  <view></view>
+</template>
+<script setup lang="ts">
+defineExpose({})
+</script>
+<script name="json">
+module.exports = {
+  usingComponents: {
+    'list-deep-1': './panel.mpx',
+    'list-deep-2': './panel.mpx',
+    'list-deep-3': './panel.mpx',
+    'list-deep-4': './panel.mpx',
+    'list-deep-5': './panel.mpx',
+    'list-deep-6': './panel.mpx',
+    'list-deep-12': './panel.mpx',
+    'list-2-panel': './panel.mpx',
+    'list-deep1': './panel.mpx',
+    'list-deep-error': './panel.mpx',
+  },
+}
+</script>

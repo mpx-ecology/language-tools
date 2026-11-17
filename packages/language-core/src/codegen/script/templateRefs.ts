@@ -1,14 +1,9 @@
 import * as CompilerDOM from '@vue/compiler-dom'
-import { camelize, capitalize } from '@mpxjs/language-shared'
 import type { Code } from '../../types'
 import type { ScriptCodegenOptions } from './index'
 import { codeFeatures } from '../codeFeatures'
 import { endOfLine, normalizeAttributeValue } from '../utils'
 import { generateObjectProperty } from '../template/objectProperty'
-import {
-  getCanonicalComponentName,
-  getPossibleOriginalComponentNames,
-} from '../template/element'
 
 // Resolve from the component registry, independently of __MPX_ctx. Exposing
 // refs back to the template must not create a circular context/ref type.
@@ -57,17 +52,10 @@ export function* generateTemplateRefs(
             ]
             const component =
               node.tagType === CompilerDOM.ElementTypes.COMPONENT ||
-              registeredNames.some(
-                name =>
-                  capitalize(camelize(name)) === capitalize(camelize(node.tag)),
-              )
+              registeredNames.includes(node.tag)
             if (component) {
-              const canonical = getCanonicalComponentName(node.tag)
-              const names = getPossibleOriginalComponentNames(
-                node.tag,
-                false,
-              ).map(name => JSON.stringify(name))
-              const ctor = `__VLS_WithComponent<${JSON.stringify(canonical)}, typeof __MPX_jsonComponents, void, ${names.join(', ')}>[${JSON.stringify(canonical)}]`
+              const name = JSON.stringify(node.tag)
+              const ctor = `__VLS_WithComponent<${name}, typeof __MPX_jsonComponents, void>[${name}]`
               type = `__VLS_MpxPublicInstance<${ctor}>`
               type = inFor ? `(${type})[]` : `${type} | null | undefined`
             }

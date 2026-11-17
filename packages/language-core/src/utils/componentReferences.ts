@@ -1,6 +1,5 @@
 import type * as ts from 'typescript'
 import type { IScriptSnapshot, Language } from '@volar/language-core'
-import { camelize, capitalize } from '@mpxjs/language-shared'
 import { MpxVirtualCode } from '../virtualFile/mpxFile'
 import { tsCodegen } from '../plugins/mpx-tsx'
 import { createUsingComponentsPathResolver } from './formatUsingComponentsPath'
@@ -75,19 +74,8 @@ export function createComponentReferenceIndex<T>(
         registrations.set(name, targets)
         local.push({ fileName: file.fileName, textSpan, targets: [key] })
       }
-      const normalized = new Map<string, string[] | undefined>()
-      for (const [name, targets] of registrations) {
-        const canonical = canonicalName(name)
-        normalized.set(
-          canonical,
-          normalized.has(canonical) ? undefined : targets,
-        )
-      }
       for (const { name, textSpan } of collected.tags) {
-        // Prefer the exact local registration. A spelling fallback must never
-        // join unrelated components whose normalized registration names collide.
-        const targets =
-          registrations.get(name) ?? normalized.get(canonicalName(name))
+        const targets = registrations.get(name)
         if (targets?.length)
           local.push({ fileName: file.fileName, textSpan, targets })
       }
@@ -200,8 +188,4 @@ export function createComponentReferenceIndex<T>(
     }
     return { paths, tags }
   }
-}
-
-function canonicalName(name: string) {
-  return capitalize(camelize(name))
 }

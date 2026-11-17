@@ -31,7 +31,7 @@ describe('JSON usingComponents codegen', () => {
     expect(code).not.toContain(
       'import ComponentOptions from "./component-options.mpx"',
     )
-    expect(code).toContain('ComponentOptions: __MPX_jsonComponent_0_0,')
+    expect(code).toContain('"component-options": __MPX_jsonComponent_0_0,')
 
     const duplicateIdentifierDiagnostics = service.languageService
       .getSemanticDiagnostics(fileName)
@@ -126,20 +126,18 @@ describe('JSON usingComponents codegen', () => {
       'import __MPX_jsonComponent_0_1 from "./component-candidate-setup.mpx"',
     )
     expect(code).toContain(
-      'MultiCandidate: __MPX_jsonComponent_0_0 as ' +
+      '"multi-candidate": __MPX_jsonComponent_0_0 as ' +
         'typeof __MPX_jsonComponent_0_0 | typeof __MPX_jsonComponent_0_1,',
     )
   })
 
-  it('merges component tags that normalize to the same public name', () => {
+  it('keeps similar component registration names and their types separate', () => {
     const fileName = service.file('normalized-component-names.mpx')
     const { code } = service.getServiceScript('normalized-component-names.mpx')
 
-    expect(code).toContain(
-      'FooBar: __MPX_jsonComponent_0_0 as ' +
-        'typeof __MPX_jsonComponent_0_0 | typeof __MPX_jsonComponent_1_0,',
-    )
-    expect(code.match(/^FooBar:/gm)).toHaveLength(1)
+    expect(code).toContain('"foo-bar": __MPX_jsonComponent_0_0,')
+    expect(code).toContain('fooBar: __MPX_jsonComponent_1_0,')
+    expect(code).not.toContain('FooBar:')
 
     const duplicatePropertyDiagnostics = service.languageService
       .getSemanticDiagnostics(fileName)

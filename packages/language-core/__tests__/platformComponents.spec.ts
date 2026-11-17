@@ -549,7 +549,7 @@ defineExpose({})
     services.push(service)
     const { code, root } = service.getServiceScript('index.mpx')
     expect(code).toContain(
-      'DemoPanel: __MPX_jsonComponent_0_0 as typeof __MPX_jsonComponent_0_0 | typeof __MPX_jsonComponent_0_1 | typeof __MPX_jsonComponent_0_2,',
+      '"demo-panel": __MPX_jsonComponent_0_0 as typeof __MPX_jsonComponent_0_0 | typeof __MPX_jsonComponent_0_1 | typeof __MPX_jsonComponent_0_2,',
     )
     expect(code.match(/import __MPX_jsonComponent_0_\d from/g)).toHaveLength(3)
     expect(

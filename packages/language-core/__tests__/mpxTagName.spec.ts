@@ -8,6 +8,7 @@ import {
   tsCodegen,
 } from '../src'
 import { compileMpxSource } from './utils/compileMpxFixture'
+import { proxyLanguageServiceForMpx } from '../../typescript-plugin/src/common'
 import {
   type TestLanguageService,
   createTestLanguageService,
@@ -172,12 +173,18 @@ describe('mpxTagName effective identities', () => {
         .templateNodeTags.find(tag => tag.name === name)!
       expect(start).toBe(template.startTagEnd + tag.startTagOffset)
     }
-    const tokens =
-      service.proxyLanguageService.getEncodedSemanticClassifications(
-        service.file('index.mpx'),
-        { start: 0, length: source.length },
-        ts.SemanticClassificationFormat.TwentyTwenty,
-      ).spans
+    const proxy = proxyLanguageServiceForMpx(
+      ts,
+      service.language,
+      service.proxyLanguageService,
+      root.mpxCompilerOptions,
+      id => id,
+    )
+    const tokens = proxy.getEncodedSemanticClassifications(
+      service.file('index.mpx'),
+      { start: 0, length: source.length },
+      ts.SemanticClassificationFormat.TwentyTwenty,
+    ).spans
     const ranges = []
     for (let i = 0; i < tokens.length; i += 3)
       ranges.push(source.slice(tokens[i], tokens[i] + tokens[i + 1]))

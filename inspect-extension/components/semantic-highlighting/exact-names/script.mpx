@@ -1,0 +1,21 @@
+<template>
+  <list-deep-1 value="{{ 'text' }}"></list-deep-1>
+  <list-deep1 value="{{ 123 }}"></list-deep1>
+  <listDeep1 value="{{ true }}"></listDeep1>
+  <view mpxTagName="list-deep-1" value="{{ 'text' }}" />
+  <view mpxTagName="list-deep1" value="{{ 123 }}" />
+  <view mpxTagName="listDeep1" value="{{ true }}" />
+  <!-- Intentionally invalid: three independent TS2322 errors. -->
+  <list-deep-1 value="{{ 123 }}" />
+  <list-deep1 value="{{ 'wrong' }}" />
+  <listDeep1 value="{{ 'wrong' }}" />
+  <!-- Unregistered spelling must not gain component metadata. -->
+  <ListDeep1 value="{{ 'ignored' }}"></ListDeep1>
+</template>
+<script setup lang="ts">
+import Kebab from './kebab-panel.mpx'
+import Compact from './compact-panel.mpx'
+import Camel from './camel-panel.mpx'
+// Expected existing TS2322: Mpx constructors conflict with React ComponentType.
+defineOptions({ components: { 'list-deep-1': Kebab, 'list-deep1': Compact, listDeep1: Camel } })
+</script>
