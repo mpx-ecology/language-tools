@@ -634,11 +634,9 @@ function getComponentSpans(
     ...validComponentNames,
     ...validComponentNames.map(hyphenateTag),
   ])
-  // Compare in the code generator's direction: ListDeep1 cannot recover the
-  // hyphen before the digit in list-deep-1 when converted back to a tag name.
-  const normalizedComponents = new Set(
-    validComponentNames.map(name => capitalize(camelize(name))),
-  )
+  // Match codegen candidates against raw keys: normalizing registration keys
+  // would also classify unresolved near-matches such as list-deep1.
+  const registeredComponents = new Set(validComponentNames)
   if (template.ast) {
     for (const node of forEachElementNode(template.ast)) {
       if (
@@ -649,9 +647,11 @@ function getComponentSpans(
         continue
       }
       for (const identity of getTemplateTagIdentities(node)) {
+        const camelizedName = camelize(identity.name)
         if (
           (!components.has(identity.name) &&
-            !normalizedComponents.has(capitalize(camelize(identity.name)))) ||
+            !registeredComponents.has(capitalize(camelizedName)) &&
+            !registeredComponents.has(camelizedName)) ||
           elements.has(identity.name)
         )
           continue
