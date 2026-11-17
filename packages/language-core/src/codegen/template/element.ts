@@ -2,7 +2,6 @@ import type { TemplateCodegenOptions } from './index'
 import type { Code, MpxCodeInformation } from '../../types'
 
 import * as CompilerDOM from '@vue/compiler-dom'
-import { camelize, capitalize } from '@mpxjs/language-shared'
 
 import { hyphenateTag } from '../../utils/shared'
 import { codeFeatures } from '../codeFeatures'
@@ -12,7 +11,6 @@ import {
   newLine,
   normalizeAttributeValue,
 } from '../utils'
-import { generateCamelized } from '../utils/camelized'
 import { wrapWith } from '../utils/wrapWith'
 import type { TemplateCodegenContext } from './context'
 import { generateElementChildren } from './elementChildren'
@@ -31,8 +29,6 @@ import {
   getTemplateTagIdentities,
 } from './tagIdentity'
 
-const colonReg = /:/g
-
 export function* generateComponent(
   options: TemplateCodegenOptions,
   ctx: TemplateCodegenContext,
@@ -43,10 +39,6 @@ export function* generateComponent(
   if (identity.endTagOffset !== undefined)
     tagOffsets.push(identity.endTagOffset)
   const failedPropExps: FailedPropExpression[] = []
-  const possibleOriginalNames = getPossibleOriginalComponentNames(
-    node.tag,
-    true,
-  )
   const componentOriginalVar = ctx.getInternalVariable()
   const componentFunctionalVar = ctx.getInternalVariable()
   const componentVNodeVar = ctx.getInternalVariable()
@@ -126,20 +118,16 @@ export function* generateComponent(
     }
     yield `)${endOfLine}`
   } else if (!isComponentTag) {
-    yield `const ${componentOriginalVar} = ({} as __VLS_WithComponent<'${getCanonicalComponentName(node.tag)}', __VLS_LocalComponents, `
-    if (
-      options.selfComponentName &&
-      possibleOriginalNames.includes(options.selfComponentName)
-    ) {
-      yield `typeof __VLS_self, `
+    yield `const ${componentOriginalVar} = ({} as __VLS_WithComponent<${JSON.stringify(node.tag)}, __VLS_LocalComponents, `
+    if (options.selfComponentName === node.tag) {
+      yield `typeof __VLS_self`
     } else {
-      yield `void, `
+      yield `void`
     }
-    yield getPossibleOriginalComponentNames(node.tag, false)
-      .map(name => `'${name}'`)
-      .join(`, `)
-    yield `>).`
-    yield* generateCanonicalComponentName(
+    yield `>)`
+    yield* generatePropertyAccess(
+      options,
+      ctx,
       node.tag,
       tagOffsets[0],
       identity.sourceTag
@@ -148,30 +136,26 @@ export function* generateComponent(
     )
     yield `${endOfLine}`
 
-    const camelizedTag = camelize(node.tag)
-    if (identifierRegex.test(camelizedTag)) {
-      // navigation support
-      yield `/** @type {[`
-      for (const tagOffset of tagOffsets) {
-        for (const shouldCapitalize of node.tag[0] === node.tag[0].toUpperCase()
-          ? [false]
-          : [true, false]) {
-          yield `typeof __VLS_components.`
-          yield* generateCamelized(
-            shouldCapitalize ? capitalize(node.tag) : node.tag,
-            'template',
-            tagOffset,
-            codeFeatures.navigation,
-          )
-          yield `, `
-        }
-      }
-      yield `]} */${endOfLine}`
+    // Navigation uses the same raw property as type checking and highlighting.
+    yield `/** @type {[`
+    for (const tagOffset of tagOffsets) {
+      yield `typeof __VLS_components`
+      yield* generatePropertyAccess(
+        options,
+        ctx,
+        node.tag,
+        tagOffset,
+        codeFeatures.navigation,
+      )
+      yield `, `
+    }
+    yield `]} */${endOfLine}`
 
+    if (identifierRegex.test(node.tag)) {
       // auto import support
       yield `// @ts-ignore${newLine}`
-      yield* generateCamelized(
-        capitalize(node.tag),
+      yield [
+        node.tag,
         'template',
         tagOffsets[0],
         {
@@ -180,7 +164,7 @@ export function* generateComponent(
             onlyImport: true,
           },
         },
-      )
+      ]
       yield `${endOfLine}`
     }
   } else {
@@ -416,46 +400,6 @@ function* generateFailedPropExps(
       failedExp.suffix,
     )
     yield endOfLine
-  }
-}
-
-export function getCanonicalComponentName(tagText: string) {
-  return identifierRegex.test(tagText)
-    ? tagText
-    : capitalize(camelize(tagText.replace(colonReg, '-')))
-}
-
-export function getPossibleOriginalComponentNames(
-  tagText: string,
-  deduplicate: boolean,
-) {
-  const name1 = capitalize(camelize(tagText))
-  const name2 = camelize(tagText)
-  const name3 = tagText
-  const names: string[] = [name1]
-  if (!deduplicate || name2 !== name1) {
-    names.push(name2)
-  }
-  if (!deduplicate || name3 !== name2) {
-    names.push(name3)
-  }
-  return names
-}
-
-function* generateCanonicalComponentName(
-  tagText: string,
-  offset: number,
-  features: MpxCodeInformation,
-): Generator<Code> {
-  if (identifierRegex.test(tagText)) {
-    yield [tagText, 'template', offset, features]
-  } else {
-    yield* generateCamelized(
-      capitalize(tagText.replace(colonReg, '-')),
-      'template',
-      offset,
-      features,
-    )
   }
 }
 

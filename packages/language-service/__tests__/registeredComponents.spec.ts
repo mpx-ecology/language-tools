@@ -85,12 +85,12 @@ it.each(['<|', '<app-|', '|'])(
         'app-panel',
         'local-panel',
         'TypedPanel',
-        'typed-panel',
+        'AppPanel',
         'typed-dash',
       ]),
     )
     for (const name of [
-      'AppPanel',
+      'typed-panel',
       'other-panel',
       'Unused',
       'privateField',
@@ -101,27 +101,45 @@ it.each(['<|', '<app-|', '|'])(
     expect(items.every(item => !item.additionalTextEdits?.length)).toBe(true)
   },
 )
-it.each([
-  '<app-panel | />',
-  '<TypedPanel | />',
-  '<typed-panel | />',
-  '<typed-dash | />',
-])('completes precise props at %s', async source => {
-  const { items } = await complete(source)
-  expect(items.map(item => item.label)).toContain('title')
-  expect(items.map(item => item.label)).not.toContain('mustNotLeak')
+it.each(['<app-panel | />', '<TypedPanel | />', '<typed-dash | />'])(
+  'completes precise props at %s',
+  async source => {
+    const { items } = await complete(source)
+    expect(items.map(item => item.label)).toContain('title')
+    expect(items.map(item => item.label)).not.toContain('mustNotLeak')
+  },
+)
+it('does not complete registered component props through an unregistered spelling', async () => {
+  const original = service.read('globals.d.ts')
+  service.updateFile(
+    'globals.d.ts',
+    original.replace(
+      'TypedPanel: typeof TypedPanel',
+      'TypedPanel: new (props: { typedOnly: number }) => {}',
+    ),
+  )
+  try {
+    expect(
+      (await complete('<TypedPanel | />')).items.map(item => item.label),
+    ).toContain('typedOnly')
+    expect(
+      (await complete('<typed-panel | />')).items.map(item => item.label),
+    ).not.toContain('typedOnly')
+  } finally {
+    service.updateFile('globals.d.ts', original)
+  }
 })
 it('separates applications and retains the literal local override spelling', async () => {
   const other = await complete('<|', 'app-b/pages/index.mpx')
   expect(other.items.map(item => item.label)).toContain('other-panel')
   expect(
     JSON.stringify(
-      other.items.find(item => item.label === 'app-panel')?.documentation,
+      other.items.find(item => item.label === 'AppPanel')?.documentation,
     ),
   ).toContain('类型声明组件')
   const local = await complete('<|', 'app-a/pages/override.mpx')
   expect(local.items.map(item => item.label)).toContain('AppPanel')
-  expect(local.items.map(item => item.label)).not.toContain('app-panel')
+  expect(local.items.map(item => item.label)).toContain('app-panel')
 })
 it('navigates inherited application tags to their component file', async () => {
   const { document } = await complete('<app-p|anel title="ok" />')

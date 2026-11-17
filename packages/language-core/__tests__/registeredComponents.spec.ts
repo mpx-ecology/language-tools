@@ -25,7 +25,9 @@ describe('registered component sources', () => {
   it('inherits application components alongside local and typed registrations', () => {
     expect(
       getComponentNames.call(context, service.file('app-a/pages/index.mpx')),
-    ).toEqual(expect.arrayContaining(['AppPanel', 'LocalPanel', 'TypedPanel']))
+    ).toEqual(
+      expect.arrayContaining(['app-panel', 'local-panel', 'TypedPanel']),
+    )
   })
   it('retains prop types from each registration source', () => {
     expect(
@@ -51,7 +53,7 @@ it('does not suggest context fields, other applications, unregistered files, or 
     expect(names).not.toContain(name)
   expect(
     getComponentNames.call(context, service.file('app-b/pages/index.mpx')),
-  ).toContain('OtherPanel')
+  ).toContain('other-panel')
 })
 
 it('preserves public ref types for application-registered components', () => {
@@ -96,12 +98,18 @@ it('inherits the host app through packages entries without leaking package devel
   expect(names).not.toContain('PackageOnly')
 })
 
-it('lets a local normalized alias override application and type registrations', () => {
+it('overrides identical raw keys while retaining differently spelled application registrations', () => {
   const file = service.file('app-a/pages/override.mpx')
-  const props = getComponentProps.call(context, file, 'app-panel')
+  const props = getComponentProps.call(context, file, 'AppPanel')
   expect(props!.map(prop => prop.name)).toEqual(['count'])
+  expect(
+    getComponentProps.call(context, file, 'app-panel')!.map(prop => prop.name),
+  ).toEqual(['title'])
   const { root } = service.getServiceScript('app-a/pages/override.mpx')
-  expect([...root.sfc.usingComponents!.keys()]).toEqual(['AppPanel'])
+  expect([...root.sfc.usingComponents!.keys()]).toEqual([
+    'app-panel',
+    'AppPanel',
+  ])
   expect(
     service.proxyLanguageService
       .getSemanticDiagnostics(file)
@@ -162,7 +170,7 @@ it('refreshes registration edits, closed buffers and deleted apps; rediscovers r
       .replace('./panel.mpx', './local.mpx')
     overrides.set(app, edited)
     live.language.scripts.set(app, ts.ScriptSnapshot.fromString(edited), 'mpx')
-    expect(names()).toContain('RenamedPanel')
+    expect(names()).toContain('renamed-panel')
     // AppPanel remains a valid project-wide type declaration, while JSON source changes.
     expect([
       ...live
@@ -180,7 +188,7 @@ it('refreshes registration edits, closed buffers and deleted apps; rediscovers r
       ts.ScriptSnapshot.fromString(live.read('app-a/app.mpx')),
       'mpx',
     )
-    expect(names()).not.toContain('RenamedPanel')
+    expect(names()).not.toContain('renamed-panel')
     expect([
       ...live
         .getServiceScript('app-a/pages/index.mpx')
@@ -232,7 +240,7 @@ it('keeps JSON candidates precise when the core package has no GlobalComponents 
         request,
         withoutTypes.file('app-a/pages/index.mpx'),
       ),
-    ).toEqual(['AppPanel', 'LocalPanel'])
+    ).toEqual(['app-panel', 'local-panel'])
   } finally {
     withoutTypes.dispose()
   }

@@ -9,8 +9,7 @@ import type {
 } from '@mpxjs/typescript-plugin/src/requests'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
 import * as html from 'vscode-html-languageservice'
-import { camelize, capitalize, getAtModeBaseName } from '@mpxjs/language-shared'
-import { hyphenateTag } from '@mpxjs/language-core'
+import { getAtModeBaseName } from '@mpxjs/language-shared'
 import { create as createHtmlService } from 'volar-service-html'
 import { LanguageServicePlugin, SfcJsonBlockUsingComponents } from '../types'
 import templateBuiltinData from '../data/template'
@@ -185,20 +184,14 @@ export function create(
                 })
               }
             }
-            const jsonNames = new Set(
-              [...(usingComponents?.keys() ?? [])].map(name =>
-                capitalize(camelize(name)),
-              ),
-            )
+            const jsonNames = new Set(usingComponents?.keys())
             for (const name of typeComponents) {
-              if (jsonNames.has(capitalize(camelize(name)))) continue
-              for (const tag of new Set([name, hyphenateTag(name)])) {
-                tags.push({
-                  name: tag,
-                  description: '类型声明组件',
-                  attributes: getAttributes(tag),
-                })
-              }
+              if (jsonNames.has(name)) continue
+              tags.push({
+                name,
+                description: '类型声明组件',
+                attributes: getAttributes(name),
+              })
             }
             if (alias)
               tags.push({
@@ -270,11 +263,7 @@ export function create(
             helper &&
             componentTag &&
             tagContext.isAfterTagName &&
-            (usingComponents?.has(name) ||
-              typeComponents.some(
-                registered =>
-                  registered === name || hyphenateTag(registered) === name,
-              )) &&
+            (usingComponents?.has(name) || typeComponents.includes(name)) &&
             (mode === 'completion' ||
               hasMultipleComponentCandidates ||
               names.length > 1) &&

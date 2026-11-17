@@ -94,10 +94,10 @@ it('keeps numeric component prop hover and navigation', () => {
 
 const scriptFixture = 'script-registered-numeric-tags.mpx'
 
-it('matches original script registration keys with each codegen candidate', () => {
+it('matches original script registration keys without spelling aliases', () => {
   const content = service.read(scriptFixture)
   const template = content.slice(0, content.indexOf('</template>'))
-  const registered = ['list-deep-1', 'list-deep-2', 'list-deep-3']
+  const registered = ['list-deep-1', 'listDeep2', 'ListDeep3']
   const expected = [...template.matchAll(/<\/?([\w-]+)(?=[\s/>])/g)]
     .filter(match => registered.includes(match[1]))
     .map(match => [

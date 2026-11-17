@@ -1,4 +1,4 @@
-<template><app-panel count="{{ 'wrong' }}" /></template>
+<template><AppPanel count="{{ 'wrong' }}" /></template>
 <script type="application/json">
 {"usingComponents":{"AppPanel":"../local.mpx"}}
 </script>

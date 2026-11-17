@@ -4,7 +4,6 @@ import type {
   UsingComponentInfo,
 } from '../../types'
 import type { ScriptCodegenOptions } from './index'
-import { camelize, capitalize } from '@mpxjs/language-shared'
 import * as path from 'path-browserify'
 import { endOfLine, newLine } from '../utils'
 import { identifierRegex } from '../utils'
@@ -47,39 +46,19 @@ function* generateJsonUsingComponents(
 
   yield `const __MPX_jsonComponents = {${newLine}`
 
-  const componentsByPropertyName = new Map<
-    string,
-    { componentIndex: number; candidateCount: number }[]
-  >()
   for (const [componentIndex, [componentName, componentPaths]] of [
     ...usingComponents,
   ].entries()) {
-    const componentPropertyName = getUsingComponentPropertyName(
-      componentName,
-      componentIndex,
-    )
-    let components = componentsByPropertyName.get(componentPropertyName)
-    if (!components) {
-      componentsByPropertyName.set(componentPropertyName, (components = []))
-    }
-    components.push({
-      componentIndex,
-      candidateCount: componentPaths.paths.length,
-    })
-  }
-
-  for (const [componentPropertyName, components] of componentsByPropertyName) {
-    const importNames = components.flatMap(
-      ({ componentIndex, candidateCount }) =>
-        Array.from({ length: candidateCount }, (_, candidateIndex) =>
-          getUsingComponentImportName(componentIndex, candidateIndex),
-        ),
+    const componentPropertyName = identifierRegex.test(componentName)
+      ? componentName
+      : JSON.stringify(componentName)
+    const importNames = componentPaths.paths.map((_, candidateIndex) =>
+      getUsingComponentImportName(componentIndex, candidateIndex),
     )
     const firstImportName = importNames[0]!
     yield `${componentPropertyName}: ${firstImportName}`
     if (importNames.length > 1) {
-      // Multiple paths or normalized component names still need a single
-      // runtime value, so keep the first import and widen it to all candidates.
+      // Platform/path candidates of the same raw registration share a type.
       yield ` as `
       for (let i = 0; i < importNames.length; i++) {
         if (i) {
@@ -278,16 +257,6 @@ function getResolvedImportPath(
   }
 
   return importPath
-}
-
-function getUsingComponentPropertyName(
-  componentName: string,
-  componentIndex: number,
-) {
-  const camelizedName = capitalize(camelize(componentName))
-  return camelizedName && identifierRegex.test(camelizedName)
-    ? camelizedName
-    : `component_${componentIndex}`
 }
 
 export function getUsingComponentImportName(

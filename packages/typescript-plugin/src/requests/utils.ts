@@ -15,15 +15,13 @@ export function getComponentType(
   const checker = program.getTypeChecker()
   const name = tag.split('.')
 
-  let componentSymbol =
-    components.type.getProperty(name[0]) ??
-    components.type.getProperty(camelize(name[0])) ??
-    components.type.getProperty(capitalize(camelize(name[0])))
+  const exactSymbol = components.type.getProperty(tag)
+  let componentSymbol = exactSymbol ?? components.type.getProperty(name[0])
   let componentType: ts.Type | undefined
 
   if (!componentSymbol) {
     const name = getSelfComponentName(fileName)
-    if (name === capitalize(camelize(tag))) {
+    if (name === tag) {
       componentType = getVariableType(
         ts,
         languageService,
@@ -36,14 +34,14 @@ export function getComponentType(
       componentSymbol,
       components.node,
     )
-    for (let i = 1; i < name.length; i++) {
+    for (let i = 1; !exactSymbol && i < name.length; i++) {
       componentSymbol = componentType.getProperty(name[i])
       if (componentSymbol) {
         componentType = checker.getTypeOfSymbolAtLocation(
           componentSymbol,
           components.node,
         )
-      }
+      } else return
     }
   }
 

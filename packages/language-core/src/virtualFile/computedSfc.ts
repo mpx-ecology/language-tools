@@ -8,7 +8,6 @@ import type {
   SfcBlockAttr,
 } from '../types'
 import { computed, pauseTracking, resumeTracking } from 'alien-signals'
-import { camelize, capitalize } from '@mpxjs/language-shared'
 import { parseCssClassNames } from '../utils/parseCssClassNames'
 import { computedArray } from '../utils/signals'
 import { parseUsingComponents } from '../utils/parseJsonUsingComponents'
@@ -506,13 +505,9 @@ function mergeRegistrations<T>(
   local: Map<string, T> | undefined,
   localNames = local,
 ) {
-  const localKeys = new Set(
-    [...(localNames?.keys() ?? [])].map(name => capitalize(camelize(name))),
-  )
+  const localKeys = new Set(localNames?.keys())
   return new Map([
-    ...[...(application ?? [])].filter(
-      ([name]) => !localKeys.has(capitalize(camelize(name))),
-    ),
+    ...[...(application ?? [])].filter(([name]) => !localKeys.has(name)),
     ...(local ?? []),
   ])
 }

@@ -9,9 +9,8 @@ import {
   forEachElementNode,
   getInstanceFieldDiagnostics,
   getTemplateTagIdentities,
-  hyphenateTag,
 } from '@mpxjs/language-core'
-import { camelize, capitalize } from '@mpxjs/language-shared'
+import { capitalize } from '@mpxjs/language-shared'
 import { _getComponentNames } from './requests/getComponentNames'
 import { _getElementNames } from './requests/getElementNames'
 import { transformTemplateDiagnostic } from './utils/diagnostics'
@@ -630,13 +629,7 @@ function getComponentSpans(
   const result: ts.TextSpan[] = []
   const validComponentNames = _getComponentNames(ts, languageService, mpxCode)
   const elements = new Set(_getElementNames(ts, languageService, mpxCode))
-  const components = new Set([
-    ...validComponentNames,
-    ...validComponentNames.map(hyphenateTag),
-  ])
-  // Match codegen candidates against raw keys: normalizing registration keys
-  // would also classify unresolved near-matches such as list-deep1.
-  const registeredComponents = new Set(validComponentNames)
+  const components = new Set(validComponentNames)
   if (template.ast) {
     for (const node of forEachElementNode(template.ast)) {
       if (
@@ -647,13 +640,7 @@ function getComponentSpans(
         continue
       }
       for (const identity of getTemplateTagIdentities(node)) {
-        const camelizedName = camelize(identity.name)
-        if (
-          (!components.has(identity.name) &&
-            !registeredComponents.has(capitalize(camelizedName)) &&
-            !registeredComponents.has(camelizedName)) ||
-          elements.has(identity.name)
-        )
+        if (!components.has(identity.name) || elements.has(identity.name))
           continue
         for (const start of [identity.startTagOffset, identity.endTagOffset]) {
           if (

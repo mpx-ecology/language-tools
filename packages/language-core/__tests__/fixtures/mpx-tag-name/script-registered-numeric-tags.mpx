@@ -1,7 +1,7 @@
 <template>
   <list-deep-1 title="Mpx"></list-deep-1>
-  <list-deep-2 title="Mpx"></list-deep-2>
-  <list-deep-3 title="Mpx"></list-deep-3>
+  <listDeep2 title="Mpx"></listDeep2>
+  <ListDeep3 title="Mpx"></ListDeep3>
   <view mpxTagName="list-deep-1" title="Mpx" />
   <list-deep1 title="Mpx"></list-deep1>
   <listDeep1 title="Mpx"></listDeep1>
