@@ -103,6 +103,20 @@ const data: html.HTMLDataV1 = {
           },
         },
         {
+          name: 'numberOfLines',
+          description: {
+            kind: 'markdown',
+            value:
+              '限制最近的子文本节点的最大显示行数。\n- 类型：number\n- RN 环境支持',
+          },
+          references: [
+            {
+              name: 'Mpx RN 文本属性迁移',
+              url: `${MpxGuideUrl}/rn/style.html#文本属性迁移`,
+            },
+          ],
+        },
+        {
           name: 'enable-animation',
           description: {
             kind: 'markdown',
@@ -1070,6 +1084,19 @@ const data: html.HTMLDataV1 = {
         value: '文本组件。',
       },
       attributes: [
+        {
+          name: 'numberOfLines',
+          description: {
+            kind: 'markdown',
+            value: '限制文本的最大显示行数。\n- 类型：number\n- RN 环境支持',
+          },
+          references: [
+            {
+              name: 'React Native Text',
+              url: 'https://reactnative.dev/docs/text#numberoflines',
+            },
+          ],
+        },
         {
           name: 'decode',
           description: {

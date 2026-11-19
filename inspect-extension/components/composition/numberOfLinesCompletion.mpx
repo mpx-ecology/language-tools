@@ -1,0 +1,8 @@
+<template>
+  <!-- On each numberOfL, trigger completion before @.
+       Expect numberOfLines and keep the whole suffix and value. -->
+  <text numberOfL@ios|android|harmony="{{ 1 }}">Text</text>
+  <view numberOfL@ios|android|harmony="{{ 1 }}">
+    <text>Text inside view</text>
+  </view>
+</template>
