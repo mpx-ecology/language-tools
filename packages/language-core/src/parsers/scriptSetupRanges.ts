@@ -49,7 +49,9 @@ type DefineExpose = CallExpressionRange
 
 type DefineOptions = CallExpressionRange
 
-type OnReactHooksExec = CallExpressionRange
+type OnReactHooksExec = CallExpressionRange & {
+  declarationStart: number
+}
 
 type UseTemplateRef = CallExpressionRange & {
   name?: string
@@ -114,6 +116,10 @@ export function parseScriptSetupRanges(
       foundNonImportExportNode = true
     }
   })
+  const setupBodyStart = Math.max(
+    importSectionEndOffset,
+    leadingCommentEndOffset,
+  )
   ts.forEachChild(ast, node => visitNode(node, [ast]))
   collectUseContext(ast)
 
@@ -313,7 +319,17 @@ export function parseScriptSetupRanges(
       ) {
         const res = parseCallExpression(node)
         if (res.arg) {
-          onReactHooksExec = res
+          const leadingComments =
+            parents.length === 2 && ts.isExpressionStatement(parent)
+              ? ts.getLeadingCommentRanges(text, parent.getFullStart())
+              : undefined
+          // Keep TypeScript directives immediately before the registration.
+          onReactHooksExec = {
+            ...res,
+            declarationStart:
+              leadingComments?.find(range => range.pos >= setupBodyStart)
+                ?.pos ?? res.callExp.start,
+          }
         }
       }
     }

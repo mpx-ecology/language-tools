@@ -123,7 +123,7 @@ function* generateSetupFunction(
     }
   }
   if (scriptSetupRanges.onReactHooksExec) {
-    const { callExp, arg } = scriptSetupRanges.onReactHooksExec
+    const { declarationStart, arg } = scriptSetupRanges.onReactHooksExec
     if (arg) {
       setupCodeModifies.push(
         [
@@ -135,8 +135,8 @@ function* generateSetupFunction(
             }),
             endOfLine,
           ],
-          callExp.start,
-          callExp.start,
+          declarationStart,
+          declarationStart,
         ],
         [[`__VLS_onReactHooksExec`], arg.start, arg.end],
       )
