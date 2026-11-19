@@ -51,8 +51,10 @@ describe('built-in template attribute and event completion', () => {
   it.each([
     ['view', 'hover-class'],
     ['view', 'enable-text-pass-through'],
+    ['view', 'numberOfLines'],
     ['view', 'wx:model'],
     ['text', 'decode'],
+    ['text', 'numberOfLines'],
     ['image', 'is-svg'],
     ['cover-image', 'is-svg'],
     ['input', 'keyboard-type'],
@@ -131,6 +133,20 @@ describe('built-in template attribute and event completion', () => {
       expect(
         TextDocument.applyEdits(document, [item!.textEdit as TextEdit]),
       ).toBe(`<image is-svg${condition}="{{ true }}" />`)
+    },
+  )
+
+  it.each(['text', 'view'])(
+    'preserves the RN platform suffix and value when completing numberOfLines on %s',
+    async tag => {
+      const { document, items } = await complete(
+        `<${tag} numberOfL|@ios|android|harmony="{{ 1 }}" />`,
+      )
+      const item = items.find(item => item.label === 'numberOfLines')
+      expect(item).toBeDefined()
+      expect(
+        TextDocument.applyEdits(document, [item!.textEdit as TextEdit]),
+      ).toBe(`<${tag} numberOfLines@ios|android|harmony="{{ 1 }}" />`)
     },
   )
 
