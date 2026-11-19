@@ -1,0 +1,14 @@
+<template>
+  <view>{{ hookFlag }}</view>
+</template>
+
+<script lang="ts" setup>
+declare function onReactHooksExec(callback: () => void): void
+
+// 调用行应无 TS2345。将行尾指令换成 @ts-expect-error 时也应无 TS2578。
+// F12 应能从调用跳到声明，从 props.enabled 跳到回调参数 props。
+const sentinel = 0; // @ts-ignore
+onReactHooksExec((props: { enabled: boolean }) => {
+  return { hookFlag: props.enabled && sentinel === 0 }
+})
+</script>

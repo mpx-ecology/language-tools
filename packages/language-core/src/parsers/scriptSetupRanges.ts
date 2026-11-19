@@ -4,6 +4,8 @@ import type { MpxCompilerOptions, TextRange } from '../types'
 import { getNodeText, getStartEnd } from '../utils/shared'
 
 const tsCheckReg = /^\/\/\s*@ts-(?:no)?check($|\s)/
+const tsLineDirectiveReg = /^\/\/\/?\s*@ts-(?:ignore|expect-error)/
+const tsBlockDirectiveReg = /^[/*]*\s*@ts-(?:ignore|expect-error)/
 
 type CallExpressionRange = {
   callExp: TextRange
@@ -51,6 +53,7 @@ type DefineOptions = CallExpressionRange
 
 type OnReactHooksExec = CallExpressionRange & {
   declarationStart: number
+  beforeTrailingDirective: boolean
 }
 
 type UseTemplateRef = CallExpressionRange & {
@@ -121,6 +124,13 @@ export function parseScriptSetupRanges(
     leadingCommentEndOffset,
   )
   ts.forEachChild(ast, node => visitNode(node, [ast]))
+  // Keep a directive on the last import with the call in the setup body.
+  if (onReactHooksExec?.beforeTrailingDirective) {
+    importSectionEndOffset = Math.min(
+      importSectionEndOffset,
+      onReactHooksExec.declarationStart,
+    )
+  }
   collectUseContext(ast)
 
   const templateRefNames = new Set(useTemplateRef.map(ref => ref.name))
@@ -319,16 +329,26 @@ export function parseScriptSetupRanges(
       ) {
         const res = parseCallExpression(node)
         if (res.arg) {
-          const leadingComments =
+          const isTopLevelStatement =
             parents.length === 2 && ts.isExpressionStatement(parent)
-              ? ts.getLeadingCommentRanges(text, parent.getFullStart())
+          const statementStart = parent.getFullStart()
+          const trailingDirective =
+            isTopLevelStatement && statementStart > 0
+              ? getTrailingDiagnosticDirective(statementStart)
               : undefined
+          const leadingComment = isTopLevelStatement
+            ? ts
+                .getLeadingCommentRanges(text, statementStart)
+                ?.find(range => range.pos >= setupBodyStart)
+            : undefined
           // Keep TypeScript directives immediately before the registration.
           onReactHooksExec = {
             ...res,
             declarationStart:
-              leadingComments?.find(range => range.pos >= setupBodyStart)
-                ?.pos ?? res.callExp.start,
+              trailingDirective?.pos ??
+              leadingComment?.pos ??
+              res.callExp.start,
+            beforeTrailingDirective: !!trailingDirective,
           }
         }
       }
@@ -342,6 +362,20 @@ export function parseScriptSetupRanges(
       visitNode(child, parents)
       parents.pop()
     })
+  }
+
+  function getTrailingDiagnosticDirective(start: number) {
+    return ts
+      .getTrailingCommentRanges(text, start)
+      ?.find(({ pos, end, kind }) => {
+        const comment = text.slice(pos, end)
+        if (kind === ts.SyntaxKind.SingleLineCommentTrivia) {
+          return tsLineDirectiveReg.test(comment)
+        }
+        // TypeScript reads directives on the last line of a block comment.
+        const lastLine = comment.split(/\r\n?|\n|\u2028|\u2029/).at(-1)!
+        return tsBlockDirectiveReg.test(lastLine.trimStart())
+      })
   }
 
   function parseCallExpression(node: ts.CallExpression) {
