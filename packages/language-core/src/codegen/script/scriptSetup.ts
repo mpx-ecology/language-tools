@@ -19,18 +19,17 @@ export function* generateScriptSetupImports(
   scriptSetup: NonNullable<Sfc['scriptSetup']>,
   scriptSetupRanges: ScriptSetupRanges,
 ): Generator<Code> {
-  yield [
-    scriptSetup.content.slice(
-      0,
-      Math.max(
-        scriptSetupRanges.importSectionEndOffset,
-        scriptSetupRanges.leadingCommentEndOffset,
-      ),
-    ),
-    'scriptSetup',
-    0,
-    codeFeatures.all,
-  ]
+  const { importSectionEndOffset, leadingCommentEndOffset, onReactHooksExec } =
+    scriptSetupRanges
+  const end = Math.max(importSectionEndOffset, leadingCommentEndOffset)
+  yield generateSfcBlockSection(scriptSetup, 0, end, codeFeatures.all)
+  if (
+    onReactHooksExec?.beforeTrailingDirective &&
+    onReactHooksExec.declarationStart === end
+  ) {
+    // Generated imports must start after the source import on this line.
+    yield newLine
+  }
 }
 
 export function* generateScriptSetup(
@@ -64,6 +63,10 @@ function* generateSetupFunction(
   scriptSetupRanges: ScriptSetupRanges,
 ): Generator<Code> {
   let setupCodeModifies: [Code[], number, number][] = []
+  const setupBodyStart = Math.max(
+    scriptSetupRanges.importSectionEndOffset,
+    scriptSetupRanges.leadingCommentEndOffset,
+  )
   if (scriptSetupRanges.defineProps) {
     const { statement, callExp, typeArg } = scriptSetupRanges.defineProps
     /**
@@ -123,20 +126,25 @@ function* generateSetupFunction(
     }
   }
   if (scriptSetupRanges.onReactHooksExec) {
-    const { callExp, arg } = scriptSetupRanges.onReactHooksExec
+    const { declarationStart, beforeTrailingDirective, arg } =
+      scriptSetupRanges.onReactHooksExec
     if (arg) {
+      const prefix =
+        beforeTrailingDirective && declarationStart > setupBodyStart
+          ? newLine
+          : ''
       setupCodeModifies.push(
         [
           [
-            `const __VLS_onReactHooksExec = `,
+            `${prefix}const __VLS_onReactHooksExec = `,
             generateSfcBlockSection(scriptSetup, arg.start, arg.end, {
               ...codeFeatures.all,
               verification: false, // 避免重复报错
             }),
             endOfLine,
           ],
-          callExp.start,
-          callExp.start,
+          declarationStart,
+          declarationStart,
         ],
         [[`__VLS_onReactHooksExec`], arg.start, arg.end],
       )
@@ -220,10 +228,7 @@ function* generateSetupFunction(
   }
   setupCodeModifies = setupCodeModifies.sort((a, b) => a[1] - b[1])
 
-  let nextStart = Math.max(
-    scriptSetupRanges.importSectionEndOffset,
-    scriptSetupRanges.leadingCommentEndOffset,
-  )
+  let nextStart = setupBodyStart
   for (const [codes, start, end] of setupCodeModifies) {
     yield generateSfcBlockSection(
       scriptSetup,

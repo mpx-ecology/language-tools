@@ -1,0 +1,12 @@
+<template>
+  <view>{{ hookFlag }}</view>
+</template>
+
+<script lang="ts" setup>
+import { onReactHooksExec } from './hooks'
+
+// @ts-ignore
+onReactHooksExec((props: { enabled: boolean }) => {
+  return { hookFlag: props.enabled }
+})
+</script>
