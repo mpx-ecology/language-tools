@@ -86,6 +86,10 @@ const runtimePropTypes = () => `
 // Match Mpx's compiler macros instead of relying on ambient declarations: Vue
 // 2.7 declares the same global names with different runtime-prop/default rules.
 const scriptSetupMacroTypes = () => `
+  function __VLS_PropsBeforeSpread<Props, Spread>(
+    props: Props,
+    spread: Spread,
+  ): __VLS_IsAny<Spread> extends true ? {} : Props
   type __VLS_MpxDefineProps = {
     <T extends Properties = {}>(props: T): Readonly<GetPropsType<T>>
     <T>(): Readonly<T>

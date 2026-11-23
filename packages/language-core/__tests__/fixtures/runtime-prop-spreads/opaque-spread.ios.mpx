@@ -1,0 +1,22 @@
+<template>
+  <view class="{{ vehicleClass }}">
+    {{ label }} {{ message }} {{ shown }}
+    {{ overwritten }} {{ undeclared }}
+  </view>
+</template>
+
+<script setup lang="ts">
+import { opaqueProps, optionalProps, typedProps } from './shared-props'
+
+const props = defineProps({
+  overwritten: Number,
+  ...opaqueProps,
+  ...typedProps,
+  message: String,
+  ...optionalProps,
+  vehicleClass: { type: String, value: '' },
+})
+
+const shown = !!props.inherited
+defineExpose({ shown })
+</script>

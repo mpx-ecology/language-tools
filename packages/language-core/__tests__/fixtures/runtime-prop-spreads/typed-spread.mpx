@@ -1,0 +1,12 @@
+<template>
+  <view>{{ caption }} {{ label }}</view>
+</template>
+
+<script setup lang="ts">
+import { typedProps } from './shared-props'
+
+defineProps({
+  ...typedProps,
+  caption: Number,
+})
+</script>

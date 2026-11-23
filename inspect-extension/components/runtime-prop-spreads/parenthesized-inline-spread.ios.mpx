@@ -1,0 +1,16 @@
+<template>
+  <!-- Hover: vehicleClass and inlineLabel are string. Both definitions jump to the declarations below. -->
+  <view class="{{ vehicleClass }}">{{ inlineLabel }}</view>
+  <!-- Intentional TS2339: undeclared has no matching prop. -->
+  <view>{{ undeclared }}</view>
+</template>
+
+<script setup lang="ts">
+import { sharedProps } from './shared-props'
+
+defineProps(({
+  ...sharedProps,
+  vehicleClass: String,
+  ...{ inlineLabel: String },
+}))
+</script>
