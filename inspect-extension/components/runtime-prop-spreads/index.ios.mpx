@@ -1,0 +1,17 @@
+<template>
+  <!-- Hover: vehicleClass is string and enabledLabel is string. -->
+  <view class="{{ vehicleClass }}">{{ enabledLabel }}</view>
+  <!-- Intentional TS2339: undeclared has no matching prop or exposed binding. -->
+  <view>{{ undeclared }}</view>
+</template>
+
+<script setup lang="ts">
+import { sharedProps } from './shared-props'
+
+defineProps({
+  ...sharedProps,
+  vehicleClass: { type: String, value: '' },
+})
+
+defineExpose({ enabledLabel: 'Enabled' })
+</script>

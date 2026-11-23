@@ -267,8 +267,68 @@ function* generateSetupFunction(
   }
 
   yield* generateComponentProps(ctx, scriptSetup, scriptSetupRanges)
-  yield* generateTemplate(options, ctx)
+  const templateProps = yield* generateTemplateProps(
+    options,
+    scriptSetup,
+    scriptSetupRanges,
+  )
+  yield* generateTemplate(options, ctx, templateProps)
   yield* generateComponentSelf(options)
+}
+
+function* generateTemplateProps(
+  { ts, templateCodegen }: ScriptCodegenOptions,
+  scriptSetup: NonNullable<Sfc['scriptSetup']>,
+  ranges: ScriptSetupRanges,
+): Generator<Code, string | undefined> {
+  const { argNode, typeArg } = ranges.defineProps ?? {}
+  if (
+    !templateCodegen ||
+    typeArg ||
+    !argNode ||
+    !ts.isObjectLiteralExpression(argNode)
+  ) {
+    return
+  }
+  const spreads = argNode.properties.filter(ts.isSpreadAssignment)
+  if (!spreads.length) return
+
+  const ast = scriptSetup.ast
+  const names = spreads.map((_, index) => `__VLS_propsSpread${index}`)
+  for (const [index, { expression }] of spreads.entries()) {
+    yield `const ${names[index]} = (`
+    yield scriptSetup.content.slice(expression.getStart(ast), expression.end)
+    yield `)${endOfLine}`
+  }
+
+  // Reuse TypeScript's spread ordering and optional-property inference.
+  // An any spread may replace every preceding key, so discard that prefix.
+  // The original macro call owns diagnostics, hover and completion in script.
+  yield 'const __VLS_knownPropsOptions = {'
+  for (const _ of spreads) yield '...__VLS_PropsBeforeSpread({'
+  let offset = argNode.getStart(ast) + 1
+  for (const [index, spread] of spreads.entries()) {
+    yield generateSfcBlockSection(
+      scriptSetup,
+      offset,
+      spread.getStart(ast),
+      codeFeatures.navigation,
+    )
+    const name = names[index]
+    yield `}, ${name}), ...(${name} as __VLS_PickNotAny<typeof ${name}, {}>)`
+    offset = spread.end
+  }
+  yield generateSfcBlockSection(
+    scriptSetup,
+    offset,
+    argNode.end - 1,
+    codeFeatures.navigation,
+  )
+  yield `}${endOfLine}`
+
+  const anySpread = names.map(name => `__VLS_IsAny<typeof ${name}>`).join(' | ')
+  yield `let __VLS_templateProps!: true extends (${anySpread}) ? __VLS_GetInstancePropsType<typeof __VLS_knownPropsOptions> : typeof __VLS_defineProps${endOfLine}`
+  return '__VLS_templateProps'
 }
 
 function* generateSetupMacros(

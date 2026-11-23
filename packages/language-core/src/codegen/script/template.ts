@@ -15,13 +15,14 @@ import { hyphenateTag } from '../../utils/shared'
 export function* generateTemplate(
   options: ScriptCodegenOptions,
   ctx: ScriptCodegenContext,
+  setupProps = '__VLS_defineProps',
 ): Generator<Code, TemplateCodegenContext> {
   ctx.generatedTemplate = true
 
   const templateCodegenCtx = createTemplateCodegenContext({
     scriptSetupBindingNames: new Set(),
   })
-  yield* generateTemplateCtx(options)
+  yield* generateTemplateCtx(options, setupProps)
   yield* generateTemplateElements()
   yield* generateTemplateComponents(options)
   yield* generateTemplateDirectives(options)
@@ -29,7 +30,10 @@ export function* generateTemplate(
   return templateCodegenCtx
 }
 
-function* generateTemplateCtx(options: ScriptCodegenOptions): Generator<Code> {
+function* generateTemplateCtx(
+  options: ScriptCodegenOptions,
+  setupProps: string,
+): Generator<Code> {
   if (options.sfc.scriptSetup) {
     const { defineOptions, defineProps, defineExpose, onReactHooksExec } =
       options.scriptSetupRanges || {}
@@ -54,7 +58,7 @@ function* generateTemplateCtx(options: ScriptCodegenOptions): Generator<Code> {
       yield `const __VLS_defineExposeUnrefs = __VLS_defineExpose as any as UnwrapRefs<typeof __VLS_defineExpose>${endOfLine}`
     }
 
-    yield `const __MPX_ctx = { ...__VLS_defineProps, ...__VLS_defineExposeUnrefs, ...__VLS_defineOptions, ...__VLS_reactHooks }${endOfLine}`
+    yield `const __MPX_ctx = { ...${setupProps}, ...__VLS_defineExposeUnrefs, ...__VLS_defineOptions, ...__VLS_reactHooks }${endOfLine}`
   } else {
     yield `const __MPX_ctx = __VLS_templateContext${endOfLine}`
   }
