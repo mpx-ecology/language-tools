@@ -72,3 +72,42 @@ it('preserves inference for ordinary typed spreads', () => {
     '(property) caption: number',
   )
 })
+
+it('retains prop types inside a parenthesized runtime argument', () => {
+  const relativePath = 'parenthesized-spread.mpx'
+  const file = service.file(relativePath)
+  const position = service.read(relativePath).indexOf('vehicleClass')
+  const proxy = service.proxyLanguageService
+
+  expect(proxy.getSemanticDiagnostics(file)).toHaveLength(0)
+  const hover = proxy.getQuickInfoAtPosition(file, position)
+  expect(ts.displayPartsToString(hover?.displayParts)).toBe(
+    '(property) vehicleClass: string',
+  )
+})
+
+it('finds inline spread prop declarations after an any spread', () => {
+  const relativePath = 'inline-spread.mpx'
+  const file = service.file(relativePath)
+  const source = service.read(relativePath)
+  const proxy = service.proxyLanguageService
+  const name = 'vehicleClass'
+
+  expect(
+    proxy.getSemanticDiagnostics(file).map(diagnostic => ({
+      code: diagnostic.code,
+      text: source.slice(
+        diagnostic.start!,
+        diagnostic.start! + diagnostic.length!,
+      ),
+    })),
+  ).toEqual([{ code: 2304, text: 'missingConstructor' }])
+  expect(proxy.getDefinitionAtPosition(file, source.indexOf(name))).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        fileName: file,
+        textSpan: { start: source.indexOf(`${name}:`), length: name.length },
+      }),
+    ]),
+  )
+})

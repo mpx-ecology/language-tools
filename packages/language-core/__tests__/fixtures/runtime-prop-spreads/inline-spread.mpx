@@ -1,0 +1,15 @@
+<template>
+  <view>{{ vehicleClass }}</view>
+</template>
+
+<script setup lang="ts">
+import { opaqueProps } from './shared-props'
+
+defineProps({
+  ...opaqueProps,
+  ...{
+    vehicleClass: String,
+    brokenProp: missingConstructor,
+  },
+})
+</script>

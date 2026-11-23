@@ -281,15 +281,14 @@ function* generateTemplateProps(
   scriptSetup: NonNullable<Sfc['scriptSetup']>,
   ranges: ScriptSetupRanges,
 ): Generator<Code, string | undefined> {
-  const { argNode, typeArg } = ranges.defineProps ?? {}
-  if (
-    !templateCodegen ||
-    typeArg ||
-    !argNode ||
-    !ts.isObjectLiteralExpression(argNode)
-  ) {
-    return
+  if (!templateCodegen || ranges.defineProps?.typeArg) return
+
+  let argNode = ranges.defineProps?.argNode
+  while (argNode && ts.isParenthesizedExpression(argNode)) {
+    argNode = argNode.expression
   }
+  if (!argNode || !ts.isObjectLiteralExpression(argNode)) return
+
   const spreads = argNode.properties.filter(ts.isSpreadAssignment)
   if (!spreads.length) return
 
@@ -297,7 +296,12 @@ function* generateTemplateProps(
   const names = spreads.map((_, index) => `__VLS_propsSpread${index}`)
   for (const [index, { expression }] of spreads.entries()) {
     yield `const ${names[index]} = (`
-    yield scriptSetup.content.slice(expression.getStart(ast), expression.end)
+    yield generateSfcBlockSection(
+      scriptSetup,
+      expression.getStart(ast),
+      expression.end,
+      codeFeatures.navigation,
+    )
     yield `)${endOfLine}`
   }
 
