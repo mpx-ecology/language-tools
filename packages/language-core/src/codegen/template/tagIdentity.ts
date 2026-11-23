@@ -41,6 +41,15 @@ function attributeConditions(prop: Prop): Condition[] | undefined {
       return { mode: (mode || 'noMode').replace(/^_/, ''), envs }
     })
 }
+
+export function isRnMode(mode: string | symbol | true | undefined) {
+  return mode === 'ios' || mode === 'android' || mode === 'harmony'
+}
+
+export function isRnOnlyAttribute(prop: Prop) {
+  return attributeConditions(prop)?.every(({ mode }) => isRnMode(mode)) ?? false
+}
+
 function matches(conditions: Condition[] | undefined, target: Target) {
   return (
     !conditions ||
@@ -72,6 +81,7 @@ export function getTemplateTagIdentities(node: CompilerDOM.ElementNode) {
 export function getTemplateTagCandidates(node: CompilerDOM.ElementNode): {
   identity: TemplateTagIdentity
   props: Prop[]
+  rnOnly: boolean
 }[] {
   const closingTag = node.loc.source.lastIndexOf('</' + node.tag)
   const original: TemplateTagIdentity = {
@@ -85,7 +95,14 @@ export function getTemplateTagCandidates(node: CompilerDOM.ElementNode): {
   const overrides = node.props.filter(
     isMpxTagName,
   ) as CompilerDOM.AttributeNode[]
-  if (!overrides.length) return [{ identity: original, props: node.props }]
+  const nodeConditions = node.props.filter(prop => {
+    const name = attributeName(prop)
+    return name?.startsWith('@') && getAtModeBaseName(name) === ''
+  })
+  const rnOnly =
+    nodeConditions.length > 0 && nodeConditions.every(isRnOnlyAttribute)
+  if (!overrides.length)
+    return [{ identity: original, props: node.props, rnOnly }]
   const props = node.props.filter(prop => !isMpxTagName(prop))
   function identity(prop: CompilerDOM.AttributeNode): TemplateTagIdentity {
     if (!prop.value) return original
@@ -106,7 +123,8 @@ export function getTemplateTagCandidates(node: CompilerDOM.ElementNode): {
   // processAtMode appends matching attributes. getAndRemoveAttr reads the first
   // mpxTagName, so an unconditional declaration (even empty) always wins.
   const unconditional = overrides.find(prop => prop.name === 'mpxTagName')
-  if (unconditional) return [{ identity: identity(unconditional), props }]
+  if (unconditional)
+    return [{ identity: identity(unconditional), props, rnOnly }]
 
   const propConditions = new Map(
     node.props.map(prop => [prop, attributeConditions(prop)]),
@@ -120,10 +138,6 @@ export function getTemplateTagCandidates(node: CompilerDOM.ElementNode): {
     if (condition.mode !== 'noMode') modes.add(condition.mode)
     condition.envs.forEach(env => envs.add(env))
   }
-  const nodeConditions = node.props.filter(prop => {
-    const name = attributeName(prop)
-    return name && getAtModeBaseName(name) === ''
-  })
   const targets = new Map<CompilerDOM.AttributeNode | undefined, Target[]>()
   targets.set(undefined, [])
   overrides.forEach(prop => targets.set(prop, []))
@@ -152,6 +166,7 @@ export function getTemplateTagCandidates(node: CompilerDOM.ElementNode): {
   }
   return [...resolved].map(([identity, possibilities]) => ({
     identity,
+    rnOnly: possibilities.every(({ mode }) => isRnMode(mode)),
     props: props.filter(prop =>
       possibilities.some(target => matches(propConditions.get(prop), target)),
     ),

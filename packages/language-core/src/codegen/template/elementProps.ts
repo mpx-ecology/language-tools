@@ -22,6 +22,7 @@ import { generateObjectProperty } from './objectProperty'
 import { generateModifiers } from './elementDirectives'
 import { generateEventArg, generateEventExpression } from './elementEvents'
 import { generateClassAwareInterpolation } from './styleScopedClasses'
+import { isRnOnlyAttribute } from './tagIdentity'
 
 export interface FailedPropExpression {
   node: CompilerDOM.SimpleExpressionNode
@@ -37,6 +38,7 @@ export function* generateElementProps(
   strictPropsCheck: boolean,
   enableCodeFeatures: boolean,
   failedPropExps?: FailedPropExpression[],
+  rnTemplate = false,
 ): Generator<Code> {
   const isComponent = node.tagType === CompilerDOM.ElementTypes.COMPONENT
   const duplicateAtModePropNames = getDuplicateAtModePropNames(props)
@@ -152,7 +154,16 @@ export function* generateElementProps(
               )),
           `: `,
           ...(shouldSpread
-            ? generateAttrValueForStyleOrClass(options, ctx, prop, propName)
+            ? generateAttrValueForStyleOrClass(
+                options,
+                ctx,
+                prop,
+                propName,
+                isComponent &&
+                  rnTemplate &&
+                  propName === 'style' &&
+                  /^style\s*=/.test(prop.loc.source),
+              )
             : wrapWith(
                 prop.arg?.loc.start.offset ?? prop.loc.start.offset,
                 prop.arg?.loc.end.offset ?? prop.loc.end.offset,
@@ -254,7 +265,14 @@ export function* generateElementProps(
           ),
           `: `,
           ...(prop.value
-            ? generateAttrValue(options, ctx, prop.value)
+            ? generateAttrValue(
+                options,
+                ctx,
+                prop.value,
+                isComponent &&
+                  propName === 'style' &&
+                  (rnTemplate || isRnOnlyAttribute(prop)),
+              )
             : [`true`]),
         ),
       ]
@@ -310,6 +328,7 @@ export function* generateAtModePropChecks(
   props: CompilerDOM.ElementNode['props'],
   componentOriginalVar: string,
   strictPropsCheck: boolean,
+  rnTemplate: boolean,
 ): Generator<Code> {
   const groups = getAtModePropGroups(props)
 
@@ -330,7 +349,14 @@ export function* generateAtModePropChecks(
       )
 
       const valueCodes = prop.value
-        ? [...generateAttrValue(options, ctx, prop.value)]
+        ? [
+            ...generateAttrValue(
+              options,
+              ctx,
+              prop.value,
+              propName === 'style' && (rnTemplate || isRnOnlyAttribute(prop)),
+            ),
+          ]
         : ([`true`] satisfies Code[])
 
       yield `new ${componentOriginalVar}({${newLine}`
@@ -418,6 +444,7 @@ function* generateAttrValueForStyleOrClass(
   ctx: TemplateCodegenContext,
   attrNode: CompilerDOM.DirectiveNode,
   propName: string,
+  rnStyle: boolean,
 ) {
   const adjustedNode = {
     ...attrNode,
@@ -430,14 +457,18 @@ function* generateAttrValueForStyleOrClass(
       },
     },
   }
-  yield* generateAttrValue(options, ctx, adjustedNode)
+  yield* generateAttrValue(options, ctx, adjustedNode, rnStyle)
 }
 
 function* generateAttrValue(
   options: TemplateCodegenOptions,
   ctx: TemplateCodegenContext,
   attrNode: CompilerDOM.TextNode | CompilerDOM.DirectiveNode,
+  rnStyle = false,
 ): Generator<Code> {
+  // The RN compiler supplies the component style after normalizing this input.
+  // Keep the template expression checked without comparing it to the output type.
+  if (rnStyle) yield `(`
   const quote = attrNode.loc.source.startsWith("'") ? "'" : '"'
   let start = attrNode.loc.start.offset
   let content = attrNode.loc.source
@@ -457,6 +488,7 @@ function* generateAttrValue(
     yield* generateUnicode(content, start, ctx.codeFeatures.withoutNavigation)
     yield quote
   }
+  if (rnStyle) yield ` as never)`
 }
 
 function* generateWithMustache(

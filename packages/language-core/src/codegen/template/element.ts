@@ -34,6 +34,7 @@ export function* generateComponent(
   ctx: TemplateCodegenContext,
   node: CompilerDOM.ElementNode,
   identity: TemplateTagIdentity = getTemplateTagIdentities(node)[0],
+  rnOnly = false,
 ): Generator<Code> {
   const tagOffsets = [identity.startTagOffset]
   if (identity.endTagOffset !== undefined)
@@ -44,6 +45,7 @@ export function* generateComponent(
   const componentVNodeVar = ctx.getInternalVariable()
   const componentCtxVar = ctx.getInternalVariable()
   const isComponentTag = node.tag.toLowerCase() === 'component'
+  const rnTemplate = rnOnly || options.rnTemplate === true
 
   ctx.templateNodeTags.push(identity)
 
@@ -180,6 +182,8 @@ export function* generateComponent(
     props,
     options.mpxCompilerOptions.checkUnknownProps,
     false,
+    undefined,
+    rnTemplate,
   )
   yield `}))${endOfLine}`
 
@@ -190,6 +194,7 @@ export function* generateComponent(
     props,
     componentOriginalVar,
     options.mpxCompilerOptions.checkUnknownProps,
+    rnTemplate,
   )
 
   yield `const `
@@ -221,6 +226,7 @@ export function* generateComponent(
       options.mpxCompilerOptions.checkUnknownProps,
       true,
       failedPropExps,
+      rnTemplate,
     ),
     `}`,
   )

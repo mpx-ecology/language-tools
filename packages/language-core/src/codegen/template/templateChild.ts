@@ -93,7 +93,7 @@ export function* generateTemplateChild(
           Set<'semantic' | 'navigation' | 'completion'>
         >()
         for (let i = 0; i < candidates.length; i++) {
-          const { identity, props } = candidates[i]
+          const { identity, props, rnOnly } = candidates[i]
           const effectiveNode = identity.sourceTag
             ? ({
                 ...node,
@@ -119,7 +119,13 @@ export function* generateTemplateChild(
               ? generateElement(options, ctx, effectiveNode, identity)
               : effectiveNode.tagType === CompilerDOM.ElementTypes.SLOT
                 ? generateSlotOutlet(options, ctx, effectiveNode)
-                : generateComponent(options, ctx, effectiveNode, identity)
+                : generateComponent(
+                    options,
+                    ctx,
+                    effectiveNode,
+                    identity,
+                    rnOnly,
+                  )
           if (candidates.length === 1) {
             if (ctx.codeBuffer) {
               const buffer = ctx.codeBuffer

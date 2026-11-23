@@ -1,0 +1,12 @@
+<template>
+  <NativeView style="opacity:1;" />
+</template>
+
+<script setup lang="ts">
+function NativeView(_props: { style?: { opacity?: number } }) {
+  return null
+}
+
+defineOptions({ components: { NativeView } })
+defineExpose({})
+</script>
