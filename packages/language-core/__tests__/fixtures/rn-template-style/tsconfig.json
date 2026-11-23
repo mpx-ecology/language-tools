@@ -1,0 +1,4 @@
+{
+  "extends": "../rn-components/tsconfig.json",
+  "include": ["**/*"]
+}

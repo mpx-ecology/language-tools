@@ -1,0 +1,17 @@
+<template>
+  <view mpxTagName@ios|android|harmony="NativeView" style="{{ visible ? 'opacity:1;' : 'opacity:0;' }}" />
+  <!-- Expected: the style binding reports the missing variable. -->
+  <view mpxTagName@ios|android|harmony="NativeView" style="{{ missingStyle }}" />
+  <!-- Expected: the RN accessibilityLabel reports that a number is invalid. -->
+  <view mpxTagName@ios|android|harmony="NativeView" accessibilityLabel@ios|android|harmony="{{ 123 }}" />
+</template>
+
+<script setup lang="ts">
+function NativeView(_props: { style?: { opacity?: number }; accessibilityLabel?: string }) {
+  return null
+}
+
+const visible = true
+defineOptions({ components: { NativeView } })
+defineExpose({ visible })
+</script>

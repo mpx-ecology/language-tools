@@ -5,6 +5,7 @@ import { computed, signal } from 'alien-signals'
 import { appendCode } from '../codegen/utils'
 import { generateScript } from '../codegen/script'
 import { generateTemplate } from '../codegen/template'
+import { isRnMode } from '../codegen/template/tagIdentity'
 import { parseScriptRanges } from '../parsers/scriptRanges'
 import { parseScriptSetupRanges } from '../parsers/scriptSetupRanges'
 import { parseMpxCompilerOptions } from '../parsers/mpxCompilerOptions'
@@ -222,6 +223,9 @@ function createTsx(
         compilerOptions: ctx.compilerOptions,
         mpxCompilerOptions: getResolvedOptions(),
         template: sfc.template,
+        rnTemplate: isRnMode(
+          /\.([^.]+)\.mpx$/.exec(path.basename(fileName))?.[1],
+        ),
         usingComponents: sfc.usingComponents,
         scriptSetupBindingNames: getSetupBindingNames(),
         scriptSetupImportComponentNames: getSetupImportComponentNames(),
