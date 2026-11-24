@@ -164,6 +164,30 @@ describe('WXS TextMate embedding', () => {
     expect(tokenAt(tokens, '{{after}}').scopes).not.toContain(wxsScope)
   })
 
+  it.each(['//', 'var count = 1 //'])(
+    'preserves the WXS scope after a line comment starting with %j',
+    prefix => {
+      const tokens = tokenize(`  <wxs module="tool">
+    ${prefix} </wxs> still a comment
+    module.exports.value = 1
+  </wxs>
+  <view>{{tool.value}}</view>`)
+
+      expect(tokenAt(tokens, 'still a comment').scopes).toContain(
+        'comment.line.double-slash.js',
+      )
+      expect(tokenAt(tokens, 'module.exports').language).toBe(
+        languageIds.javascript,
+      )
+      expect(tokenAt(tokens, 'module.exports').scopes).toContain(wxsScope)
+      expect(tokenAt(tokens, '<view>').language).toBe(languageIds.html)
+      expect(tokenAt(tokens, '{{tool.value}}').scopes).toContain(
+        'expression.embedded.mpx',
+      )
+      expect(tokenAt(tokens, '{{tool.value}}').scopes).not.toContain(wxsScope)
+    },
+  )
+
   it.each([
     '<wxs module="tool" src="./format.wxs" />',
     '<wxs\n  module="tool"\n  src="./format.wxs"\n/>',

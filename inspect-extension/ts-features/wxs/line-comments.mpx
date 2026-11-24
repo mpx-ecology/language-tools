@@ -1,0 +1,9 @@
+<!-- F5 高亮用例。注释里的 </wxs> 应保留注释色，下一行的语句应继续用 JavaScript 高亮。 -->
+<template>
+  <wxs module="tool">
+    // </wxs> still a comment
+    var count = 1 // </wxs> still a trailing comment
+    module.exports.value = count
+  </wxs>
+  <view>Template view</view>
+</template>

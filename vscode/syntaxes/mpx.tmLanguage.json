@@ -816,8 +816,8 @@
           "contentName": "meta.embedded.block.wxs source.js",
           "patterns": [
             {
-              "comment": "Bound the closing line before tokenizing JS so an unterminated statement scope cannot consume the WXS end tag.",
-              "match": "(?:^|\\G)(?>(?:[^\"'</\\r\\n]+|\"(?:[^\"\\\\\\r\\n]|\\\\.)*\"|'(?:[^'\\\\\\r\\n]|\\\\.)*'|/\\*(?:[^*\\r\\n]|\\*(?!/))*\\*/|/(?!\\*)|<(?!/wxs\\s*>))+)(?=</wxs\\s*>)",
+              "comment": "Bound the closing line before tokenizing JS so an unterminated statement scope cannot consume the WXS end tag. Let source.js tokenize line comments.",
+              "match": "(?:^|\\G)(?>(?:[^\"'</\\r\\n]+|\"(?:[^\"\\\\\\r\\n]|\\\\.)*\"|'(?:[^'\\\\\\r\\n]|\\\\.)*'|/\\*(?:[^*\\r\\n]|\\*(?!/))*\\*/|/(?![/*])|<(?!/wxs\\s*>))+)(?=</wxs\\s*>)",
               "captures": {
                 "0": {
                   "patterns": [
