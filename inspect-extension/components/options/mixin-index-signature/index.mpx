@@ -1,0 +1,50 @@
+<template>
+  <!-- ✅ Hover shows boolean; F12 jumps to store.ts StoreState.showFallback. -->
+  <view wx:if="{{ !showFallback }}">{{ title.toUpperCase() }}</view>
+  <!-- ✅ Hover shows "fallback" | "active"; F12 jumps to store.ts StoreGetters.statusText. -->
+  <view>{{ statusText }}</view>
+  <!-- ✅ Hover shows string / () => string; F12 jumps to computed.displayLabel / methods.handleReset. -->
+  <view bindtap="handleReset">{{ displayLabel }}</view>
+  <!-- ✅ Typed mixin fields remain available alongside index-signature mixins. -->
+  <view>{{ fromMixinData.toUpperCase() }}</view>
+  <!-- ❌ Intentional TS2339: Property 'nonExistent' does not exist on type 'string'. -->
+  <view>{{ title.nonExistent() }}</view>
+</template>
+
+<script lang="ts">
+import { createPage, getMixin } from '@mpxjs/core'
+import store from './store'
+
+const dynamicFlagKey: string = '_hooks_ever_run'
+const dynamicDataMixin = getMixin({
+  data: {
+    [dynamicFlagKey]: false,
+  },
+})
+
+const typedMixin = getMixin({
+  data: {
+    fromMixinData: 'from-mixin',
+  },
+})
+
+createPage({
+  mixins: [dynamicDataMixin, typedMixin],
+  data: {
+    title: 'hello',
+  },
+  computed: {
+    ...store.mapState(['showFallback']),
+    ...store.mapGetters(['statusText']),
+    displayLabel() {
+      return this.showFallback ? 'fallback' : this.title
+    },
+  },
+  methods: {
+    ...store.mapActions(['refreshData']),
+    handleReset() {
+      return this.title
+    },
+  },
+})
+</script>

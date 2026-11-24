@@ -1,0 +1,69 @@
+<template>
+  <view wx:if="{{ !showFallback }}">{{ localTitle.toUpperCase() }}</view>
+  <view>{{ statusText.toUpperCase() }}</view>
+  <view>{{ displayLabel.toUpperCase() }}</view>
+  <view bindtap="handleReset">{{ fromMixinData.toUpperCase() }}</view>
+  <view wx:if="{{ fromMixinComputed }}">{{ fromMixinMethod().toFixed(0) }}</view>
+  <view>{{ fromFnMixin.toFixed(0) }}</view>
+  <view>{{ setupBadge.toUpperCase() }}</view>
+  <view bindtap="refreshData">{{ _concreteInternal.toFixed(0) }}</view>
+  <view>{{ localTitle.nonExistent() }}</view>
+  <view>{{ conflictField.toFixed(0) }}</view>
+</template>
+
+<script lang="ts">
+import { createPage, ref, type Ref } from '@mpxjs/core'
+import store from './store'
+import {
+  dynamicDataMixin,
+  fnDataMixin,
+  looseIndexMixin,
+  typedMixin,
+} from './mixins'
+
+const dynamicComputed: Record<string, () => any> = {}
+const dynamicMethods: Record<string, (...args: any[]) => any> = {}
+
+interface IndexedData {
+  [key: `_${string}`]: number
+  _concreteInternal: number
+  localTitle: string
+  conflictField: number
+}
+
+createPage({
+  mixins: [dynamicDataMixin, looseIndexMixin, typedMixin, fnDataMixin],
+  data: {
+    _concreteInternal: 1,
+    localTitle: 'hello',
+    conflictField: 10,
+  } as IndexedData,
+  setup() {
+    const setupBadge = ref('badge')
+    return {
+      setupBadge,
+    } as {
+      [key: string]: any
+      setupBadge: Ref<string>
+    }
+  },
+  computed: {
+    ...dynamicComputed,
+    ...store.mapState(['showFallback']),
+    ...store.mapGetters(['statusText']),
+    displayLabel() {
+      return this.showFallback ? 'fallback' : this.localTitle
+    },
+    conflictField() {
+      return 'string-conflict'
+    },
+  },
+  methods: {
+    ...dynamicMethods,
+    ...store.mapActions(['refreshData']),
+    handleReset() {
+      return this.localTitle
+    },
+  },
+})
+</script>

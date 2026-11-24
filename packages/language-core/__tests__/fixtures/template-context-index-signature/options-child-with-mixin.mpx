@@ -1,0 +1,32 @@
+<template>
+  <view>{{ label.toUpperCase() }}</view>
+</template>
+
+<script lang="ts">
+import { createComponent } from '@mpxjs/core'
+import { dynamicDataMixin } from './mixins'
+
+const extraOptions: Record<string, any> = {}
+
+createComponent({
+  ...extraOptions,
+  mixins: [dynamicDataMixin],
+  properties: {
+    label: {
+      type: String,
+      value: 'default',
+    },
+  },
+  methods: {
+    focusInput(id: number) {
+      return id
+    },
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

@@ -218,16 +218,28 @@ type FullPropType<T> = {
   value?: T
   optionalTypes?: WechatMiniprogram.Component.ShortProperty[]
 }
-type UnboxMixinField<T extends Mixin<{}, {}, {}, {}>, F> = F extends keyof T ? T[F] : {}
-type UnboxMixinsField<Mi extends Array<any>, F> = UnionToIntersection<
-  RequiredPropertiesForUnion<UnboxMixinField<ArrayType<Mi>, F>>
+type UnboxMixinField<T, F extends PropertyKey> = 0 extends 1 & T
+  ? {}
+  : [T] extends [never]
+    ? {}
+    : T extends object
+      ? __VLS_GetOptionField<T, F>
+      : {}
+type UnboxMixinsField<Mi extends readonly any[], F extends PropertyKey> = UnionToIntersection<
+  RequiredPropertiesForUnion<
+    __VLS_AsInstanceSource<
+      F extends 'data'
+        ? GetDataType<UnboxMixinField<ArrayType<Mi>, F>>
+        : UnboxMixinField<ArrayType<Mi>, F>
+    >
+  >
 >
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
 type RequiredPropertiesForUnion<T> = T extends object ? Pick<T, RequiredPropertyNames<T>> : never
 type RequiredPropertyNames<T> = {
   [K in keyof T]-?: T[K] extends undefined ? never : K
 }[keyof T]
-type ArrayType<T extends any[]> = T extends Array<infer R> ? R : never
+type ArrayType<T extends readonly any[]> = T extends readonly (infer R)[] ? R : never
 interface Mixin<D, P, C, M> {
   data?: D
   properties?: P
@@ -255,8 +267,8 @@ type ComponentIns<
   MpxComProps<O>
 type __VLS_TemplateContext<RawO extends Record<string, any>> = __VLS_MergeInstanceSources<
   [
-    __VLS_RemoveIndexSignature<WxComponentIns<{}, {}, {}>>,
-    __VLS_RemoveIndexSignature<MpxComponentIns>,
+    WxComponentIns<{}, {}, {}>,
+    MpxComponentIns,
     GetDataType<__VLS_GetOptionField<RawO, 'data'>>,
     UnboxMixinsField<__VLS_GetOptionMixins<RawO>, 'data'>,
     __VLS_GetOptionField<RawO, 'methods'>,
@@ -284,10 +296,14 @@ type __VLS_GetSetupType<S> = {
 type __VLS_GetSetupReturnType<T> = T extends (...args: any[]) => infer R
   ? __VLS_GetSetupType<__VLS_AsInstanceSource<R>>
   : {}
-type __VLS_GetOptionField<O, K extends PropertyKey> = K extends keyof O
-  ? NonNullable<O[K]>
-  : {}
-type __VLS_GetOptionMixins<O> = __VLS_GetOptionField<O, 'mixins'> extends Array<any>
+type __VLS_GetOptionField<O, K extends PropertyKey> = 0 extends 1 & O
+  ? {}
+  : K extends keyof __VLS_RemoveIndexSignature<O>
+    ? K extends keyof O
+      ? NonNullable<O[K]>
+      : {}
+    : {}
+type __VLS_GetOptionMixins<O> = __VLS_GetOptionField<O, 'mixins'> extends readonly any[]
   ? __VLS_GetOptionField<O, 'mixins'>
   : []
 type __VLS_MergeInstanceSources<Sources extends Array<any>, Result = {}> = Sources extends [
@@ -296,33 +312,28 @@ type __VLS_MergeInstanceSources<Sources extends Array<any>, Result = {}> = Sourc
 ]
   ? __VLS_MergeInstanceSources<
       Rest,
-      __VLS_MergeInstanceFields<
-        __VLS_AsInstanceSource<Result>,
-        __VLS_AsInstanceSource<Source>
-      >
+      __VLS_MergeInstanceFields<Result, __VLS_AsInstanceSource<Source>>
     >
   : Result
 // Preserve source symbols for unique fields so template navigation still
 // reaches their original declarations; only synthesize genuinely shared keys.
-type __VLS_MergeInstanceFields<A, B> = Pick<A, Exclude<keyof A, keyof B>> &
-  Pick<B, Exclude<keyof B, keyof A>> & {
-    [K in keyof A & keyof B]: A[K] & B[K]
-  }
+type __VLS_MergeInstanceFields<A, B> = [keyof A] extends [never]
+  ? B
+  : [keyof B] extends [never]
+    ? A
+    : Pick<A, Exclude<keyof A, keyof B>> &
+        Pick<B, Exclude<keyof B, keyof A>> & {
+          [K in keyof A & keyof B]: A[K] & B[K]
+        }
 type __VLS_AsInstanceSource<T> = 0 extends 1 & T
   ? {}
   : [T] extends [never]
     ? {}
     : T extends object
-      ? T
+      ? __VLS_RemoveIndexSignature<T>
       : {}
 type __VLS_RemoveIndexSignature<T> = {
-  [K in keyof T as string extends K
-    ? never
-    : number extends K
-      ? never
-      : symbol extends K
-        ? never
-        : K]: T[K]
+  [K in keyof T as {} extends { [P in K]: 1 } ? never : K]: T[K]
 }
 type GetDataType<T> = T extends () => any ? ReturnType<T> : T
 type MpxComProps<O> = { $rawOptions: O }

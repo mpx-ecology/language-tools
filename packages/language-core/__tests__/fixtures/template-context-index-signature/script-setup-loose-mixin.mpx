@@ -1,0 +1,23 @@
+<template>
+  <view>{{ title.toUpperCase() }}</view>
+  <view>{{ fromMixinData.toUpperCase() }}</view>
+  <view wx:if="{{ fromMixinComputed }}">{{ fromMixinMethod().toFixed(0) }}</view>
+</template>
+
+<script setup lang="ts">
+import { looseIndexMixin, typedMixin } from './mixins'
+
+defineProps({
+  title: String,
+})
+
+defineOptions({
+  mixins: [looseIndexMixin, typedMixin],
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

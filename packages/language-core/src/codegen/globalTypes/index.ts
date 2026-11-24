@@ -40,7 +40,7 @@ export function generateGlobalTypes({
 	type __VLS_PickNotAny<A, B> = __VLS_IsAny<A> extends true ? B : A;
 	type __VLS_MpxPublicInstance<T> = T extends new (...args: any[]) => infer I ? I : unknown;
 	type __VLS_SpreadMerge<A, B> = Omit<A, keyof B> & B;
-	type __VLS_KnownProperties<T> = { [K in keyof T as string extends K ? never : number extends K ? never : symbol extends K ? never : K]: T[K] };
+	type __VLS_KnownProperties<T> = { [K in keyof T as {} extends { [P in K]: 1 } ? never : K]: T[K] };
 	type __VLS_WithComponent<N0 extends string, LocalComponents, Self> =
 		N0 extends keyof LocalComponents ? Pick<LocalComponents, N0> :
 		Self extends object ? { [K in N0]: Self } :
