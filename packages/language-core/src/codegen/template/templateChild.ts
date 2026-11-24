@@ -40,10 +40,13 @@ export function* generateTemplateChild(
     | CompilerDOM.SimpleExpressionNode,
   enterNode: boolean = true,
 ): Generator<Code> {
-  if (node.type === CompilerDOM.NodeTypes.ELEMENT && node.tag === 'wxs') {
+  if (enterNode && !ctx.enter(node)) {
     return
   }
-  if (enterNode && !ctx.enter(node)) {
+
+  if (node.type === CompilerDOM.NodeTypes.ELEMENT && node.tag === 'wxs') {
+    // WXS consumes pending directives without generating a rendered node.
+    if (enterNode) yield* ctx.exit()
     return
   }
 

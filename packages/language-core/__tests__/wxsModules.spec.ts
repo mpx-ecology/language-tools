@@ -38,6 +38,22 @@ describe('template WXS modules', () => {
     ])
   })
 
+  it.each([
+    ['@mpx-ignore', [{ code: 2339, text: 'missingAfterIgnore' }]],
+    ['@mpx-skip', [{ code: 2339, text: 'missingAfterSkip' }]],
+    [
+      '@mpx-expect-error',
+      [
+        { code: 2339, text: 'missingAfterExpectError' },
+        { code: 2578, text: '<!-- @mpx-expect-error -->' },
+      ],
+    ],
+  ])('keeps %s on the WXS declaration', (_directive, expected) => {
+    expect(diagnostics('directives.mpx')).toEqual(
+      expect.arrayContaining(expected),
+    )
+  })
+
   it('completes module aliases, hovers, and navigates to the declaration', () => {
     const source = service.read(fixture)
     const file = service.file(fixture)
