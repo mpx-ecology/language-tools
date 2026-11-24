@@ -1,0 +1,18 @@
+<template>
+  <wxs module="listTool">
+    module.exports.getRenderList = function (rows, limit) {
+      return limit > 0 && limit < rows.length ? rows.slice(0, limit) : rows
+    }
+  </wxs>
+  <view wx:for="{{listTool.getRenderList(rows, limit)}}" wx:key="id">
+    {{item.title}}
+  </view>
+  <!-- 预期 TS2339：未声明的模块名仍报错 -->
+  <view>{{missingTool.getRenderList(rows, limit)}}</view>
+</template>
+
+<script setup lang="ts">
+const rows = [{ id: 1, title: 'Example' }]
+const limit = 1
+defineExpose({ rows, limit })
+</script>

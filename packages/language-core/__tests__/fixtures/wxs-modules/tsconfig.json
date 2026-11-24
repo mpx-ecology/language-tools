@@ -1,0 +1,4 @@
+{
+  "extends": "../template-completion/tsconfig.json",
+  "include": ["**/*"]
+}

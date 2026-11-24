@@ -1,0 +1,8 @@
+<template>
+  <view>{{ externalTool.format(title) }}</view>
+</template>
+
+<script setup lang="ts">
+const title = 'Example'
+defineExpose({ title })
+</script>

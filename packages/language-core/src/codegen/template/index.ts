@@ -35,10 +35,12 @@ export function* generateTemplate(
   const ctx = createTemplateCodegenContext(options)
   ctx.codeBuffer = codeBuffer
 
-  if (options.slotsAssignName) {
+  yield* generateWxsModules(options.template, ctx)
+
+  if (options.slotsAssignName && !ctx.wxsModules.has(options.slotsAssignName)) {
     ctx.addLocalVariable(options.slotsAssignName)
   }
-  if (options.propsAssignName) {
+  if (options.propsAssignName && !ctx.wxsModules.has(options.propsAssignName)) {
     ctx.addLocalVariable(options.propsAssignName)
   }
 
@@ -74,6 +76,47 @@ export function* generateTemplate(
   yield `}${endOfLine}`
 
   return ctx
+}
+
+function* generateWxsModules(
+  template: TemplateCodegenOptions['template'],
+  ctx: TemplateCodegenContext,
+): Generator<Code> {
+  if (!template.ast || !template.content.includes('<wxs')) return
+
+  for (const node of forEachElementNode(template.ast)) {
+    if (node.tag !== 'wxs') continue
+
+    const module = node.props.find(
+      (prop): prop is CompilerDOM.AttributeNode =>
+        prop.type === CompilerDOM.NodeTypes.ATTRIBUTE && prop.name === 'module',
+    )?.value
+    if (!module || !/^[A-Za-z_]\w*$/.test(module.content)) continue
+
+    const name = module.content
+    if (ctx.wxsModules.has(name)) continue
+    if (!ctx.wxsModules.size) yield `let __VLS_wxsModules!: {${newLine}`
+    ctx.wxsModules.add(name)
+
+    const { source, start } = module.loc
+    const nameOffset = /^['"]/.test(source) ? 1 : 0
+    if (source.slice(nameOffset, nameOffset + name.length) === name) {
+      yield [
+        name,
+        'template',
+        start.offset + nameOffset,
+        ctx.codeFeatures.navigation,
+      ]
+    } else {
+      yield name
+    }
+    // WXS can build its CommonJS exports dynamically in a separate runtime.
+    yield `: any${endOfLine}`
+  }
+  if (ctx.wxsModules.size) {
+    yield `}${endOfLine}`
+    yield `const __VLS_wxsCompletionContext = { ...(__MPX_ctx as __VLS_PickNotAny<typeof __MPX_ctx, {}>), ...__VLS_wxsModules }${endOfLine}`
+  }
 }
 
 // function* generateSlots(
@@ -141,6 +184,10 @@ export function* forEachElementNode(
       yield* forEachElementNode(child)
     }
   } else if (node.type === CompilerDOM.NodeTypes.ELEMENT) {
+    if (node.tag === 'wxs') {
+      yield node
+      return
+    }
     const patchForNode = getWxForNode(node)
     if (patchForNode) {
       yield* forEachElementNode(patchForNode)

@@ -40,6 +40,9 @@ export function* generateTemplateChild(
     | CompilerDOM.SimpleExpressionNode,
   enterNode: boolean = true,
 ): Generator<Code> {
+  if (node.type === CompilerDOM.NodeTypes.ELEMENT && node.tag === 'wxs') {
+    return
+  }
   if (enterNode && !ctx.enter(node)) {
     return
   }
@@ -227,6 +230,10 @@ function* collectSingleRootNodes(
   options: TemplateCodegenOptions,
   children: CompilerDOM.TemplateChildNode[],
 ): Generator<CompilerDOM.ElementNode | null> {
+  children = children.filter(
+    child =>
+      child.type !== CompilerDOM.NodeTypes.ELEMENT || child.tag !== 'wxs',
+  )
   if (children.length !== 1) {
     // "null" is used to determine whether the component is not always has a single root
     if (children.length > 1) {

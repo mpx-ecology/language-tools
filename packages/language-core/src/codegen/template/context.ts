@@ -48,6 +48,7 @@ export function createTemplateCodegenContext(
 
   const hoistVars = new Map<string, string>()
   const localVars = new Map<string, number>()
+  const wxsModules = new Set<string>()
   const localCompletions = new Map<string, { code: Code; locals: string[] }>()
 
   function* generateLocalCompletions(): Generator<Code> {
@@ -55,13 +56,19 @@ export function createTemplateCodegenContext(
     const contexts = new Map<string, string>()
     for (const { code, locals } of localCompletions.values()) {
       const key = locals.join(',')
-      let name = contexts.get(key)
+      let name =
+        wxsModules.size && !locals.length
+          ? '__VLS_wxsCompletionContext'
+          : contexts.get(key)
       if (!name) {
         name = `__VLS_${variableId++}`
         contexts.set(key, name)
         // An any spread would erase even the known local fields. Guard only
         // this completion view, without changing the real template context.
-        yield `const ${name} = { ...(__MPX_ctx as __VLS_PickNotAny<typeof __MPX_ctx, {}>), ${key} }${endOfLine}`
+        const templateContext = wxsModules.size
+          ? '__VLS_wxsCompletionContext'
+          : '(__MPX_ctx as __VLS_PickNotAny<typeof __MPX_ctx, {}>)'
+        yield `const ${name} = { ...${templateContext}, ${key} }${endOfLine}`
       }
       // Only completion uses this merged view. The original expression keeps
       // its checking, hover and source navigation mappings.
@@ -129,6 +136,7 @@ export function createTemplateCodegenContext(
     dynamicSlots,
     dollarVars,
     accessExternalVariables,
+    wxsModules,
     blockConditions,
     templateNodeTags,
     multiTagNodes: new WeakSet<CompilerDOM.ElementNode>(),
