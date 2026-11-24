@@ -1,0 +1,9 @@
+<template>
+  <back label="Return" />
+  <back type="{{ 42 }}" label="Return" />
+  <back type="back" />
+</template>
+
+<script type="application/json">
+{ "usingComponents": { "back": "./component-with-default" } }
+</script>

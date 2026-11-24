@@ -3,6 +3,7 @@ import { getComponentProps } from '../../typescript-plugin/src/requests/getCompo
 import type { VirtualCode } from '@volar/language-core'
 import * as ts from 'typescript'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { compileMpxSource, runCompiledMpx } from './utils/compileMpxFixture'
 import {
   type TestLanguageService,
   createTestLanguageService,
@@ -94,6 +95,150 @@ describe('typed custom component props', () => {
       ),
     ).toEqual([])
   })
+
+  it('allows omitting only props with a runtime default', () => {
+    const consumer = 'component-defaults-consumer.mpx'
+    const diagnostics = service.proxyLanguageService.getSemanticDiagnostics(
+      service.file(consumer),
+    )
+    expect(diagnostics.map(diagnostic => diagnostic.code)).toEqual([2322, 2345])
+    expect(diagnosticMessage(diagnostics[0])).toContain(
+      "Type 'number' is not assignable to type 'string'.",
+    )
+    expect(diagnosticMessage(diagnostics[1])).toContain(
+      "Property 'label' is missing",
+    )
+
+    const props = getProps(consumer, 'back')
+    expect(props.get('type')).toMatchObject({
+      type: 'string | undefined',
+      required: undefined,
+    })
+    expect(props.get('type')?.commentMarkdown).toContain(
+      'Display mode for the back button.',
+    )
+    expect(props.get('label')).toMatchObject({
+      type: 'string',
+      required: true,
+    })
+
+    const component = 'component-with-default.mpx'
+    const source = service.read(component)
+    const typePosition = source.indexOf('props.type') + 'props.'.length
+    const info = service.proxyLanguageService.getQuickInfoAtPosition(
+      service.file(component),
+      typePosition,
+    )
+    expect(displayPartsToString(info?.displayParts)).toBe(
+      '(property) type: string',
+    )
+  })
+
+  it.each([
+    ['spread', "{ type: 'back', ...{} }"],
+    ['computed key', "{ type: 'back', ['label']: 'Return' }"],
+    ['quoted key', "{ 'type': 'back' }"],
+  ])(
+    'keeps a prop required when Mpx skips its %s default',
+    async (_, defaults) => {
+      const component = service.file('component-with-default.mpx')
+      const source = service
+        .read('component-with-default.mpx')
+        .replace("{ type: 'back' }", defaults)
+      const compiled = await compileMpxSource(source, component)
+      expect(
+        runCompiledMpx(compiled.code, component).properties.type.value,
+      ).toBeUndefined()
+
+      const variant = createTestLanguageService(
+        service.fixtureRoot,
+        [],
+        new Map([[component, source]]),
+      )
+      try {
+        const diagnostics = variant.proxyLanguageService.getSemanticDiagnostics(
+          variant.file('component-defaults-consumer.mpx'),
+        )
+        expect(diagnostics.map(diagnostic => diagnostic.code)).toEqual([
+          2345, 2322, 2345,
+        ])
+        expect(diagnosticMessage(diagnostics[0])).toContain(
+          "Property 'type' is missing",
+        )
+      } finally {
+        variant.dispose()
+      }
+    },
+  )
+
+  it.each([
+    [
+      'a getter',
+      "defineProps<Props>(), { type: 'back', get label() { return 'Return' } }",
+    ],
+    [
+      'a setter',
+      "defineProps<Props>(), { type: 'back', set label(_value: string) {} }",
+    ],
+    [
+      'a method',
+      "defineProps<Props>(), { type: 'back', label() { return 'Return' } }",
+    ],
+    ['parenthesized arguments', "(defineProps<Props>()), ({ type: 'back' })"],
+  ])('keeps the runtime default with %s', async (_, argumentsText) => {
+    const component = 'component-with-default.mpx'
+    const source = service
+      .read(component)
+      .replace("defineProps<Props>(), { type: 'back' }", argumentsText)
+    const compiled = await compileMpxSource(source, service.file(component))
+    const result = runCompiledMpx(compiled.code, service.file(component))
+    expect(result.defaults).toEqual({ type: 'back' })
+
+    const variant = createTestLanguageService(
+      service.fixtureRoot,
+      [],
+      new Map([[service.file(component), source]]),
+    )
+    try {
+      const diagnostics = variant.proxyLanguageService.getSemanticDiagnostics(
+        variant.file('component-defaults-consumer.mpx'),
+      )
+      expect(diagnostics.map(diagnostic => diagnostic.code)).toEqual([
+        2322, 2345,
+      ])
+      expect(diagnosticMessage(diagnostics[1])).toContain(
+        "Property 'label' is missing",
+      )
+    } finally {
+      variant.dispose()
+    }
+  })
+
+  it.each([' as Props', '!', '.type'])(
+    'ignores defaults when the first argument ends in %s',
+    async suffix => {
+      const component = 'component-with-default.mpx'
+      const source = service
+        .read(component)
+        .replace('defineProps<Props>()', `defineProps<Props>()${suffix}`)
+      await expect(
+        compileMpxSource(source, service.file(component)),
+      ).rejects.toThrow('first argument must be a defineProps call')
+
+      const variant = createTestLanguageService(
+        service.fixtureRoot,
+        [],
+        new Map([[service.file(component), source]]),
+      )
+      try {
+        expect(variant.getServiceScript(component).code).toContain(
+          'type __VLS_PublicProps = __VLS_Props;',
+        )
+      } finally {
+        variant.dispose()
+      }
+    },
+  )
 
   it('keeps nested object prop completions typed', () => {
     const relativePath = 'index.mpx'

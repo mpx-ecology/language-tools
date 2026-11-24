@@ -27,6 +27,14 @@ type __VLS_WithDefaults<P, D> = {
 };
 `.trimStart(),
   )
+  const OptionalizeProps = defineHelper(`__VLS_OptionalizeProps`, () =>
+    `
+type __VLS_OptionalizeProps<Props, Keys> = Props extends unknown
+  ? { [K in keyof Props as K extends Keys ? never : K]: Props[K] }
+    & { [K in keyof Props as K extends Keys ? K : never]?: Props[K] }
+  : never;
+`.trimStart(),
+  )
   const PrettifyLocal = defineHelper(
     `__VLS_PrettifyLocal`,
     () =>
@@ -85,6 +93,7 @@ type __VLS_TypePropsToOption<T> = {
     [PrettifyLocal.name]: PrettifyLocal,
     [OmitKeepDiscriminatedUnion.name]: OmitKeepDiscriminatedUnion,
     [WithDefaults.name]: WithDefaults,
+    [OptionalizeProps.name]: OptionalizeProps,
     [WithSlots.name]: WithSlots,
     [PropsChildren.name]: PropsChildren,
     [TypePropsToOption.name]: TypePropsToOption,
@@ -105,6 +114,9 @@ type __VLS_TypePropsToOption<T> = {
     },
     get WithDefaults() {
       return WithDefaults.name
+    },
+    get OptionalizeProps() {
+      return OptionalizeProps.name
     },
     get WithSlots() {
       return WithSlots.name

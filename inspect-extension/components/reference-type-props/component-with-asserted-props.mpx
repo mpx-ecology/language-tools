@@ -1,0 +1,14 @@
+<script setup lang="ts">
+interface Props {
+  type: string
+  label: string
+}
+
+// Intentional compiler error: the first argument must be a direct defineProps call.
+const props = withDefaults(defineProps<Props>() as Props, { type: 'back' })
+defineExpose({ props })
+</script>
+
+<script type="application/json">
+{ "component": true }
+</script>

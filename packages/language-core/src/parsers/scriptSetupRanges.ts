@@ -40,6 +40,8 @@ type DefineProps = CallExpressionRange & {
 type WithDefaults = Omit<CallExpressionRange, 'typeArg'> & {
   // used by component-meta
   argNode?: ts.Expression
+  propsRange?: TextRange
+  defaultedProps: string[]
 }
 
 type DefineSlots = CallExpressionRange & {
@@ -297,12 +299,15 @@ export function parseScriptSetupRanges(
           }
         }
       } else if (isPropsMacro('withDefaults', callText)) {
-        const [, arg] = node.arguments
+        const [props, arg] = node.arguments
+        const unwrappedProps = unwrapParentheses(props)
         withDefaults = {
           callExp: _getStartEnd(node),
           exp: _getStartEnd(node.expression),
           arg: arg ? _getStartEnd(arg) : undefined,
           argNode: arg,
+          propsRange: unwrappedProps ? _getStartEnd(unwrappedProps) : undefined,
+          defaultedProps: getDefaultedProps(arg),
         }
       } else if (mpxCompilerOptions.macros.defineSlots.includes(callText)) {
         defineSlots = {
@@ -362,6 +367,33 @@ export function parseScriptSetupRanges(
       visitNode(child, parents)
       parents.pop()
     })
+  }
+
+  function getDefaultedProps(arg: ts.Expression | undefined) {
+    const defaults = unwrapParentheses(arg)
+    if (!defaults || !ts.isObjectLiteralExpression(defaults)) return []
+
+    const names: string[] = []
+    for (const property of defaults.properties) {
+      // Mpx only emits defaults from identifier assignments in a static object.
+      if (ts.isMethodDeclaration(property) || ts.isAccessor(property)) continue
+      if (
+        (!ts.isPropertyAssignment(property) &&
+          !ts.isShorthandPropertyAssignment(property)) ||
+        ts.isComputedPropertyName(property.name)
+      ) {
+        return []
+      }
+      if (ts.isIdentifier(property.name)) names.push(property.name.text)
+    }
+    return names
+  }
+
+  function unwrapParentheses(expression: ts.Expression | undefined) {
+    while (expression && ts.isParenthesizedExpression(expression)) {
+      expression = expression.expression
+    }
+    return expression
   }
 
   function getTrailingDiagnosticDirective(start: number) {

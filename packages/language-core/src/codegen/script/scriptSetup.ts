@@ -580,12 +580,23 @@ function* generateComponentProps(
 
   yield `type __VLS_PublicProps = `
 
-  if (scriptSetupRanges.defineProps?.typeArg) {
+  const { defineProps, withDefaults } = scriptSetupRanges
+  if (defineProps?.typeArg) {
     if (ctx.generatedPropsType) {
       yield ` & `
     }
     ctx.generatedPropsType = true
-    yield `__VLS_Props`
+    const defaultedProps =
+      withDefaults?.propsRange?.start === defineProps.callExp.start &&
+      withDefaults.propsRange.end === defineProps.callExp.end
+        ? withDefaults.defaultedProps
+        : []
+    if (defaultedProps.length) {
+      const keys = defaultedProps.map(name => JSON.stringify(name)).join(' | ')
+      yield `${ctx.localTypes.OptionalizeProps}<__VLS_Props, ${keys}>`
+    } else {
+      yield `__VLS_Props`
+    }
   }
   if (scriptSetupRanges.defineProps?.arg) {
     if (ctx.generatedPropsType) {
