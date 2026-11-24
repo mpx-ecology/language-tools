@@ -44,6 +44,12 @@ export function* generateTemplateChild(
     return
   }
 
+  if (node.type === CompilerDOM.NodeTypes.ELEMENT && node.tag === 'wxs') {
+    // WXS consumes pending directives without generating a rendered node.
+    if (enterNode) yield* ctx.exit()
+    return
+  }
+
   const cur = node as
     | CompilerDOM.ElementNode
     | CompilerDOM.IfNode
@@ -227,6 +233,10 @@ function* collectSingleRootNodes(
   options: TemplateCodegenOptions,
   children: CompilerDOM.TemplateChildNode[],
 ): Generator<CompilerDOM.ElementNode | null> {
+  children = children.filter(
+    child =>
+      child.type !== CompilerDOM.NodeTypes.ELEMENT || child.tag !== 'wxs',
+  )
   if (children.length !== 1) {
     // "null" is used to determine whether the component is not always has a single root
     if (children.length > 1) {

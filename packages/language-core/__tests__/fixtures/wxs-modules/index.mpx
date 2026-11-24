@@ -1,0 +1,23 @@
+<template>
+  <view wx:for="{{listTool.getRenderList(rows, limit)}}" wx:key="id">
+    {{ item.title }}
+  </view>
+  <view>{{ externalTool.format(rows[0].title) }}</view>
+  <view>{{ missingTool.format(rows) }}</view>
+  <view>{{ listTool.getRenderList(missingRows, limit) }}</view>
+  <view wx:for="{{rows}}" wx:for-item="listTool" wx:key="id">{{ listTool.title }}</view>
+  <view wx:for="{{rows}}" wx:for-item="listTool" wx:key="id">{{ listTool.invalid }}</view>
+  <wxs module='listTool'>
+    module.exports.getRenderList = function (rows, limit) {
+      return limit > 0 && limit < rows.length ? rows.slice(0, limit) : rows
+    }
+  </wxs>
+  <wxs module="externalTool" src="./format.wxs" />
+</template>
+
+<script setup lang="ts">
+const rows = [{ id: 1, title: 'Example' }]
+const limit = 1
+const listTool = 'component value with the same name'
+defineExpose({ rows, limit, listTool })
+</script>

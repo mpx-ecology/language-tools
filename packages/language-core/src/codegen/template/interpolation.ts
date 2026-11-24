@@ -192,9 +192,10 @@ function* forEachInterpolationSegment(
     return (
       !!variable &&
       !isBracesVar(variable) &&
-      !!locals.length &&
+      (!!locals.length || !!ctx.wxsModules.size) &&
       !variable.isShorthand &&
-      !templateRefNames?.has(variable.text) &&
+      (!templateRefNames?.has(variable.text) ||
+        ctx.wxsModules.has(variable.text)) &&
       !isMpxGlobalDollarsWhitelisted(variable.text) &&
       !ctx.dollarVars.has(variable.text)
     )
@@ -332,6 +333,11 @@ function* generateVar(
     ctx.dollarVars.has(curVar.text)
   const completionType = localCompletion ? 'localCompletion' : undefined
   if (curVar.isLocal) {
+    yield [curVar.text, curVar.offset, completionType, locals]
+    return
+  }
+  if (ctx.wxsModules.has(curVar.text)) {
+    yield ['__VLS_wxsModules.', undefined]
     yield [curVar.text, curVar.offset, completionType, locals]
     return
   }
@@ -488,12 +494,13 @@ function shouldIdentifierSkipped(
 ) {
   return (
     ctx.hasLocalVariable(text) ||
-    isGloballyAllowed(text) ||
-    isMpxGloballyWhitelisted(text) ||
-    isLiteralWhitelisted(text) ||
-    text === 'require' ||
-    text.startsWith('__VLS_') ||
-    destructuredPropNames?.has(text) ||
-    templateGlobalDefs.includes(text)
+    (!ctx.wxsModules.has(text) &&
+      (isGloballyAllowed(text) ||
+        isMpxGloballyWhitelisted(text) ||
+        isLiteralWhitelisted(text) ||
+        text === 'require' ||
+        text.startsWith('__VLS_') ||
+        destructuredPropNames?.has(text) ||
+        templateGlobalDefs.includes(text)))
   )
 }

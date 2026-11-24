@@ -1,0 +1,18 @@
+<template>
+  <!-- @mpx-ignore -->
+  <wxs module="ignoreTool" src="./format.wxs" />
+  <view id="{{missingAfterIgnore}}">{{ignoreTool.format(title)}}</view>
+
+  <!-- @mpx-skip -->
+  <wxs module="skipTool" src="./format.wxs" />
+  <view id="{{missingAfterSkip}}">{{skipTool.format(title)}}</view>
+
+  <!-- @mpx-expect-error -->
+  <wxs module="expectTool" src="./format.wxs" />
+  <view id="{{missingAfterExpectError}}">{{expectTool.format(title)}}</view>
+</template>
+
+<script setup lang="ts">
+const title = 'Example'
+defineExpose({ title })
+</script>

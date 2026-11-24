@@ -1,0 +1,22 @@
+<!-- 预期：三个 view 的缺失属性各报 TS2339，未用到的 @mpx-expect-error 报 TS2578 -->
+<template>
+  <!-- @mpx-ignore -->
+  <wxs module="ignoreTool" src="./title-tool.wxs" />
+  <view id="{{missingAfterIgnore}}">{{ignoreTool.formatTitle(title)}}</view>
+
+  <!-- @mpx-skip -->
+  <wxs module="skipTool" src="./title-tool.wxs" />
+  <view id="{{missingAfterSkip}}">{{skipTool.formatTitle(title)}}</view>
+
+  <!-- @mpx-expect-error -->
+  <wxs module="expectTool" src="./title-tool.wxs" />
+  <view id="{{missingAfterExpectError}}">{{expectTool.formatTitle(title)}}</view>
+
+  <!-- 对照组：预期 TS2339 -->
+  <view>{{missingControl}}</view>
+</template>
+
+<script setup lang="ts">
+const title = 'Example'
+defineExpose({ title })
+</script>
