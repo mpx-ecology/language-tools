@@ -9,6 +9,10 @@
   </view>
   <!-- 预期 TS2339：未声明的模块名仍报错 -->
   <view>{{missingTool.getRenderList(rows, limit)}}</view>
+
+  <wxs module="titleTool" src="./title-tool.wxs" />
+  <!-- 预期：调用无 TS 错误，titleTool 可补全并跳转到 module 声明 -->
+  <view wx:for="{{rows}}" wx:key="id">{{titleTool.formatTitle(item.title)}}</view>
 </template>
 
 <script setup lang="ts">
