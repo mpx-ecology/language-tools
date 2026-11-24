@@ -587,7 +587,8 @@ function* generateComponentProps(
     }
     ctx.generatedPropsType = true
     const defaultedProps =
-      withDefaults?.propsStart === defineProps.callExp.start
+      withDefaults?.propsRange?.start === defineProps.callExp.start &&
+      withDefaults.propsRange.end === defineProps.callExp.end
         ? withDefaults.defaultedProps
         : []
     if (defaultedProps.length) {

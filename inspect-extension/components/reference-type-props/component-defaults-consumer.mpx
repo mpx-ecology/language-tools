@@ -5,8 +5,15 @@
   <back type="{{ 42 }}" label="Return" />
   <!-- Expected TS2345: label has no default and is required. -->
   <back type="back" />
+  <!-- Expected TS2345: an invalid withDefaults call does not make type optional. -->
+  <asserted-back label="Return" />
 </template>
 
 <script type="application/json">
-{ "usingComponents": { "back": "./component-with-default" } }
+{
+  "usingComponents": {
+    "back": "./component-with-default",
+    "asserted-back": "./component-with-asserted-props"
+  }
+}
 </script>

@@ -171,6 +171,75 @@ describe('typed custom component props', () => {
     },
   )
 
+  it.each([
+    [
+      'a getter',
+      "defineProps<Props>(), { type: 'back', get label() { return 'Return' } }",
+    ],
+    [
+      'a setter',
+      "defineProps<Props>(), { type: 'back', set label(_value: string) {} }",
+    ],
+    [
+      'a method',
+      "defineProps<Props>(), { type: 'back', label() { return 'Return' } }",
+    ],
+    ['parenthesized arguments', "(defineProps<Props>()), ({ type: 'back' })"],
+  ])('keeps the runtime default with %s', async (_, argumentsText) => {
+    const component = 'component-with-default.mpx'
+    const source = service
+      .read(component)
+      .replace("defineProps<Props>(), { type: 'back' }", argumentsText)
+    const compiled = await compileMpxSource(source, service.file(component))
+    const result = runCompiledMpx(compiled.code, service.file(component))
+    expect(result.defaults).toEqual({ type: 'back' })
+
+    const variant = createTestLanguageService(
+      service.fixtureRoot,
+      [],
+      new Map([[service.file(component), source]]),
+    )
+    try {
+      const diagnostics = variant.proxyLanguageService.getSemanticDiagnostics(
+        variant.file('component-defaults-consumer.mpx'),
+      )
+      expect(diagnostics.map(diagnostic => diagnostic.code)).toEqual([
+        2322, 2345,
+      ])
+      expect(diagnosticMessage(diagnostics[1])).toContain(
+        "Property 'label' is missing",
+      )
+    } finally {
+      variant.dispose()
+    }
+  })
+
+  it.each([' as Props', '!', '.type'])(
+    'ignores defaults when the first argument ends in %s',
+    async suffix => {
+      const component = 'component-with-default.mpx'
+      const source = service
+        .read(component)
+        .replace('defineProps<Props>()', `defineProps<Props>()${suffix}`)
+      await expect(
+        compileMpxSource(source, service.file(component)),
+      ).rejects.toThrow('first argument must be a defineProps call')
+
+      const variant = createTestLanguageService(
+        service.fixtureRoot,
+        [],
+        new Map([[service.file(component), source]]),
+      )
+      try {
+        expect(variant.getServiceScript(component).code).toContain(
+          'type __VLS_PublicProps = __VLS_Props;',
+        )
+      } finally {
+        variant.dispose()
+      }
+    },
+  )
+
   it('keeps nested object prop completions typed', () => {
     const relativePath = 'index.mpx'
     const source = service.read(relativePath)

@@ -40,7 +40,7 @@ type DefineProps = CallExpressionRange & {
 type WithDefaults = Omit<CallExpressionRange, 'typeArg'> & {
   // used by component-meta
   argNode?: ts.Expression
-  propsStart?: number
+  propsRange?: TextRange
   defaultedProps: string[]
 }
 
@@ -300,12 +300,13 @@ export function parseScriptSetupRanges(
         }
       } else if (isPropsMacro('withDefaults', callText)) {
         const [props, arg] = node.arguments
+        const unwrappedProps = unwrapParentheses(props)
         withDefaults = {
           callExp: _getStartEnd(node),
           exp: _getStartEnd(node.expression),
           arg: arg ? _getStartEnd(arg) : undefined,
           argNode: arg,
-          propsStart: unwrapParentheses(props)?.getStart(ast),
+          propsRange: unwrappedProps ? _getStartEnd(unwrappedProps) : undefined,
           defaultedProps: getDefaultedProps(arg),
         }
       } else if (mpxCompilerOptions.macros.defineSlots.includes(callText)) {
@@ -375,7 +376,7 @@ export function parseScriptSetupRanges(
     const names: string[] = []
     for (const property of defaults.properties) {
       // Mpx only emits defaults from identifier assignments in a static object.
-      if (ts.isMethodDeclaration(property)) continue
+      if (ts.isMethodDeclaration(property) || ts.isAccessor(property)) continue
       if (
         (!ts.isPropertyAssignment(property) &&
           !ts.isShorthandPropertyAssignment(property)) ||

@@ -5,7 +5,10 @@ interface Props {
   label: string
 }
 
-const props = withDefaults(defineProps<Props>(), { type: 'back' })
+const props = withDefaults(defineProps<Props>(), {
+  type: 'back',
+  get label() { return 'Return' },
+})
 // Hover props.type: it should still be string inside the component.
 const displayType = props.type
 defineExpose({ displayType })
