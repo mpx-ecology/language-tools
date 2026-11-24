@@ -1,0 +1,12 @@
+<template>
+  <!-- Valid: the component defaults type to 'back'. -->
+  <back label="Return" />
+  <!-- Expected TS2322: type must be a string. -->
+  <back type="{{ 42 }}" label="Return" />
+  <!-- Expected TS2345: label has no default and is required. -->
+  <back type="back" />
+</template>
+
+<script type="application/json">
+{ "usingComponents": { "back": "./component-with-default" } }
+</script>

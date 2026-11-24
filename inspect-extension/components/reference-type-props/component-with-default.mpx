@@ -1,0 +1,16 @@
+<script setup lang="ts">
+interface Props {
+  /** Display mode for the back button. */
+  type: string
+  label: string
+}
+
+const props = withDefaults(defineProps<Props>(), { type: 'back' })
+// Hover props.type: it should still be string inside the component.
+const displayType = props.type
+defineExpose({ displayType })
+</script>
+
+<script type="application/json">
+{ "component": true }
+</script>
