@@ -768,6 +768,9 @@
     "html-stuff": {
       "patterns": [
         {
+          "include": "#wxs-tag"
+        },
+        {
           "include": "#template-tag"
         },
         {
@@ -775,6 +778,60 @@
         },
         {
           "include": "text.html.basic"
+        }
+      ]
+    },
+    "wxs-tag": {
+      "begin": "(<)(wxs)(?=[\\s/>]|$)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html.mpx"
+        },
+        "2": {
+          "name": "entity.name.tag.wxs.html.mpx"
+        }
+      },
+      "end": "(/>)|(</)(wxs)\\s*(>)|(?=</template\\s*>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.html.mpx"
+        },
+        "2": {
+          "name": "punctuation.definition.tag.begin.html.mpx"
+        },
+        "3": {
+          "name": "entity.name.tag.wxs.html.mpx"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.html.mpx"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#tag-stuff"
+        },
+        {
+          "begin": "(?<=>)",
+          "end": "(?=</(?:wxs|template)\\s*>)",
+          "contentName": "meta.embedded.block.wxs source.js",
+          "patterns": [
+            {
+              "comment": "Bound the closing line before tokenizing JS so an unterminated statement scope cannot consume the WXS end tag. Let source.js tokenize line comments.",
+              "match": "(?:^|\\G)(?>(?:[^\"'</\\r\\n]+|\"(?:[^\"\\\\\\r\\n]|\\\\.)*\"|'(?:[^'\\\\\\r\\n]|\\\\.)*'|/\\*(?:[^*\\r\\n]|\\*(?!/))*\\*/|/(?![/*])|<(?!/wxs\\s*>))+)(?=</wxs\\s*>)",
+              "captures": {
+                "0": {
+                  "patterns": [
+                    {
+                      "include": "source.js"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "include": "source.js"
+            }
+          ]
         }
       ]
     },
