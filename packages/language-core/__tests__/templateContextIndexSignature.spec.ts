@@ -229,4 +229,231 @@ describe('template context with index-signature mixins and options', () => {
       '(property) localName: string',
     )
   })
+
+  it('overrides same-block mixin fields by order while keeping disjoint fields and declarations', () => {
+    const relativePath = 'mixin-override-page.mpx'
+    const fileName = service.file(relativePath)
+    const source = service.read(relativePath)
+    const mixinsFile = service.file('mixins.ts')
+    const mixinsSource = service.read('mixins.ts')
+
+    for (const [name, expected] of [
+      ['kind', '(property) kind: "b"'],
+      ['left', '(property) left: string'],
+      ['right', '(property) right: number'],
+      ['compKind', '(property) compKind: "cb"'],
+      ['run', '(method) run(v: number): number'],
+      ['pageTitle', '(property) pageTitle: string'],
+    ] as const) {
+      const hover = service.proxyLanguageService.getQuickInfoAtPosition(
+        fileName,
+        source.indexOf(name) + 1,
+      )
+      expect(ts.displayPartsToString(hover?.displayParts)).toBe(expected)
+    }
+
+    const kindFromBOffset = mixinsSource.indexOf("kind: 'b'")
+    const expectedDefinitions: [string, string, string, number][] = [
+      ['kind', mixinsFile, mixinsSource, kindFromBOffset],
+      ['left', mixinsFile, mixinsSource, mixinsSource.indexOf("left: 'hello'")],
+      ['right', mixinsFile, mixinsSource, mixinsSource.indexOf('right: 123')],
+      [
+        'compKind',
+        mixinsFile,
+        mixinsSource,
+        mixinsSource.indexOf("compKind(): 'cb'"),
+      ],
+      ['run', mixinsFile, mixinsSource, mixinsSource.indexOf('run(v: number)')],
+      ['pageTitle', fileName, source, source.indexOf("pageTitle: 'ok'")],
+    ]
+
+    for (const [
+      name,
+      targetFile,
+      _targetSource,
+      targetOffset,
+    ] of expectedDefinitions) {
+      const definitions = service.proxyLanguageService.getDefinitionAtPosition(
+        fileName,
+        source.indexOf(name) + 1,
+      )
+      expect(definitions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            fileName: targetFile,
+            textSpan: {
+              start: targetOffset,
+              length: name.length,
+            },
+          }),
+        ]),
+      )
+    }
+
+    const diagnostics = service.proxyLanguageService
+      .getSemanticDiagnostics(fileName)
+      .map(diagnostic => ({
+        code: diagnostic.code,
+        message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+      }))
+    expect(diagnostics).toEqual([
+      {
+        code: 2339,
+        message: "Property 'nonExistent' does not exist on type '\"b\"'.",
+      },
+    ])
+
+    const program = service.languageService.getProgram()!
+    const checker = program.getTypeChecker()
+    const sf = program.getSourceFile(fileName)!
+    let defineComponentDecl: ts.VariableDeclaration | undefined
+    sf.forEachChild(node => {
+      if (ts.isVariableStatement(node)) {
+        const decl = node.declarationList.declarations[0]
+        if (
+          ts.isIdentifier(decl.name) &&
+          decl.name.text === '__VLS_defineComponent'
+        ) {
+          defineComponentDecl = decl
+        }
+      }
+    })
+    expect(defineComponentDecl).toBeDefined()
+    const insType = checker.getTypeAtLocation(defineComponentDecl!.name)
+    expect(insType.flags & ts.TypeFlags.Never).toBe(0)
+    expect(
+      checker.typeToString(
+        checker.getTypeOfSymbolAtLocation(
+          insType.getProperty('kind')!,
+          defineComponentDecl!.name,
+        ),
+      ),
+    ).toBe('"b"')
+  })
+
+  it('merges conditional mixin branches field-by-field without collapsing disjoint fields', () => {
+    const relativePath = 'mixin-override-conditional.mpx'
+    const fileName = service.file(relativePath)
+    const source = service.read(relativePath)
+    const mixinsFile = service.file('mixins.ts')
+    const mixinsSource = service.read('mixins.ts')
+
+    for (const [name, expected] of [
+      ['kind', '(property) kind: "a" | "b"'],
+      ['left', '(property) left: string'],
+      ['right', '(property) right: number'],
+      ['compKind', '(property) compKind: "cb" | "ca"'],
+    ] as const) {
+      const hover = service.proxyLanguageService.getQuickInfoAtPosition(
+        fileName,
+        source.indexOf(name) + 1,
+      )
+      expect(ts.displayPartsToString(hover?.displayParts)).toBe(expected)
+    }
+
+    for (const [name, marker] of [
+      ['left', "left: 'hello'"],
+      ['right', 'right: 123'],
+    ] as const) {
+      const definitions = service.proxyLanguageService.getDefinitionAtPosition(
+        fileName,
+        source.indexOf(name) + 1,
+      )
+      expect(definitions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            fileName: mixinsFile,
+            textSpan: {
+              start: mixinsSource.indexOf(marker),
+              length: name.length,
+            },
+          }),
+        ]),
+      )
+    }
+
+    const diagnostics = service.proxyLanguageService
+      .getSemanticDiagnostics(fileName)
+      .map(diagnostic => ({
+        code: diagnostic.code,
+        message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+      }))
+    expect(diagnostics).toEqual([
+      {
+        code: 2339,
+        message:
+          "Property 'nonExistent' does not exist on type '\"a\" | \"b\"'.\n  Property 'nonExistent' does not exist on type '\"a\"'.",
+      },
+    ])
+  })
+
+  it('overrides object-literal mixin data with component data in script setup defineOptions', () => {
+    const relativePath = 'mixin-override-script-setup.mpx'
+    const fileName = service.file(relativePath)
+    const source = service.read(relativePath)
+    const mixinsFile = service.file('mixins.ts')
+    const mixinsSource = service.read('mixins.ts')
+
+    for (const [name, expected] of [
+      ['kind', '(property) kind: "page"'],
+      ['objLeft', '(property) objLeft: string'],
+      ['objRight', '(property) objRight: number'],
+    ] as const) {
+      const hover = service.proxyLanguageService.getQuickInfoAtPosition(
+        fileName,
+        source.indexOf(name) + 1,
+      )
+      expect(ts.displayPartsToString(hover?.displayParts)).toBe(expected)
+    }
+
+    const kindDefs = service.proxyLanguageService.getDefinitionAtPosition(
+      fileName,
+      source.indexOf('kind') + 1,
+    )
+    expect(kindDefs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          fileName,
+          textSpan: {
+            start: source.indexOf("kind: 'page'"),
+            length: 'kind'.length,
+          },
+        }),
+      ]),
+    )
+
+    for (const [name, marker] of [
+      ['objLeft', "objLeft: 'obj-left'"],
+      ['objRight', 'objRight: 456'],
+    ] as const) {
+      const definitions = service.proxyLanguageService.getDefinitionAtPosition(
+        fileName,
+        source.indexOf(name) + 1,
+      )
+      expect(definitions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            fileName: mixinsFile,
+            textSpan: {
+              start: mixinsSource.indexOf(marker),
+              length: name.length,
+            },
+          }),
+        ]),
+      )
+    }
+
+    const diagnostics = service.proxyLanguageService
+      .getSemanticDiagnostics(fileName)
+      .map(diagnostic => ({
+        code: diagnostic.code,
+        message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+      }))
+    expect(diagnostics).toEqual([
+      {
+        code: 2339,
+        message: "Property 'nonExistent' does not exist on type '\"page\"'.",
+      },
+    ])
+  })
 })

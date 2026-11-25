@@ -42,3 +42,55 @@ export const fnDataMixin = {
     }
   },
 }
+
+export const discriminantFnMixinA = {
+  data() {
+    return {
+      kind: 'a' as const,
+      left: 'hello',
+    }
+  },
+  computed: {
+    compKind(): 'ca' {
+      return 'ca'
+    },
+  },
+  methods: {
+    run(v: string) {
+      return v
+    },
+  },
+}
+
+export const discriminantFnMixinB = {
+  data() {
+    return {
+      kind: 'b' as const,
+      right: 123,
+    }
+  },
+  computed: {
+    compKind(): 'cb' {
+      return 'cb'
+    },
+  },
+  methods: {
+    run(v: number) {
+      return v
+    },
+  },
+}
+
+export const discriminantObjMixinA = {
+  data: {
+    kind: 'a' as const,
+    objLeft: 'obj-left',
+  },
+}
+
+export const discriminantObjMixinB = {
+  data: {
+    kind: 'b' as const,
+    objRight: 456,
+  },
+}

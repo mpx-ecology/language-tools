@@ -11,3 +11,8 @@
 2. 打开 `ref-parent.mpx`：
    - `refs.child?.focusInput(1)` 悬停返回 `number | undefined`，F12 在 `focusInput` 上跳转到 `child-with-mixin.mpx` 的 `methods.focusInput`。
    - 第 4 行 `label="{{ 123 }}"` 保留故意的 TS2322，第 14 行 `focusInput('bad')` 保留故意的 TS2345。
+3. 打开 `mixin-override.mpx`：
+   - 第 3 行 `kind` 悬停为 `"b"`，F12 跳转到 `mixinB` 的 `kind`（后一个 mixin 覆盖前一个 mixin）。
+   - 第 5、6 行 `left` / `right` 分别悬停为 `string` / `number`，F12 分别跳转到 `mixinA` / `mixinB`。
+   - 第 8 行 `compKind` 悬停为 `"cb"`，F12 跳转到 `mixinB` 的 `computed.compKind`。
+   - 第 10 行 `kind.nonExistent()` 保留故意的 TS2339 错误提示。

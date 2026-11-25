@@ -1,0 +1,23 @@
+<template>
+  <view>{{ kind.toUpperCase() }}</view>
+  <view>{{ objLeft.toUpperCase() }}</view>
+  <view>{{ objRight.toFixed(0) }}</view>
+  <view>{{ kind.nonExistent() }}</view>
+</template>
+
+<script setup lang="ts">
+import { discriminantObjMixinA, discriminantObjMixinB } from './mixins'
+
+defineOptions({
+  mixins: [discriminantObjMixinA, discriminantObjMixinB],
+  data: {
+    kind: 'page' as const,
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>
