@@ -1,0 +1,13 @@
+<!-- ✅ 纯 JSON 应用入口不应接收子页面（pages/index.mpx、pages/result.mpx）泄漏的语义高亮或 TS 请求。 -->
+<!-- ❌ 修复前当子页面先加载时，'./pages/index' 与 </script> 可能出现错位属性高亮。 -->
+<script name="json">
+  module.exports = {
+    pages: [
+      './pages/index',
+      './pages/result'
+    ],
+    usingComponents: {
+      'demo-panel': './panel.mpx'
+    }
+  }
+</script>

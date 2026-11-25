@@ -1,0 +1,13 @@
+<template>
+  <demo-panel title="done" />
+</template>
+<script lang="ts">
+import { createPage } from '@mpxjs/core'
+
+createPage({
+  data: {
+    isDone: true,
+  },
+})
+</script>
+<script type="application/json">{}</script>

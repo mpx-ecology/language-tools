@@ -43,16 +43,69 @@ export = createLanguageServicePlugin((ts, info) => {
   return {
     languagePlugins: [languagePlugin],
     setup: language => {
+      const syncedAppVersions = new Map<string, string | undefined>()
+      const getAppVersion = (fileName: string) => {
+        const scriptInfo = info.project.getScriptInfo(fileName)
+        return scriptInfo && !scriptInfo.isOrphan()
+          ? scriptInfo.getLatestVersion()
+          : undefined
+      }
+      const recordTrackedApplications = () => {
+        const tracked = languagePlugin.getTrackedApplications()
+        const trackedSet = new Set(tracked)
+        for (const fileName of syncedAppVersions.keys()) {
+          if (!trackedSet.has(fileName)) syncedAppVersions.delete(fileName)
+        }
+        for (const fileName of tracked) {
+          if (!syncedAppVersions.has(fileName)) {
+            syncedAppVersions.set(fileName, getAppVersion(fileName))
+          }
+        }
+      }
+      const syncTrackedApplications = () => {
+        const tracked = languagePlugin.getTrackedApplications()
+        const trackedSet = new Set(tracked)
+        for (const fileName of syncedAppVersions.keys()) {
+          if (!trackedSet.has(fileName)) syncedAppVersions.delete(fileName)
+        }
+        for (const fileName of tracked) {
+          const version = getAppVersion(fileName)
+          const hadEntry = syncedAppVersions.has(fileName)
+          if (hadEntry && syncedAppVersions.get(fileName) === version) continue
+          syncedAppVersions.set(fileName, version)
+          if (version === undefined) {
+            if (hadEntry) language.scripts.delete(fileName)
+          } else if (hadEntry || !languagePlugin.hasVirtualCode(fileName)) {
+            language.scripts.get(fileName, undefined, true)
+          }
+        }
+      }
+      const drainExternalChanges = () => {
+        let changed = false
+        languagePlugin.getExternalFilesVersion(undefined, fileName => {
+          const source = language.scripts.get(fileName)
+          if (source) source.isAssociationDirty = true
+          changed = true
+        })
+        return changed
+      }
       const updateGraph = info.project.updateGraph.bind(info.project)
       info.project.updateGraph = () =>
         withProjectGraphScope(() =>
-          languagePlugin.withComponentFileStats(updateGraph),
+          languagePlugin.withComponentFileStats(() => {
+            try {
+              return updateGraph()
+            } finally {
+              recordTrackedApplications()
+            }
+          }),
         )
       const close = info.project.close.bind(info.project)
       info.project.close = () => {
         try {
           close()
         } finally {
+          syncedAppVersions.clear()
           languagePlugin.dispose()
         }
       }
@@ -60,16 +113,17 @@ export = createLanguageServicePlugin((ts, info) => {
         info.project,
       )
       info.project.getLanguageService = ensureSynchronized => {
-        let changed = false
-        languagePlugin.getExternalFilesVersion(undefined, fileName => {
-          const source = language.scripts.get(fileName)
-          if (source) source.isAssociationDirty = true
-          changed = true
-        })
+        if (ensureSynchronized !== false) syncTrackedApplications()
         // tsserver's clean-project fast path bypasses getProjectVersion. A new
         // platform file can sit outside include, so no root-file watcher fires.
-        if (changed) info.project.updateGraph()
-        return getLanguageService(ensureSynchronized)
+        if (drainExternalChanges()) info.project.updateGraph()
+        const service = getLanguageService(ensureSynchronized)
+        // If updateGraph checked a consumer page before its app.mpx, the
+        // resulting invalidation arrives during sync above; apply it once now.
+        if (ensureSynchronized !== false && drainExternalChanges()) {
+          info.project.updateGraph()
+        }
+        return service
       }
       mpx.decorateMpxLanguageServiceHost(
         info.languageServiceHost,

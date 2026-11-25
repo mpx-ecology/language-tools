@@ -14,6 +14,7 @@ declare module '@volar/language-service' {
       compilerOptions: MpxCompilerOptions
       typescriptCompilerOptions?: import('typescript').CompilerOptions
       includeJsonScript?(uri: import('vscode-uri').URI): void | (() => void)
+      refreshesApplicationsOnGet?: boolean
     }
   }
 }

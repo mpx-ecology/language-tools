@@ -1,0 +1,17 @@
+<template>
+  <!-- ✅ demo-panel 来自 pure-json-app/app.mpx 的全局组件注册。 -->
+  <demo-panel title="{{ statusLabel }}" />
+  <view>{{ detailInfo }}</view>
+</template>
+<script setup lang="ts">
+import { ref } from '@mpxjs/core'
+
+const statusLabel = ref('ready')
+const detailInfo = ref('ok')
+
+defineExpose({
+  statusLabel,
+  detailInfo,
+})
+</script>
+<script type="application/json">{}</script>

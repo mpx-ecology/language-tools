@@ -72,6 +72,12 @@ export function createMpxLanguagePlugin<T>(
     fileName?: string,
     onChange?: (fileName: string) => void,
   ): string
+  getApplicationDependencies(fileName: string): readonly string[]
+  getMissingApplicationDependencies(fileName: string): readonly string[]
+  getTrackedApplications(): readonly string[]
+  hasVirtualCode(fileName: string): boolean
+  isApplicationDirty(fileName: string): boolean
+  invalidateApplicationDependents(appFileName: string): void
   dispose(): void
   withComponentFileStats<R>(run: () => R): R
 } {
@@ -82,6 +88,16 @@ export function createMpxLanguagePlugin<T>(
   const getComponentFileStats = () => componentFileStats
   const changedFiles = new Set<string>()
   let externalProjectVersion = 0
+  let externalProjectDirty = false
+  const applicationDependencies = new Map<string, Set<string>>()
+  const existingApplicationDependencies = new Map<string, Set<string>>()
+  const applicationDependents = new Map<string, Set<string>>()
+  const consumerApplicationVersions = new Map<string, number>()
+  const seenApplicationVersions = new Map<string, number>()
+  function markChangedFile(fileName: string) {
+    changedFiles.add(fileName)
+    externalProjectDirty = true
+  }
   const pluginContext: Parameters<MpxLanguagePlugin>[0] = {
     modules: {
       '@vue/compiler-dom': CompilerDOM,
@@ -93,7 +109,7 @@ export function createMpxLanguagePlugin<T>(
       options?.serviceScriptOnly === true && !mpxCompilerOptions.plugins.length,
     getComponentFileStats,
     onExternalDependencyChange: watchExternalDependencies
-      ? fileName => changedFiles.add(fileName)
+      ? fileName => markChangedFile(fileName)
       : undefined,
   }
   const plugins = createPlugins(pluginContext)
@@ -104,7 +120,7 @@ export function createMpxLanguagePlugin<T>(
     watchExternalDependencies
       ? importer => {
           for (const page of applicationConsumers.get(importer) ?? [])
-            changedFiles.add(page)
+            markChangedFile(page)
         }
       : undefined,
   )
@@ -137,9 +153,10 @@ export function createMpxLanguagePlugin<T>(
       if (!fileName && watchExternalDependencies) {
         // A clean project has no pending paths. Drain changes once before
         // TypeScript consults the project version or reuses its current graph.
-        if (changedFiles.size) {
+        if (changedFiles.size || externalProjectDirty) {
           const pending = [...changedFiles]
           changedFiles.clear()
+          externalProjectDirty = false
           externalProjectVersion++
           for (const changed of pending) onChange?.(changed)
         }
@@ -149,27 +166,70 @@ export function createMpxLanguagePlugin<T>(
       if (fileName && !file) return ''
       const files = file ? [file] : [...fileRegistry.values()]
       if (fileName) {
-        const application = files[0]?.sfc.application
-        const applicationCode =
-          application && fileRegistry.get(application.fileName)
-        // Global registrations affect the consuming page's generated imports.
-        // Refresh their owner before reading the page's dependency version.
-        if (applicationCode) files.unshift(applicationCode)
+        const seen = new Set([fileName])
+        const appFiles: MpxVirtualCode[] = []
+        // Global registrations and package ownership affect the consumer's
+        // generated imports. Refresh all existing candidates first.
+        for (const appFile of existingApplicationDependencies.get(fileName) ??
+          []) {
+          if (seen.has(appFile)) continue
+          seen.add(appFile)
+          const appCode = fileRegistry.get(appFile)
+          if (appCode) appFiles.push(appCode)
+        }
+        if (appFiles.length) files.unshift(...appFiles)
       }
       return files
         .map(code => {
           const version = code.getExternalDependencyVersion()
-          if (code.externalDependencyVersion !== version)
+          const appVersion = consumerApplicationVersions.get(code.fileName) ?? 0
+          if (
+            code.externalDependencyVersion !== version ||
+            appVersion !== (seenApplicationVersions.get(code.fileName) ?? 0)
+          ) {
             onChange?.(code.fileName)
-          return version
+          }
+          return `${version}:${appVersion}`
         })
         .join(';')
+    },
+    getApplicationDependencies(fileName) {
+      return [...(existingApplicationDependencies.get(fileName) ?? [])]
+    },
+    getMissingApplicationDependencies(fileName) {
+      const existing = existingApplicationDependencies.get(fileName)
+      const result: string[] = []
+      for (const appFile of applicationDependencies.get(fileName) ?? []) {
+        if (!existing?.has(appFile)) result.push(appFile)
+      }
+      return result
+    },
+    getTrackedApplications() {
+      return [...applicationDependents.keys()]
+    },
+    hasVirtualCode(fileName) {
+      return fileRegistry.has(fileName)
+    },
+    isApplicationDirty(fileName) {
+      return (
+        (consumerApplicationVersions.get(fileName) ?? 0) !==
+        (seenApplicationVersions.get(fileName) ?? 0)
+      )
+    },
+    invalidateApplicationDependents(appFileName) {
+      notifyApplicationDependents(appFileName)
     },
     dispose() {
       resolveComponent.dispose()
       applicationLookups.clear()
       applicationConsumers.clear()
+      applicationDependencies.clear()
+      existingApplicationDependencies.clear()
+      applicationDependents.clear()
+      consumerApplicationVersions.clear()
+      seenApplicationVersions.clear()
       changedFiles.clear()
+      externalProjectDirty = false
       if (ownsFileRegistry) {
         for (const plugin of plugins) plugin.dispose?.()
         fileRegistry.clear()
@@ -187,10 +247,12 @@ export function createMpxLanguagePlugin<T>(
     createVirtualCode(scriptId, languageId, snapshot, ctx) {
       const fileName = asFileName(scriptId)
       if (plugins.some(plugin => plugin.isValidFile?.(fileName, languageId))) {
+        const hasDependents = !!applicationDependents.get(fileName)?.size
         const code = fileRegistry.get(fileName)
         if (code) {
           code.update(snapshot)
           updateApplication(scriptId, code, ctx)
+          if (hasDependents) notifyApplicationDependents(fileName)
           return code
         } else {
           const code = new MpxVirtualCode(
@@ -203,23 +265,40 @@ export function createMpxLanguagePlugin<T>(
           )
           fileRegistry.set(fileName, code)
           updateApplication(scriptId, code, ctx)
+          if (hasDependents) notifyApplicationDependents(fileName)
           return code
         }
       }
     },
     disposeVirtualCode(_scriptId, code) {
-      if (!ownsFileRegistry) return
       const { fileName } = code
+      updateApplicationDependencies(fileName)
+      seenApplicationVersions.delete(fileName)
+      consumerApplicationVersions.delete(fileName)
+      notifyApplicationDependents(fileName)
+      changedFiles.delete(fileName)
+      if (!ownsFileRegistry) return
       if (fileRegistry.get(fileName) !== code) return
       fileRegistry.delete(fileName)
       updateApplicationLookups(fileName)
-      changedFiles.delete(fileName)
       for (const plugin of plugins) plugin.disposeFile?.(fileName)
       resolveComponent.forget(fileName)
     },
     updateVirtualCode(scriptId, code, snapshot, ctx) {
+      const hasDependents = !!applicationDependents.get(code.fileName)?.size
+      const prevJson = hasDependents ? getJsonBlockKey(code) : undefined
+      const prevExternalVersion = hasDependents
+        ? code.externalDependencyVersion
+        : undefined
       code.update(snapshot)
       updateApplication(scriptId, code, ctx)
+      if (
+        hasDependents &&
+        (prevJson !== getJsonBlockKey(code) ||
+          prevExternalVersion !== code.externalDependencyVersion)
+      ) {
+        notifyApplicationDependents(code.fileName)
+      }
       return code
     },
     typescript: {
@@ -258,16 +337,32 @@ export function createMpxLanguagePlugin<T>(
     if (!toId) return
     const configPath = compilerOptions.configFilePath
     let lookups: Map<string, Set<string>> | undefined
+    const probedApps = new Set<string>()
+    const existingApps = new Set<string>()
     code.setApplication(
       resolveApplication(
         ts,
         code.fileName,
         typeof configPath === 'string' ? path.dirname(configPath) : undefined,
         fileName => {
+          probedApps.add(fileName)
           if (missingAssociatedFiles?.has(fileName)) return
           const source = ctx.getAssociatedScript(toId(fileName))
-          if (!source) missingAssociatedFiles?.add(fileName)
-          return source?.generated?.root instanceof MpxVirtualCode
+          if (!source) {
+            missingAssociatedFiles?.add(fileName)
+            return
+          }
+          existingApps.add(fileName)
+          // Only snapshot-sync via Volar; do not leave targetIds edges on
+          // app.mpx, otherwise TS requests for app.mpx get routed to pages.
+          if (source.targetIds && !source.targetIds.delete(scriptId)) {
+            for (const targetId of source.targetIds) {
+              if (asFileName(targetId) === code.fileName) {
+                source.targetIds.delete(targetId)
+              }
+            }
+          }
+          return source.generated?.root instanceof MpxVirtualCode
             ? source.generated.root.sfc
             : undefined
         },
@@ -283,6 +378,53 @@ export function createMpxLanguagePlugin<T>(
       ),
     )
     updateApplicationLookups(code.fileName, lookups)
+    updateApplicationDependencies(code.fileName, probedApps, existingApps)
+    seenApplicationVersions.set(
+      code.fileName,
+      consumerApplicationVersions.get(code.fileName) ?? 0,
+    )
+    changedFiles.delete(code.fileName)
+  }
+
+  function getJsonBlockKey(code: MpxVirtualCode) {
+    const json = code.sfc.json
+    return json ? `${json.lang}\0${json.content}` : undefined
+  }
+
+  function notifyApplicationDependents(appFileName: string) {
+    const dependents = applicationDependents.get(appFileName)
+    if (!dependents?.size) return
+    for (const consumer of dependents) {
+      consumerApplicationVersions.set(
+        consumer,
+        (consumerApplicationVersions.get(consumer) ?? 0) + 1,
+      )
+      markChangedFile(consumer)
+    }
+  }
+
+  function updateApplicationDependencies(
+    consumer: string,
+    probed?: Set<string>,
+    existing?: Set<string>,
+  ) {
+    for (const appFile of applicationDependencies.get(consumer) ?? []) {
+      const dependents = applicationDependents.get(appFile)
+      if (!dependents) continue
+      dependents.delete(consumer)
+      if (!dependents.size) applicationDependents.delete(appFile)
+    }
+    applicationDependencies.delete(consumer)
+    existingApplicationDependencies.delete(consumer)
+    if (existing?.size) existingApplicationDependencies.set(consumer, existing)
+    if (!probed?.size) return
+    applicationDependencies.set(consumer, probed)
+    for (const appFile of probed) {
+      let dependents = applicationDependents.get(appFile)
+      if (!dependents)
+        applicationDependents.set(appFile, (dependents = new Set()))
+      dependents.add(consumer)
+    }
   }
 
   /** Retain package lookups only while a page consumes their application scope. */
