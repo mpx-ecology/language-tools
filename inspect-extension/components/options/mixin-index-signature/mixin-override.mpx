@@ -1,0 +1,47 @@
+<template>
+  <!-- ✅ Hover shows "b" (later mixin overrides earlier); F12 jumps to mixinB.data().kind. -->
+  <view>{{ kind.toUpperCase() }}</view>
+  <!-- ✅ Disjoint fields from both mixins keep their types and declarations. -->
+  <view>{{ left.toUpperCase() }}</view>
+  <view>{{ right.toFixed(0) }}</view>
+  <!-- ✅ Hover shows "cb"; F12 jumps to mixinB.computed.compKind. -->
+  <view>{{ compKind }}</view>
+  <!-- ❌ Intentional TS2339: Property 'nonExistent' does not exist on type '"b"'. -->
+  <view>{{ kind.nonExistent() }}</view>
+</template>
+
+<script lang="ts">
+import { createPage } from '@mpxjs/core'
+
+const mixinA = {
+  data() {
+    return {
+      kind: 'a' as const,
+      left: 'hello',
+    }
+  },
+  computed: {
+    compKind(): 'ca' {
+      return 'ca'
+    },
+  },
+}
+
+const mixinB = {
+  data() {
+    return {
+      kind: 'b' as const,
+      right: 123,
+    }
+  },
+  computed: {
+    compKind(): 'cb' {
+      return 'cb'
+    },
+  },
+}
+
+createPage({
+  mixins: [mixinA, mixinB],
+})
+</script>

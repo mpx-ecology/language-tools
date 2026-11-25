@@ -1,0 +1,21 @@
+<template>
+  <view>{{ kind.toUpperCase() }}</view>
+  <view>{{ left.toUpperCase() }}</view>
+  <view>{{ right.toFixed(0) }}</view>
+  <view>{{ compKind.toUpperCase() }}</view>
+  <view>{{ run(1).toFixed(0) }}</view>
+  <view>{{ pageTitle.toUpperCase() }}</view>
+  <view>{{ kind.nonExistent() }}</view>
+</template>
+
+<script lang="ts">
+import { createPage } from '@mpxjs/core'
+import { discriminantFnMixinA, discriminantFnMixinB } from './mixins'
+
+createPage({
+  mixins: [discriminantFnMixinA, discriminantFnMixinB],
+  data: {
+    pageTitle: 'ok',
+  },
+})
+</script>

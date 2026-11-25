@@ -1,0 +1,19 @@
+<template>
+  <options-child wx:ref="child" label="ok" />
+  <options-child label="{{ 123 }}" />
+</template>
+
+<script setup lang="ts">
+const { refs } = useContext()
+const focusedId = refs.child?.focusInput(1)
+const invalidFocus = refs.child?.focusInput('bad')
+defineExpose({ focusedId, invalidFocus })
+</script>
+
+<script type="application/json">
+{
+  "usingComponents": {
+    "options-child": "./options-child-with-mixin.mpx"
+  }
+}
+</script>

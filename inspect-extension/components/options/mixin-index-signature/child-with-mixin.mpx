@@ -1,0 +1,36 @@
+<template>
+  <!-- ✅ Hover shows string; F12 jumps to properties.label. -->
+  <view>{{ label.toUpperCase() }}</view>
+</template>
+
+<script lang="ts">
+import { createComponent, getMixin } from '@mpxjs/core'
+
+const dynamicFlagKey: string = '_hooks_ever_run'
+const dynamicDataMixin = getMixin({
+  data: {
+    [dynamicFlagKey]: false,
+  },
+})
+
+createComponent({
+  mixins: [dynamicDataMixin],
+  properties: {
+    label: {
+      type: String,
+      value: 'default',
+    },
+  },
+  methods: {
+    focusInput(id: number) {
+      return id
+    },
+  },
+})
+</script>
+
+<script name="json">
+module.exports = {
+  component: true,
+}
+</script>

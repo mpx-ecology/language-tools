@@ -1,0 +1,18 @@
+<template>
+  <view>{{ kind.toUpperCase() }}</view>
+  <view>{{ left.toUpperCase() }}</view>
+  <view>{{ right.toFixed(0) }}</view>
+  <view>{{ compKind.toUpperCase() }}</view>
+  <view>{{ kind.nonExistent() }}</view>
+</template>
+
+<script lang="ts">
+import { createPage } from '@mpxjs/core'
+import { discriminantFnMixinA, discriminantFnMixinB } from './mixins'
+
+declare const isFirst: boolean
+
+createPage({
+  mixins: isFirst ? [discriminantFnMixinA] : [discriminantFnMixinB],
+})
+</script>

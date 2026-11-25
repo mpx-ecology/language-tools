@@ -1,0 +1,22 @@
+<template>
+  <child-with-mixin wx:ref="child" label="ok" />
+  <!-- ❌ Intentional TS2322: number is not assignable to string. -->
+  <child-with-mixin label="{{ 123 }}" />
+</template>
+
+<script setup lang="ts">
+const { refs } = useContext()
+// ✅ Hover shows number | undefined; F12 on focusInput jumps to child-with-mixin.mpx.
+const focusedId = refs.child?.focusInput(1)
+// ❌ Intentional TS2345: string is not assignable to number.
+const invalidFocus = refs.child?.focusInput('bad')
+defineExpose({ focusedId, invalidFocus })
+</script>
+
+<script type="application/json">
+{
+  "usingComponents": {
+    "child-with-mixin": "./child-with-mixin.mpx"
+  }
+}
+</script>

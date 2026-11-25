@@ -1,0 +1,18 @@
+<template>
+  <view>{{ fromMixinData.toUpperCase() }}</view>
+  <view>{{ localName.toUpperCase() }}</view>
+</template>
+
+<script lang="ts">
+import { createPage } from '@mpxjs/core'
+import { dynamicDataMixin, typedMixin } from './mixins'
+
+declare const isSimple: boolean
+
+createPage({
+  mixins: isSimple ? [dynamicDataMixin] : [dynamicDataMixin, typedMixin],
+  data: {
+    localName: 'conditional',
+  },
+})
+</script>
