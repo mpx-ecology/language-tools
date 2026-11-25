@@ -63,7 +63,7 @@
 - By default, include before/after F5 `inspect-extension` screenshots in each bug-fix PR, using the same scenario, editor settings, theme, and comparable views to show the relevant diagnostics or editor behavior. Capture the baseline before implementation, or reproduce it later in an isolated baseline checkout.
 - Screenshots may be omitted only when the change cannot or does not need to be validated through F5. State the concrete reason and applicable alternative evidence in the issue's reproduction-screenshot section and the PR's comparison section. Code, test logs, and provider assertions alone do not exempt an editor-visible fix; pending captures must remain marked as pending.
 - Keep internal information out of published captures and keep user-provided screenshots containing internal information local.
-- Create a new `codex/` branch from the target base branch for the fix. Keep unrelated local commits and user changes out of the branch.
+- Create a new branch from the target base branch using a standard `<type>/<kebab-case-summary>` name (use `fix/...` for bug fixes; `feat/`, `perf/`, `refactor/`, `docs/`, `test/`, or `chore/` for other changes). Keep unrelated local commits and user changes out of the branch.
 - Implement and validate the fix, then commit, push the branch, and open a focused pull request. Link the issue in the PR body with `Closes #<issue-number>` or an equivalent closing keyword.
 - The user's standing instruction authorizes this issue → branch → fix → PR workflow for requested bug fixes. Merging, publishing a release, and updating changelogs still require an explicit request.
 
