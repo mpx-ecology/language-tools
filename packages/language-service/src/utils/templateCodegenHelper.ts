@@ -34,6 +34,9 @@ export const templateCodegenHelper = (
  * JSON-only IDE projects intentionally do not analyze ordinary template requests.
  */
 export function getMpxSourceScript(context: LanguageServiceContext, uri: URI) {
+  if (context.project?.mpx?.refreshesApplicationsOnGet) {
+    return context.language.scripts.get(uri)
+  }
   let source = refresh(uri)
   const root = source?.generated?.root
   const application =

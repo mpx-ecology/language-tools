@@ -1,0 +1,8 @@
+<template>
+  <demo-panel title="page" />
+</template>
+<script setup lang="ts">
+const pageReady = 'ok'
+defineExpose({ pageReady })
+</script>
+<script type="application/json">{}</script>

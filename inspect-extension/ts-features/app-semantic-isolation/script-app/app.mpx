@@ -1,0 +1,20 @@
+<!-- ✅ 带业务脚本的 app.mpx 在子页面已加载时仍保留自身语义高亮、hover 与诊断。 -->
+<!-- ❌ 故意将 count 赋给 string 类型以产生本地 TS2322 诊断，预期仅命中此处。 -->
+<script lang="ts">
+import { createApp } from '@mpxjs/core'
+
+const appReady: string = 123
+console.log(appReady)
+
+createApp({})
+</script>
+<script name="json">
+  module.exports = {
+    pages: [
+      './pages/index'
+    ],
+    usingComponents: {
+      'demo-panel': './panel.mpx'
+    }
+  }
+</script>

@@ -45,7 +45,9 @@ export async function createJsonProject(
   fixtureRoot = path.resolve(__dirname, '../fixtures/json-semantics'),
 ) {
   const originalCwd = nodeProcess.cwd()
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mpx-json-service-'))
+  const root = fs.realpathSync(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'mpx-json-service-')),
+  )
   fs.cpSync(fixtureRoot, root, {
     recursive: true,
   })

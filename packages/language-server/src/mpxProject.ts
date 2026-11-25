@@ -2,6 +2,7 @@ import type { ProjectExposeContext } from '@volar/language-server/lib/project/ty
 import { URI } from 'vscode-uri'
 import { FileChangeType } from '@volar/language-server'
 import {
+  MpxVirtualCode,
   createMpxLanguagePlugin,
   createParsedCommandLine,
   decorateMpxLanguageServiceHost,
@@ -54,11 +55,12 @@ export function createMpxProject(
       // buffer reloads disk even when the file itself has never changed.
       sys.getModifiedTime = fileName => {
         const time = getModifiedTime(fileName)
-        return time &&
-          time.valueOf() >= 0 &&
-          documents.isOpen(uriConverter.asUri(fileName))
-          ? new Date(-time.valueOf() - 2)
-          : time
+        if (documents.isOpen(uriConverter.asUri(fileName))) {
+          return time && time.valueOf() >= 0
+            ? new Date(-time.valueOf() - 3)
+            : new Date(-2)
+        }
+        return time
       }
     }
   }
@@ -118,22 +120,6 @@ export function createMpxProject(
       }
     }
   }
-  const jsonWatcher = jsonOnly
-    ? env?.onDidChangeWatchedFiles?.(params => {
-        for (const change of params.changes) {
-          const uri = URI.parse(change.uri)
-          const fileName = uriConverter.asFileName(uri)
-          if (change.type === FileChangeType.Deleted) {
-            const state = jsonFiles.get(fileName)
-            if (!state) continue
-            if (state.active || documents?.isOpen(uri))
-              deletedJsonFiles.add(fileName)
-            else removeJsonFile(fileName)
-          } else if (change.type === FileChangeType.Created)
-            deletedJsonFiles.delete(fileName)
-        }
-      })
-    : undefined
   if (jsonOnly) {
     const { extensions } = commandLine.mpxOptions
     const getFiles = projectHost.getScriptFileNames
@@ -161,9 +147,31 @@ export function createMpxProject(
     uriConverter.asUri,
     true,
   )
+  const fileWatcher = env?.onDidChangeWatchedFiles?.(params => {
+    for (const change of params.changes) {
+      const uri = URI.parse(change.uri)
+      const fileName = uriConverter.asFileName(uri)
+      if (
+        change.type === FileChangeType.Created ||
+        change.type === FileChangeType.Deleted
+      ) {
+        languagePlugin.invalidateApplicationDependents(fileName)
+      }
+      if (!jsonOnly) continue
+      if (change.type === FileChangeType.Deleted) {
+        const state = jsonFiles.get(fileName)
+        if (!state) continue
+        if (state.active || documents?.isOpen(uri))
+          deletedJsonFiles.add(fileName)
+        else removeJsonFile(fileName)
+      } else if (change.type === FileChangeType.Created) {
+        deletedJsonFiles.delete(fileName)
+      }
+    }
+  })
   const dispose = sys.dispose
   sys.dispose = () => {
-    jsonWatcher?.dispose()
+    fileWatcher?.dispose()
     jsonFiles.clear()
     deletedJsonFiles.clear()
     languagePlugin.dispose()
@@ -176,12 +184,54 @@ export function createMpxProject(
       language,
     }: {
       project: import('@mpxjs/language-service').ProjectContext
-      language: import('@mpxjs/language-service').Language
+      language: import('@mpxjs/language-service').Language<URI>
     }) {
       project.mpx = {
         compilerOptions: commandLine.mpxOptions,
         typescriptCompilerOptions: commandLine.options,
         includeJsonScript: jsonOnly ? includeJsonScript : undefined,
+        refreshesApplicationsOnGet: true,
+      }
+      const getScript = language.scripts.get.bind(language.scripts)
+      const refreshing = new Set<string>()
+      // Sync all candidate app.mpx files before reading a consumer so both
+      // Volar virtual document maps and TS requests see fresh metadata on turn 1.
+      language.scripts.get = (id, includeFsFiles, shouldRegister) => {
+        const fileName = uriConverter.asFileName(id)
+        if (includeFsFiles !== false && !refreshing.has(fileName)) {
+          refreshing.add(fileName)
+          try {
+            for (const dep of languagePlugin.getApplicationDependencies(
+              fileName,
+            )) {
+              getScript(uriConverter.asUri(dep))
+            }
+            if (documents) {
+              for (const dep of languagePlugin.getMissingApplicationDependencies(
+                fileName,
+              )) {
+                const depUri = uriConverter.asUri(dep)
+                if (documents.isOpen(depUri)) getScript(depUri)
+              }
+            }
+            let source = getScript(id, includeFsFiles, shouldRegister)
+            const root = source?.generated?.root
+            if (
+              source &&
+              root instanceof MpxVirtualCode &&
+              (languagePlugin.isApplicationDirty(fileName) ||
+                root.externalDependencyVersion !==
+                  root.getExternalDependencyVersion())
+            ) {
+              source.isAssociationDirty = true
+              source = getScript(id, includeFsFiles, shouldRegister)
+            }
+            return source
+          } finally {
+            refreshing.delete(fileName)
+          }
+        }
+        return getScript(id, includeFsFiles, shouldRegister)
       }
       if (project.typescript) {
         const host = project.typescript.languageServiceHost
@@ -191,7 +241,7 @@ export function createMpxProject(
         host.getProjectVersion = () =>
           `${getProjectVersion?.() ?? ''}:${projectHost.getProjectVersion?.() ?? ''}`
         decorateMpxLanguageServiceHost(host, languagePlugin, fileName => {
-          const source = language.scripts.get(uriConverter.asUri(fileName))
+          const source = getScript(uriConverter.asUri(fileName))
           if (source) source.isAssociationDirty = true
         })
       }
