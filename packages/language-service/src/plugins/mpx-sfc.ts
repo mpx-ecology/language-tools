@@ -1,9 +1,13 @@
 import type * as vscode from 'vscode-languageserver-protocol'
+import { Range } from 'vscode-languageserver-protocol'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
 import type {
   LanguageServiceContext,
   LanguageServicePlugin,
 } from '@volar/language-service'
+import { createRequire } from 'node:module'
+import { dirname, isAbsolute, resolve } from 'node:path'
+import { FileType } from '@volar/language-service'
 import * as html from 'vscode-html-languageservice'
 import { create as createHtmlService } from 'volar-service-html'
 import { URI } from 'vscode-uri'
@@ -61,6 +65,8 @@ export function create(): LanguageServicePlugin {
 
     capabilities: {
       ...htmlService.capabilities,
+      documentLinkProvider: {},
+      definitionProvider: true,
       diagnosticProvider: {
         interFileDependencies: false,
         workspaceDiagnostics: false,
@@ -73,7 +79,47 @@ export function create(): LanguageServicePlugin {
       return {
         ...htmlServiceInstance,
 
-        provideDocumentLinks: undefined,
+        provideDocumentLinks(document) {
+          return worker(document, context, async (root, sourceUri) => {
+            const targets = new Map<string, Promise<string | undefined>>()
+            const links: vscode.DocumentLink[] = []
+            for (const { text, start, end } of styleSources(root)) {
+              let target = targets.get(text)
+              if (!target) {
+                target = resolveStyleSource(context, sourceUri, text)
+                targets.set(text, target)
+              }
+              const uri = await target
+              if (uri)
+                links.push({ range: range(document, start, end), target: uri })
+            }
+            return links
+          })
+        },
+
+        provideDefinition(document, position) {
+          return worker(document, context, async (root, sourceUri) => {
+            const offset = document.offsetAt(position)
+            for (const { text, start, end } of styleSources(root)) {
+              if (offset < start || offset >= end) continue
+              const targetUri = await resolveStyleSource(
+                context,
+                sourceUri,
+                text,
+              )
+              if (!targetUri) return
+              const targetRange = Range.create(0, 0, 0, 0)
+              return [
+                {
+                  originSelectionRange: range(document, start, end),
+                  targetUri,
+                  targetRange,
+                  targetSelectionRange: targetRange,
+                },
+              ]
+            }
+          })
+        },
 
         async resolveEmbeddedCodeFormattingOptions(
           sourceScript,
@@ -394,19 +440,61 @@ export function create(): LanguageServicePlugin {
   function worker<T>(
     document: TextDocument,
     context: LanguageServiceContext,
-    callback: (root: MpxVirtualCode) => T,
+    callback: (root: MpxVirtualCode, sourceUri: URI) => T,
   ) {
     if (document.languageId !== 'mpx-root-tags') {
       return
     }
     const uri = URI.parse(document.uri)
     const decoded = context.decodeEmbeddedDocumentUri(uri)
-    const sourceScript = decoded && context.language.scripts.get(decoded[0])
+    if (!decoded) return
+    const sourceScript = context.language.scripts.get(decoded[0])
     const root = sourceScript?.generated?.root
     if (root instanceof MpxVirtualCode) {
-      return callback(root)
+      return callback(root, decoded[0])
     }
   }
+}
+
+function* styleSources(root: MpxVirtualCode) {
+  for (const style of root.mpxSfc?.descriptor.styles ?? []) {
+    const src = style.__src
+    if (typeof src !== 'object' || !src.text || !src.rangeFromContentStart)
+      continue
+    const [start, end] = src.rangeFromContentStart
+    const offset = style.loc.start.offset
+    yield { text: src.text, start: offset + start, end: offset + end }
+  }
+}
+
+async function resolveStyleSource(
+  context: LanguageServiceContext,
+  sourceUri: URI,
+  request: string,
+) {
+  if (sourceUri.scheme !== 'file') return
+  const fileName = sourceUri.fsPath
+  let target: URI
+  try {
+    const resolved =
+      /^\.\.?[\\/]/.test(request) || isAbsolute(request)
+        ? resolve(dirname(fileName), request)
+        : createRequire(fileName).resolve(request)
+    if (!isAbsolute(resolved)) return
+    target = URI.file(resolved)
+  } catch {
+    return
+  }
+  const stat = await context.env.fs?.stat(target)
+  if (stat && stat.type & FileType.File) return target.toString()
+}
+
+function range(
+  document: TextDocument,
+  start: number,
+  end: number,
+): vscode.Range {
+  return { start: document.positionAt(start), end: document.positionAt(end) }
 }
 
 function getStyleCompletionItem(

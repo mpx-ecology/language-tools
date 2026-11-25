@@ -231,7 +231,12 @@ export interface Sfc {
 
 declare module '@vue/compiler-sfc' {
   interface SFCBlock {
-    __src?: SfcBlockAttr
+    __src?:
+      | true
+      | (Exclude<SfcBlockAttr, true> & {
+          /** Raw value span relative to loc.start.offset, which moves on incremental edits. */
+          rangeFromContentStart?: [number, number]
+        })
   }
 
   interface SFCScriptBlock {}

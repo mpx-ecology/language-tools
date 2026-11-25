@@ -133,7 +133,17 @@ function createBlock(node: ElementNode, source: string) {
       if (p.name === 'lang') {
         block.lang = p.value?.content
       } else if (p.name === 'src') {
-        block.__src = parseAttr(p, node)
+        const src = parseAttr(p, node)
+        if (p.value && typeof src === 'object') {
+          const start = node.loc.start.offset + src.offset - loc.start.offset
+          const length = p.value.loc.source.length - (src.quotes ? 2 : 0)
+          block.__src = {
+            ...src,
+            rangeFromContentStart: [start, start + length],
+          }
+        } else {
+          block.__src = true
+        }
       } else if (isScriptBlock(block)) {
         if (p.name === 'setup') {
           block.setup = attrs[p.name]
