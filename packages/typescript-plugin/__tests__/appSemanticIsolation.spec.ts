@@ -393,9 +393,18 @@ console.log(appReady.label, badCount)
       expect(firstNamesAfterRename).toContain('renamed-panel')
       expect(firstNamesAfterRename).not.toContain('app-panel')
 
+      env.change('app.mpx', appRenamed, appInitial)
+      expect(
+        env
+          .send<ts.server.protocol.Diagnostic[]>('semanticDiagnosticsSync', {
+            file: pageFile,
+          })
+          .some(d => d.code === 2322),
+      ).toBe(true)
+
       // 3. Clear JSON block completely -> first request drops global registration.
       const appCleared = `<style>.app { color: red; }</style>`
-      env.change('app.mpx', appRenamed, appCleared)
+      env.change('app.mpx', appInitial, appCleared)
       const firstDiagsAfterClear = env.send<ts.server.protocol.Diagnostic[]>(
         'semanticDiagnosticsSync',
         { file: pageFile },
