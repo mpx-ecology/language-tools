@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.26.0](https://github.com/mpx-ecology/language-tools/compare/v1.24.3...v1.26.0) (2026-11-26)
+
+### Bug Fixes
+
+* **diagnostics:** restore template expressions in TypeScript errors ([8175b75](https://github.com/mpx-ecology/language-tools/commit/8175b7547916c4cc56611b023ae1665caa5e38f0))
+* **language-core:** isolate app.mpx from page targetIds ([dc194c7](https://github.com/mpx-ecology/language-tools/commit/dc194c72d3ddd391aa56f48badf03e445e63ad3d))
+* **language-core:** refresh platform component dependencies on file events ([cb60c9c](https://github.com/mpx-ecology/language-tools/commit/cb60c9ca913d0d597fb1c745396a638304f7f155))
+* **language-core:** resolve platform component files consistently ([a354c85](https://github.com/mpx-ecology/language-tools/commit/a354c85ee5f1977f79080b54bc787746d0cadb7d))
+* **language-service:** add dynamic JSON config schema hints ([824dc32](https://github.com/mpx-ecology/language-tools/commit/824dc32428de369fc76d902c9c451dc84fba6595))
+* **language-service:** harden JSON semantic boundaries ([82e6901](https://github.com/mpx-ecology/language-tools/commit/82e690155aa441f5ffa51fe61e9a86978da43b42))
+* **language-service:** preserve multi-target component navigation ([3654c42](https://github.com/mpx-ecology/language-tools/commit/3654c42e0278b147c7acb49e1375a6ab61be02e0))
+* **language-service:** refine JSON ranges and project invalidation ([c7c4c30](https://github.com/mpx-ecology/language-tools/commit/c7c4c303bfd52bea88979ce3319555b7cd9ba32c))
+* **language-service:** support JavaScript semantics in JSON scripts ([ea0ee9a](https://github.com/mpx-ecology/language-tools/commit/ea0ee9a3c624e2decc187c0c32c918510c5bc8ae))
+* **language-tools:** handle cached project lifecycles ([6b1ee0c](https://github.com/mpx-ecology/language-tools/commit/6b1ee0c9504ef7da426b80ae5cf35df98ab611ff))
+* **service:** complete registered application and global components ([cd6b56b](https://github.com/mpx-ecology/language-tools/commit/cd6b56b3cc5d90ddc4308560220acf524155cf27))
+* **service:** register workspace components from template completions ([eaf194a](https://github.com/mpx-ecology/language-tools/commit/eaf194a309772c1b6aa0bc0aa9e8fab6458d6086))
+* **vscode:** synchronize JSON script dependencies ([e3ff85c](https://github.com/mpx-ecology/language-tools/commit/e3ff85cb4c9c58c74650f9037d81d110abe9ece8))
+* **vscode:** underline multi-target component paths ([12752d5](https://github.com/mpx-ecology/language-tools/commit/12752d5f2097948bd380675a4ad8c3d668bf6d4d))
+
+### Performance Improvements
+
+* **language-core:** avoid redundant startup diagnostics and imports ([177a6f4](https://github.com/mpx-ecology/language-tools/commit/177a6f43aa4c5a01353dc215aa80d0c511ac7651))
+* **language-core:** reduce component resolution and JSON startup work ([bbefb80](https://github.com/mpx-ecology/language-tools/commit/bbefb80ee70fedf53ce7598e53bab7b0489b0437))
+* **language-core:** reuse filesystem probes during project startup ([88554af](https://github.com/mpx-ecology/language-tools/commit/88554aff556e206e9c4b859d4c009c49dfcfd20f))
+* **typescript-plugin:** generate only the service script in tsserver ([8e41b85](https://github.com/mpx-ecology/language-tools/commit/8e41b85bf3b2d43cecfcd36ee8be6825d8eb22ac))
+
 ## [1.24.3](https://github.com/mpx-ecology/language-tools/compare/v1.24.2...v1.24.3) (2026-10-29)
 
 **Note:** Version bump only for package @mpxjs/language-server

@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.26.0](https://github.com/mpx-ecology/language-tools/compare/v1.24.3...v1.26.0) (2026-11-26)
+
+### Bug Fixes
+
+* **language-core:** resolve mpxTagName template identities ([3fd141c](https://github.com/mpx-ecology/language-tools/commit/3fd141caf6a0af52a018caff72a41e18228f533d))
+* **language-core:** resolve platform component files consistently ([a354c85](https://github.com/mpx-ecology/language-tools/commit/a354c85ee5f1977f79080b54bc787746d0cadb7d))
+* **references:** find statically registered component consumers ([d778421](https://github.com/mpx-ecology/language-tools/commit/d778421baf8dad3faf087db9af8cd2253551ae6d))
+* **service:** complete and highlight style directives ([ae5c57a](https://github.com/mpx-ecology/language-tools/commit/ae5c57ac21f0938154e8aa93bf1694b4280b3a0d))
+* **vscode:** align path underlines with native links ([25232fe](https://github.com/mpx-ecology/language-tools/commit/25232fe1dc638dfdd59c62690a73858ef90e7765))
+* **vscode:** fall back to CSS for PostCSS highlighting ([0128552](https://github.com/mpx-ecology/language-tools/commit/0128552c33d5928c4649e8fd78bda1cfb8bb5a5c))
+* **vscode:** highlight style directive conditions ([c003d3f](https://github.com/mpx-ecology/language-tools/commit/c003d3f628b5b8234869e44f14a612f9b98d91ec))
+* **vscode:** preserve WXS scopes across line comments ([1464cbd](https://github.com/mpx-ecology/language-tools/commit/1464cbd87ad9cb24a879fbdb7758a4c3448eed18))
+* **vscode:** synchronize JSON script dependencies ([e3ff85c](https://github.com/mpx-ecology/language-tools/commit/e3ff85cb4c9c58c74650f9037d81d110abe9ece8))
+* **vscode:** underline multi-target component paths ([12752d5](https://github.com/mpx-ecology/language-tools/commit/12752d5f2097948bd380675a4ad8c3d668bf6d4d))
+
+### Features
+
+* **vscode:** highlight inline WXS as JavaScript ([21c70ac](https://github.com/mpx-ecology/language-tools/commit/21c70acc8ff2650b75e5fc012a43c3494ee41464))
+
 ## [1.24.3](https://github.com/mpx-ecology/language-tools/compare/v1.24.2...v1.24.3) (2026-10-29)
 
 ### Bug Fixes

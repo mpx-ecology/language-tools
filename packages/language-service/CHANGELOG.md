@@ -3,6 +3,53 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.26.0](https://github.com/mpx-ecology/language-tools/compare/v1.24.3...v1.26.0) (2026-11-26)
+
+### Bug Fixes
+
+* **core:** infer registered React Native components in templates ([816dd4b](https://github.com/mpx-ecology/language-tools/commit/816dd4b574aa425df819aed064d988239757cd80))
+* **core:** preserve template locals and capture event mappings ([a536b22](https://github.com/mpx-ecology/language-tools/commit/a536b223c909bc1b73b2f781ea546324b1b8b939))
+* **diagnostics:** handle localized template expression messages ([469d75a](https://github.com/mpx-ecology/language-tools/commit/469d75a6087a49f2ada918a288bb5166eea86721))
+* **diagnostics:** preserve mapping callbacks and add end-to-end regressions ([9abce02](https://github.com/mpx-ecology/language-tools/commit/9abce0203bfed5a12addd15a9d1fadc8b2caf121))
+* **diagnostics:** restore template expressions in TypeScript errors ([8175b75](https://github.com/mpx-ecology/language-tools/commit/8175b7547916c4cc56611b023ae1665caa5e38f0))
+* **diagnostics:** standardize numeric diagnostic codes ([d5fb923](https://github.com/mpx-ecology/language-tools/commit/d5fb9238f960bfce0341c601be83788d876455c4))
+* **language-core:** isolate app.mpx from page targetIds ([dc194c7](https://github.com/mpx-ecology/language-tools/commit/dc194c72d3ddd391aa56f48badf03e445e63ad3d))
+* **language-core:** isolate component object bindings by scope ([c4ebf28](https://github.com/mpx-ecology/language-tools/commit/c4ebf2876eb689fee6ad80bef404134d121f156f))
+* **language-core:** match component registrations by exact source names ([aa3bed2](https://github.com/mpx-ecology/language-tools/commit/aa3bed2484a5791bb1863e5195903092870480d2))
+* **language-core:** preserve Object.assign parameter targets ([73cd5c4](https://github.com/mpx-ecology/language-tools/commit/73cd5c464b63f479c770041e261a89346898d129))
+* **language-core:** refine component scope resolution ([aa56abe](https://github.com/mpx-ecology/language-tools/commit/aa56abed5ef6e01a89698c07cb4ea62ade28381e))
+* **language-core:** resolve assigned component objects ([ab7ab71](https://github.com/mpx-ecology/language-tools/commit/ab7ab7135b83a3f8e745d2e40b99828b0ac126f3))
+* **language-core:** resolve mpxTagName template identities ([3fd141c](https://github.com/mpx-ecology/language-tools/commit/3fd141caf6a0af52a018caff72a41e18228f533d))
+* **language-core:** resolve platform component files consistently ([a354c85](https://github.com/mpx-ecology/language-tools/commit/a354c85ee5f1977f79080b54bc787746d0cadb7d))
+* **language-core:** warn on duplicate setup instance fields ([470faab](https://github.com/mpx-ecology/language-tools/commit/470faab63b0f84884051045569a1e672afadc801))
+* **language-service:** add dynamic JSON config schema hints ([824dc32](https://github.com/mpx-ecology/language-tools/commit/824dc32428de369fc76d902c9c451dc84fba6595))
+* **language-service:** add static component JSON schema hints ([3a5533f](https://github.com/mpx-ecology/language-tools/commit/3a5533f443a5b9a53ac6b0b70ba95490b046f301))
+* **language-service:** address style src review comments ([b516fb0](https://github.com/mpx-ecology/language-tools/commit/b516fb078c28bc6f9cb4cf7572a5738f15f362d8))
+* **language-service:** complete numberOfLines on text and view ([990b00d](https://github.com/mpx-ecology/language-tools/commit/990b00d29751748daeb64a027694a3ec7c69cf4b))
+* **language-service:** harden JSON semantic boundaries ([82e6901](https://github.com/mpx-ecology/language-tools/commit/82e690155aa441f5ffa51fe61e9a86978da43b42))
+* **language-service:** match implicit exposure to compiler bindings ([9168c90](https://github.com/mpx-ecology/language-tools/commit/9168c906760d756a16631a0824e6fdad743a39c3))
+* **language-service:** preserve multi-target component navigation ([3654c42](https://github.com/mpx-ecology/language-tools/commit/3654c42e0278b147c7acb49e1375a6ab61be02e0))
+* **language-service:** refine JSON ranges and project invalidation ([c7c4c30](https://github.com/mpx-ecology/language-tools/commit/c7c4c303bfd52bea88979ce3319555b7cd9ba32c))
+* **language-service:** skip JSON-only programs for instance diagnostics ([4d0c395](https://github.com/mpx-ecology/language-tools/commit/4d0c3958582491c6d2f1f990545bd884d2f34cfe))
+* **language-service:** support JavaScript semantics in JSON scripts ([ea0ee9a](https://github.com/mpx-ecology/language-tools/commit/ea0ee9a3c624e2decc187c0c32c918510c5bc8ae))
+* **language-service:** support navigation for style src files ([5491a16](https://github.com/mpx-ecology/language-tools/commit/5491a16bb48ab8e5f489f74b7185ad9c1a8c295a))
+* **language-service:** warn on reserved instance data fields ([ecaca5b](https://github.com/mpx-ecology/language-tools/commit/ecaca5bf0f4a09d32326aea5fb56b5a2535dee13))
+* **language-tools:** handle cached project lifecycles ([6b1ee0c](https://github.com/mpx-ecology/language-tools/commit/6b1ee0c9504ef7da426b80ae5cf35df98ab611ff))
+* **navigation:** refresh application platform metadata before requests ([69e9070](https://github.com/mpx-ecology/language-tools/commit/69e9070db09a4f7f4aa70fb69d7b8bf2d870ea71))
+* **references:** find statically registered component consumers ([d778421](https://github.com/mpx-ecology/language-tools/commit/d778421baf8dad3faf087db9af8cd2253551ae6d))
+* **service:** complete and highlight style directives ([ae5c57a](https://github.com/mpx-ecology/language-tools/commit/ae5c57ac21f0938154e8aa93bf1694b4280b3a0d))
+* **service:** complete registered application and global components ([cd6b56b](https://github.com/mpx-ecology/language-tools/commit/cd6b56b3cc5d90ddc4308560220acf524155cf27))
+* **service:** register workspace components from template completions ([eaf194a](https://github.com/mpx-ecology/language-tools/commit/eaf194a309772c1b6aa0bc0aa9e8fab6458d6086))
+* **service:** restore template variable and built-in binding completions ([6904660](https://github.com/mpx-ecology/language-tools/commit/69046609314cf0af381a9ff881e76f4683e24e3a))
+* **vscode:** underline multi-target component paths ([12752d5](https://github.com/mpx-ecology/language-tools/commit/12752d5f2097948bd380675a4ad8c3d668bf6d4d))
+
+### Performance Improvements
+
+* **language-core:** avoid redundant startup diagnostics and imports ([177a6f4](https://github.com/mpx-ecology/language-tools/commit/177a6f43aa4c5a01353dc215aa80d0c511ac7651))
+* **language-core:** cache component binding analysis ([df3a4be](https://github.com/mpx-ecology/language-tools/commit/df3a4be48e55f005e10d1fc82e411502a9100201))
+* **language-core:** reduce component resolution and JSON startup work ([bbefb80](https://github.com/mpx-ecology/language-tools/commit/bbefb80ee70fedf53ce7598e53bab7b0489b0437))
+* **language-core:** reuse setup syntax in instance field diagnostics ([0534404](https://github.com/mpx-ecology/language-tools/commit/0534404dd70c2210a1311cc91deaa199481f7b7e))
+
 ## [1.24.3](https://github.com/mpx-ecology/language-tools/compare/v1.24.2...v1.24.3) (2026-10-29)
 
 **Note:** Version bump only for package @mpxjs/language-service

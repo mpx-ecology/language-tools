@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.26.0](https://github.com/mpx-ecology/language-tools/compare/v1.24.3...v1.26.0) (2026-11-26)
+
+### Bug Fixes
+
+* **core:** infer registered React Native components in templates ([816dd4b](https://github.com/mpx-ecology/language-tools/commit/816dd4b574aa425df819aed064d988239757cd80))
+* **diagnostics:** handle localized template expression messages ([469d75a](https://github.com/mpx-ecology/language-tools/commit/469d75a6087a49f2ada918a288bb5166eea86721))
+* **diagnostics:** preserve mapping callbacks and add end-to-end regressions ([9abce02](https://github.com/mpx-ecology/language-tools/commit/9abce0203bfed5a12addd15a9d1fadc8b2caf121))
+* **diagnostics:** restore template expressions in TypeScript errors ([8175b75](https://github.com/mpx-ecology/language-tools/commit/8175b7547916c4cc56611b023ae1665caa5e38f0))
+* **language-core:** isolate app.mpx from page targetIds ([dc194c7](https://github.com/mpx-ecology/language-tools/commit/dc194c72d3ddd391aa56f48badf03e445e63ad3d))
+* **language-core:** match component registrations by exact source names ([aa3bed2](https://github.com/mpx-ecology/language-tools/commit/aa3bed2484a5791bb1863e5195903092870480d2))
+* **language-core:** refresh platform component dependencies on file events ([cb60c9c](https://github.com/mpx-ecology/language-tools/commit/cb60c9ca913d0d597fb1c745396a638304f7f155))
+* **language-core:** resolve mpxTagName template identities ([3fd141c](https://github.com/mpx-ecology/language-tools/commit/3fd141caf6a0af52a018caff72a41e18228f533d))
+* **language-core:** resolve platform component files consistently ([a354c85](https://github.com/mpx-ecology/language-tools/commit/a354c85ee5f1977f79080b54bc787746d0cadb7d))
+* **language-core:** warn on duplicate setup instance fields ([470faab](https://github.com/mpx-ecology/language-tools/commit/470faab63b0f84884051045569a1e672afadc801))
+* **references:** find statically registered component consumers ([d778421](https://github.com/mpx-ecology/language-tools/commit/d778421baf8dad3faf087db9af8cd2253551ae6d))
+* **service:** complete registered application and global components ([cd6b56b](https://github.com/mpx-ecology/language-tools/commit/cd6b56b3cc5d90ddc4308560220acf524155cf27))
+* **typescript-plugin:** highlight numeric component tags ([7bd1dcd](https://github.com/mpx-ecology/language-tools/commit/7bd1dcdd4a728af7903f133898bb41e2cd4ee236))
+* **typescript-plugin:** map definition protocol positions to source lines ([35296e3](https://github.com/mpx-ecology/language-tools/commit/35296e38719026421274487ddda042a70a0970ab))
+* **typescript-plugin:** preserve raw component registration keys for highlighting ([15ce72e](https://github.com/mpx-ecology/language-tools/commit/15ce72e6b63b4803b4a42f81e1b21a02e842208c))
+
+### Performance Improvements
+
+* **language-core:** reuse filesystem probes during project startup ([88554af](https://github.com/mpx-ecology/language-tools/commit/88554aff556e206e9c4b859d4c009c49dfcfd20f))
+* **language-tools:** reduce template and graph startup work ([5c9d52b](https://github.com/mpx-ecology/language-tools/commit/5c9d52b163a0e14eb9b8ec7124b92a54ededb74f))
+* **language-tools:** reuse startup syntax and omit source padding ([72e2ced](https://github.com/mpx-ecology/language-tools/commit/72e2cedb7d3a7e15dd7f78bfc5ba3cb3a5f74ca6))
+* **typescript-plugin:** generate only the service script in tsserver ([8e41b85](https://github.com/mpx-ecology/language-tools/commit/8e41b85bf3b2d43cecfcd36ee8be6825d8eb22ac))
+
 ## [1.24.3](https://github.com/mpx-ecology/language-tools/compare/v1.24.2...v1.24.3) (2026-10-29)
 
 **Note:** Version bump only for package @mpxjs/typescript-plugin
