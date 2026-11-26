@@ -35,6 +35,7 @@ const plugin: MpxLanguagePlugin = ({ mpxCompilerOptions }) => {
 
       const hitBlock = blocks.find(
         block =>
+          block.loc.start.offset < block.loc.end.offset &&
           change.start >= block.loc.start.offset &&
           change.end <= block.loc.end.offset,
       )

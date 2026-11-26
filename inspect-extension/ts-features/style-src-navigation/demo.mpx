@@ -1,0 +1,3 @@
+<!-- 对两个 src 路径按 F12 或 ⌘/Ctrl 单击，应分别打开本地 CSS 和依赖包中的 WXSS。 -->
+<style mode="ios" src="./theme.ios.css" />
+<style mode="wx" src="@vant/weapp/dist/common/index.wxss"></style>
