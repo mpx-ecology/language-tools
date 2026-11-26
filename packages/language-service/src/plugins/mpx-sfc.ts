@@ -1,5 +1,4 @@
 import type * as vscode from 'vscode-languageserver-protocol'
-import { Range } from 'vscode-languageserver-protocol'
 import type { TextDocument } from 'vscode-languageserver-textdocument'
 import type {
   LanguageServiceContext,
@@ -83,7 +82,7 @@ export function create(): LanguageServicePlugin {
           return worker(document, context, async (root, sourceUri) => {
             const targets = new Map<string, Promise<string | undefined>>()
             const links: vscode.DocumentLink[] = []
-            for (const { text, start, end } of styleSources(root)) {
+            for (const { text, start, end } of [...styleSources(root)]) {
               let target = targets.get(text)
               if (!target) {
                 target = resolveStyleSource(context, sourceUri, text)
@@ -100,7 +99,7 @@ export function create(): LanguageServicePlugin {
         provideDefinition(document, position) {
           return worker(document, context, async (root, sourceUri) => {
             const offset = document.offsetAt(position)
-            for (const { text, start, end } of styleSources(root)) {
+            for (const { text, start, end } of [...styleSources(root)]) {
               if (offset < start || offset >= end) continue
               const targetUri = await resolveStyleSource(
                 context,
@@ -108,7 +107,10 @@ export function create(): LanguageServicePlugin {
                 text,
               )
               if (!targetUri) return
-              const targetRange = Range.create(0, 0, 0, 0)
+              const targetRange: vscode.Range = {
+                start: { line: 0, character: 0 },
+                end: { line: 0, character: 0 },
+              }
               return [
                 {
                   originSelectionRange: range(document, start, end),

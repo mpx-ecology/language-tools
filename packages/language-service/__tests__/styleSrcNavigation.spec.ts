@@ -8,6 +8,7 @@ import {
   createUriMap,
 } from '@volar/language-service'
 import {
+  MpxVirtualCode,
   createMpxLanguagePlugin,
   getDefaultCompilerOptions,
 } from '@mpxjs/language-core'
@@ -20,7 +21,10 @@ import { create } from '../src/plugins/mpx-sfc'
 let cleanup: (() => void) | undefined
 afterEach(() => cleanup?.())
 
-function setup(source: string) {
+function setup(
+  source: string,
+  options?: { onStat?: (target: URI) => void | Promise<void> },
+) {
   const root = fs.realpathSync(
     fs.mkdtempSync(path.join(os.tmpdir(), 'mpx-style-src-')),
   )
@@ -43,7 +47,8 @@ function setup(source: string) {
     {
       workspaceFolders: [URI.file(root)],
       fs: {
-        stat(target) {
+        async stat(target) {
+          await options?.onStat?.(target)
           const stats = fs.statSync(target.fsPath, { throwIfNoEntry: false })
           if (stats)
             return {
@@ -70,6 +75,12 @@ function setup(source: string) {
   return {
     get document() {
       return document
+    },
+    flushMpxSfc() {
+      const rootCode = language.scripts.get(uri)?.generated?.root
+      if (rootCode instanceof MpxVirtualCode) {
+        return rootCode.mpxSfc
+      }
     },
     write(name: string, content = '') {
       const fileName = path.join(root, name)
@@ -175,4 +186,48 @@ it('keeps ranges current when source before a style block changes', async () => 
   expect(
     await fixture.definitions(fixture.document.offsetAt(link.range.start) + 2),
   ).toMatchObject([{ targetUri: target }])
+})
+
+it('updates ranges when inserting a newline at offset 0 before a self-closing style block', async () => {
+  const fixture = setup('<style src="./theme.css" />')
+  const target = fixture.write('src/theme.css')
+  expect(await fixture.links()).toHaveLength(1)
+  fixture.insert(0, '\n')
+
+  const [link] = await fixture.links()
+  expect(link.target).toBe(target)
+  expect(link.range.start.line).toBe(1)
+  expect(fixture.document.getText(link.range)).toBe('./theme.css')
+  expect(
+    await fixture.definitions(fixture.document.offsetAt(link.range.start) + 2),
+  ).toMatchObject([{ targetUri: target }])
+})
+
+it('snapshots style sources before awaiting fs.stat in provideDocumentLinks', async () => {
+  const source =
+    '<script>export default {}</script>\n<style src="./a.css" />\n<style src="./b.css" />'
+  let edited = false
+  const fixture = setup(source, {
+    onStat() {
+      if (edited) return
+      edited = true
+      fixture.insert(source.indexOf('export'), '// comment\n')
+      fixture.flushMpxSfc()
+    },
+  })
+  const preEditDoc = fixture.document
+  const a = fixture.write('src/a.css')
+  const b = fixture.write('src/b.css')
+
+  const links = await fixture.links()
+  expect(
+    links.map(link => [
+      link.range.start.line,
+      preEditDoc.getText(link.range),
+      link.target,
+    ]),
+  ).toEqual([
+    [1, './a.css', a],
+    [2, './b.css', b],
+  ])
 })
